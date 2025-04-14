@@ -19,7 +19,7 @@ const stepTitles = [
   "Maadada aad ugu horayn rabto inaad barato?", // Which topic do you want to explore first?
   "Heerkaaga xisaabta?", // What's your math comfort level?
   "Immisa daqiiqo ayad rabtaa inad Wax-barato maalin walba?",
-  "Fadlan geli emailkaaga", // Please enter your email
+  "Fadlan geli Xogtaaga:", // Please enter your email
 ];
 
 

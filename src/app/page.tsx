@@ -1,7 +1,6 @@
 "use client"
 import { Header } from "@/components/Header";
 import { ConceptsSection } from "@/components/sections/ConceptsSection";
-import { LearnAnimation } from "@/components/LearnAnimation";
 import { CourseGrid } from "@/components/CourseGrid";
 import { Button } from "@/components/ui/button";
 import { LearningLevelsSection } from "@/components/sections/LearningLevelsSection";
@@ -10,6 +9,13 @@ import { GuidedPathsSection } from "@/components/sections/GuidedPathsSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import DownloadApp from "@/components/sections/DownloadApp";
 import { useRouter } from "next/navigation";
+import dynamic from 'next/dynamic';
+
+// Dynamically import heavy components
+const DynamicLearnAnimation = dynamic(() => import('@/components/LearnAnimation').then(mod => mod.LearnAnimation), {
+  loading: () => <div className="h-[400px] w-full bg-gray-100 animate-pulse" />,
+  ssr: false
+});
 
 export default function Home() {
   const router = useRouter()
@@ -67,7 +73,7 @@ export default function Home() {
                     </Button>
                   </div>
                   <div className="container max-w-4xl mx-auto px-4">
-                    <LearnAnimation />
+                    <DynamicLearnAnimation />
                   </div>
                 </div>
               </div>
@@ -79,7 +85,6 @@ export default function Home() {
         <MotivationSection />
         <GuidedPathsSection />
         <ConceptsSection />
-
         <LearningLevelsSection />
         <DownloadApp />
         <FooterSection />

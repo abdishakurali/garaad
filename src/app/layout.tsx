@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     default: "Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida",
     template: "%s | Garaad"
   },
-  description: "Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista. Waxaan kuu diyaarisay koorsooyin tayo sare leh oo ku qoran Af-Soomaali, gaar ahaan ardayda Soomaalida ee Gen Z. Baro xisaabta, sayniska, iyo fikradaha cilmi-baarista si aad u noqoto qof wax ku ool ah oo aqoon u leh.",
+  description: "Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista. Waxaan kuu diyaarisay koorsooyin tayo sare leh oo ku qoran Af-Soomaali, gaar ahaan ardayda Soomaalida ee Gen Z.",
   keywords: [
     "Garaad",
     "Barashada Xisaabta Soomaalida",
@@ -179,6 +179,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="so" suppressHydrationWarning>
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/inter-var.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={inter.className}>
         <RootLayoutClient>
           {children}

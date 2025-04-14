@@ -246,36 +246,33 @@ class AuthService {
             }
             break;
           case 404:
-            errorMessage = "Account-kan lama helin";
+            errorMessage =
+              "Account-kan lama helin. Fadlan sameyso account cusub.";
             break;
           case 500:
-            errorMessage = "Server error ayaa dhacday, fadlan markale isku day";
+            errorMessage =
+              "Server-ka ayaa la xiriira dhibaato. Fadlan mar kale isku day.";
             break;
           default:
-            if (responseData) {
-              if (typeof responseData === "string") {
-                errorMessage = responseData;
-              } else if (typeof responseData === "object") {
-                if ("detail" in responseData) {
-                  errorMessage = String(responseData.detail);
-                } else if ("message" in responseData) {
-                  errorMessage = String(responseData.message);
-                } else if ("error" in responseData) {
-                  errorMessage = String(responseData.error);
-                }
-              }
+            if (responseData?.detail) {
+              errorMessage = responseData.detail;
+            } else if (responseData?.message) {
+              errorMessage = responseData.message;
             }
+            break;
         }
 
-        // Create a custom error with the message
         const customError = new Error(errorMessage) as CustomError;
-        // Add the status to the error object
         customError.status = status;
         throw customError;
       }
 
-      // For non-Axios errors, throw a generic error
-      throw new Error("Cilad ayaa dhacday, fadlan markale isku day");
+      // For non-Axios errors
+      const genericError = new Error(
+        "Cilad ayaa dhacday. Fadlan mar kale isku day."
+      ) as CustomError;
+      genericError.status = 500;
+      throw genericError;
     }
   }
 
