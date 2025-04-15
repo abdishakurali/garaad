@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, Trophy, Settings, LogOut } from 'lucide-react';
+import { BookOpen, Trophy, Settings, LogOut } from 'lucide-react';
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -14,17 +14,8 @@ export function Sidebar() {
             </div>
             <nav className="mt-8">
                 <Link
-                    href="/dashboard"
-                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/dashboard' ? 'bg-gray-50 text-primary' : ''
-                        }`}
-                >
-                    <Home className="w-5 h-5 mr-3" />
-                    Guriga
-                </Link>
-                <Link
                     href="/courses"
-                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/courses' ? 'bg-gray-50 text-primary' : ''
-                        }`}
+                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/courses' ? 'bg-gray-50 text-primary' : ''}`}
                 >
                     <BookOpen className="w-5 h-5 mr-3" />
                     Koorsooyinka

@@ -1,49 +1,49 @@
 export interface Course {
-  id: string;
-  slug: string;
+  id: number;
   title: string;
+  slug: string;
   description: string;
-  totalLessons: number;
-  estimatedHours: number;
-  skillLevel: string;
-  modules: Module[];
-  progress: number;
   thumbnail?: string;
   is_new?: boolean;
-  author_id: string;
-  is_published: boolean;
-  created_at: string;
-  updated_at: string;
+  progress?: number;
+  modules?: Module[];
+  totalLessons?: number;
+  estimatedHours?: number;
+  skillLevel?: string;
+}
+
+export interface Category {
+  id: number;
+  title: string;
+  description: string;
+  image?: string;
+  courses?: Course[];
 }
 
 export interface Module {
-  id: string;
+  id: number;
   title: string;
-  description?: string;
-  hasExercises: boolean;
-  isAvailable: boolean;
-  progress: number;
-  lessons: Lesson[];
+  description: string;
+  course_id: number;
+  lessons?: Lesson[];
 }
 
 export interface Lesson {
   id: number;
   title: string;
-  position: number;
-  total_lessons: number;
-  progress: number;
-  next_lesson_id?: number;
-  problem: {
-    question: string;
-    options: string[];
-    solution: string;
-    explanation: string;
-    example: {
-      visual?: string;
-      visualAlt?: string;
-      equation?: string;
-    };
-  };
+  description: string;
+  module_id: number;
+  content: string;
+  exercises?: Exercise[];
+}
+
+export interface Exercise {
+  id: number;
+  title: string;
+  description: string;
+  lesson_id: number;
+  type: string;
+  content: string;
 }
 
 export interface LearningState {
@@ -57,15 +57,4 @@ export interface LearningState {
   currentLesson: Lesson | null;
   error: string | null;
   isLoading: boolean;
-}
-
-export interface Category {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  image?: string;
-  in_progress?: boolean;
-  course_ids: string[];
-  courses: Course[];
 }

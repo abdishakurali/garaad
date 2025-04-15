@@ -1,10 +1,5 @@
 import axios from "axios";
 
-// Define a custom error type
-interface CustomError extends Error {
-  status?: number;
-}
-
 export interface SignUpData {
   name: string;
   email: string;
@@ -80,7 +75,7 @@ class AuthService {
   }
 
   private getAuthHeaders() {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
     return {
       "Content-Type": "application/json",
       Authorization: token ? `Bearer ${token}` : "",
@@ -107,19 +102,20 @@ class AuthService {
 
       console.log("Signup response:", response.data);
 
-      // Store tokens
+      // Store tokens and user data
       if (response.data.tokens) {
         this.setTokens(
           response.data.tokens.access,
           response.data.tokens.refresh
         );
+        // Store user data
+        this.setCurrentUser(response.data.user);
       }
 
       return response.data;
     } catch (error) {
       console.error("Signup error:", error);
 
-      // Extract error details from Axios error
       if (axios.isAxiosError(error)) {
         console.error("Axios error details:", {
           status: error.response?.status,
@@ -137,45 +133,36 @@ class AuthService {
             msg.includes("already exists")
           )
         ) {
-          const customError = new Error(
+          throw new Error(
             "Emailkan aad isticmaashay ayaa horey loo isticmaalay. Fadlan isticmaal email kale ama ku soo bilow."
-          ) as CustomError;
-          customError.status = error.response?.status;
-          throw customError;
+          );
         }
 
         // Handle other validation errors
         if (responseData?.detail) {
-          const customError = new Error(responseData.detail) as CustomError;
-          customError.status = error.response?.status;
-          throw customError;
+          throw new Error(responseData.detail);
         }
 
         // Handle other error formats
         if (responseData?.message) {
-          const customError = new Error(responseData.message) as CustomError;
-          customError.status = error.response?.status;
-          throw customError;
+          throw new Error(responseData.message);
         }
 
         if (responseData?.error) {
-          const customError = new Error(responseData.error) as CustomError;
-          customError.status = error.response?.status;
-          throw customError;
+          throw new Error(responseData.error);
         }
       }
 
-      // If it's not an Axios error or doesn't have the expected format
-      const genericError = new Error(
-        "Cilad ayaa dhacday. Fadlan mar kale isku day."
-      ) as CustomError;
-      genericError.status = 500;
-      throw genericError;
+      // Generic error
+      throw new Error("Cilad ayaa dhacday. Fadlan mar kale isku day.");
     }
   }
 
   public async signIn(data: SignInData): Promise<SignInResponse> {
     try {
+      console.log("Attempting to sign in with:", { email: data.email });
+      console.log("API URL:", `${this.baseURL}/api/auth/signin/`);
+
       const response = await axios.post<SignInResponse>(
         `${this.baseURL}/api/auth/signin/`,
         data,
@@ -186,93 +173,56 @@ class AuthService {
         }
       );
 
-      // Store tokens
+      console.log("Sign in successful:", { userId: response.data.user.id });
+
+      // Store tokens and user data
       if (response.data.tokens) {
         this.setTokens(
           response.data.tokens.access,
           response.data.tokens.refresh
         );
+        // Store user data
+        this.setCurrentUser(response.data.user);
       }
 
       return response.data;
     } catch (error) {
-      console.error("Signin error:", error);
+      console.error("Signin error details:", {
+        error,
+        response: axios.isAxiosError(error) ? error.response?.data : undefined,
+        status: axios.isAxiosError(error) ? error.response?.status : undefined,
+      });
 
       if (axios.isAxiosError(error)) {
-        console.log("cillad ayaa dhacday", error.status);
-        const status = error.response?.status;
-        const responseData = error.response?.data;
-
-        let errorMessage = "Cilad ayaa dhacday, markale isku day";
-
-        // Handle specific status codes
-        switch (status) {
-          case 401:
-            errorMessage =
-              "Email-ka ama password-ka aad gelisay waa khalad. Fadlan hubi xogtaada oo mar kale isku day.";
-            break;
-          case 400:
-            if (responseData && typeof responseData === "object") {
-              if ("non_field_errors" in responseData) {
-                const nonFieldErrors = responseData.non_field_errors;
-                if (
-                  Array.isArray(nonFieldErrors) &&
-                  nonFieldErrors.includes("Invalid credentials")
-                ) {
-                  errorMessage =
-                    "Email-ka ama password-ka aad gelisay waa khalad. Fadlan hubi xogtaada oo mar kale isku day.";
-                } else {
-                  errorMessage = String(nonFieldErrors);
-                }
-              } else if ("detail" in responseData) {
-                errorMessage = String(responseData.detail);
-              } else {
-                // Handle field-specific errors
-                const fieldErrors = Object.entries(responseData)
-                  .map(([field, messages]) => {
-                    const fieldTranslations: { [key: string]: string } = {
-                      email: "Email",
-                      password: "Password",
-                      username: "Username",
-                    };
-                    const fieldName = fieldTranslations[field] || field;
-                    return `${fieldName}: ${messages}`;
-                  })
-                  .join(", ");
-                if (fieldErrors) {
-                  errorMessage = fieldErrors;
-                }
-              }
-            }
-            break;
-          case 404:
-            errorMessage =
-              "Account-kan lama helin. Fadlan sameyso account cusub.";
-            break;
-          case 500:
-            errorMessage =
-              "Server-ka ayaa la xiriira dhibaato. Fadlan mar kale isku day.";
-            break;
-          default:
-            if (responseData?.detail) {
-              errorMessage = responseData.detail;
-            } else if (responseData?.message) {
-              errorMessage = responseData.message;
-            }
-            break;
+        // Handle 401 Unauthorized
+        if (error.response?.status === 401) {
+          throw new Error(
+            "Email-ka ama password-ka aad gelisay waa khalad. Fadlan hubi xogtaada oo mar kale isku day."
+          );
         }
 
-        const customError = new Error(errorMessage) as CustomError;
-        customError.status = status;
-        throw customError;
+        // Handle other status codes
+        if (error.response?.data) {
+          const data = error.response.data;
+          if (typeof data === "object" && data !== null) {
+            // Check for various error message formats
+            const message =
+              data.detail ||
+              data.message ||
+              data.error ||
+              (Array.isArray(data.non_field_errors)
+                ? data.non_field_errors[0]
+                : null);
+
+            if (message) {
+              throw new Error(message);
+            }
+          }
+        }
       }
 
-      // For non-Axios errors
-      const genericError = new Error(
-        "Cilad ayaa dhacday. Fadlan mar kale isku day."
-      ) as CustomError;
-      genericError.status = 500;
-      throw genericError;
+      // Generic error
+      throw new Error("Cilad ayaa dhacday. Fadlan mar kale isku day.");
     }
   }
 
@@ -287,7 +237,9 @@ class AuthService {
   }
 
   public isAuthenticated(): boolean {
-    return !!localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
+    const user = this.getCurrentUser();
+    return !!token && !!user;
   }
 
   public getToken(): string | null {
@@ -298,9 +250,11 @@ class AuthService {
     const userStr = localStorage.getItem("user");
     if (userStr) {
       try {
-        return JSON.parse(userStr);
+        const user = JSON.parse(userStr);
+        return user;
       } catch (e) {
         console.error("Error parsing user from localStorage:", e);
+        this.clearAuthData(); // Clear invalid data
         return null;
       }
     }
@@ -312,13 +266,10 @@ class AuthService {
   }
 
   private setTokens(accessToken: string, refreshToken: string) {
-    // Store tokens in localStorage
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-
-    // Store tokens in cookies
-    document.cookie = `accessToken=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
-    document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; SameSite=Lax`;
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("refresh_token", refreshToken);
+    this.token = accessToken;
+    this.refreshToken = refreshToken;
   }
 
   private setToken(token: string): void {
@@ -328,13 +279,14 @@ class AuthService {
     }
   }
 
-  // Add a method to clear all auth data
   public clearAuthData() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
+    this.token = null;
+    this.refreshToken = null;
 
-    // Clear cookies
+    // Clear cookies if they exist
     document.cookie =
       "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     document.cookie =
@@ -357,29 +309,62 @@ class AuthService {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
-        // Token expired, try to refresh
         try {
-          const refreshToken = localStorage.getItem("refreshToken");
-          if (refreshToken) {
-            const response = await axios.post(
-              `${this.baseURL}/api/token/refresh/`,
-              { refresh: refreshToken }
-            );
-            if (response.data.access) {
-              this.setTokens(response.data.access, refreshToken);
-              // Retry the original request
-              return this.makeAuthenticatedRequest(method, url, data);
-            }
-          }
-        } catch {
-          // If refresh fails, clear tokens and redirect to login
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          window.location.href = "/";
+          const newToken = await this.refreshTokenIfNeeded();
+          // Retry the request with the new token
+          const response = await axios({
+            method,
+            url: `${this.baseURL}${url}`,
+            data,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+          return response.data;
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+          this.clearTokens();
+          throw new Error("Session expired. Please sign in again.");
         }
       }
       throw error;
     }
+  }
+
+  private async refreshTokenIfNeeded() {
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
+
+    try {
+      const response = await axios.post(
+        `${this.baseURL}/api/auth/refresh/`,
+        { refresh: refreshToken },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.access) {
+        this.setTokens(response.data.access, refreshToken);
+        return response.data.access;
+      }
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      this.clearTokens();
+      throw error;
+    }
+  }
+
+  private clearTokens() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    this.token = null;
+    this.refreshToken = null;
   }
 
   private async _refreshAccessToken(): Promise<string> {

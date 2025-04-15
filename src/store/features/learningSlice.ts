@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import type { Course, Category } from "@/types/learning";
 import axios from "axios";
+import AuthService from "@/services/auth";
 
 interface LessonType {
   id: number;
@@ -20,14 +21,28 @@ interface LessonType {
   progress_id?: string;
 }
 
+interface ModuleType {
+  id: number;
+  title: string;
+  description: string;
+  order: number;
+  course: number;
+  lessons: LessonType[];
+}
+
 interface LearningState {
   categories: {
     items: Category[];
-    status: string;
+    status: "idle" | "loading" | "succeeded" | "failed";
     error: string | null;
   };
   currentCategory: Category | null;
   currentCourse: Course | null;
+  currentModule: {
+    data: ModuleType | null;
+    status: string;
+    error: string | null;
+  };
   currentLesson: LessonType | null;
   error: string | null;
   isLoading: boolean;
@@ -41,6 +56,11 @@ const initialState: LearningState = {
   },
   currentCategory: null,
   currentCourse: null,
+  currentModule: {
+    data: null,
+    status: "idle",
+    error: null,
+  },
   currentLesson: null,
   error: null,
   isLoading: false,
@@ -49,15 +69,19 @@ const initialState: LearningState = {
 // Async thunks
 export const fetchCategories = createAsyncThunk(
   "learning/fetchCategories",
-  async () => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/`
+      const authService = AuthService.getInstance();
+      const response = await authService.makeAuthenticatedRequest<Category[]>(
+        "get",
+        "/api/categories/"
       );
-      return response.data;
+      return response;
     } catch (error) {
-      console.error("Error fetching categories:", error);
-      throw error;
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue("Failed to fetch categories");
     }
   }
 );
@@ -86,9 +110,9 @@ export const fetchCourse = createAsyncThunk(
         throw new Error("Course not found");
       }
 
-      // Fetch the modules for this course
+      // Fetch the modules for this course using the course ID
       const modulesResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/${courseSlug}/modules/`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/modules/?course=${course.id}`
       );
 
       // Combine course data with modules
@@ -105,18 +129,22 @@ export const fetchCourse = createAsyncThunk(
 
 export const fetchModuleLessons = createAsyncThunk(
   "learning/fetchModuleLessons",
-  async ({
-    courseSlug,
-    moduleSlug,
-  }: {
-    courseSlug: string;
-    moduleSlug: string;
-  }) => {
+  async ({ moduleId }: { moduleId: string }) => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/${courseSlug}/modules/${moduleSlug}/lessons/`
+      // First fetch the module details
+      const moduleResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/modules/${moduleId}/`
       );
-      return response.data;
+
+      // Then fetch all lessons
+      const lessonsResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/?module=${moduleId}`
+      );
+
+      return {
+        module: moduleResponse.data,
+        lessons: lessonsResponse.data,
+      };
     } catch (error) {
       console.error("Error fetching module lessons:", error);
       throw error;
@@ -126,15 +154,46 @@ export const fetchModuleLessons = createAsyncThunk(
 
 export const submitLessonAnswer = createAsyncThunk(
   "learning/submitLessonAnswer",
-  async ({ progressId, answer }: { progressId: string; answer: string }) => {
+  async ({ lessonId, answer }: { lessonId: string; answer: string }) => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/progress/${progressId}/submit_answer/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${lessonId}/submit_answer/`,
         { answer }
       );
       return response.data;
     } catch (error) {
       console.error("Error submitting answer:", error);
+      throw error;
+    }
+  }
+);
+
+export const fetchModule = createAsyncThunk(
+  "learning/fetchModule",
+  async (moduleId: string) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/modules/${moduleId}/`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching module:", error);
+      throw error;
+    }
+  }
+);
+
+// Add a new thunk to fetch a single lesson
+export const fetchLesson = createAsyncThunk(
+  "learning/fetchLesson",
+  async (lessonId: string) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${lessonId}/`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching lesson:", error);
       throw error;
     }
   }
@@ -156,6 +215,13 @@ const learningSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
+    clearCurrentModule: (state) => {
+      state.currentModule = {
+        data: null,
+        status: "idle",
+        error: null,
+      };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -171,8 +237,7 @@ const learningSlice = createSlice({
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.categories.status = "failed";
-        state.categories.error =
-          action.error.message || "Failed to fetch categories";
+        state.categories.error = action.payload as string;
       })
       // Course reducers
       .addCase(fetchCourse.pending, (state) => {
@@ -190,24 +255,61 @@ const learningSlice = createSlice({
       })
       // Module lessons reducers
       .addCase(fetchModuleLessons.pending, (state) => {
+        state.currentModule.status = "loading";
+        state.currentModule.error = null;
+      })
+      .addCase(fetchModuleLessons.fulfilled, (state, action) => {
+        state.currentModule.status = "succeeded";
+        state.currentModule.data = {
+          ...action.payload.module,
+          lessons: action.payload.lessons,
+        };
+        state.currentModule.error = null;
+      })
+      .addCase(fetchModuleLessons.rejected, (state, action) => {
+        state.currentModule.status = "failed";
+        state.currentModule.error =
+          action.error.message || "Failed to fetch module lessons";
+      })
+      // Module reducers
+      .addCase(fetchModule.pending, (state) => {
+        state.currentModule.status = "loading";
+        state.currentModule.error = null;
+      })
+      .addCase(fetchModule.fulfilled, (state, action) => {
+        state.currentModule.status = "succeeded";
+        state.currentModule.data = action.payload;
+        state.currentModule.error = null;
+      })
+      .addCase(fetchModule.rejected, (state, action) => {
+        state.currentModule.status = "failed";
+        state.currentModule.error =
+          action.error.message || "Failed to fetch module";
+      })
+      // Lesson reducers
+      .addCase(fetchLesson.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchModuleLessons.fulfilled, (state) => {
+      .addCase(fetchLesson.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.currentLesson = action.payload;
         state.error = null;
       })
-      .addCase(fetchModuleLessons.rejected, (state, action) => {
+      .addCase(fetchLesson.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || "Failed to fetch module lessons";
+        state.error = action.error.message || "Failed to fetch lesson";
       })
       // Submit answer reducers
       .addCase(submitLessonAnswer.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(submitLessonAnswer.fulfilled, (state) => {
+      .addCase(submitLessonAnswer.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (state.currentLesson) {
+          state.currentLesson.progress = action.payload.progress;
+        }
         state.error = null;
       })
       .addCase(submitLessonAnswer.rejected, (state, action) => {
@@ -217,5 +319,6 @@ const learningSlice = createSlice({
   },
 });
 
-export const { setCurrentLesson, setError, setLoading } = learningSlice.actions;
+export const { setCurrentLesson, setError, setLoading, clearCurrentModule } =
+  learningSlice.actions;
 export default learningSlice.reducer;

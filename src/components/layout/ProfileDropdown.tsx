@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { logoutAction } from '@/store/features/authSlice';
+import { Menu } from 'lucide-react';
 
 export const ProfileDropdown: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +23,7 @@ export const ProfileDropdown: React.FC = () => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center space-x-2 focus:outline-none"
             >
-                <span className="text-sm text-gray-700">Profile-kaaga</span>
+                <span className="text-sm text-gray-700"><Menu /></span>
             </button>
 
             {isOpen && (

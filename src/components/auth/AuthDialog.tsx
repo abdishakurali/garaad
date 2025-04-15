@@ -38,10 +38,9 @@ const formSchema = z.object({
   password: z.string().min(6, "Password-ka waa inuu ahaadaa ugu yaraan 6 xaraf"),
 });
 
-
-
 export function AuthDialog() {
   const [isLogin] = useState(true);
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const { error, isLoading } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
@@ -53,7 +52,6 @@ export function AuthDialog() {
       password: "",
     },
   });
-
 
   // Auto-hide error after 5 seconds
   useEffect(() => {
@@ -80,30 +78,34 @@ export function AuthDialog() {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       if (isLogin) {
-        await dispatch(login(data)).unwrap();
-        router.push("/dashboard"); // Redirect to dashboard
-
+        const result = await dispatch(login(data)).unwrap();
+        if (result && result.user) {
+          setOpen(false); // Close the dialog
+          router.push("/courses");
+        }
       } else {
-        // For signup, we need to include additional fields
         const signupData = {
           ...data,
-          name: data.email.split("@")[0], // Use email username as name
-          goal: "learn", // Default goal
-          learning_approach: "structured", // Default learning approach
-          topic: "general", // Default topic
-          math_level: "intermediate", // Default math level
-          minutes_per_day: 30, // Default minutes per day
+          name: data.email.split("@")[0],
+          goal: "learn",
+          learning_approach: "structured",
+          topic: "general",
+          math_level: "intermediate",
+          minutes_per_day: 30,
         };
-        await dispatch(signup(signupData)).unwrap();
+        const result = await dispatch(signup(signupData)).unwrap();
+        if (result && result.user) {
+          setOpen(false); // Close the dialog
+          router.push("/courses");
+        }
       }
     } catch (error) {
-      // Error is already handled by the Redux state
       console.error("Auth error:", error);
     }
   };
 
   return (
-    <Dialog >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="font-semibold">
           Soo gal

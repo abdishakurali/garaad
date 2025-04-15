@@ -447,7 +447,7 @@ export default function Page() {
 
       // Show success message and redirect
       setShowSubmitAlert(true);
-      router.push("/dashboard");
+      router.push("/courses");
     } catch (error) {
       console.error("Submission failed:", error);
 

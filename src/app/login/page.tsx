@@ -24,7 +24,7 @@ export default function LoginPage() {
         try {
             const result = await dispatch(login({ email, password })).unwrap();
             if (result) {
-                router.push("/dashboard");
+                router.push("/courses");
             }
         } catch (error) {
             // Error is handled by the Redux store

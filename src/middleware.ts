@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // List of protected routes that require authentication
-const protectedRoutes = ["/dashboard", "/profile", "/courses", "/practice"];
+const protectedRoutes = ["/courses", "/profile", "/courses", "/practice"];
 
 export function middleware(request: NextRequest) {
   // Get the pathname of the request
@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
 
   // If it's the welcome page and there's a token, redirect to dashboard
   if (path === "/" && token) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/courses", request.url));
   }
 
   return NextResponse.next();

@@ -1,18 +1,21 @@
 // src/app/courses/[categoryId]/[courseSlug]/page.tsx
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourse } from "@/store/features/learningSlice";
 import { AppDispatch, RootState } from "@/store";
-import { BookOpen, Clock, Trophy } from "lucide-react";
+import { BookOpen, Clock, Trophy, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+// import { Progress } from "@/components/ui/progress";
+
 
 export default function CourseDetailPage() {
     const params = useParams();
+    const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
     const { currentCourse, isLoading, error } = useSelector((state: RootState) => state.learning);
 
@@ -24,6 +27,10 @@ export default function CourseDetailPage() {
             }));
         }
     }, [dispatch, params.categoryId, params.courseSlug]);
+
+    const handleLessonClick = (moduleId: string | number, lessonId: string | number) => {
+        router.push(`/courses/${params.categoryId}/${params.courseSlug}/modules/${moduleId}/lessons/${lessonId}`);
+    };
 
     if (error) {
         return (
@@ -96,24 +103,36 @@ export default function CourseDetailPage() {
             {/* Course Content */}
             <div className="max-w-4xl mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {currentCourse.modules.map((module) => (
-                        <Card key={module.id} className="p-6">
-                            <h3 className="text-xl font-semibold mb-4">{module.title}</h3>
-                            <p className="text-gray-600 mb-4">{module.description}</p>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">
-                                    {module.lessons.length} lessons
-                                </span>
-                                {module.progress > 0 && (
-                                    <div className="w-24 bg-gray-100 rounded-full h-2">
-                                        <div
-                                            className="bg-primary h-full rounded-full"
-                                            style={{ width: `${module.progress}%` }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
+                    {(currentCourse?.modules ?? []).map((module) => (
+                        <button
+                            key={module.id}
+                            onClick={() => module.lessons?.[0]?.id && handleLessonClick(module.id, module.lessons[0].id)}
+                            className="w-full text-left"
+                        >
+                            <Card className="p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer">
+                                <div className="flex items-start justify-between mb-4">
+                                    <h3 className="text-xl font-semibold">{module.title}</h3>
+                                    <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-1" />
+                                </div>
+                                <p className="text-gray-600 mb-4">{module.description}</p>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-500">
+                                        {module.lessons?.length || 0} lessons
+                                    </span>
+                                    {/* {module.progress > 0 && (
+                                        <div className="flex items-center gap-2">
+                                            <Progress
+                                                value={module.progress}
+                                                className="w-24 h-2"
+                                            />
+                                            <span className="text-sm text-gray-500">
+                                                {Math.round(module.progress)}%
+                                            </span>
+                                        </div>
+                                    )} */}
+                                </div>
+                            </Card>
+                        </button>
                     ))}
                 </div>
             </div>
