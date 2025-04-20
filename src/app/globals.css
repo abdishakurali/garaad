@@ -203,3 +203,12 @@
 .translate-z-8 {
   transform: translateZ(8px);
 }
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
