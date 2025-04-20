@@ -75,7 +75,10 @@ export default function CourseDetailPage() {
       <div className="max-w-6xl mx-auto p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left Column: Course Info */}
-          <div className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md  border-gray-200">
+          <div
+            className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md  border-gray-200"
+            onClick={() => playSound("click")}
+          >
             {/* Detached Icon/Image */}
             <div className="flex mb-6 border-border border-2 px-4 py-2 rounded-md w-fit">
               <div className="relative w-16 h-16">
