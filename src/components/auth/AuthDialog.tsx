@@ -124,11 +124,11 @@ export function AuthDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-[425px]"
+        className="sm:max-w-[425px] transform transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-bottom-[48%] data-[state=open]:slide-in-from-bottom-[48%]"
         aria-describedby="auth-description"
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4">
+          <DialogTitle className="text-2xl font-bold text-center mb-4 animate-in fade-in-50 duration-500">
             Soo gal
           </DialogTitle>
         </DialogHeader>
@@ -137,7 +137,7 @@ export function AuthDialog() {
           Doorashooyinka soo gelista: Google, Facebook, ama email
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in-50 duration-500 delay-200">
           <Button
             variant="outline"
             className="w-full flex items-center gap-2 mb-4 cursor-not-allowed relative"

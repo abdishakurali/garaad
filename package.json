@@ -21,9 +21,13 @@
     "@radix-ui/react-hover-card": "^1.1.7",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-popover": "^1.1.7",
+    "@radix-ui/react-progress": "^1.1.4",
+    "@radix-ui/react-separator": "^1.1.4",
     "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-switch": "^1.2.2",
     "@radix-ui/react-tabs": "^1.1.4",
     "@radix-ui/react-toast": "^1.2.6",
+    "@radix-ui/react-tooltip": "^1.2.3",
     "@reduxjs/toolkit": "^2.6.1",
     "@rive-app/canvas": "^2.27.0",
     "@rive-app/react-canvas": "^4.18.8",
@@ -51,18 +55,19 @@
     "rive-react": "^4.18.8",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.1.0",
+    "tailwindcss-animate": "^1.0.7",
     "use-sound": "^5.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.1.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.1.4",
     "typescript": "^5"
   }
 }

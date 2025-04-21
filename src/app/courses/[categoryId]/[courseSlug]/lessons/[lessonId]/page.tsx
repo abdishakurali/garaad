@@ -176,9 +176,28 @@ const LessonPage = () => {
 
         switch (block.block_type) {
             case 'problem': {
-                const content = typeof block.content === 'string'
-                    ? JSON.parse(block.content) as ProblemContent
-                    : block.content as ProblemContent;
+                let content: ProblemContent;
+                try {
+                    content = typeof block.content === 'string'
+                        ? JSON.parse(block.content) as ProblemContent
+                        : block.content as ProblemContent;
+
+                    if (!content || !content.options || !Array.isArray(content.options)) {
+                        console.error('Invalid problem content structure:', content);
+                        return (
+                            <div className="p-4 border rounded-lg text-center">
+                                <p className="text-muted-foreground">Problem content is not properly formatted</p>
+                            </div>
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error parsing problem content:', error);
+                    return (
+                        <div className="p-4 border rounded-lg text-center">
+                            <p className="text-muted-foreground">Error loading problem content</p>
+                        </div>
+                    );
+                }
 
                 return (
                     <div className="space-y-8">
