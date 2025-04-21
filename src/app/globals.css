@@ -121,6 +121,32 @@
   }
 }
 
+@layer components {
+  .learning-path-presenter {
+    @apply relative overflow-hidden rounded-2xl shadow-md;
+  }
+
+  .learning-path-presenter .background-layer {
+    @apply absolute inset-0 z-0;
+  }
+
+  .learning-path-presenter .connections-layer {
+    @apply absolute inset-0 z-[1] pointer-events-none;
+  }
+
+  .learning-path-presenter .nodes-grid {
+    @apply relative grid h-full w-full z-[2] p-8;
+  }
+
+  .learning-path-presenter .node-container {
+    @apply relative flex justify-center items-center;
+  }
+
+  .learning-path-presenter .accessibility-overlay {
+    @apply absolute opacity-0 pointer-events-none;
+  }
+}
+
 /* you don't need this in v4 tailwindcss */
 /* @tailwind base;
 @tailwind components;

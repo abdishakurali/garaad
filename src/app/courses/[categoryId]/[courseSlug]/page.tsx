@@ -164,6 +164,17 @@ export default function CourseDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Right Column: New Learning Path Implementation */}
+          {/* <div className="relative]">
+              <LearningPathPresenter
+                courseData={CourseData}
+                onNodeSelected={handleNodeSelect}
+                dimensions={{ width: 600, height: 700 }}
+                
+              />
+            </div>
+          </div> */}
         </div>
       </div>
     </div>
