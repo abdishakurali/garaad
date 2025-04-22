@@ -19,9 +19,9 @@ export default function ModulePopup({ module }: ModulePopupProps) {
   };
 
   return (
-    <div className="absolute top-0 left-1/2 transform -translate-x-[20%] translate-y-[calc(100%+65px)] w-64 bg-background/40 rounded-lg shadow-lg p-4 z-20 animate-fadeIn border-2 border-border">
+    <div className="absolute top-0 left-1/2 transform -translate-x-[20%] translate-y-[calc(100%+65px)] w-64 bg-white rounded-lg shadow-lg p-4 z-20 animate-fadeIn border-2 border-border">
       <div className="absolute top-0 left-1/2 transform translate-y-full -translate-x-1/2">
-        <div className="w-4 h-4 bg-white rotate-45 transform -translate-y-6 -translate-x-0"></div>
+        <div className="w-4 h-4 bg-white rotate-45 transform -translate-y-6 -translate-x-0 -z-30"></div>
       </div>
       <h3 className="font-bold mb-2">{module.title}</h3>
       <p className="text-sm mb-4">{module.description}</p>

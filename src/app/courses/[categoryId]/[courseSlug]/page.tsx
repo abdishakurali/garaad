@@ -76,199 +76,19 @@ export default function CourseDetailPage() {
     );
   }
 
-  const modules: Module[] = [
-    {
-      id: 1,
-      title: "Finding Unknowns",
-      description:
-        "Learn how to identify and solve for unknown variables in equations.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 1,
-          title: "Introduction to Variables",
-          slug: "intro-to-variables",
-          module_id: 1,
-          lesson_number: 1,
-          estimated_time: "10 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "Practice Finding Unknowns",
-      description:
-        "Practice exercises to reinforce your understanding of finding unknown variables.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 2,
-          title: "Practice Set 1",
-          slug: "practice-set-1",
-          module_id: 2,
-          lesson_number: 1,
-          estimated_time: "15 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "Equations With Unknowns",
-      description:
-        "Learn how to set up and solve equations with unknown variables.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 3,
-          title: "Setting Up Equations",
-          slug: "setting-up-equations",
-          module_id: 3,
-          lesson_number: 1,
-          estimated_time: "12 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-    {
-      id: 4,
-      title: "Practice Equations With Unknowns",
-      description:
-        "Practice solving various types of equations with unknown variables.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 4,
-          title: "Equation Practice",
-          slug: "equation-practice",
-          module_id: 4,
-          lesson_number: 1,
-          estimated_time: "20 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-    {
-      id: 5,
-      title: "Building Expressions",
-      description: "Learn how to build and manipulate algebraic expressions.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 5,
-          title: "Expression Basics",
-          slug: "expression-basics",
-          module_id: 5,
-          lesson_number: 1,
-          estimated_time: "15 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-    {
-      id: 6,
-      title: "Practice Building Expressions",
-      description: "Practice creating and simplifying algebraic expressions.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 6,
-          title: "Expression Drills",
-          slug: "expression-drills",
-          module_id: 6,
-          lesson_number: 1,
-          estimated_time: "18 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-    {
-      id: 7,
-      title: "Working with Unknowns",
-      description:
-        "Advanced techniques for working with unknown variables in complex equations.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 7,
-          title: "Advanced Variables",
-          slug: "advanced-variables",
-          module_id: 7,
-          lesson_number: 1,
-          estimated_time: "25 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-    {
-      id: 8,
-      title: "Practice Working with Unknowns",
-      description:
-        "Practice applying advanced techniques with unknown variables.",
-      course_id: 1,
-      lessons: [
-        {
-          id: 8,
-          title: "Advanced Practice",
-          slug: "advanced-practice",
-          module_id: 8,
-          lesson_number: 1,
-          estimated_time: "30 min",
-          is_published: true,
-          created_at: "",
-          updated_at: "",
-        },
-      ],
-    },
-  ];
-
   // const modules: Module[] = [
   //   {
   //     id: 1,
-  //     title: "Level",
-  //     description: "Starting point for the learning journey",
-  //     course_id: 1,
-  //     lessons: [
-  //       {
-  //         id: 1,
-  //         title: "Introduction",
-  //         slug: "introduction",
-  //         module_id: 1,
-  //         lesson_number: 1,
-  //         estimated_time: "5 min",
-  //         is_published: true,
-  //         created_at: "",
-  //         updated_at: "",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 2,
   //     title: "Finding Unknowns",
   //     description:
   //       "Learn how to identify and solve for unknown variables in equations.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 2,
+  //         id: 1,
   //         title: "Introduction to Variables",
   //         slug: "intro-to-variables",
-  //         module_id: 2,
+  //         module_id: 1,
   //         lesson_number: 1,
   //         estimated_time: "10 min",
   //         is_published: true,
@@ -278,17 +98,17 @@ export default function CourseDetailPage() {
   //     ],
   //   },
   //   {
-  //     id: 3,
+  //     id: 2,
   //     title: "Practice Finding Unknowns",
   //     description:
   //       "Practice exercises to reinforce your understanding of finding unknown variables.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 3,
+  //         id: 2,
   //         title: "Practice Set 1",
   //         slug: "practice-set-1",
-  //         module_id: 3,
+  //         module_id: 2,
   //         lesson_number: 1,
   //         estimated_time: "15 min",
   //         is_published: true,
@@ -298,17 +118,17 @@ export default function CourseDetailPage() {
   //     ],
   //   },
   //   {
-  //     id: 4,
+  //     id: 3,
   //     title: "Equations With Unknowns",
   //     description:
   //       "Learn how to set up and solve equations with unknown variables.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 4,
+  //         id: 3,
   //         title: "Setting Up Equations",
   //         slug: "setting-up-equations",
-  //         module_id: 4,
+  //         module_id: 3,
   //         lesson_number: 1,
   //         estimated_time: "12 min",
   //         is_published: true,
@@ -318,17 +138,17 @@ export default function CourseDetailPage() {
   //     ],
   //   },
   //   {
-  //     id: 5,
+  //     id: 4,
   //     title: "Practice Equations With Unknowns",
   //     description:
   //       "Practice solving various types of equations with unknown variables.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 5,
+  //         id: 4,
   //         title: "Equation Practice",
   //         slug: "equation-practice",
-  //         module_id: 5,
+  //         module_id: 4,
   //         lesson_number: 1,
   //         estimated_time: "20 min",
   //         is_published: true,
@@ -338,16 +158,16 @@ export default function CourseDetailPage() {
   //     ],
   //   },
   //   {
-  //     id: 6,
+  //     id: 5,
   //     title: "Building Expressions",
   //     description: "Learn how to build and manipulate algebraic expressions.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 6,
+  //         id: 5,
   //         title: "Expression Basics",
   //         slug: "expression-basics",
-  //         module_id: 6,
+  //         module_id: 5,
   //         lesson_number: 1,
   //         estimated_time: "15 min",
   //         is_published: true,
@@ -357,16 +177,16 @@ export default function CourseDetailPage() {
   //     ],
   //   },
   //   {
-  //     id: 7,
+  //     id: 6,
   //     title: "Practice Building Expressions",
   //     description: "Practice creating and simplifying algebraic expressions.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 7,
+  //         id: 6,
   //         title: "Expression Drills",
   //         slug: "expression-drills",
-  //         module_id: 7,
+  //         module_id: 6,
   //         lesson_number: 1,
   //         estimated_time: "18 min",
   //         is_published: true,
@@ -376,17 +196,17 @@ export default function CourseDetailPage() {
   //     ],
   //   },
   //   {
-  //     id: 8,
+  //     id: 7,
   //     title: "Working with Unknowns",
   //     description:
   //       "Advanced techniques for working with unknown variables in complex equations.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 8,
+  //         id: 7,
   //         title: "Advanced Variables",
   //         slug: "advanced-variables",
-  //         module_id: 8,
+  //         module_id: 7,
   //         lesson_number: 1,
   //         estimated_time: "25 min",
   //         is_published: true,
@@ -396,38 +216,19 @@ export default function CourseDetailPage() {
   //     ],
   //   },
   //   {
-  //     id: 9,
+  //     id: 8,
   //     title: "Practice Working with Unknowns",
   //     description:
   //       "Practice applying advanced techniques with unknown variables.",
   //     course_id: 1,
   //     lessons: [
   //       {
-  //         id: 9,
+  //         id: 8,
   //         title: "Advanced Practice",
   //         slug: "advanced-practice",
-  //         module_id: 9,
+  //         module_id: 8,
   //         lesson_number: 1,
   //         estimated_time: "30 min",
-  //         is_published: true,
-  //         created_at: "",
-  //         updated_at: "",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 10,
-  //     title: "Level",
-  //     description: "Next level in the learning journey",
-  //     course_id: 1,
-  //     lessons: [
-  //       {
-  //         id: 10,
-  //         title: "Level 2 Introduction",
-  //         slug: "level-2-introduction",
-  //         module_id: 10,
-  //         lesson_number: 1,
-  //         estimated_time: "5 min",
   //         is_published: true,
   //         created_at: "",
   //         updated_at: "",

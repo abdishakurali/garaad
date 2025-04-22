@@ -17,24 +17,19 @@ export default function ModuleZigzag({
   activeModuleId,
   onModuleClick,
 }: ModuleZigzagProps) {
-  // State for the zigzag path
   const [zigzagPath, setZigzagPath] = useState<string>("");
   const moduleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [openPopoverId, setOpenPopoverId] = useState<number | null>(null);
 
   useEffect(() => {
-    // Calculate a single continuous zigzag path connecting all modules
     const calculateZigzagPath = () => {
       if (moduleRefs.current.length < 2) return;
 
       const validModules = moduleRefs.current.filter(Boolean);
       if (validModules.length < 2) return;
 
-      // Start building the path
       let pathData = "";
-
-      // Get the first module position
       const firstModule = validModules[0];
       if (!firstModule) return;
 
@@ -44,78 +39,73 @@ export default function ModuleZigzag({
         top: 0,
       };
 
-      // Starting point (center bottom of first module)
       let currentX = firstRect.left + firstRect.width / 2 - containerRect.left;
-      let currentY = firstRect.bottom - containerRect.top + 10; // Add a small offset
+      let currentY = firstRect.bottom - containerRect.top + 5; // Increased initial offset
 
-      // Initialize the path with the starting point
       pathData = `M ${currentX} ${currentY}`;
 
-      // For each subsequent module, add zigzag segments
       for (let i = 1; i < validModules.length; i++) {
         const currentModule = validModules[i];
         const currentRect =
           currentModule?.getBoundingClientRect() || new DOMRect();
-        // Calculate endpoint (center top of current module)
         const endX =
-          currentRect.left + currentRect.width / 2 - containerRect.left;
-        const endY = currentRect.top - containerRect.top - 10; // Add a small offset
+          currentRect.left + currentRect.width / 4 - containerRect.left;
+        const endY = currentRect.top - containerRect.top - 0; // Adjusted end offset
 
-        // Determine if this is an even or odd segment to create the zigzag pattern
-        // For even segments, go right then down; for odd segments, go left then down
         const isEven = i % 2 === 0;
-        const horizontalOffset = isEven ? -120 : 120; // Adjust this value to control zigzag width
+        const horizontalOffset = isEven ? -120 : 120; // Matches ml-32/mr-32 (5rem = 120px)
 
-        // Add zigzag segment
-        // First go down a bit
-        pathData += ` L ${currentX} ${currentY + 40}`;
-        currentY += 40;
+        // Vertical segment
+        pathData += ` L ${currentX} ${currentY + 20}`; // Reduced vertical segment
+        currentY += 20;
 
-        // Then go diagonally to the side and down
+        // Diagonal to side
         pathData += ` L ${currentX + horizontalOffset} ${
           (currentY + endY) / 2
         }`;
         currentX += horizontalOffset;
         currentY = (currentY + endY) / 2;
 
-        // Then go diagonally to the module
+        // Connect to module
         pathData += ` L ${endX} ${endY}`;
 
-        // Update current position for next segment
         currentX = endX;
-        currentY = currentRect.bottom - containerRect.top + 10;
+        currentY = currentRect.bottom - containerRect.top + 0;
       }
 
       setZigzagPath(pathData);
     };
 
-    // Calculate path on mount and window resize
     calculateZigzagPath();
     window.addEventListener("resize", calculateZigzagPath);
 
-    return () => {
-      window.removeEventListener("resize", calculateZigzagPath);
-    };
+    return () => window.removeEventListener("resize", calculateZigzagPath);
   }, [modules]);
 
-  // Determine the position of each module in the zigzag pattern
   const getModulePosition = (index: number) => {
     if (index === 0 || index === modules.length - 1) {
-      // Level indicators are centered
       return "justify-center";
     }
-
-    // Alternate between left and right for regular modules
-    return index % 2 === 1 ? "justify-start ml-16" : "justify-end mr-16";
+    return index % 2 === 1 ? "justify-start ml-56" : "justify-end mr-56";
   };
 
   return (
     <div className="relative" ref={containerRef}>
       <svg
-        className="absolute top-0 left-0 w-full h-full pointer-events-none"
+        className="absolute top-0 left-0 w-full h-full pointer-events-none hover:scale-0"
         style={{ zIndex: 0 }}
       >
-        <path d={zigzagPath} fill="none" stroke="gray" strokeWidth={2} />
+        <path
+          d={zigzagPath}
+          fill="none"
+          stroke="gray"
+          strokeWidth={3}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit="10"
+          strokeDasharray="4 4"
+          className="stroke-gray-300"
+        />
       </svg>
 
       <div className="relative flex flex-col items-center z-10">
@@ -125,7 +115,7 @@ export default function ModuleZigzag({
             ref={(el) => {
               moduleRefs.current[index] = el;
             }}
-            className={`relative mb-16 ${getModulePosition(index)}`}
+            className={`relative mb-24 ${getModulePosition(index)}`} // Increased vertical spacing
           >
             <Popover.Root
               open={openPopoverId === module.id}
@@ -137,7 +127,14 @@ export default function ModuleZigzag({
                     module={module}
                     isActive={openPopoverId === module.id}
                     onClick={() => onModuleClick(module.id)}
-                    iconType={index % 2 === 0 ? "blue" : "green"}
+                    // iconType={
+                    //   module.lessons[0]?.is_completed
+                    //     ? "green"
+                    //     : activeModuleId === module.id
+                    //     ? "blue"
+                    //     : "gray"
+                    // }
+                    iconType="gray"
                   />
                 </div>
               </Popover.Trigger>

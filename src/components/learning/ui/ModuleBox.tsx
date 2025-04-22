@@ -20,9 +20,9 @@ export default function ModuleBox({
       case "blue":
         return "from-blue-300 to-blue-400";
       case "green":
-        return "from-green-400 to-green-600";
+        return "from-green-300 to-green-500";
       default:
-        return "from-gray-400 to-gray-600";
+        return "from-gray-300 to-gray-500";
     }
   };
 
@@ -38,7 +38,7 @@ export default function ModuleBox({
       <div className="[perspective:800px]">
         <div
           className={`
-            relative w-20 h-20 rounded-md 
+            relative w-15 h-15 rounded-md 
             bg-gradient-to-br ${getGradient()} 
             shadow-[0_20px_30px_rgba(0,0,0,0.4)]
             border-e-neutral-500
@@ -50,7 +50,7 @@ export default function ModuleBox({
           {/* Inner semi‑transparent square */}
           <div
             className="
-              absolute w-[70%] h-[70%] 
+              absolute w-[50%] h-[50%] 
               bg-white/20 backdrop-blur-[1px] 
               rounded-[12px] shadow-inner 
               flex items-center justify-center
@@ -72,7 +72,7 @@ export default function ModuleBox({
       </div>
 
       {/* Module title */}
-      <div className="mt-2 text-center max-w-[150px]">
+      <div className="mt-2 text-center max-w-[120px]">
         {/* <p className="text-sm font-medium">{module.title}</p> */}
       </div>
     </div>
