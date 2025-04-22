@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { User, SignUpData, LoginCredentials } from "@/types/auth";
 import { AppDispatch } from "@/store/store";
+import AuthService from "@/services/auth";
 
 interface AuthState {
   user: User | null;
@@ -87,21 +88,16 @@ export const login =
   (credentials: LoginCredentials) => async (dispatch: AppDispatch) => {
     try {
       dispatch(setLoading(true));
-      // TODO: Implement actual login logic here
-      dispatch(
-        setUser({
-          email: credentials.email,
-          id: 1,
-          username: credentials.email,
-          first_name: "",
-          last_name: "",
-          is_premium: false,
-          has_completed_onboarding: false,
-          subscription_status: "basic",
-        })
-      );
-      dispatch(setError(null));
-      return true;
+      const authService = AuthService.getInstance();
+      const response = await authService.signIn(credentials);
+
+      if (response.user) {
+        dispatch(setUser(response.user));
+        dispatch(setError(null));
+        return true;
+      } else {
+        throw new Error("No user data received from server");
+      }
     } catch (error) {
       dispatch(
         setError(error instanceof Error ? error.message : "An error occurred")

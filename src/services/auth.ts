@@ -256,35 +256,27 @@ class AuthService {
 
       console.log("Sign in response:", response.data);
 
-      // Store token and user data
-      if (response.data.token) {
-        console.log("Storing token from signin response");
-        // Convert single token to tokens format
-        const tokens = {
-          access: response.data.token,
-          refresh: response.data.token, // Using the same token for refresh for now
-        };
+      // Store tokens and user data
+      if (response.data.tokens) {
+        console.log("Storing tokens from signin response");
+        const { access, refresh } = response.data.tokens;
 
-        this.setTokens(tokens.access, tokens.refresh);
+        this.setTokens(access, refresh);
         // Store user data
         this.setCurrentUser(response.data.user);
 
         // Verify storage
         const storedAccessToken = localStorage.getItem("accessToken");
         console.log("Token storage verification:", {
-          expectedToken: tokens.access,
+          expectedToken: access,
           storedToken: storedAccessToken,
-          matches: storedAccessToken === tokens.access,
+          matches: storedAccessToken === access,
         });
 
-        // Return the response in the expected format
-        return {
-          ...response.data,
-          tokens,
-        };
+        return response.data;
       } else {
-        console.error("No token received in signin response");
-        throw new Error("No token received from server");
+        console.error("No tokens received in signin response");
+        throw new Error("No tokens received from server");
       }
     } catch (error) {
       console.error("Signin error details:", {
