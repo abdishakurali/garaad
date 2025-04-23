@@ -81,7 +81,10 @@ export interface ProblemContent {
   question_text?: string;
   question_type?: "mcq" | "short_input" | "code";
   options: string[];
-  correct_answer: string;
+  correct_answer: Array<{
+    id: string;
+    text: string;
+  }>;
   explanation?: string;
   image?: string;
   language?: string;

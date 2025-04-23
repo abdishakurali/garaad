@@ -69,6 +69,10 @@ export const signup =
           is_premium: false,
           has_completed_onboarding: false,
           subscription_status: "basic",
+          profile: {
+            qabiil: "",
+            laan: "",
+          },
         })
       );
       dispatch(setError(null));

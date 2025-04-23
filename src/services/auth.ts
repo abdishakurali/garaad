@@ -54,6 +54,10 @@ export interface SignInResponse {
     is_premium: boolean;
     has_completed_onboarding: boolean;
     subscription_status: "premium" | "basic";
+    profile: {
+      qabiil: string;
+      laan: string;
+    };
   };
   token: string;
   tokens?: {

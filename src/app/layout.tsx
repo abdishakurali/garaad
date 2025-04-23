@@ -7,9 +7,10 @@ import ClientLayout from "./client-layout";
 export const metadata: Metadata = {
   title: {
     default: "Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida",
-    template: "%s | Garaad"
+    template: "%s | Garaad",
   },
-  description: "Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista. Waxaan kuu diyaarisay koorsooyin tayo sare leh oo ku qoran Af-Soomaali, gaar ahaan ardayda Soomaalida ee Gen Z.",
+  description:
+    "Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista. Waxaan kuu diyaarisay koorsooyin tayo sare leh oo ku qoran Af-Soomaali, gaar ahaan ardayda Soomaalida ee Gen Z.",
   keywords: [
     "Garaad",
     "Barashada Xisaabta Soomaalida",
@@ -109,7 +110,7 @@ export const metadata: Metadata = {
     "Barashada Fikradaha Cilmiga ee Jowhar",
     "Barashada Xisaabta ee Baidoa",
     "Barashada Sayniska ee Baidoa",
-    "Barashada Fikradaha Cilmiga ee Baidoa"
+    "Barashada Fikradaha Cilmiga ee Baidoa",
   ],
   authors: [{ name: "Garaad Team" }],
   creator: "Garaad Team",
@@ -119,37 +120,39 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://garaad.so'),
+  metadataBase: new URL("https://garaad.so"),
   alternates: {
-    canonical: '/',
+    canonical: "/",
     languages: {
-      'so-SO': '/',
-      'en-US': '/en',
-      'ar-SA': '/ar',
+      "so-SO": "/",
+      "en-US": "/en",
+      "ar-SA": "/ar",
     },
   },
   openGraph: {
-    type: 'website',
-    locale: 'so_SO',
-    url: 'https://garaad.so',
-    title: 'Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida',
-    description: 'Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista. Waxaan kuu diyaarisay koorsooyin tayo sare leh oo ku qoran Af-Soomaali.',
-    siteName: 'Garaad',
+    type: "website",
+    locale: "so_SO",
+    url: "https://garaad.so",
+    title: "Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida",
+    description:
+      "Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista. Waxaan kuu diyaarisay koorsooyin tayo sare leh oo ku qoran Af-Soomaali.",
+    siteName: "Garaad",
     images: [
       {
-        url: '/images/og-image.jpg',
+        url: "/images/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: 'Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida',
+        alt: "Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida',
-    description: 'Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista.',
-    images: ['/images/twitter-image.jpg'],
-    creator: '@garaad_so',
+    card: "summary_large_image",
+    title: "Garaad - Barashada Xisaabta iyo Sayniska ee Soomaalida",
+    description:
+      "Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, sayniska, iyo fikradaha cilmi-baarista.",
+    images: ["/images/twitter-image.jpg"],
+    creator: "@garaad_so",
   },
   robots: {
     index: true,
@@ -157,17 +160,17 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   verification: {
-    google: 'your-google-site-verification',
-    yandex: 'your-yandex-verification',
-    yahoo: 'your-yahoo-verification',
+    google: "your-google-site-verification",
+    yandex: "your-yandex-verification",
+    yahoo: "your-yahoo-verification",
     other: {
-      me: ['your-email@example.com', 'https://garaad.so'],
+      me: ["your-email@example.com", "https://garaad.so"],
     },
   },
 };
@@ -180,13 +183,13 @@ export default function RootLayout({
   return (
     <html lang="so" suppressHydrationWarning>
       <head>
-        <link
+        {/* <link
           rel="preload"
           href="/fonts/inter-var.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
-        />
+        /> */}
       </head>
       <body className={inter.className}>
         <ClientLayout>
