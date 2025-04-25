@@ -359,45 +359,56 @@ class AuthService {
     try {
       // Set in localStorage
       if (typeof window !== "undefined") {
+        // Store in localStorage
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
 
-        // Set in cookies with proper attributes
-        document.cookie = `accessToken=${accessToken}; path=/; max-age=86400; SameSite=Strict; Secure`;
-        document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
+        // Store in cookies with proper attributes
+        const cookieOptions = {
+          path: "/",
+          maxAge: 86400, // 1 day for access token
+          sameSite: "Strict" as const,
+          secure: true,
+        };
 
-        // Verify storage immediately
+        // Set access token cookie
+        document.cookie = `accessToken=${accessToken}; path=${cookieOptions.path}; max-age=${cookieOptions.maxAge}; SameSite=${cookieOptions.sameSite}; Secure`;
+
+        // Set refresh token cookie with longer expiry
+        document.cookie = `refreshToken=${refreshToken}; path=${cookieOptions.path}; max-age=604800; SameSite=${cookieOptions.sameSite}; Secure`;
+
+        // Verify storage
         const storedAccessToken = localStorage.getItem("accessToken");
         const storedRefreshToken = localStorage.getItem("refreshToken");
+        const cookies = document.cookie
+          .split(";")
+          .map((cookie) => cookie.trim());
 
-        console.log("Tokens stored in localStorage:", {
-          storedAccessToken,
-          storedRefreshToken,
-          matchesOriginal:
-            storedAccessToken === accessToken &&
-            storedRefreshToken === refreshToken,
+        console.log("Token storage verification:", {
+          localStorage: {
+            accessToken: storedAccessToken === accessToken,
+            refreshToken: storedRefreshToken === refreshToken,
+          },
+          cookies: {
+            accessToken: cookies.some((cookie) =>
+              cookie.startsWith("accessToken=")
+            ),
+            refreshToken: cookies.some((cookie) =>
+              cookie.startsWith("refreshToken=")
+            ),
+          },
         });
 
-        if (
-          storedAccessToken !== accessToken ||
-          storedRefreshToken !== refreshToken
-        ) {
-          console.error("Token storage verification failed!");
-          throw new Error("Token storage verification failed");
+        if (!storedAccessToken || !storedRefreshToken) {
+          throw new Error("Failed to store tokens in localStorage");
         }
       } else {
-        console.warn(
-          "window is undefined - cannot store tokens in localStorage"
-        );
+        console.warn("window is undefined - cannot store tokens");
       }
 
       // Set in instance
       this.token = accessToken;
       this.refreshToken = refreshToken;
-      console.log("Tokens set in instance:", {
-        instanceToken: this.token,
-        instanceRefreshToken: this.refreshToken,
-      });
     } catch (error) {
       console.error("Error setting tokens:", error);
       throw error;
