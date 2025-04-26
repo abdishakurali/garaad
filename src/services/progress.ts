@@ -62,7 +62,7 @@ export const progressService = {
     if (!token) throw new Error("Authentication required");
 
     try {
-      const response = await fetch(`${baseURL}/api/lms/progress/`, {
+      const response = await fetch(`${baseURL}/api/lms/user-progress/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export const progressService = {
     if (!token) throw new Error("Authentication required");
 
     try {
-      const response = await fetch(`${baseURL}/api/lms/progress/`, {
+      const response = await fetch(`${baseURL}/api/lms/user-progress/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -117,7 +117,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/progress/${progressId}/`,
+        `${baseURL}/api/lms/user-progress/${progressId}/`,
         {
           method: "PATCH",
           headers: {
@@ -146,7 +146,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/progress/by_course/?course_id=${courseId}`,
+        `${baseURL}/api/lms/user-progress/by_course/?course_id=${courseId}`,
         {
           method: "GET",
           headers: {
@@ -174,7 +174,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/progress/by_category/?category_id=${categoryId}`,
+        `${baseURL}/api/lms/user-progress/by_category/?category_id=${categoryId}`,
         {
           method: "GET",
           headers: {
@@ -202,7 +202,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/progress/by_module/?module_id=${moduleId}`,
+        `${baseURL}/api/lms/user-progress/by_module/?module_id=${moduleId}`,
         {
           method: "GET",
           headers: {

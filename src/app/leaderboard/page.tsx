@@ -232,9 +232,8 @@ export default function Page() {
         {users.map((user, index) => (
           <div
             key={user.id}
-            className={`flex items-center justify-between p-3 rounded-md ${
-              isCurrentUser(user.username) ? "bg-green-50" : ""
-            }`}
+            className={`flex items-center justify-between p-3 rounded-md ${isCurrentUser(user.username) ? "bg-green-50" : ""
+              }`}
           >
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0 w-8 text-center font-medium text-orange-500">

@@ -1,4 +1,5 @@
 import { QuestionExplanation } from "./QuestionExplanation";
+import Image from 'next/image';
 
 interface Option {
     id: string;
@@ -41,10 +42,12 @@ export function QuestionCard({
 
             {question.image && (
                 <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                         src={question.image}
                         alt="Question diagram"
-                        className="object-contain w-full h-full"
+                        width={500}
+                        height={300}
+                        className="w-full h-auto rounded-lg"
                     />
                 </div>
             )}

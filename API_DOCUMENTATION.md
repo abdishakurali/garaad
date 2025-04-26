@@ -1,522 +1,172 @@
-# Garaad LMS API Documentation
+# API Endpoints Documentation with Examples and Reasons
 
-## Base URL
-```
-https://api.garaad.org/api/lms/
-```
 
-## Authentication
-All endpoints require JWT authentication. Include the token in the Authorization header:
-```
-Authorization: Bearer <your_jwt_token>
-```
-
-## Endpoints
-
-### Categories
-
-#### List Categories
-```http
-GET /categories/
-```
-**Purpose**: Similar to Brilliant.org's topic browsing, this endpoint allows users to explore different subject areas and find courses that interest them. It provides a hierarchical view of learning paths, helping users discover content based on their interests.
-
-Response:
+### Enroll in Course
+- **Method**: POST `/api/courses/{id}/enroll/`
+- **Reason**: To sign up for a specific course
+- **Example Response**:
 ```json
 {
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": "string",
-            "title": "string",
-            "description": "string",
-            "image": "string",
-            "in_progress": boolean,
-            "courses": [
-                {
-                    "id": "string",
-                    "title": "string",
-                    "description": "string",
-                    "thumbnail": "string",
-                    "is_new": boolean,
-                    "progress": number,
-                    "is_published": boolean
-                }
-            ]
-        }
-    ]
+    "id": 1,
+    "user": 1,
+    "course": 1,
+    "enrolled_at": "2024-03-20T10:00:00Z",
+    "completed_at": null
 }
 ```
 
-### Courses
-
-#### List Courses
-```http
-GET /courses/
-```
-**Purpose**: Like Brilliant.org's course catalog, this endpoint provides a comprehensive view of available courses. It includes course details, progress tracking, and module structure, enabling users to:
-- Browse available courses
-- Track their progress
-- See course structure before enrolling
-- Discover new content
-
-Response:
+### Update Progress
+- **Method**: POST `/api/courses/{id}/update_progress/`
+- **Reason**: To update how far along a user is in a course
+- **Example Request**:
 ```json
 {
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": "string",
-            "title": "string",
-            "slug": "string",
-            "description": "string",
-            "thumbnail": "string",
-            "is_new": boolean,
-            "progress": number,
-            "author_id": "string",
-            "is_published": boolean,
-            "category": "string",
-            "modules": [
-                {
-                    "id": "string",
-                    "title": "string",
-                    "description": "string",
-                    "lessons": [
-                        {
-                            "id": "string",
-                            "title": "string",
-                            "slug": "string",
-                            "lesson_number": number,
-                            "estimated_time": number,
-                            "is_published": boolean
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
+    "progress": 75
 }
 ```
 
-### Modules
-
-#### Get Module
-```http
-GET /modules/{id}/
-```
-**Purpose**: Similar to Brilliant.org's module structure, this endpoint provides:
-- Module overview
-- Lesson organization
-- Learning path structure
-- Progress tracking within the module
-
-Response:
+## Lessons (`/api/lessons/`)
+### Lesson Details
+- **Method**: GET `/api/lessons/{id}/`
+- **Reason**: To view a specific lesson's content and details
+- **Example Response**:
 ```json
 {
-    "id": "string",
-    "title": "string",
-    "description": "string",
-    "course": "string",
-    "lessons": [
-        {
-            "id": "string",
-            "title": "string",
-            "slug": "string",
-            "lesson_number": number,
-            "estimated_time": number,
-            "is_published": boolean
-        }
-    ]
-}
-```
-
-### Lessons
-
-#### Get Lesson Content
-```http
-GET /lessons/{id}/
-```
-**Purpose**: Similar to Brilliant.org's lesson pages, this endpoint provides the core learning content. It delivers:
-- Structured lesson content
-- Interactive elements
-- Progress tracking
-- Estimated completion time
-- Content blocks for different types of learning materials
-
-Response:
-```json
-{
-    "id": "string",
-    "title": "string",
-    "slug": "string",
-    "module": "string",
-    "lesson_number": number,
-    "estimated_time": number,
-    "is_published": boolean,
-    "content_blocks": [
-        {
-            "id": "string",
-            "block_type": "string",
-            "content": {},
-            "order": number
-        }
-    ]
-}
-```
-
-### Content Blocks
-
-#### Get Content Block
-```http
-GET /content-blocks/{id}/
-```
-**Purpose**: Similar to Brilliant.org's interactive content elements, this endpoint provides:
-- Different types of content (text, video, interactive)
-- Structured learning materials
-- Ordered content presentation
-- Rich media support
-
-Response:
-```json
-{
-    "id": "string",
-    "block_type": "string",
-    "content": {},
-    "order": number,
-    "lesson": "string"
-}
-```
-
-### Problems
-
-#### Get Problem
-```http
-GET /problems/{id}/
-```
-**Purpose**: Like Brilliant.org's practice problems, this endpoint provides:
-- Interactive problem content
-- Multiple question types
-- Hints and solutions
-- Difficulty levels
-- Immediate feedback
-
-Response:
-```json
-{
-    "id": "string",
-    "question_text": "string",
-    "image": "string",
-    "question_type": "string",
-    "options": {},
-    "correct_answer": {},
-    "explanation": "string",
-    "difficulty": "string",
-    "hints": [
-        {
-            "id": "string",
-            "content": "string",
-            "order": number
-        }
-    ],
-    "solution_steps": [
-        {
-            "id": "string",
-            "explanation": "string",
-            "order": number
-        }
-    ]
-}
-```
-
-### Practice Sets
-
-#### Get Practice Set
-```http
-GET /practice-sets/{id}/
-```
-**Purpose**: Like Brilliant.org's practice problem sets, this endpoint provides:
-- Interactive problem sets
-- Immediate feedback
-- Difficulty levels
-- Randomized questions
-- Progress tracking
-- Problem explanations
-
-Response:
-```json
-{
-    "id": "string",
-    "title": "string",
-    "practice_type": "string",
-    "difficulty_level": "string",
-    "is_randomized": boolean,
-    "practice_set_problems": [
-        {
-            "id": "string",
-            "problem": "string",
-            "order": number,
-            "problem_details": {
-                "id": "string",
-                "question_text": "string",
-                "question_type": "string",
-                "options": {},
-                "correct_answer": {},
-                "explanation": "string",
-                "difficulty": "string"
-            }
-        }
-    ]
-}
-```
-
-### Practice Set Problems
-
-#### Get Practice Set Problem
-```http
-GET /practice-set-problems/{id}/
-```
-**Purpose**: Similar to Brilliant.org's problem organization, this endpoint:
-- Links problems to practice sets
-- Maintains problem order
-- Provides problem details
-- Enables problem navigation
-
-Response:
-```json
-{
-    "id": "string",
-    "problem": "string",
-    "order": number,
-    "practice_set": "string",
-    "problem_details": {
-        "id": "string",
-        "question_text": "string",
-        "question_type": "string",
-        "options": {},
-        "correct_answer": {},
-        "explanation": "string",
-        "difficulty": "string"
+    "id": 1,
+    "title": "Variables and Data Types",
+    "description": "Learn about Python variables",
+    "course": 1,
+    "order": 1,
+    "next_lesson": {
+        "id": 2,
+        "title": "Control Structures",
+        "order": 2
     }
 }
 ```
 
-### User Progress
-
-#### Get User Progress
-```http
-GET /progress/
-```
-**Purpose**: Similar to Brilliant.org's progress tracking, this endpoint:
-- Tracks completion status
-- Records scores
-- Shows learning history
-- Provides motivation through progress visualization
-- Enables personalized learning paths
-
-Response:
+### Complete Lesson
+- **Method**: POST `/api/lessons/{id}/complete/`
+- **Reason**: To mark a lesson as finished and record the score
+- **Example Request**:
 ```json
 {
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
+    "score": 95
+} 
+
+### Get Lesson Content
+- **Method**: GET `/api/lessons/{id}/content/`
+- **Reason**: To get all the learning materials in a lesson
+- **Example Response**:
+```json
+[
+    {
+        "type": "block",
+        "id": 1,
+        "order": 1,
+        "block_type": "text",
+        "content": "Variables are containers for storing data values..."
+    }
+]
+```
+
+## Lesson Content Blocks (`/api/lesson-content-blocks/`)
+### Reorder Content Blocks
+- **Method**: POST `/api/lesson-content-blocks/reorder/`
+- **Reason**: To change the order of content within a lesson
+- **Example Request**:
+```json
+{
+    "lesson_id": 1,
+    "block_order": [3, 1, 2]
+}
+```
+
+## User Progress (`/api/user-progress/`)
+### List User Progress
+- **Method**: GET
+- **Reason**: To see how far along a user is in their courses
+- **Example Response**:
+```json
+[
+    {
+        "id": 1,
+        "user": 1,
+        "lesson": 1,
+        "status": "completed",
+        "score": 95,
+        "last_accessed": "2024-03-20T10:00:00Z"
+    }
+]
+```
+
+ 
+
+## User Rewards (`/api/user-rewards/`)
+### List Rewards
+- **Method**: GET
+- **Reason**: To see all achievements and badges earned
+- **Example Response**:
+```json
+[
+    {
+        "id": 1,
+        "user": 1,
+        "type": "badge",
+        "name": "Python Master",
+        "description": "Completed all Python courses",
+        "awarded_at": "2024-03-20T10:00:00Z"
+    }
+]
+```
+
+## Leaderboard (`/api/leaderboard/`)
+### Get Leaderboard
+- **Method**: GET
+- **Reason**: To see top performing users
+- **Example Response**:
+```json
+[
+    {
+        "id": 1,
+        "user": {
+            "id": 1,
+            "username": "john_doe",
+            "avatar": "https://example.com/avatar.jpg"
+        },
+        "points": 1000,
+        "time_period": "all_time",
+        "rank": 1
+    }
+]
+```
+
+### Get User Rank
+- **Method**: GET `/api/leaderboard/my_rank/`
+- **Reason**: To see how a user compares to others
+- **Example Response**:
+```json
+{
+    "rank": 5,
+    "points": 750,
+    "entries_above": [
         {
-            "id": "string",
-            "user": "string",
-            "lesson": "string",
-            "lesson_title": "string",
-            "module_title": "string",
-            "status": "string",
-            "score": number,
-            "last_visited_at": "datetime",
-            "completed_at": "datetime"
+            "user__username": "user1",
+            "points": 1000
         }
-    ]
-}
-```
-
-#### Update Progress
-```http
-PATCH /progress/{id}/
-```
-**Purpose**: Enables real-time progress tracking and achievement recording, similar to Brilliant.org's progress system.
-
-Request Body:
-```json
-{
-    "status": "string",
-    "score": number
-}
-```
-
-### Course Enrollments
-
-#### List User Enrollments
-```http
-GET /enrollments/
-```
-**Purpose**: Like Brilliant.org's "My Courses" section, this endpoint:
-- Shows enrolled courses
-- Displays progress
-- Enables quick access to ongoing learning
-- Provides course completion tracking
-
-Response:
-```json
-{
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
+    ],
+    "entries_below": [
         {
-            "id": "string",
-            "user": "string",
-            "course": "string",
-            "course_title": "string",
-            "progress_percent": number,
-            "enrolled_at": "datetime"
+            "user__username": "user3",
+            "points": 600
         }
-    ]
+    ],
+    "user_info": {
+        "username": "current_user",
+        "avatar": "https://example.com/avatar.jpg",
+        "completed_courses": 5
+    }
 }
 ```
 
-#### Enroll in Course
-```http
-POST /enrollments/
-```
-**Purpose**: Enables users to start new courses, similar to Brilliant.org's course enrollment system.
-
-Request Body:
-```json
-{
-    "course": "string"
-}
-```
-
-### User Rewards
-
-#### Get User Rewards
-```http
-GET /rewards/
-```
-**Purpose**: Similar to Brilliant.org's achievement system, this endpoint:
-- Tracks earned badges
-- Shows points
-- Displays achievements
-- Provides motivation through gamification
-- Rewards learning milestones
-
-Response:
-```json
-{
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": "string",
-            "user": "string",
-            "reward_type": "string",
-            "reward_name": "string",
-            "value": number,
-            "awarded_at": "datetime"
-        }
-    ]
-}
-```
-
-### Leaderboard
-
-#### Get Leaderboard
-```http
-GET /leaderboard/
-```
-**Purpose**: Similar to Brilliant.org's community features, this endpoint:
-- Fosters healthy competition
-- Shows community engagement
-- Displays user achievements
-- Encourages consistent learning
-- Builds learning community
-
-Response:
-```json
-{
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": "string",
-            "user": "string",
-            "username": "string",
-            "points": number,
-            "time_period": "string",
-            "last_updated": "datetime",
-            "user_info": {
-                "email": "string",
-                "first_name": "string",
-                "last_name": "string",
-                "stats": {
-                    "total_points": number,
-                    "completed_lessons": number,
-                    "enrolled_courses": number,
-                    "current_streak": number,
-                    "badges_count": number
-                },
-                "badges": [
-                    {
-                        "id": "string",
-                        "reward_name": "string",
-                        "value": number,
-                        "awarded_at": "datetime"
-                    }
-                ]
-            }
-        }
-    ]
-}
-```
-
-## Common Response Status Codes
-
-- 200: Success
-- 201: Created
-- 400: Bad Request
-- 401: Unauthorized
-- 403: Forbidden
-- 404: Not Found
-- 500: Server Error
-
-## Notes
-
-1. All endpoints require authentication using JWT tokens
-2. For POST/PATCH requests, only include the fields you want to update
-3. All IDs are strings
-4. Dates are returned in ISO 8601 format
-5. For nested resources, you can use the ID to fetch more details
-6. Pagination is supported on all list endpoints
-7. Filtering and searching capabilities are available on most endpoints
-
-## Error Handling
-
-All error responses follow this format:
-```json
-{
-    "detail": "Error message here",
-    "code": "error_code"
-}
-```
-
-For validation errors:
-```json
-{
-    "field_name": ["Error message"],
-    "field_name2": ["Error message"]
-}
-```
-
-
+Note: All endpoints require authentication unless specified otherwise. The responses include appropriate status codes (200 for success, 401 for unauthorized, 404 for not found, etc.). Timestamps are in ISO 8601 format (YYYY-MM-DDThh:mm:ssZ).

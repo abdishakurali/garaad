@@ -15,16 +15,16 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
   onClose,
   content,
 }) => {
+  console.log(content)
   return (
     <div
       className={`
                 fixed inset-0 z-50 flex items-center justify-center p-4
                 transition-all duration-300 ease-out
-                ${
-                  isOpen
-                    ? "opacity-100 backdrop-blur-sm"
-                    : "opacity-0 pointer-events-none"
-                }
+                ${isOpen
+          ? "opacity-100 backdrop-blur-sm"
+          : "opacity-0 pointer-events-none"
+        }
             `}
     >
       {/* Backdrop */}
@@ -42,11 +42,10 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
         className={`
                     relative bg-white rounded-2xl w-full sm:w-[400px] md:w-[500px] lg:w-[600px] overflow-hidden
                     transform transition-all duration-500 ease-out
-                    ${
-                      isOpen
-                        ? "translate-y-0 opacity-100 scale-100"
-                        : "translate-y-8 opacity-0 scale-95"
-                    }
+                    ${isOpen
+            ? "translate-y-0 opacity-100 scale-100"
+            : "translate-y-8 opacity-0 scale-95"
+          }
                 `}
       >
         <div className="flex items-center justify-between p-6 border-b">
