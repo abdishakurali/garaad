@@ -7,7 +7,8 @@ export interface User {
   is_premium: boolean;
   has_completed_onboarding: boolean;
   subscription_status: "premium" | "basic";
-  profile: {
+  date_joined: string;
+  profile?: {
     qabiil: string;
     laan: string;
   };

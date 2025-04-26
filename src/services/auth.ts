@@ -19,18 +19,25 @@ export interface SignUpData {
   };
 }
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_premium: boolean;
+  has_completed_onboarding: boolean;
+  subscription_status: "premium" | "basic";
+  date_joined: string;
+  profile?: {
+    qabiil: string;
+    laan: string;
+  };
+}
+
 export interface SignUpResponse {
   message?: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    is_premium: boolean;
-    has_completed_onboarding: boolean;
-    subscription_status: "premium" | "basic";
-  };
+  user: User;
   token: string;
   tokens?: {
     refresh: string;
@@ -45,20 +52,7 @@ export interface SignInData {
 
 export interface SignInResponse {
   message?: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    is_premium: boolean;
-    has_completed_onboarding: boolean;
-    subscription_status: "premium" | "basic";
-    profile: {
-      qabiil: string;
-      laan: string;
-    };
-  };
+  user: User;
   token: string;
   tokens?: {
     refresh: string;
@@ -72,10 +66,41 @@ interface JWTPayload {
   user_id: number;
 }
 
+interface AuthError {
+  message?: string;
+  status?: number;
+}
+
+interface AuthResponse {
+  access: string;
+  refresh: string;
+  user: User;
+}
+
+interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+interface SignUpError {
+  response?: {
+    data: {
+      email?: string[];
+      password?: string[];
+      username?: string[];
+      name?: string[];
+      onboarding_data?: string[];
+      detail?: string;
+      message?: string;
+    };
+  };
+}
+
 class AuthService {
   private static instance: AuthService;
   private token: string | null = null;
   private refreshToken: string | null = null;
+  private user: User | null = null;
   private baseURL: string =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   private refreshTimeout: NodeJS.Timeout | null = null;
@@ -83,11 +108,7 @@ class AuthService {
   private refreshSubscribers: Array<(token: string) => void> = [];
 
   private constructor() {
-    // Initialize tokens from localStorage if they exist
-    if (typeof window !== "undefined") {
-      this.token = localStorage.getItem("accessToken");
-      this.refreshToken = localStorage.getItem("refreshToken");
-    }
+    this.loadFromStorage();
   }
 
   public static getInstance(): AuthService {
@@ -95,6 +116,23 @@ class AuthService {
       AuthService.instance = new AuthService();
     }
     return AuthService.instance;
+  }
+
+  private loadFromStorage(): void {
+    if (typeof window !== "undefined") {
+      this.token = localStorage.getItem("token");
+      this.refreshToken = localStorage.getItem("refreshToken");
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          this.user = JSON.parse(userStr) as User;
+        } catch (error: unknown) {
+          const authError = error as AuthError;
+          console.error("Failed to parse user from storage:", authError);
+          this.user = null;
+        }
+      }
+    }
   }
 
   private getAuthHeaders() {
@@ -125,8 +163,9 @@ class AuthService {
     if (this.isTokenExpired(token)) {
       try {
         return await this.refreshAccessToken();
-      } catch (error) {
-        console.error("Failed to refresh token:", error);
+      } catch (error: unknown) {
+        const authError = error as AuthError;
+        console.error("Failed to refresh token:", authError);
         this.logout();
         return null;
       }
@@ -172,16 +211,16 @@ class AuthService {
         console.error("No token received in signup response");
         throw new Error("No token received from server");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Signup error:", error);
 
       // Handle Axios error
-      if (error.response) {
-        const errorData = error.response.data;
+      if (axios.isAxiosError(error)) {
+        const errorData = (error as SignUpError).response?.data;
         let errorMessage = "Khalad ayaa dhacay markii la sameeyay akoonka";
 
         // Handle specific error cases
-        if (errorData.email) {
+        if (errorData?.email) {
           if (Array.isArray(errorData.email)) {
             const emailError = errorData.email[0];
             if (emailError === "Enter a valid email address.") {
@@ -190,7 +229,7 @@ class AuthService {
               errorMessage = "Email-kan horey ayaa loo isticmaalaa";
             }
           }
-        } else if (errorData.password) {
+        } else if (errorData?.password) {
           if (Array.isArray(errorData.password)) {
             const passwordError = errorData.password[0];
             if (
@@ -199,14 +238,14 @@ class AuthService {
               errorMessage = "Password-ka waa inuu ahaadaa ugu yaraan 8 xaraf";
             }
           }
-        } else if (errorData.username) {
+        } else if (errorData?.username) {
           if (Array.isArray(errorData.username)) {
             const usernameError = errorData.username[0];
             if (usernameError === "Username already exists") {
               errorMessage = "Magaca isticmaalaha horey ayaa loo isticmaalaa";
             }
           }
-        } else if (errorData.name) {
+        } else if (errorData?.name) {
           if (Array.isArray(errorData.name)) {
             const nameError = errorData.name[0];
             if (nameError === "This field is required.") {
@@ -215,13 +254,14 @@ class AuthService {
               errorMessage = "Magacaaga aad u dheer yahay";
             }
           }
-        } else if (errorData.onboarding_data) {
+        } else if (errorData?.onboarding_data) {
           errorMessage = "Xogta diiwaangelinta aysan saxneyn";
         }
 
         throw new Error(errorMessage);
       }
 
+      // If it's not an Axios error, throw the original error
       throw error;
     }
   }
@@ -608,6 +648,48 @@ class AuthService {
     throw error instanceof Error
       ? error
       : new Error("An unknown error occurred");
+  }
+
+  public async login(
+    username: string,
+    password: string
+  ): Promise<AuthResponse> {
+    try {
+      const credentials: LoginCredentials = { username, password };
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(credentials),
+        }
+      );
+
+      if (!response.ok) {
+        const error: AuthError = await response.json();
+        throw new Error(error.message || "Login failed");
+      }
+
+      const data: AuthResponse = await response.json();
+      this.setAuth(data);
+      return data;
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      throw new Error(authError.message || "Login failed");
+    }
+  }
+
+  private setAuth(data: AuthResponse): void {
+    this.token = data.access;
+    this.refreshToken = data.refresh;
+    this.user = data.user;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", data.access);
+      localStorage.setItem("refreshToken", data.refresh);
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
   }
 }
 
