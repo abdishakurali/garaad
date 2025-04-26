@@ -1,16 +1,42 @@
 export interface User {
-  id: number;
-  username: string;
+  id: string;
   email: string;
   first_name: string;
   last_name: string;
-  is_premium: boolean;
-  has_completed_onboarding: boolean;
-  subscription_status: "premium" | "basic";
+  username: string;
   date_joined: string;
-  profile?: {
-    qabiil: string;
-    laan: string;
+  is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  last_login: string;
+  avatar_url?: string;
+  bio?: string;
+  preferences?: {
+    language: string;
+    theme: string;
+    notifications: boolean;
+  };
+  stats?: {
+    rank: number;
+    points: number;
+    completed: number;
+  };
+  name?: string;
+  avatar?: string;
+  role?: string;
+  profile?: Profile;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Profile {
+  bio?: string;
+  location?: string;
+  website?: string;
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    github?: string;
   };
 }
 
@@ -69,10 +95,24 @@ export interface SignUpData {
   password: string;
   first_name: string;
   last_name: string;
-  name?: string;
+  age: number;
+  onboarding_data: {
+    goal: string;
+    learning_approach: string;
+    topic: string;
+    math_level: string;
+    minutes_per_day: number;
+  };
   profile?: {
-    qabiil: string;
-    laan: string;
+    bio?: string;
+    avatar?: string;
+    location?: string;
+    website?: string;
+    socialLinks?: {
+      twitter?: string;
+      linkedin?: string;
+      github?: string;
+    };
   };
 }
 

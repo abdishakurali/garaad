@@ -64,7 +64,16 @@ export const signup =
       dispatch(
         setUser({
           ...response.user,
-          profile: userData.profile || { qabiil: "", laan: "" },
+          profile: userData.profile || {
+            bio: "",
+            location: "",
+            website: "",
+            socialLinks: {
+              twitter: "",
+              linkedin: "",
+              github: "",
+            },
+          },
         })
       );
       dispatch(setError(null));

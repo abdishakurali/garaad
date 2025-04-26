@@ -14,52 +14,12 @@ import {
 } from "@/store/features/authSlice";
 import { useToast } from "@/hooks/use-toast";
 import type { AppDispatch } from "@/store";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
 
-const containerVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      staggerChildren: 0.1,
-      duration: 0.5,
-      ease: "easeOut",
-    },
-  },
-};
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
-};
 
-const abtirsiData = {
-  Daarood: ["Majeerteen", "Dhulbahante", "Warsangeli", "Mareexaan", "Ogaden"],
-  Hawiye: ["Abgaal", "Habar Gidir", "Murursade", "Duduble", "Sheekhaal"],
-  Dir: ["Gadabuursi", "Ciise", "Biimaal", "Surre"],
-  Isaaq: ["Habar Awal", "Habar Jeclo", "Habar Yoonis", "Garhajis"],
-  Raxanweyn: ["Digil", "Mirifle", "Sagaal", "Hubeer"],
-  Jareerweyne: ["Bantu", "Gosha", "Makane", "Shidle"],
-  Benadiri: ["Reer Xamar", "Reer Merka", "Reer Baraawe"],
-  Gabooye: ["Tumaal", "Yibir", "Madhiban"],
-  Ashraaf: ["Shariif", "Reer Faqi"],
-};
+
+
+
 
 // Step titles
 const stepTitles = [
@@ -424,19 +384,15 @@ const learningGoals = [
 
 export default function Page() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [selections, setSelections] = useState<Record<number, number | string>>(
-    {}
-  );
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [profile, setProfile] = useState<{ qabiil: string; laan: string }>({
-    qabiil: "",
-    laan: "",
+  const [selections, setSelections] = useState<Record<number, number | string>>({});
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    age: ""
   });
   const steps = [goals, learningApproach, topics, topicLevels, learningGoals];
-  const [showSubmitAlert, setShowSubmitAlert] = useState(false);
   const router = useRouter();
   const progress = (currentStep / (steps.length + 2)) * 100;
 
@@ -450,31 +406,7 @@ export default function Page() {
     setSelections((prev) => ({ ...prev, [currentStep]: value }));
   };
 
-  const handleProfileChange = (newProfile: {
-    qabiil: string;
-    laan: string;
-  }) => {
-    setProfile(newProfile);
-  };
-
   const handleContinue = () => {
-    // Only validate inputs when moving from inputs step to profile selection
-    if (currentStep === 5) {
-      if (
-        !firstName.trim() ||
-        !lastName.trim() ||
-        !email.trim() ||
-        !password.trim()
-      ) {
-        toast({
-          variant: "destructive",
-          title: "Khalad ayaa dhacay",
-          description: "Fadlan buuxi dhammaan xogtaaga",
-        });
-        return;
-      }
-    }
-
     // Allow progression through all steps except final submission
     if (currentStep < steps.length + 1) {
       setCurrentStep((prev) => prev + 1);
@@ -484,35 +416,12 @@ export default function Page() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Only validate on final submission (step 6)
-      if (currentStep !== 6) {
-        return;
-      }
-
-      // Validate all data only on final submission
-      if (!firstName.trim() || !lastName.trim()) {
+      // Validate all data
+      if (!userData.name.trim() || !userData.email.trim() || !userData.password.trim() || !userData.age.trim()) {
         toast({
           variant: "destructive",
           title: "Khalad ayaa dhacay",
-          description: "Fadlan geli magacaaga",
-        });
-        return;
-      }
-
-      if (!email.trim()) {
-        toast({
-          variant: "destructive",
-          title: "Khalad ayaa dhacay",
-          description: "Fadlan geli emailkaaga",
-        });
-        return;
-      }
-
-      if (!password.trim()) {
-        toast({
-          variant: "destructive",
-          title: "Khalad ayaa dhacay",
-          description: "Fadlan geli passwordkaaga",
+          description: "Fadlan buuxi dhammaan xogta",
         });
         return;
       }
@@ -527,12 +436,13 @@ export default function Page() {
         return;
       }
 
-      // Format the request body exactly as expected by the backend
+      // Format the request body
       const signUpData = {
-        email: email.trim(),
-        password: password.trim(),
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
+        email: userData.email.trim(),
+        password: userData.password.trim(),
+        first_name: userData.name.trim(),
+        last_name: userData.name.trim(),
+        age: parseInt(userData.age),
         onboarding_data: {
           goal: String(selections[0]).trim(),
           learning_approach: String(selections[1]).trim(),
@@ -540,60 +450,41 @@ export default function Page() {
           math_level: String(selections[3]).trim(),
           minutes_per_day: parseInt(String(selections[4]).split(" ")[0]),
         },
-        profile:
-          profile.qabiil && profile.laan
-            ? {
-              qabiil: profile.qabiil,
-              laan: profile.laan,
-            }
-            : undefined,
       };
 
       console.log("Submitting signup data:", signUpData);
-
-      // Show loading state
-      setShowSubmitAlert(false);
 
       // Use Redux for signup
       const result = await dispatch(signup(signUpData));
 
       if (result) {
         console.log("Signup successful");
+        toast({
+          variant: "default",
+          title: "Mahadsanid!",
+          description: "Diiwaangelinta ayaa loo sameeyay si guul leh",
+        });
         router.push("/courses");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Submission failed:", error);
-      // The error message will be displayed through the Redux error state
+      const errorMessage = error?.response?.data?.error || error?.message || "Wax khalad ah ayaa dhacay";
+      toast({
+        variant: "destructive",
+        title: "Khalad ayaa dhacay",
+        description: errorMessage === "Email already exists"
+          ? "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale"
+          : errorMessage,
+      });
     }
   };
 
   const currentOptions = steps[currentStep];
 
-  const getLaanOptions = () => {
-    if (
-      !profile.qabiil ||
-      !abtirsiData[profile.qabiil as keyof typeof abtirsiData]
-    ) {
-      return [];
-    }
-    return abtirsiData[profile.qabiil as keyof typeof abtirsiData];
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#F5F5F5] to-white p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 relative">
-        {/* Back button */}
-        <button
-          onClick={() => {
-            if (currentStep > 0) {
-              setCurrentStep(currentStep - 1);
-            }
-          }}
-          className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
-          disabled={currentStep === 0}
-        >
-          <ArrowLeft className={`w-5 h-5 ${currentStep === 0 ? 'text-gray-300' : 'text-gray-600'}`} />
-        </button>
+      <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-8 relative">
+
 
         <div className="text-center mb-8">
           {/* Progress bar */}
@@ -616,22 +507,6 @@ export default function Page() {
                 ? stepTitles[currentStep]
                 : "Fadlan geli Xogtaaga"}
             </h2>
-
-            {showSubmitAlert && (
-              <Alert className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md bg-green-50 border-green-200 text-green-800 shadow-lg border-r-4 border-r-green-500">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <AlertTitle className="text-green-900 flex items-center gap-2">
-                      Mahadsanid! <span className="text-xl">🎉</span>
-                    </AlertTitle>
-                    <AlertDescription className="text-green-800">
-                      Waxaan u shaqeynaa mowduucyo cajiib ah oo xiiso
-                      badan Nagusoo Noqo muddo kooban kadib
-                    </AlertDescription>
-                  </div>
-                </div>
-              </Alert>
-            )}
 
             {/* Display Redux error if it exists */}
             {error && (
@@ -778,161 +653,56 @@ export default function Page() {
             )}
 
             {currentStep === 5 && (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Magacaaga Hore"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none"
-                  disabled={isLoading}
-                />
-                <input
-                  type="text"
-                  placeholder="Magacaaga Dambe"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none"
-                  disabled={isLoading}
-                />
-                <input
-                  type="email"
-                  placeholder="Emailkaaga"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none"
-                  disabled={isLoading}
-                />
-                <input
-                  type="password"
-                  placeholder="Passwordkaaga"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none"
-                  disabled={isLoading}
-                />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Magacaaga</label>
+                    <input
+                      type="text"
+                      placeholder="Geli magacaaga"
+                      value={userData.name}
+                      onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                      className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Da`da</label>
+                    <input
+                      type="number"
+                      min="5"
+                      max="100"
+                      placeholder="Geli da'daada"
+                      value={userData.age}
+                      onChange={(e) => setUserData({ ...userData, age: e.target.value })}
+                      className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Emailkaaga</label>
+                  <input
+                    type="email"
+                    placeholder="Geli emailkaaga"
+                    value={userData.email}
+                    onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Passwordkaaga</label>
+                  <input
+                    type="password"
+                    placeholder="Geli passwordkaaga"
+                    value={userData.password}
+                    onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
-            )}
-
-            {currentStep === 6 && (
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="space-y-6"
-              >
-                {/* Qabiil Select with Info Dialog */}
-                <motion.div
-                  variants={itemVariants}
-                  className="relative"
-                >
-                  <Select
-                    onValueChange={(value) =>
-                      handleProfileChange({ ...profile, qabiil: value })
-                    }
-                    value={profile.qabiil}
-                  >
-                    <SelectTrigger className="w-full p-5 border border-gray-200 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-primary/30 outline-none transition-transform duration-200 hover:scale-[1.01]">
-                      <SelectValue placeholder="Fadlan Geli beeshaada / ka gudub" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-72 overflow-y-auto">
-                      {Object.keys(abtirsiData).map((qabiil) => (
-                        <SelectItem
-                          key={qabiil}
-                          value={qabiil}
-                          className="transition-colors duration-150 hover:bg-primary/10"
-                        >
-                          {qabiil}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button className="absolute right-4 top-1/2 -translate-y-1/2 text-primary hover:text-primary/80 transition-colors">
-                        <svg className="w-5 h-5" viewBox="0 0 24 24">
-                          <path
-                            fill="currentColor"
-                            d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
-                          />
-                        </svg>
-                      </button>
-                    </DialogTrigger>
-
-                    {/* Removed `asChild` here so DialogContent only gets one child */}
-                    <DialogContent className="max-w-lg px-10 py-8 bg-white rounded-2xl shadow-xl">
-                      <motion.div
-                        initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                      >
-                        <DialogHeader>
-                          <DialogTitle className="text-center mb-4 text-lg font-semibold">
-                            Sababta Qabiilka loo Doortay
-                          </DialogTitle>
-                          <div className="text-sm text-muted-foreground text-center space-y-4">
-                            <p>
-                              Waxaan rabnaa waxbarashu iney xiiso
-                              yeelato madama dadkeenu yihiin bulsho
-                              qabiil ku saleysan. Waxaan
-                              go&apos;aansanay qaab reer caafimad qaba
-                              in lagu tartamo.
-                            </p>
-                            <p className="text-lg font-arabic leading-relaxed">
-                              يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم
-                              مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ
-                              شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا ۚ إِنَّ
-                              أَكْرَمَكُمْ عِندَ اللَّهِ أَتْقَاكُمْ
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              &quot;Waxaan kuu diyaariyey koorsooyin tayo leh oo ku saabsan
-                              afka Soomaaliga.&quot;
-                            </p>
-                          </div>
-                        </DialogHeader>
-                      </motion.div>
-                    </DialogContent>
-                  </Dialog>
-                </motion.div>
-
-                {/* Laan Select */}
-                <motion.div variants={itemVariants}>
-                  <Select
-                    onValueChange={(value) =>
-                      handleProfileChange({ ...profile, laan: value })
-                    }
-                    value={profile.laan}
-                    disabled={!profile.qabiil}
-                  >
-                    <SelectTrigger className="w-full p-4 border border-gray-200 rounded-md bg-white shadow-sm focus:ring-2 focus:ring-primary/30 outline-none transition-transform duration-200 hover:scale-[1.01]">
-                      <SelectValue
-                        placeholder={
-                          profile.qabiil
-                            ? `${abtirsiData[
-                            profile.qabiil as keyof typeof abtirsiData
-                            ][0]
-                            }...`
-                            : "Dooro qabiilka marka hore"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-72 overflow-y-auto">
-                      {profile.qabiil &&
-                        getLaanOptions().map((laan) => (
-                          <SelectItem
-                            key={laan}
-                            value={laan}
-                            className="transition-colors duration-150 hover:bg-primary/10"
-                          >
-                            {laan}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </motion.div>
-              </motion.div>
             )}
 
             <div className="mt-8">
@@ -940,11 +710,9 @@ export default function Page() {
                 className={cn(
                   "w-full rounded-lg py-4 font-semibold transition-colors",
                   currentStep === 6
-                    ? profile.qabiil && profile.laan
-                      ? "bg-primary text-white hover:bg-primary/90"
-                      : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    ? "bg-primary text-white hover:bg-primary/90"
                     : currentStep === 5
-                      ? email && password && firstName && lastName
+                      ? userData.email && userData.password && userData.name && userData.age
                         ? "bg-primary text-white hover:bg-primary/90"
                         : "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : selections[currentStep]
@@ -954,24 +722,17 @@ export default function Page() {
                 )}
                 onClick={(e) => {
                   e.preventDefault();
-                  if (currentStep === 6) {
-                    if (profile.qabiil && profile.laan && !isLoading) {
+                  if (currentStep === 5) {
+                    if (!isLoading) {
                       handleSubmit(e);
                     }
                   } else {
-                    if (currentStep < 5 && selections[currentStep]) {
-                      handleContinue();
-                    } else if (
-                      currentStep === 5 &&
-                      email &&
-                      password &&
-                      firstName &&
-                      lastName
-                    ) {
+                    if (selections[currentStep]) {
                       handleContinue();
                     }
                   }
                 }}
+                type={currentStep === 5 ? "submit" : "button"}
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -998,7 +759,7 @@ export default function Page() {
                     </svg>
                     <span>Waa la socodaa...</span>
                   </div>
-                ) : currentStep === 6 ? (
+                ) : currentStep === 5 ? (
                   "Gudbi"
                 ) : (
                   "Sii wad"

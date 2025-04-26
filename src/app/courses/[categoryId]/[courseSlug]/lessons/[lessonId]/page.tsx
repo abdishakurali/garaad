@@ -42,32 +42,9 @@ import {
   DialogDescription
 } from "@/components/ui/dialog";
 import { LeaderboardEntry, UserRank } from "@/services/progress";
+import AuthService from "@/services/auth";
 
-// Animation variants for consistent animations
-// const fadeInUp = {
-//   hidden: { opacity: 0, y: 20 },
-//   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-// };
 
-// const scaleIn = {
-//   hidden: { scale: 0 },
-//   visible: {
-//     scale: 1,
-//     transition: { type: "spring", stiffness: 500, damping: 30 },
-//   },
-// };
-
-// const pulse = {
-//   initial: { scale: 1 },
-//   animate: {
-//     scale: [1, 1.05, 1],
-//     transition: {
-//       duration: 0.6,
-//       repeat: Number.POSITIVE_INFINITY,
-//       repeatType: "reverse",
-//     },
-//   },
-// };
 
 // Sound manager for better audio handling
 const useSoundManager = () => {
@@ -627,9 +604,9 @@ const LessonCompletionModal: React.FC<LessonCompletionModalProps> = ({
                 className={`flex items-center justify-between p-2 rounded-lg ${userRank.rank === index + 1 ? "bg-primary/10 font-medium" : ""
                   }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 ">
                   <span className="font-bold">{index + 1}</span>
-                  <span>{entry.username || "User"}</span>
+                  <span className="truncate w-28">{entry.username || "User"}</span>
                 </div>
                 <span>{entry.points || 0} XP</span>
               </div>
@@ -794,30 +771,42 @@ const LessonPage = () => {
             (async () => {
               try {
                 // 1. Mark lesson as completed with score
-                const completeResponse = await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${currentLesson.id}/complete/`,
+                const completionResult = await AuthService.getInstance().makeAuthenticatedRequest<{
+                  reward?: { value: number };
+                }>(
+                  'post',
+                  `/api/lms/lessons/${currentLesson.id}/complete/`,
+                  { score: isCorrect ? 100 : 0 }
+                );
+
+                // 2. Update progress status
+                await AuthService.getInstance().makeAuthenticatedRequest(
+                  'put',
+                  `/api/lms/user-progress/${currentLesson.id}/`,
                   {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ score: isCorrect ? 100 : 0 })
+                    status: "completed",
+                    score: isCorrect ? 100 : 0
                   }
                 );
 
-                if (!completeResponse.ok) {
-                  throw new Error('Failed to complete lesson');
-                }
+                // 3. Get updated course progress
+                const courseProgress = await AuthService.getInstance().makeAuthenticatedRequest<{
+                  progress: number;
+                  user_progress: {
+                    progress_percent: number;
+                  };
+                }>(
+                  'get',
+                  `/api/lms/courses/${params.courseId}/`
+                );
 
-                const completionResult = await completeResponse.json();
-
-                // 2. Show reward notification if any
+                // 4. Show reward notification if any
                 if (completionResult.reward) {
                   toast.success(
                     <div className="space-y-2">
                       <p className="font-medium">Hambalyo!</p>
                       <p>Waxaad ku guulaysatay {completionResult.reward.value} XP</p>
+                      <p>Horumarkaaga: {courseProgress.user_progress.progress_percent}%</p>
                     </div>,
                     {
                       duration: 5000,
@@ -826,37 +815,17 @@ const LessonPage = () => {
                   );
                 }
 
-                // 3. Get updated leaderboard
-                const leaderboardResponse = await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/?time_period=all_time&limit=10`,
-                  {
-                    headers: {
-                      'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                  }
+                // 5. Get updated leaderboard
+                const leaderboardData = await AuthService.getInstance().makeAuthenticatedRequest<LeaderboardEntry[]>(
+                  'get',
+                  '/api/lms/leaderboard/?time_period=all_time&limit=10'
                 );
 
-                if (!leaderboardResponse.ok) {
-                  throw new Error('Failed to fetch leaderboard');
-                }
-
-                const leaderboardData = await leaderboardResponse.json();
-
-                // 4. Get user rank
-                const userRankResponse = await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL}/api/lms/user-rank/`,
-                  {
-                    headers: {
-                      'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                  }
+                // 6. Get user rank
+                const userRankData = await AuthService.getInstance().makeAuthenticatedRequest<Partial<UserRank>>(
+                  'get',
+                  '/api/lms/leaderboard/my_rank/'
                 );
-
-                if (!userRankResponse.ok) {
-                  throw new Error('Failed to fetch user rank');
-                }
-
-                const userRankData = await userRankResponse.json();
 
                 // Update state with new data
                 setLeaderboard(leaderboardData);
@@ -864,11 +833,31 @@ const LessonPage = () => {
 
               } catch (error) {
                 console.error("Error updating progress:", error);
-                // We already showed the completion modal, so no additional action needed
+                // Show error toast but don't prevent completion
+                toast.error(
+                  <div className="space-y-2">
+                    <p className="font-medium">Xalad ayaa dhacday</p>
+                    <p>Waxaa jira khalad markii la diiwaangelinayay horumarkaaga. Fadlan isku day mar kale.</p>
+                  </div>,
+                  {
+                    duration: 5000,
+                    id: "error-toast"
+                  }
+                );
               }
             })().catch(error => {
               console.error("Overall progress error:", error);
-              // Completion modal is already shown, no further action needed
+              // Show error toast but don't prevent completion
+              toast.error(
+                <div className="space-y-2">
+                  <p className="font-medium">Xalad ayaa dhacday</p>
+                  <p>Waxaa jira khalad markii la diiwaangelinayay horumarkaaga. Fadlan isku day mar kale.</p>
+                </div>,
+                {
+                  duration: 5000,
+                  id: "error-toast"
+                }
+              );
             });
           } catch (storageError) {
             console.error("Error with local storage:", storageError);
@@ -884,7 +873,7 @@ const LessonPage = () => {
         setCurrentBlockIndex((prev) => Math.min(prev + 1, contentBlocks.length - 1));
       }
     }
-  }, [currentLesson, currentBlockIndex, isCorrect, playSound, setLeaderboard, setUserRank]);
+  }, [currentLesson, currentBlockIndex, isCorrect, playSound, setLeaderboard, setUserRank, params.courseId]);
 
   // Update the ref when handleContinue changes
   useEffect(() => {

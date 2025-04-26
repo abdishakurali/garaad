@@ -6,7 +6,8 @@ export interface SignUpData {
   password: string;
   first_name: string;
   last_name: string;
-  onboarding_data?: {
+  age: number;
+  onboarding_data: {
     goal: string;
     learning_approach: string;
     topic: string;
@@ -14,24 +15,40 @@ export interface SignUpData {
     minutes_per_day: number;
   };
   profile?: {
-    qabiil: string;
-    laan: string;
+    bio?: string;
+    avatar?: string;
+    location?: string;
+    website?: string;
+    socialLinks?: {
+      twitter?: string;
+      linkedin?: string;
+      github?: string;
+    };
   };
 }
 
-interface User {
-  id: number;
-  username: string;
+export interface User {
+  id: string;
   email: string;
   first_name: string;
   last_name: string;
-  is_premium: boolean;
-  has_completed_onboarding: boolean;
-  subscription_status: "premium" | "basic";
+  username: string;
   date_joined: string;
-  profile?: {
-    qabiil: string;
-    laan: string;
+  is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  last_login: string;
+  avatar_url?: string;
+  bio?: string;
+  preferences?: {
+    language: string;
+    theme: string;
+    notifications: boolean;
+  };
+  stats?: {
+    rank: number;
+    points: number;
+    completed: number;
   };
 }
 
@@ -53,11 +70,8 @@ export interface SignInData {
 export interface SignInResponse {
   message?: string;
   user: User;
-  token: string;
-  tokens?: {
-    refresh: string;
-    access: string;
-  };
+  refresh: string;
+  access: string;
 }
 
 interface JWTPayload {
@@ -80,20 +94,6 @@ interface AuthResponse {
 interface LoginCredentials {
   username: string;
   password: string;
-}
-
-interface SignUpError {
-  response?: {
-    data: {
-      email?: string[];
-      password?: string[];
-      username?: string[];
-      name?: string[];
-      onboarding_data?: string[];
-      detail?: string;
-      message?: string;
-    };
-  };
 }
 
 class AuthService {
@@ -120,9 +120,10 @@ class AuthService {
 
   private loadFromStorage(): void {
     if (typeof window !== "undefined") {
-      this.token = localStorage.getItem("token");
-      this.refreshToken = localStorage.getItem("refreshToken");
-      const userStr = localStorage.getItem("user");
+      // Get token from cookie instead of localStorage
+      this.token = this.getCookie("accessToken");
+      this.refreshToken = this.getCookie("refreshToken");
+      const userStr = this.getCookie("user");
       if (userStr) {
         try {
           this.user = JSON.parse(userStr) as User;
@@ -135,8 +136,29 @@ class AuthService {
     }
   }
 
+  private getCookie(name: string): string | null {
+    if (typeof document === "undefined") return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+    return null;
+  }
+
+  private setCookie(name: string, value: string, days: number = 7): void {
+    if (typeof document === "undefined") return;
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Strict; Secure`;
+  }
+
+  private deleteCookie(name: string): void {
+    if (typeof document === "undefined") return;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Strict; Secure`;
+  }
+
   private getAuthHeaders() {
-    const token = localStorage.getItem("accessToken");
+    const token = this.getCookie("accessToken");
     return {
       "Content-Type": "application/json",
       Authorization: token ? `Bearer ${token}` : "",
@@ -154,7 +176,7 @@ class AuthService {
   }
 
   public async ensureValidToken(): Promise<string | null> {
-    const token = localStorage.getItem("accessToken");
+    const token = this.getCookie("accessToken");
 
     if (!token) {
       return null;
@@ -176,93 +198,21 @@ class AuthService {
 
   public async signUp(data: SignUpData): Promise<SignUpResponse> {
     try {
-      console.log(
-        "Sending signup request to:",
-        `${this.baseURL}/api/auth/signup/`
-      );
-      console.log("Request body:", JSON.stringify(data, null, 2));
-
+      console.log("Signing up with data:", data);
       const response = await axios.post<SignUpResponse>(
-        `${this.baseURL}/api/auth/signup/`,
-        {
-          ...data,
-          username: `${data.first_name.toLowerCase()}_${data.last_name.toLowerCase()}`,
-          name: `${data.first_name} ${data.last_name}`,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        `${this.baseURL}/api/auth/register/`,
+        data
       );
-
-      console.log("Signup response:", response.data);
 
       // Store token and user data
-      if (response.data.tokens?.access) {
-        console.log("Attempting to store token from signup response");
-        const { access, refresh } = response.data.tokens;
-
-        this.setTokens(access, refresh);
+      if (response.data.token) {
+        this.setTokens(response.data.token, response.data.token);
         this.setCurrentUser(response.data.user);
-
-        return response.data;
-      } else {
-        console.error("No token received in signup response");
-        throw new Error("No token received from server");
-      }
-    } catch (error: unknown) {
-      console.error("Signup error:", error);
-
-      // Handle Axios error
-      if (axios.isAxiosError(error)) {
-        const errorData = (error as SignUpError).response?.data;
-        let errorMessage = "Khalad ayaa dhacay markii la sameeyay akoonka";
-
-        // Handle specific error cases
-        if (errorData?.email) {
-          if (Array.isArray(errorData.email)) {
-            const emailError = errorData.email[0];
-            if (emailError === "Enter a valid email address.") {
-              errorMessage = "Fadlan geli email sax ah";
-            } else if (emailError === "User with this email already exists.") {
-              errorMessage = "Email-kan horey ayaa loo isticmaalaa";
-            }
-          }
-        } else if (errorData?.password) {
-          if (Array.isArray(errorData.password)) {
-            const passwordError = errorData.password[0];
-            if (
-              passwordError === "Password must be at least 8 characters long"
-            ) {
-              errorMessage = "Password-ka waa inuu ahaadaa ugu yaraan 8 xaraf";
-            }
-          }
-        } else if (errorData?.username) {
-          if (Array.isArray(errorData.username)) {
-            const usernameError = errorData.username[0];
-            if (usernameError === "Username already exists") {
-              errorMessage = "Magaca isticmaalaha horey ayaa loo isticmaalaa";
-            }
-          }
-        } else if (errorData?.name) {
-          if (Array.isArray(errorData.name)) {
-            const nameError = errorData.name[0];
-            if (nameError === "This field is required.") {
-              errorMessage = "Fadlan geli magacaaga";
-            } else if (nameError === "Name is too long") {
-              errorMessage = "Magacaaga aad u dheer yahay";
-            }
-          }
-        } else if (errorData?.onboarding_data) {
-          errorMessage = "Xogta diiwaangelinta aysan saxneyn";
-        }
-
-        throw new Error(errorMessage);
       }
 
-      // If it's not an Axios error, throw the original error
-      throw error;
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
     }
   }
 
@@ -287,16 +237,16 @@ class AuthService {
       console.log("Sign in response:", response.data);
 
       // Store tokens and user data
-      if (response.data.tokens) {
+      if (response.data.refresh && response.data.access) {
         console.log("Storing tokens from signin response");
-        const { access, refresh } = response.data.tokens;
+        const { access, refresh } = response.data;
 
         this.setTokens(access, refresh);
         // Store user data
         this.setCurrentUser(response.data.user);
 
         // Verify storage
-        const storedAccessToken = localStorage.getItem("accessToken");
+        const storedAccessToken = this.getCookie("accessToken");
         console.log("Token storage verification:", {
           expectedToken: access,
           storedToken: storedAccessToken,
@@ -365,23 +315,23 @@ class AuthService {
   }
 
   public isAuthenticated(): boolean {
-    const token = localStorage.getItem("accessToken");
+    const token = this.getCookie("accessToken");
     const user = this.getCurrentUser();
     return !!token && !!user;
   }
 
   public getToken(): string | null {
-    return this.token;
+    return this.getCookie("accessToken");
   }
 
   public getCurrentUser() {
-    const userStr = localStorage.getItem("user");
+    const userStr = this.getCookie("user");
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
         return user;
       } catch (e) {
-        console.error("Error parsing user from localStorage:", e);
+        console.error("Error parsing user from cookie:", e);
         this.clearAuthData(); // Clear invalid data
         return null;
       }
@@ -390,57 +340,31 @@ class AuthService {
   }
 
   public setCurrentUser(user: SignUpResponse["user"]) {
-    localStorage.setItem("user", JSON.stringify(user));
+    this.setCookie("user", JSON.stringify(user), 7);
   }
 
   private setTokens(accessToken: string, refreshToken: string) {
-    console.log("Setting tokens:", { accessToken, refreshToken });
+    console.log("Setting tokens in cookies:", { accessToken, refreshToken });
 
     try {
-      // Set in localStorage
       if (typeof window !== "undefined") {
-        // Store in localStorage
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-
-        // Store in cookies with proper attributes
-        const cookieOptions = {
-          path: "/",
-          maxAge: 86400, // 1 day for access token
-          sameSite: "Strict" as const,
-          secure: true,
-        };
-
-        // Set access token cookie
-        document.cookie = `accessToken=${accessToken}; path=${cookieOptions.path}; max-age=${cookieOptions.maxAge}; SameSite=${cookieOptions.sameSite}; Secure`;
-
-        // Set refresh token cookie with longer expiry
-        document.cookie = `refreshToken=${refreshToken}; path=${cookieOptions.path}; max-age=604800; SameSite=${cookieOptions.sameSite}; Secure`;
+        // Store tokens in cookies
+        this.setCookie("accessToken", accessToken, 1); // 1 day for access token
+        this.setCookie("refreshToken", refreshToken, 7); // 7 days for refresh token
 
         // Verify storage
-        const storedAccessToken = localStorage.getItem("accessToken");
-        const storedRefreshToken = localStorage.getItem("refreshToken");
-        const cookies = document.cookie
-          .split(";")
-          .map((cookie) => cookie.trim());
+        const storedAccessToken = this.getCookie("accessToken");
+        const storedRefreshToken = this.getCookie("refreshToken");
 
         console.log("Token storage verification:", {
-          localStorage: {
+          cookies: {
             accessToken: storedAccessToken === accessToken,
             refreshToken: storedRefreshToken === refreshToken,
-          },
-          cookies: {
-            accessToken: cookies.some((cookie) =>
-              cookie.startsWith("accessToken=")
-            ),
-            refreshToken: cookies.some((cookie) =>
-              cookie.startsWith("refreshToken=")
-            ),
           },
         });
 
         if (!storedAccessToken || !storedRefreshToken) {
-          throw new Error("Failed to store tokens in localStorage");
+          throw new Error("Failed to store tokens in cookies");
         }
       } else {
         console.warn("window is undefined - cannot store tokens");
@@ -455,28 +379,16 @@ class AuthService {
     }
   }
 
-  private setToken(token: string): void {
-    this.token = token;
-    if (typeof window !== "undefined") {
-      localStorage.setItem("accessToken", token);
-    }
-  }
-
   public clearAuthData() {
-    // Clear localStorage
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-
-    // Clear cookies with proper attributes
-    document.cookie =
-      "accessToken=; path=/; max-age=0; SameSite=Strict; Secure";
-    document.cookie =
-      "refreshToken=; path=/; max-age=0; SameSite=Strict; Secure";
+    // Clear cookies
+    this.deleteCookie("accessToken");
+    this.deleteCookie("refreshToken");
+    this.deleteCookie("user");
 
     // Clear instance variables
     this.token = null;
     this.refreshToken = null;
+    this.user = null;
   }
 
   // Add a method to make authenticated requests
@@ -522,7 +434,7 @@ class AuthService {
     this.isRefreshing = true;
 
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken = this.getCookie("refreshToken");
       if (!refreshToken) {
         throw new Error("No refresh token available");
       }
@@ -532,7 +444,7 @@ class AuthService {
       });
 
       const { access } = response.data;
-      localStorage.setItem("accessToken", access);
+      this.setCookie("accessToken", access, 1);
 
       // Set up the next refresh
       this.setupRefreshTimer(access);
@@ -573,9 +485,10 @@ class AuthService {
   private _signOut(): void {
     this.token = null;
     this.refreshToken = null;
+    this.user = null;
     if (typeof window !== "undefined") {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.deleteCookie("accessToken");
+      this.deleteCookie("refreshToken");
     }
   }
 
@@ -596,7 +509,7 @@ class AuthService {
       );
 
       const newAccessToken = response.data.access;
-      this.setToken(newAccessToken);
+      this.setCookie("accessToken", newAccessToken, 1);
       return newAccessToken;
     } catch (error) {
       console.error("Token refresh error:", error);
@@ -607,21 +520,22 @@ class AuthService {
   }
 
   initializeAuth() {
-    const token = localStorage.getItem("accessToken");
+    const token = this.getCookie("accessToken");
     if (token) {
       this.setupRefreshTimer(token);
     }
   }
 
   logout() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    this.deleteCookie("accessToken");
+    this.deleteCookie("refreshToken");
+    this.deleteCookie("user");
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }
     this.token = null;
     this.refreshToken = null;
+    this.user = null;
   }
 
   private handleError(error: unknown): never {
@@ -686,9 +600,9 @@ class AuthService {
     this.refreshToken = data.refresh;
     this.user = data.user;
     if (typeof window !== "undefined") {
-      localStorage.setItem("token", data.access);
-      localStorage.setItem("refreshToken", data.refresh);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      this.setCookie("accessToken", data.access, 1);
+      this.setCookie("refreshToken", data.refresh, 7);
+      this.setCookie("user", JSON.stringify(data.user), 7);
     }
   }
 }

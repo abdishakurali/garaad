@@ -10,6 +10,7 @@ export interface Course {
   totalLessons?: number;
   estimatedHours?: number;
   skillLevel?: string;
+  lesson_count?: number;
 }
 
 export interface Category {

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { inter } from "@/lib/fonts";
 import ClientLayout from "./client-layout";
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
   title: {
@@ -196,6 +197,7 @@ export default function RootLayout({
           {children}
           <Toaster />
         </ClientLayout>
+        <Analytics />
       </body>
     </html>
   );
