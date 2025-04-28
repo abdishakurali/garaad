@@ -23,7 +23,7 @@ export function Header() {
         <div className="items-center gap-6 flex">
           <Link
             href="/"
-            className="text-3xl font-semibold tracking-tight text-black font-[fkGrotesk,Fallback] hidden md:flex"
+            className="text-2xl font-semibold tracking-tight text-black font-[fkGrotesk,Fallback] md:text-3xl md:flex"
           >
             Garaad
           </Link>
@@ -37,7 +37,7 @@ export function Header() {
                   className={clsx(
                     "text-gray-600 hover:text-black transition-all font-medium flex items-center gap-2 py-1",
                     (pathname === href || pathname.startsWith(`${href}/`)) &&
-                    "text-primary border-b-2 border-primary"
+                      "text-primary border-b-2 border-primary"
                   )}
                 >
                   {/* icon */}

@@ -32,9 +32,13 @@ import LessonHeader from "@/components/LessonHeader";
 import AnswerFeedback from "@/components/AnswerFeedback";
 import Image from "next/image";
 import { toast } from "sonner";
-import { LeaderboardEntry, UserRank, UserReward } from "@/services/progress";
+import type {
+  LeaderboardEntry,
+  UserRank,
+  UserReward,
+} from "@/services/progress";
 import AuthService from "@/services/auth";
-import { Course } from "@/types/lms";
+import type { Course } from "@/types/lms";
 import RewardComponent from "@/components/RewardComponent";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 
@@ -167,7 +171,7 @@ const ScaleBalanceInteractive: React.FC<{
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Scale className="h-6 w-6 text-primary" />
-              <CardTitle>Scale Balance Exercise</CardTitle>
+              <CardTitle>Hubi Xallinta</CardTitle>
             </div>
             <Badge variant="outline" className="bg-white">
               Problem {currentProblemIndex + 1} of {content.problems.length}
@@ -236,7 +240,7 @@ const ScaleBalanceInteractive: React.FC<{
               className="w-full bg-primary hover:bg-primary/90"
               size="lg"
             >
-              {currentStepIndex === -1 ? "Start Solving" : "Next Step"}
+              {currentStepIndex === -1 ? "Bilow xallinta" : "Aad Qaybta kale"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
@@ -245,7 +249,7 @@ const ScaleBalanceInteractive: React.FC<{
               className="w-full bg-green-600 hover:bg-green-700"
               size="lg"
             >
-              {isLastProblem ? "Complete Exercise" : "Next Problem"}
+              {isLastProblem ? "Dhamaystir" : "Aad Qaybta kale"}
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           )}
@@ -299,7 +303,7 @@ const ProblemBlock: React.FC<{
             {error || "Problem content could not be loaded"}
           </p>
           <Button onClick={onContinue} className="mt-4">
-            Continue to Next Section
+            SiiWado Qaybta Kale
           </Button>
         </CardContent>
       </Card>
@@ -418,7 +422,7 @@ const ProblemBlock: React.FC<{
                   size="lg"
                   disabled={!selectedOption || isLoading}
                 >
-                  Check Answer
+                  Hubi Jawaabta
                 </Button>
               )}
             </div>
@@ -461,7 +465,7 @@ const TextBlock: React.FC<{
             className="px-8 py-6 text-lg rounded-xl"
             size="lg"
           >
-            {isLastBlock ? "Finish" : "Continue"}
+            {isLastBlock ? "Dhammee" : "Sii wado"}
             <ChevronRight className="ml-2 h-5 w-5" />
           </Button>
         </CardFooter>
@@ -491,7 +495,7 @@ const ImageBlock: React.FC<{
           </CardContent>
           <CardFooter className="flex justify-center">
             <Button onClick={onContinue}>
-              {isLastBlock ? "Finish" : "Continue"}
+              {isLastBlock ? "Dhamee" : "Sii wado"}
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </CardFooter>
@@ -545,7 +549,7 @@ const ImageBlock: React.FC<{
             className="px-8 py-6 text-lg rounded-xl"
             size="lg"
           >
-            {isLastBlock ? "Finish" : "Continue"}
+            {isLastBlock ? "Dhammee" : "Sii wado"}
             <ChevronRight className="ml-2 h-5 w-5" />
           </Button>
         </CardFooter>
@@ -554,125 +558,6 @@ const ImageBlock: React.FC<{
   );
 };
 
-// LessonCompletionModal component to show leaderboard, badges, and completion information
-
-// const LessonCompletionModal: React.FC<LessonCompletionModalProps> = ({
-//   isOpen,
-//   onClose,
-//   onContinue,
-//   leaderboard = [],
-//   userRank = { rank: 0, points: 0 },
-// }) => {
-//   return (
-//     <Dialog open={isOpen} onOpenChange={onClose}>
-//       <DialogContent className="sm:max-w-md">
-//         <DialogHeader>
-//           <DialogTitle className="text-center text-2xl font-bold">
-//             <span className="flex items-center justify-center gap-2">
-//               <Trophy className="h-6 w-6 text-yellow-500" />
-//               Casharka wuu dhamaday!
-//             </span>
-//           </DialogTitle>
-//           <DialogDescription className="text-center pt-2">
-//             Hambalyo! Waxaad helay 15 XP.
-//           </DialogDescription>
-//         </DialogHeader>
-
-//         {/* Leaderboard section */}
-//         <div className="border rounded-lg p-4">
-//           <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-//             <Users className="h-5 w-5 text-primary" />
-//             Shaxda tartanka
-//           </h3>
-//           <div className="space-y-2 max-h-[200px] overflow-y-auto">
-//             {leaderboard.slice(0, 5).map((entry, index) => (
-//               <div
-//                 key={entry.id || index}
-//                 className={`flex items-center justify-between p-2 rounded-lg ${
-//                   userRank.rank === index + 1 ? "bg-primary/10 font-medium" : ""
-//                 }`}
-//               >
-//                 <div className="flex items-center gap-2 ">
-//                   <span className="font-bold">{index + 1}</span>
-//                   <span className="truncate w-28">
-//                     {entry.username || "User"}
-//                   </span>
-//                 </div>
-//                 <span>{entry.points || 0} XP</span>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-
-//         <div className="mt-4">
-//           <Button className="w-full" onClick={onContinue}>
-//             Casharka xiga
-//             <ChevronRight className="ml-2 h-4 w-4" />
-//           </Button>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// };
-
-// interface LeaderboardProps {
-//   onContinue: () => void;
-//   leaderboard: LeaderboardEntry[];
-//   userRank: Partial<UserRank>;
-//   displayCount?: number;
-// }
-
-// const Leaderboard: React.FC<LeaderboardProps> = ({
-//   leaderboard,
-//   userRank,
-//   onContinue,
-//   displayCount = 5,
-// }) => {
-//   const topEntries = leaderboard.slice(0, displayCount);
-
-//   return (
-//     <div className="border rounded-lg p-4">
-//       <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-//         <Users className="h-5 w-5 text-primary" />
-//         Shaxda tartanka
-//       </h3>
-
-//       <div className="space-y-2 max-h-[200px] overflow-y-auto">
-//         {topEntries.map((entry, index) => {
-//           const rank = index + 1;
-//           const isCurrentUser = userRank === rank;
-
-//           return (
-//             <div
-//               key={entry.id ?? index}
-//               className={`flex items-center justify-between p-2 rounded-lg ${
-//                 isCurrentUser ? "bg-primary/10 font-medium" : ""
-//               }`}
-//             >
-//               <div className="flex items-center gap-2">
-//                 <span className="font-bold">{rank}</span>
-//                 <span className="truncate w-28">
-//                   {entry.username ?? "User"}
-//                 </span>
-//               </div>
-
-//               <span>{entry.points ?? 0} XP</span>
-//             </div>
-//           );
-//         })}
-//       </div>
-
-//       <div className="mt-4">
-//         <Button className="w-full" onClick={onContinue}>
-//           Casharka xiga
-//           <ChevronRight className="ml-2 h-4 w-4" />
-//         </Button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// Main LessonPage component
 const LessonPage = () => {
   const params = useParams();
   const router = useRouter();
@@ -704,6 +589,8 @@ const LessonPage = () => {
   });
   const { playSound } = useSoundManager();
   const continueRef = useRef<() => void>(() => {});
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   useEffect(() => {
     const fetchProblemContent = async () => {
@@ -808,7 +695,7 @@ const LessonPage = () => {
 
   useEffect(() => {
     fetchCourseIdFromSlug();
-  }, [courseId, fetchCourseIdFromSlug]);
+  }, [fetchCourseIdFromSlug]);
 
   // Handle option selection
   const handleOptionSelect = useCallback(
@@ -992,7 +879,6 @@ const LessonPage = () => {
     courseId,
     setLeaderboard,
     setUserRank,
-    params.courseId,
   ]);
 
   // Update the ref when handleContinue changes
@@ -1050,17 +936,26 @@ const LessonPage = () => {
     }
   }, [selectedOption, content, currentLesson, currentBlockIndex, playSound]);
 
-  // Function to handle continuing after the completion modal
+  // Replace the handleContinueAfterCompletion function with this improved version
   const handleContinueAfterCompletion = () => {
-    // setIsCompletionModalOpen(false);
+    // Use React state instead of direct DOM manipulation
     setShowLeaderboard(false);
     setIsLessonCompleted(false);
-    // Navigate to the course page
+
+    // Set a loading state
+    setNavigating(true);
+
+    // Use the router to navigate
     router.push(`${coursePath}`);
   };
 
   const handleShowLeaderboard = () => {
-    setShowLeaderboard(true);
+    setLeaderboardLoading(true);
+    // Simulate loading time for leaderboard data
+    setTimeout(() => {
+      setShowLeaderboard(true);
+      setLeaderboardLoading(false);
+    }, 300); // Add a slight delay to show loading state
   };
 
   // Reset answer state
@@ -1161,7 +1056,7 @@ const LessonPage = () => {
                     </CardContent>
                     <CardFooter>
                       <Button onClick={handleContinue}>
-                        Continue
+                        Sii wado
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
                     </CardFooter>
@@ -1182,7 +1077,7 @@ const LessonPage = () => {
                   </CardContent>
                   <CardFooter className="flex justify-center">
                     <Button onClick={handleContinue}>
-                      Continue
+                      Sii wado
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </CardFooter>
@@ -1231,10 +1126,10 @@ const LessonPage = () => {
               <p>The requested lesson could not be found or loaded.</p>
               <div className="flex items-center justify-center gap-3 mt-4">
                 <Button asChild className="">
-                  <a href={`${coursePath}`}>Return to Course</a>
+                  <a href={`${coursePath}`}>Kulaabo Bogga Casharka</a>
                 </Button>
                 <Button className="gap-2" onClick={() => router.refresh()}>
-                  <ReplaceIcon /> Retry
+                  <ReplaceIcon /> Isku day
                 </Button>
               </div>
             </div>
@@ -1244,26 +1139,52 @@ const LessonPage = () => {
     );
   }
 
+  // Modify the return statement to handle the navigating state
   return (
     <div className="min-h-screen bg-white">
-      {isLessonCompleted && showLeaderboard ? (
+      {navigating ? (
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="text-muted-foreground">Loading course page...</p>
+          </div>
+        </div>
+      ) : isLessonCompleted && showLeaderboard ? (
         <Leaderboard
           onContinue={handleContinueAfterCompletion}
           leaderboard={leaderboard}
           userRank={userRank}
         />
+      ) : isLessonCompleted && leaderboardLoading ? (
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="text-muted-foreground">Loading leaderboard...</p>
+          </div>
+        </div>
       ) : isLessonCompleted ? (
-        <RewardComponent
-          onContinue={handleShowLeaderboard}
-          rewards={rewards.map((reward) => ({
-            id: reward.id,
-            user: reward.user,
-            reward_type: reward.reward_type,
-            reward_name: reward.reward_name,
-            value: reward.value,
-            awarded_at: reward.awarded_at,
-          }))}
-        />
+        <div>
+          {rewards.length === 0 ? (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <p className="text-muted-foreground">Loading rewards...</p>
+              </div>
+            </div>
+          ) : (
+            <RewardComponent
+              onContinue={handleShowLeaderboard}
+              rewards={rewards.map((reward) => ({
+                id: reward.id,
+                user: reward.user,
+                reward_type: reward.reward_type,
+                reward_name: reward.reward_name,
+                value: reward.value,
+                awarded_at: reward.awarded_at,
+              }))}
+            />
+          )}
+        </div>
       ) : (
         <div>
           <LessonHeader

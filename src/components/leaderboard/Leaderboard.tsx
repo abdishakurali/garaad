@@ -31,13 +31,6 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   // Only show top N entries
   const topEntries = leaderboard.slice(0, displayCount);
 
-  // Find the current user's entry
-  const currentUserEntry = leaderboard.find(
-    (entry) => entry.username === userRank.user_info?.email
-  );
-
-  console.log(currentUserEntry);
-
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-sm border-0 mt-10">
       <CardContent className="p-6">
@@ -75,7 +68,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               return (
                 <div
                   key={entry.id}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
+                  className={`flex items-center justify-between p-3 rounded-lg relative overflow-x-auto ${
                     isCurrentUser ? "bg-green-50" : ""
                   }`}
                 >
@@ -94,7 +87,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     </Avatar>
 
                     {/* Name */}
-                    <span className="font-medium flex-1">{entry.username}</span>
+                    <span className="font-medium relative overflow-hidden">
+                      {entry.username}
+                    </span>
                   </div>
 
                   {/* XP Points */}

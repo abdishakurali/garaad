@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { motion } from "framer-motion";
 import {
   CheckCircle,
@@ -26,65 +26,61 @@ interface RewardComponentProps {
   rewards: UserReward[];
 }
 
-export default function RewardComponent({
-  onContinue,
-  rewards = [],
-}: RewardComponentProps) {
-  const [currentRewardIndex, setCurrentRewardIndex] = useState(0);
-  const [hasMoreRewards, setHasMoreRewards] = useState(rewards.length > 1);
+// Move this config outside the component so it’s only created once
+const TYPE_CONFIG = {
+  points: {
+    defaultIcon: <CheckCircle className="h-6 w-6" />,
+    gradientFrom: "from-green-400",
+    gradientTo: "to-green-500",
+    glowColor: "bg-green-400",
+    accentColor: "text-green-400",
+    valueLabel: "Total XP",
+    valueIcon: <Award className="h-5 w-5" />,
+  },
+  badge: {
+    defaultIcon: <Medal className="h-6 w-6" />,
+    gradientFrom: "from-purple-400",
+    gradientTo: "to-blue-500",
+    glowColor: "bg-purple-400",
+    accentColor: "text-purple-400",
+    valueLabel: "Badge Level",
+    valueIcon: <Award className="h-5 w-5 rotate-12" />,
+  },
+  streak: {
+    defaultIcon: <Flame className="h-6 w-6" />,
+    gradientFrom: "from-orange-400",
+    gradientTo: "to-red-500",
+    glowColor: "bg-orange-400",
+    accentColor: "text-orange-400",
+    valueLabel: "Day Streak",
+    valueIcon: <Flame className="h-5 w-5" />,
+  },
+};
 
-  // Reset the index when rewards change
+function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
+  const [currentRewardIndex, setCurrentRewardIndex] = useState(0);
+  const hasMoreRewards = rewards.length > 1;
+
+  // Reset index when rewards array changes
   useEffect(() => {
     setCurrentRewardIndex(0);
-    setHasMoreRewards(rewards.length > 1);
   }, [rewards]);
 
-  // If no rewards, just continue
-  if (!rewards.length) {
+  // If no rewards, render nothing
+  if (rewards.length === 0) {
     return null;
   }
 
   const currentReward = rewards[currentRewardIndex];
 
-  // Define type-specific properties
-  const typeConfig = {
-    points: {
-      defaultIcon: <CheckCircle className="h-6 w-6" />,
-      gradientFrom: "from-green-400",
-      gradientTo: "to-green-500",
-      glowColor: "bg-green-400",
-      accentColor: "text-green-400",
-      valueLabel: "Total XP",
-      valueIcon: <Award className="h-5 w-5" />,
-    },
-    badge: {
-      defaultIcon: <Medal className="h-6 w-6" />,
-      gradientFrom: "from-purple-400",
-      gradientTo: "to-blue-500",
-      glowColor: "bg-purple-400",
-      accentColor: "text-purple-400",
-      valueLabel: "Badge Level",
-      valueIcon: <Award className="h-5 w-5 rotate-12" />,
-    },
-    streak: {
-      defaultIcon: <Flame className="h-6 w-6" />,
-      gradientFrom: "from-orange-400",
-      gradientTo: "to-red-500",
-      glowColor: "bg-orange-400",
-      accentColor: "text-orange-400",
-      valueLabel: "Day Streak",
-      valueIcon: <Flame className="h-5 w-5" />,
-    },
-  };
+  // Memoize config lookup
+  const config = TYPE_CONFIG[currentReward.reward_type] || TYPE_CONFIG.points;
 
-  const config = typeConfig[currentReward.reward_type] || typeConfig.points;
-
+  // Stable handler for continue button
   const handleContinue = () => {
     if (currentRewardIndex < rewards.length - 1) {
-      // Move to the next reward
-      setCurrentRewardIndex(currentRewardIndex + 1);
+      setCurrentRewardIndex((idx) => idx + 1);
     } else {
-      // No more rewards, call the parent's onContinue
       onContinue();
     }
   };
@@ -97,10 +93,7 @@ export default function RewardComponent({
           <motion.div
             key={`icon-${currentReward.id}`}
             initial={{ scale: 0.5, opacity: 0 }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-            }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, type: "spring" }}
             className="relative mb-8"
           >
@@ -112,7 +105,6 @@ export default function RewardComponent({
             >
               {config.defaultIcon}
             </div>
-
             <motion.div
               initial={{ opacity: 0, x: -10, y: -10 }}
               animate={{ opacity: 1, x: -20, y: -20 }}
@@ -143,10 +135,10 @@ export default function RewardComponent({
             </h2>
             <p className="text-gray-500 mb-8">
               {currentReward.reward_type === "badge"
-                ? "You've earned a new badge!"
+                ? "Wxaad heshay calaamad cusub!"
                 : currentReward.reward_type === "streak"
-                ? "You've maintained your streak!"
-                : "You've earned points for completing your task!"}
+                ? "Waxaad ilaashatay streak-gaaga!"
+                : "Waxaad heshay points-ka! dhamaystirka casharkan"}
             </p>
           </motion.div>
 
@@ -154,10 +146,7 @@ export default function RewardComponent({
           <motion.div
             key={`value-${currentReward.id}`}
             initial={{ scale: 0.8, opacity: 0 }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-            }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
             className="mb-8"
           >
@@ -170,7 +159,7 @@ export default function RewardComponent({
                 initial={{ rotate: -30, scale: 0.5, opacity: 0 }}
                 animate={{ rotate: 0, scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
-                className={config.accentColor + " ml-1"}
+                className={`${config.accentColor} ml-1`}
               >
                 {config.valueIcon}
               </motion.span>
@@ -189,7 +178,7 @@ export default function RewardComponent({
               onClick={handleContinue}
               className={`w-full bg-gradient-to-r ${config.gradientFrom} ${config.gradientTo} text-white py-6 rounded-full transition-all duration-300 flex items-center justify-center gap-2 group hover:shadow-lg hover:opacity-90`}
             >
-              {currentRewardIndex < rewards.length - 1 ? "Continue" : "Finish"}
+              {currentRewardIndex < rewards.length - 1 ? "Sii wado" : "Dhammee"}
               <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
           </motion.div>
@@ -219,3 +208,6 @@ export default function RewardComponent({
     </div>
   );
 }
+
+// Export memoized component
+export default memo(RewardComponent);

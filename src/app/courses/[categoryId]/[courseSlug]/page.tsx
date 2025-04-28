@@ -152,11 +152,11 @@ export default function CourseDetailPage() {
             <div className="flex justify-start gap-6 text-sm text-gray-700">
               <div className="flex items-center gap-1">
                 <span>📘</span>
-                <span>{currentCourse.lesson_count} Lessons</span>
+                <span>{currentCourse.lesson_count} casharo</span>
               </div>
               <div className="flex items-center gap-1">
                 <span>🧩</span>
-                <span>{currentCourse.estimatedHours} Practice</span>
+                <span>{currentCourse.estimatedHours} waydiimo</span>
               </div>
             </div>
           </div>
@@ -165,7 +165,7 @@ export default function CourseDetailPage() {
           <div className="relative">
             <div className="space-y-12">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">Learning Journey</h2>
+                <h2 className="text-3xl font-bold mb-4">Naqshada Barashada</h2>
                 {/* <LevelMarker level={1} isLocked={false} /> */}
               </div>
 
