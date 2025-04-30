@@ -146,7 +146,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/user-progress/by_course/?course_id=${courseId}`,
+        `${baseURL}/api/lms/user-progress/by_course?course_id=${courseId}`,
         {
           method: "GET",
           headers: {

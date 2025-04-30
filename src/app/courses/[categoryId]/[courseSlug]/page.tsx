@@ -61,31 +61,30 @@ export default function CourseDetailPage() {
     fetchProgress();
   }, [fetchProgress]);
 
-  // const isModuleCompleted = useCallback(
-  //   (moduleId: number) => {
-  //     const moduleProgress = progress.filter(
-  //       (p) => p.module_id === moduleId && p.status === "completed"
-  //     );
-  //     return moduleProgress.length > 0;
-  //   },
-  //   [progress]
-  // );
+  // Calculate progress based on current course and user progress
+  const calculateCourseProgress = () => {
+    if (!currentCourse || !progress.length) return 0;
 
-  // const handleModuleClick = (moduleId: string | number) => {
-  //   router.push(
-  //     `/courses/${params.categoryId}/${params.courseSlug}/lessons/${moduleId}`
-  //   );
-  // };
+    // Get all lesson Title from the current course
+    const courseLessonTitle =
+      currentCourse.modules?.flatMap((module) =>
+        module.lessons?.map((lesson) => lesson.title)
+      ) || [];
 
-  const progessItems = progress?.length;
-  const LessonsCompleted = progress?.filter(
-    (lessons) => lessons.status === "completed"
-  ).length;
+    // Filter progress items that belong to this course and are completed
+    const completedLessons = progress.filter(
+      (item) =>
+        courseLessonTitle.includes(item.lesson_title) &&
+        item.status === "completed"
+    );
 
-  const completedPercentage =
-    progessItems && LessonsCompleted
-      ? (progessItems / LessonsCompleted) * 100
+    // Calculate percentage
+    return courseLessonTitle.length > 0
+      ? (completedLessons.length / courseLessonTitle.length) * 100
       : 0;
+  };
+
+  const completedPercentage = calculateCourseProgress();
 
   if (error) {
     return (
@@ -113,15 +112,13 @@ export default function CourseDetailPage() {
     );
   }
 
-  console.log(currentCourse);
-
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <div className="max-w-6xl mx-auto p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left Column: Course Info */}
-          <div className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md  border-gray-200">
+          <div className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md border-gray-200">
             {/* Detached Icon/Image */}
             <div className="flex mb-6 border-border border-2 px-4 py-2 rounded-md w-fit">
               <div className="relative w-16 h-16">
@@ -152,11 +149,18 @@ export default function CourseDetailPage() {
             <div className="flex justify-start gap-6 text-sm text-gray-700">
               <div className="flex items-center gap-1">
                 <span>📘</span>
-                <span>{currentCourse.lesson_count} casharo</span>
+                <span>
+                  {currentCourse.modules?.flatMap((m) => m.lessons).length || 0}{" "}
+                  casharo
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <span>🧩</span>
                 <span>{currentCourse.estimatedHours} waydiimo</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>✅</span>
+                <span>{Math.round(completedPercentage)}% dhameystiran</span>
               </div>
             </div>
           </div>
@@ -166,7 +170,6 @@ export default function CourseDetailPage() {
             <div className="space-y-12">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Naqshada Barashada</h2>
-                {/* <LevelMarker level={1} isLocked={false} /> */}
               </div>
 
               <div className="relative flex flex-col items-center gap-12">
@@ -175,9 +178,7 @@ export default function CourseDetailPage() {
 
                 {(currentCourse?.modules ?? []).map(
                   (module: Module, index: number) => (
-                    <div key={module.id} className="relative z-10 ">
-                      {/* Level Indicator */}
-
+                    <div key={module.id} className="relative z-10">
                       {/* Module Block */}
                       <div className="relative hover:scale-[1.02] transition-transform duration-300 translate-y-12">
                         <ModuleZigzag
@@ -198,17 +199,6 @@ export default function CourseDetailPage() {
               </div>
             </div>
           </div>
-
-          {/* Right Column: New Learning Path Implementation */}
-          {/* <div className="relative]">
-              <LearningPathPresenter
-                courseData={CourseData}
-                onNodeSelected={handleNodeSelect}
-                dimensions={{ width: 600, height: 700 }}
-                
-              />
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

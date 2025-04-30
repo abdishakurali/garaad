@@ -12,9 +12,10 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({ problems }) => (
       <div key={problem.id} className="p-4 border rounded-lg">
         <p className="mb-4 font-medium">{problem.question_text}</p>
         <div className="space-y-6 flex justify-center items-center">
-          {problem.diagram_config?.map((cfg) => (
-            <DiagramScale key={cfg.diagram_id} config={cfg} />
-          ))}
+          {Array.isArray(problem.diagram_config) &&
+            problem.diagram_config.map((cfg) => (
+              <DiagramScale key={cfg.diagram_id} config={cfg} />
+            ))}
         </div>
       </div>
     ))}

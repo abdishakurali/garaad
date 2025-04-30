@@ -50,6 +50,7 @@ export type BlockType =
   | "video"
   | "example"
   | "problem"
+  | "diagram"
   | "note"
   | "code"
   | "quiz"
@@ -115,7 +116,7 @@ export interface ProblemContent {
   solution_steps?: Array<{
     explanation: string;
   }>;
-  diagram_config?: DiagramConfig[];
+  diagram_config?: DiagramConfig | DiagramConfig[];
 }
 
 export interface Exercise {

@@ -47,9 +47,9 @@ export default function ModuleZigzag({
   }, [fetchProgress]);
 
   const isModuleCompleted = useCallback(
-    (moduleId: number) => {
+    (lessonTitle: string) => {
       const moduleProgress = progress.filter(
-        (p) => p.module_id === moduleId && p.status === "completed"
+        (p) => p.lesson_title === lessonTitle && p.status === "completed"
       );
       return moduleProgress.length > 0;
     },
@@ -101,7 +101,7 @@ export default function ModuleZigzag({
       points.push({
         x: startX,
         y: startY,
-        completed: isModuleCompleted(modules[0].course_id),
+        completed: isModuleCompleted(modules[0].title),
         inProgress: hasModuleProgress(modules[0].course_id),
       });
 
@@ -109,7 +109,7 @@ export default function ModuleZigzag({
 
       // Find last completed module
       for (let i = 0; i < modules.length; i++) {
-        if (isModuleCompleted(modules[i].course_id)) {
+        if (isModuleCompleted(modules[i].title)) {
           lastCompletedIndex = i;
         } else {
           break;
@@ -137,7 +137,7 @@ export default function ModuleZigzag({
         points.push({
           x: currentX,
           y: currentY,
-          completed: isModuleCompleted(modules[i].course_id),
+          completed: isModuleCompleted(modules[i].title),
           inProgress: hasModuleProgress(modules[i].course_id),
         });
 
@@ -305,7 +305,7 @@ export default function ModuleZigzag({
                     isActive={openPopoverId === module.id}
                     onClick={() => onModuleClick(module.id)}
                     iconType={
-                      isModuleCompleted(module.course_id)
+                      isModuleCompleted(module.title)
                         ? "green"
                         : hasModuleProgress(module.course_id)
                         ? "blue"
@@ -324,7 +324,7 @@ export default function ModuleZigzag({
                   <ModulePopup
                     module={module}
                     isInProgress={hasModuleProgress(module.course_id)}
-                    isCompleted={isModuleCompleted(module.course_id)}
+                    isCompleted={isModuleCompleted(module.title)}
                   />
                 </Popover.Content>
               </Popover.Portal>

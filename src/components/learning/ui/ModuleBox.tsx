@@ -13,6 +13,7 @@ export default function ModuleBox({
   isActive,
   onClick,
   iconType,
+  module,
 }: ModuleBoxProps) {
   const getGradient = () => {
     switch (iconType) {
@@ -71,8 +72,8 @@ export default function ModuleBox({
       </div>
 
       {/* Module title */}
-      <div className="mt-2 text-center max-w-[120px]">
-        {/* <p className="text-sm font-medium">{module.title}</p> */}
+      <div className="mt-2 text-center max-w-[160px]">
+        <p className="text-sm font-medium ">{module.title}</p>
       </div>
     </div>
   );
