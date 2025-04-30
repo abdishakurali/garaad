@@ -125,7 +125,7 @@ export default function CoursesPage() {
         <div className="p-4 sm:p-6 md:p-8">
           <div className="max-w-[1200px] mx-auto">
             <div className="mb-8">
-              <h1 className="text-[28px] font-bold text-[#1A1D1E] mb-2">
+              <h1 className="text-xl md:text-3xl font-bold text-[#1A1D1E] mb-2">
                 Wadooyinka Waxbarashada
               </h1>
               <p className="text-[16px] text-[#6B7280]">
@@ -173,12 +173,12 @@ export default function CoursesPage() {
                               </span>
                             )}
                           </span> */}
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-2xl font-bold text-prima mb-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <h2 className="md:text-2xl font-bold text-prima mb-1">
                               {category.title}
                             </h2>
-                            <p className="text-[#6B7280] text-sm">
-                              {category.courses?.length} courses
+                            <p className="text-[#6B7280] flex text-sm space-x-1">
+                              <span>{category.courses?.length}</span>  <span className="text-primary">Cashar</span>
                             </p>
                           </div>
                         </div>

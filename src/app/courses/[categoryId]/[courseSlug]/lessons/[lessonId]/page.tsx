@@ -29,7 +29,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import type { TextContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
-import AnswerFeedback from "@/components/AnswerFeedback";
+import { AnswerFeedback } from "@/components/AnswerFeedback";
 import Image from "next/image";
 import { toast } from "sonner";
 import type {
@@ -346,7 +346,7 @@ const ProblemBlock: React.FC<{
             <p className="text-red-500">
               {error || "Problem content could not be loaded"}
             </p>
-            <Button onClick={onContinue} className="mt-4">
+            <Button onClick={onContinue} className="mt-2">
               SiiWado Qaybta Kale
             </Button>
           </CardContent>
@@ -361,7 +361,7 @@ const ProblemBlock: React.FC<{
     const showImage = ["multiple_choice", "mcq"].includes(content.question_type || "");
 
     return (
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto  ">
         <motion.div className="space-y-8">
           {/* Question Card */}
           <Card className="border-none shadow-xl z-0">
@@ -382,7 +382,7 @@ const ProblemBlock: React.FC<{
                 </div>
               )}
               <div className="pt-4">
-                <CardTitle className="text-2xl text-center mt-2">
+                <CardTitle className="text-lg text-max items-center justify-center flex text-center mt-2">
                   {content.question}
                 </CardTitle>
               </div>
@@ -418,7 +418,7 @@ const ProblemBlock: React.FC<{
                   ))}
               </CardContent>
             )}
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               {/* Options Layout */}
               {content.question_type === "diagram" ? (
                 <div className="grid gap-4 md:grid-cols-2">
@@ -430,18 +430,27 @@ const ProblemBlock: React.FC<{
                       <motion.button
                         key={idx}
                         onClick={() => onOptionSelect(option)}
-                        disabled={hasAnswered}
+                        disabled={hasAnswered && isSelected}
                         className={cn(
                           "p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
                           "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                           !isSelected && !hasAnswered && "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
                           isSelected && !hasAnswered && "border-primary bg-primary/10 shadow-md",
                           isOptionCorrect && "border-green-500 bg-green-50 shadow-md",
-                          isOptionIncorrect && "border-red-500 bg-red-50 shadow-md"
+                          isOptionIncorrect && "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed",
                         )}
                       >
+                        {/* X icon for incorrect */}
+                        {isOptionIncorrect && (
+                          <span className="absolute top-2 right-2 text-gray-400">
+                            <X className="h-5 w-5" />
+                          </span>
+                        )}
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-medium text-gray-800">
+                          <span className={cn(
+                            "text-lg font-medium",
+                            isOptionIncorrect ? "text-gray-400" : "text-gray-800"
+                          )}>
                             {option}
                           </span>
                           {isOptionCorrect && (
@@ -451,15 +460,6 @@ const ProblemBlock: React.FC<{
                               className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
                             >
                               <Check className="h-4 w-4 text-white" />
-                            </motion.div>
-                          )}
-                          {isOptionIncorrect && (
-                            <motion.div
-                              initial="hidden"
-                              animate="visible"
-                              className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center"
-                            >
-                              <X className="h-4 w-4 text-white" />
                             </motion.div>
                           )}
                         </div>
@@ -483,18 +483,31 @@ const ProblemBlock: React.FC<{
                       <motion.button
                         key={idx}
                         onClick={() => onOptionSelect(option)}
-                        disabled={hasAnswered}
+                        disabled={hasAnswered && isSelected}
                         className={cn(
                           "w-full p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
                           "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                          // Default state
                           !isSelected && !hasAnswered && "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                          // Selected but not yet checked
                           isSelected && !hasAnswered && "border-primary bg-primary/10 shadow-md",
+                          // Correct
                           isOptionCorrect && "border-green-500 bg-green-50 shadow-md",
-                          isOptionIncorrect && "border-red-500 bg-red-50 shadow-md"
+                          // Incorrect (custom style)
+                          isOptionIncorrect && "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed",
                         )}
                       >
+                        {/* X icon for incorrect */}
+                        {isOptionIncorrect && (
+                          <span className="absolute top-2 right-2 text-gray-400">
+                            <X className="h-5 w-5" />
+                          </span>
+                        )}
                         <div className="flex items-center justify-between">
-                          <span className="text-base md:text-lg font-medium text-gray-800">
+                          <span className={cn(
+                            "text-base md:text-lg font-medium",
+                            isOptionIncorrect ? "text-gray-400" : "text-gray-800"
+                          )}>
                             {option}
                           </span>
                           {isOptionCorrect && (
@@ -504,15 +517,6 @@ const ProblemBlock: React.FC<{
                               className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
                             >
                               <Check className="h-4 w-4 text-white" />
-                            </motion.div>
-                          )}
-                          {isOptionIncorrect && (
-                            <motion.div
-                              initial="hidden"
-                              animate="visible"
-                              className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center"
-                            >
-                              <X className="h-4 w-4 text-white" />
                             </motion.div>
                           )}
                         </div>
@@ -555,93 +559,60 @@ const TextBlock: React.FC<{
   isLastBlock: boolean;
 }> = ({ content, onContinue, isLastBlock }) => {
   const isHorizontal = content.orientation === "horizontal";
+
+  const handleContinue = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    onContinue();
+  };
+
   return (
     <motion.div
-      className="flex flex-col items-center justify-center min-h-[40vh] max-w-6xl mx-auto px-4"
+      className="flex flex-col items-center justify-center min-h-[40vh] max-w-4xl mx-auto px-4"
       initial="hidden"
       animate="visible"
     >
       <Card className="w-full max-w-full shadow-lg rounded-2xl border border-gray-100 bg-white">
-        {isHorizontal ? (
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-0 p-0 md:p-8">
-            {/* Left: Text */}
-            <div className="flex-1 w-full flex flex-col justify-center items-start px-4 md:px-8 py-6 md:py-0">
-              {content.title && (
-                <div className="prose prose-lg dark:prose-invert max-w-none text-2xl md:text-3xl font-bold mb-2">
-                  <ReactMarkdown>{content.title}</ReactMarkdown>
-                </div>
-              )}
-              {content.text && (
-                <div className="prose prose-base mt-4 text-muted-foreground text-center text-lg md:text-xl">
-                  <ReactMarkdown>{content.text}</ReactMarkdown>
-                </div>
-              )}
-              <div className="mt-8">
-                <Button
-                  onClick={onContinue}
-                  className="px-8 py-4 text-lg rounded-full shadow-md hover:scale-105 transition-transform"
-                  size="lg"
-                >
-                  {isLastBlock ? "Dhamee" : "Sii wado"}
-                  <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
+        <CardContent className="flex flex-col items-center justify-center p-6 md:p-10 space-y-6 md:space-y-10">
+          {content.title && (
+            <div className="prose prose-lg dark:prose-invert max-w-none text-xl md:text-xl font-bold text-center">
+              <ReactMarkdown>{content.title}</ReactMarkdown>
+            </div>
+          )}
+          {content.text && (
+            <div className="prose prose-base mt-2 text-muted-foreground text-left text-lg md:text-xl">
+              <ReactMarkdown>{content.text}</ReactMarkdown>
+            </div>
+          )}
+          {content.url && (
+            <div className="flex justify-center w-full">
+              <div className="relative w-full max-w-[500px] aspect-[16/7] md:aspect-[16/7] my-6">
+                <Image
+                  src={content.url}
+                  alt={content.alt || "lesson image"}
+                  fill
+                  className="rounded-2xl shadow-xl border border-gray-200 object-cover bg-white"
+                  sizes="(max-width: 900px) 90vw, (max-width: 1200px) 50vw, 500px"
+                  priority
+                />
               </div>
             </div>
-            {/* Right: Image */}
-            {content.url && (
-              <div className="flex-1 w-full flex items-center justify-center">
-                <div className="relative w-full max-w-[500px] aspect-[16/9] md:aspect-[4/3]">
-                  <Image
-                    src={content.url}
-                    alt={content.alt || "lesson image"}
-                    fill
-                    className="rounded-xl shadow-lg object-contain bg-white"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 500px"
-                    priority
-                  />
-                </div>
-              </div>
-            )}
+          )}
+          {content.text1 && (
+            <div className="prose prose-base mt-2 text-muted-foreground text-left text-lg md:text-xl">
+              <ReactMarkdown>{content.text1}</ReactMarkdown>
+            </div>
+          )}
+          <div className="flex justify-center w-full pt-2">
+            <Button
+              onClick={handleContinue}
+              className="w-full bg-primary hover:bg-primary/90"
+              size="lg"
+            >
+              {isLastBlock ? "Dhamee" : "Sii wado"}
+              <ChevronRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
-        ) : (
-          <CardContent className="flex flex-col items-center justify-center p-6 md:p-10 space-y-6 md:space-y-10">
-            {content.title && (
-              <div className="prose prose-lg dark:prose-invert max-w-none text-2xl md:text-3xl font-bold text-center">
-                <ReactMarkdown>{content.title}</ReactMarkdown>
-              </div>
-            )}
-            {content.text && (
-              <div className="prose prose-base mt-4 text-muted-foreground text-center text-lg md:text-xl">
-                <ReactMarkdown>{content.text}</ReactMarkdown>
-              </div>
-            )}
-
-            {content.url && (
-              <div className="flex justify-center w-full">
-                <div className="relative w-full max-w-[500px] aspect-[16/7] md:aspect-[16/7] my-6">
-                  <Image
-                    src={content.url}
-                    alt={content.alt || "lesson image"}
-                    fill
-                    className="rounded-2xl shadow-xl border border-gray-200 object-cover bg-white"
-                    sizes="(max-width: 900px) 90vw, (max-width: 1200px) 50vw, 500px"
-                    priority
-                  />
-                </div>
-              </div>
-            )}
-            <div className="flex justify-center w-full pt-2">
-              <Button
-                onClick={onContinue}
-                className="px-8 py-4 text-lg rounded-full shadow-md hover:scale-105 transition-transform"
-                size="lg"
-              >
-                {isLastBlock ? "Dhamee" : "Sii wado"}
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-          </CardContent>
-        )}
+        </CardContent>
       </Card>
     </motion.div>
   );
@@ -1338,7 +1309,7 @@ const LessonPage = () => {
             <div className="text-gray-600 space-y-4">
               <h2 className="text-xl font-semibold">No Lesson Found</h2>
               <p>The requested lesson could not be found or loaded.</p>
-              <div className="flex items-center justify-center gap-3 mt-4">
+              <div className="flex items-center justify-center gap-3 mt-2">
                 <Button asChild className="">
                   <a href={`${coursePath}`}>Kulaabo Bogga Casharka</a>
                 </Button>

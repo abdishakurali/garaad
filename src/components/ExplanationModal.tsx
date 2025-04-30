@@ -40,7 +40,7 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
       {/* Modal */}
       <div
         className={`
-                    relative bg-white rounded-2xl w-full sm:w-[400px] md:w-[500px] lg:w-[600px] overflow-hidden
+                    relative bg-white rounded-2xl w-full sm:w-[400px] md:w-[500px] lg:w-[600px]  overflow-hidden
                     transform transition-all duration-500 ease-out
                     ${isOpen
             ? "translate-y-0 opacity-100 scale-100"
@@ -58,14 +58,14 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="  space-y-6">
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="px-6 pb-6"
           >
-            <div className="p-4 bg-white/70 backdrop-blur-sm rounded-lg border border-gray-100 text-black">
+            <div className="  bg-white/70 backdrop-blur-sm rounded-lg border border-gray-100 text-black">
               <div className="prose prose-sm max-w-none">
                 <ReactMarkdown>{content.explanation}</ReactMarkdown>
               </div>

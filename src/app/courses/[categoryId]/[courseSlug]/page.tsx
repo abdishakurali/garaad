@@ -158,10 +158,7 @@ export default function CourseDetailPage() {
                 <span>🧩</span>
                 <span>{currentCourse.estimatedHours} waydiimo</span>
               </div>
-              <div className="flex items-center gap-1">
-                <span>✅</span>
-                <span>{Math.round(completedPercentage)}% dhameystiran</span>
-              </div>
+
             </div>
           </div>
 

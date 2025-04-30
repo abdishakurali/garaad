@@ -60,6 +60,7 @@ export type BlockType =
 export interface TextContent {
   desc: string;
   text: string;
+  text1?: string;
   format: "markdown";
   orientation?: "horizontal" | "vertical";
   title?: string;
