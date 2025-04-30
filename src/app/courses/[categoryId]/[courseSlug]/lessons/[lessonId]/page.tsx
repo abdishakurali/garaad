@@ -27,7 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { ProblemContent, TextContent } from "@/types/learning";
+import type { TextContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
 import AnswerFeedback from "@/components/AnswerFeedback";
 import Image from "next/image";
@@ -68,8 +68,22 @@ interface ProblemData {
   options: { text: string }[];
   correct_answer: { text: string }[];
   explanation?: string;
-  diagram_config?: DiagramConfig; // You should define this type properly
+  diagram_config?: DiagramConfig;
   question_type: string;
+  img?: string;
+  alt?: string;
+}
+
+interface ProblemContent {
+  id: number;
+  question: string;
+  options: string[];
+  correct_answer: { id: string; text: string }[];
+  explanation?: string;
+  diagram_config?: DiagramConfig;
+  question_type?: "code" | "mcq" | "short_input" | "diagram" | "multiple_choice";
+  img?: string;
+  alt?: string;
 }
 
 // Sound manager for better audio handling
@@ -263,7 +277,7 @@ const ScaleBalanceInteractive: React.FC<{
           )}
         </CardContent>
 
-        <CardFooter className="bg-gray-50 p-4 border-t border-gray-100">
+        <CardFooter className="bg-gray-50 p-2 border-t border-gray-100 flex justify-start">
           {!showSolution ? (
             <Button
               onClick={handleShowNextStep}
@@ -317,168 +331,222 @@ const ProblemBlock: React.FC<{
   isCorrect,
   isLastInLesson,
 }) => {
-  if (isLoading) {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      );
+    }
+
+    if (error || !content) {
+      return (
+        <Card className="max-w-3xl mx-auto">
+          <CardContent className="p-6 text-center">
+            <p className="text-red-500">
+              {error || "Problem content could not be loaded"}
+            </p>
+            <Button onClick={onContinue} className="mt-4">
+              SiiWado Qaybta Kale
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // Determine if user has checked an answer
+    const hasAnswered = answerState.isCorrect !== null;
+
+    // Render image only for multiple_choice and mcq types
+    const showImage = ["multiple_choice", "mcq"].includes(content.question_type || "");
+
     return (
-      <div className="flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (error || !content) {
-    return (
-      <Card className="max-w-3xl mx-auto">
-        <CardContent className="p-6 text-center">
-          <p className="text-red-500">
-            {error || "Problem content could not be loaded"}
-          </p>
-          <Button onClick={onContinue} className="mt-4">
-            SiiWado Qaybta Kale
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Determine if user has checked an answer
-  const hasAnswered = !!answerState.lastAttempt;
-
-  return (
-    <div className="max-w-3xl mx-auto px-4">
-      <motion.div className="space-y-8">
-        {/* Question Card */}
-        <Card className="border-none shadow-xl z-0">
-          <CardHeader className="relative bg-gradient-to-r from-primary/10 to-primary/5 pb-6">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Badge className="bg-primary hover:bg-primary text-white px-4 py-1.5 text-sm shadow-md">
-                {isLastInLesson ? "Su'aasha Ugu Dambeysa" : "Su'aal"}
-              </Badge>
-            </div>
-            {isLastInLesson && (
-              <div className="absolute top-3 right-3">
-                <Badge
-                  variant="outline"
-                  className="bg-amber-100 text-amber-800 border-amber-200"
-                >
-                  Dhamaad
+      <div className="max-w-3xl mx-auto px-4">
+        <motion.div className="space-y-8">
+          {/* Question Card */}
+          <Card className="border-none shadow-xl z-0">
+            <CardHeader className="relative bg-gradient-to-r from-primary/10 to-primary/5 pb-6">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <Badge className="bg-primary hover:bg-primary text-white px-4 py-1.5 text-sm shadow-md">
+                  {isLastInLesson ? "Su'aasha Ugu Dambeysa" : "Su'aal"}
                 </Badge>
               </div>
-            )}
-            <div className="pt-4">
-              <CardTitle className="text-2xl text-center mt-2">
-                {content.question}
-              </CardTitle>
-            </div>
-          </CardHeader>
-
-          {content.question_type === "diagram" && (
-            <CardContent className="p-6 flex flex-col md:flex-row items-center justify-center h-auto">
-              {content?.diagram_config &&
-                (Array.isArray(content.diagram_config) ? (
-                  content.diagram_config.length === 1 ? (
-                    <DiagramScale config={content.diagram_config[0]} />
-                  ) : (
-                    content.diagram_config.map((config, index) => (
-                      <DiagramScale key={index} config={config} />
-                    ))
-                  )
-                ) : (
-                  <DiagramScale config={content.diagram_config} />
-                ))}
-            </CardContent>
-          )}
-
-          <CardContent className="p-6">
-            {/* Options Grid */}
-            <div className="grid gap-4 md:grid-cols-2">
-              {content?.options?.map((option, idx) => {
-                const isSelected = selectedOption === option;
-                const isOptionCorrect = hasAnswered && isSelected && isCorrect;
-                const isOptionIncorrect =
-                  hasAnswered && isSelected && !isCorrect;
-
-                return (
-                  <motion.button
-                    key={idx}
-                    onClick={() => onOptionSelect(option)}
-                    disabled={hasAnswered}
-                    className={cn(
-                      "p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden",
-                      "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-
-                      // Default state
-                      !isSelected &&
-                        !hasAnswered &&
-                        "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
-
-                      // Selected but not yet checked
-                      isSelected &&
-                        !hasAnswered &&
-                        "border-primary bg-primary/10 shadow-md",
-
-                      // Correct or incorrect
-                      isOptionCorrect &&
-                        "border-green-500 bg-green-50 shadow-md",
-                      isOptionIncorrect && "border-red-500 bg-red-50 shadow-md"
-                    )}
+              {isLastInLesson && (
+                <div className="absolute top-3 right-3">
+                  <Badge
+                    variant="outline"
+                    className="bg-amber-100 text-amber-800 border-amber-200"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-medium text-gray-800">
-                        {option}
-                      </span>
-
-                      {isOptionCorrect && (
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
-                        >
-                          <Check className="h-4 w-4 text-white" />
-                        </motion.div>
-                      )}
-
-                      {isOptionIncorrect && (
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center"
-                        >
-                          <X className="h-4 w-4 text-white" />
-                        </motion.div>
-                      )}
-                    </div>
-
-                    {isSelected && !hasAnswered && (
-                      <motion.div
-                        className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
-                        layoutId="selectedOption"
-                      />
-                    )}
-                  </motion.button>
-                );
-              })}
-            </div>
-          </CardContent>
-
-          <CardFooter className="pt-0 pb-4 px-6">
-            <div className="w-full space-y-4">
-              {answerState.isCorrect === null && !hasAnswered && (
-                <Button
-                  onClick={onCheckAnswer}
-                  className="w-full bg-primary hover:bg-primary/90"
-                  size="lg"
-                  disabled={!selectedOption || isLoading}
-                >
-                  Hubi Jawaabta
-                </Button>
+                    Dhamaad
+                  </Badge>
+                </div>
               )}
-            </div>
-          </CardFooter>
-        </Card>
-      </motion.div>
-    </div>
-  );
-};
+              <div className="pt-4">
+                <CardTitle className="text-2xl text-center mt-2">
+                  {content.question}
+                </CardTitle>
+              </div>
+            </CardHeader>
+
+            {content.img && (
+              <CardContent className="flex justify-center">
+                <div className="relative w-full max-w-[400px] aspect-[16/7] my-4">
+                  <Image
+                    src={content.img}
+                    alt={content.alt || "lesson image"}
+                    fill
+                    className="rounded-xl shadow-lg object-fit bg-white"
+                    sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 400px"
+                    priority
+                  />
+                </div>
+              </CardContent>
+            )}
+            {content.question_type === "diagram" && (
+              <CardContent className="p-6 flex flex-col md:flex-row items-center justify-center h-auto">
+                {content?.diagram_config &&
+                  (Array.isArray(content.diagram_config) ? (
+                    content.diagram_config.length === 1 ? (
+                      <DiagramScale config={content.diagram_config[0]} />
+                    ) : (
+                      content.diagram_config.map((config, index) => (
+                        <DiagramScale key={index} config={config} />
+                      ))
+                    )
+                  ) : (
+                    <DiagramScale config={content.diagram_config} />
+                  ))}
+              </CardContent>
+            )}
+            <CardContent className="p-6">
+              {/* Options Layout */}
+              {content.question_type === "diagram" ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {content?.options?.map((option, idx) => {
+                    const isSelected = selectedOption === option;
+                    const isOptionCorrect = hasAnswered && isSelected && isCorrect;
+                    const isOptionIncorrect = hasAnswered && isSelected && !isCorrect;
+                    return (
+                      <motion.button
+                        key={idx}
+                        onClick={() => onOptionSelect(option)}
+                        disabled={hasAnswered}
+                        className={cn(
+                          "p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                          !isSelected && !hasAnswered && "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                          isSelected && !hasAnswered && "border-primary bg-primary/10 shadow-md",
+                          isOptionCorrect && "border-green-500 bg-green-50 shadow-md",
+                          isOptionIncorrect && "border-red-500 bg-red-50 shadow-md"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-medium text-gray-800">
+                            {option}
+                          </span>
+                          {isOptionCorrect && (
+                            <motion.div
+                              initial="hidden"
+                              animate="visible"
+                              className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                            >
+                              <Check className="h-4 w-4 text-white" />
+                            </motion.div>
+                          )}
+                          {isOptionIncorrect && (
+                            <motion.div
+                              initial="hidden"
+                              animate="visible"
+                              className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center"
+                            >
+                              <X className="h-4 w-4 text-white" />
+                            </motion.div>
+                          )}
+                        </div>
+                        {isSelected && !hasAnswered && (
+                          <motion.div
+                            className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                            layoutId="selectedOption"
+                          />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {content?.options?.map((option, idx) => {
+                    const isSelected = selectedOption === option;
+                    const isOptionCorrect = hasAnswered && isSelected && isCorrect;
+                    const isOptionIncorrect = hasAnswered && isSelected && !isCorrect;
+                    return (
+                      <motion.button
+                        key={idx}
+                        onClick={() => onOptionSelect(option)}
+                        disabled={hasAnswered}
+                        className={cn(
+                          "w-full p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                          !isSelected && !hasAnswered && "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                          isSelected && !hasAnswered && "border-primary bg-primary/10 shadow-md",
+                          isOptionCorrect && "border-green-500 bg-green-50 shadow-md",
+                          isOptionIncorrect && "border-red-500 bg-red-50 shadow-md"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-base md:text-lg font-medium text-gray-800">
+                            {option}
+                          </span>
+                          {isOptionCorrect && (
+                            <motion.div
+                              initial="hidden"
+                              animate="visible"
+                              className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                            >
+                              <Check className="h-4 w-4 text-white" />
+                            </motion.div>
+                          )}
+                          {isOptionIncorrect && (
+                            <motion.div
+                              initial="hidden"
+                              animate="visible"
+                              className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center"
+                            >
+                              <X className="h-4 w-4 text-white" />
+                            </motion.div>
+                          )}
+                        </div>
+                        {isSelected && !hasAnswered && (
+                          <motion.div
+                            className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                            layoutId="selectedOption"
+                          />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="pt-2 pb-4 px-6">
+              <div className="w-full space-y-2">
+                {answerState.isCorrect === null && !hasAnswered && (
+                  <Button
+                    onClick={onCheckAnswer}
+                    className="w-full bg-primary hover:bg-primary/90"
+                    size="lg"
+                    disabled={!selectedOption || isLoading}
+                  >
+                    Hubi Jawaabta
+                  </Button>
+                )}
+              </div>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  };
 
 // TextBlock component for text-type content
 const TextBlock: React.FC<{
@@ -486,35 +554,94 @@ const TextBlock: React.FC<{
   onContinue: () => void;
   isLastBlock: boolean;
 }> = ({ content, onContinue, isLastBlock }) => {
+  const isHorizontal = content.orientation === "horizontal";
   return (
     <motion.div
-      className="flex flex-col items-center justify-center min-h-[40vh] max-w-2xl mx-auto px-4"
+      className="flex flex-col items-center justify-center min-h-[40vh] max-w-6xl mx-auto px-4"
       initial="hidden"
       animate="visible"
     >
-      <Card className="w-full">
-        <CardContent className="p-6 space-y-6">
-          {content.text && (
-            <div className="prose prose-lg dark:prose-invert max-w-none">
-              <ReactMarkdown>{content.text}</ReactMarkdown>
+      <Card className="w-full max-w-full shadow-lg rounded-2xl border border-gray-100 bg-white">
+        {isHorizontal ? (
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-0 p-0 md:p-8">
+            {/* Left: Text */}
+            <div className="flex-1 w-full flex flex-col justify-center items-start px-4 md:px-8 py-6 md:py-0">
+              {content.title && (
+                <div className="prose prose-lg dark:prose-invert max-w-none text-2xl md:text-3xl font-bold mb-2">
+                  <ReactMarkdown>{content.title}</ReactMarkdown>
+                </div>
+              )}
+              {content.text && (
+                <div className="prose prose-base mt-4 text-muted-foreground text-center text-lg md:text-xl">
+                  <ReactMarkdown>{content.text}</ReactMarkdown>
+                </div>
+              )}
+              <div className="mt-8">
+                <Button
+                  onClick={onContinue}
+                  className="px-8 py-4 text-lg rounded-full shadow-md hover:scale-105 transition-transform"
+                  size="lg"
+                >
+                  {isLastBlock ? "Dhamee" : "Sii wado"}
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
             </div>
-          )}
-          {content.desc && (
-            <div className="prose prose-sm text-muted-foreground mt-4">
-              <ReactMarkdown>{content.desc}</ReactMarkdown>
+            {/* Right: Image */}
+            {content.url && (
+              <div className="flex-1 w-full flex items-center justify-center">
+                <div className="relative w-full max-w-[500px] aspect-[16/9] md:aspect-[4/3]">
+                  <Image
+                    src={content.url}
+                    alt={content.alt || "lesson image"}
+                    fill
+                    className="rounded-xl shadow-lg object-contain bg-white"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 500px"
+                    priority
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <CardContent className="flex flex-col items-center justify-center p-6 md:p-10 space-y-6 md:space-y-10">
+            {content.title && (
+              <div className="prose prose-lg dark:prose-invert max-w-none text-2xl md:text-3xl font-bold text-center">
+                <ReactMarkdown>{content.title}</ReactMarkdown>
+              </div>
+            )}
+            {content.text && (
+              <div className="prose prose-base mt-4 text-muted-foreground text-center text-lg md:text-xl">
+                <ReactMarkdown>{content.text}</ReactMarkdown>
+              </div>
+            )}
+
+            {content.url && (
+              <div className="flex justify-center w-full">
+                <div className="relative w-full max-w-[500px] aspect-[16/7] md:aspect-[16/7] my-6">
+                  <Image
+                    src={content.url}
+                    alt={content.alt || "lesson image"}
+                    fill
+                    className="rounded-2xl shadow-xl border border-gray-200 object-cover bg-white"
+                    sizes="(max-width: 900px) 90vw, (max-width: 1200px) 50vw, 500px"
+                    priority
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex justify-center w-full pt-2">
+              <Button
+                onClick={onContinue}
+                className="px-8 py-4 text-lg rounded-full shadow-md hover:scale-105 transition-transform"
+                size="lg"
+              >
+                {isLastBlock ? "Dhamee" : "Sii wado"}
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
-          )}
-        </CardContent>
-        <CardFooter className="px-6 pb-6 pt-0 flex justify-center">
-          <Button
-            onClick={onContinue}
-            className="px-8 py-6 text-lg rounded-xl"
-            size="lg"
-          >
-            {isLastBlock ? "Dhammee" : "Sii wado"}
-            <ChevronRight className="ml-2 h-5 w-5" />
-          </Button>
-        </CardFooter>
+          </CardContent>
+        )}
       </Card>
     </motion.div>
   );
@@ -610,7 +737,7 @@ const LessonPage = () => {
     image: "",
   });
   const { playSound } = useSoundManager();
-  const continueRef = useRef<() => void>(() => {});
+  const continueRef = useRef<() => void>(() => { });
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [navigating, setNavigating] = useState(false);
 
@@ -676,9 +803,9 @@ const LessonPage = () => {
       }
 
       // Sort and filter all problem blocks
-      const sortedBlocks = [...currentLesson.content_blocks].sort(
-        (a, b) => (a.order || 0) - (b.order || 0)
-      );
+      const sortedBlocks = [...currentLesson.content_blocks]
+        .filter(b => !(b.block_type === 'problem' && !b.problem))
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
       const problemBlocks = sortedBlocks.filter(
         (b) => b.block_type === "problem" && b.problem
       );
@@ -711,7 +838,7 @@ const LessonPage = () => {
         const datas = await Promise.all(
           responses.map((r) => r.json() as Promise<ProblemData>)
         );
-
+        console.log(datas)
         // Transform into your shape
         const transformed: ProblemContent[] = datas.map((pd: ProblemData) => ({
           id: pd.id,
@@ -721,6 +848,8 @@ const LessonPage = () => {
             id: `answer-${index}`,
             text: ans.text,
           })),
+          img: pd.img,
+          alt: pd.alt,
           explanation: pd.explanation || "No explanation available",
           diagram_config: pd.diagram_config,
           question_type: ["code", "mcq", "short_input", "diagram"].includes(
@@ -745,7 +874,7 @@ const LessonPage = () => {
         console.error("Error fetching problems:", err);
         setError(
           (err instanceof Error ? err.message : String(err)) ||
-            "Failed to load problems"
+          "Failed to load problems"
         );
       } finally {
         setProblemLoading(false);
@@ -1021,9 +1150,9 @@ const LessonPage = () => {
         currentLesson?.content_blocks &&
         currentLesson.content_blocks.length > 0
       ) {
-        const sortedBlocks = [...currentLesson.content_blocks].sort(
-          (a, b) => (a.order || 0) - (b.order || 0)
-        );
+        const sortedBlocks = [...currentLesson.content_blocks]
+          .filter(b => !(b.block_type === 'problem' && !b.problem))
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
 
         const block = sortedBlocks[currentBlockIndex];
         if (!block) return;
@@ -1194,7 +1323,7 @@ const LessonPage = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground">Loading lesson content...</p>
+          <p className="text-muted-foreground">Soo-dejinaya casharada....</p>
         </div>
       </div>
     );

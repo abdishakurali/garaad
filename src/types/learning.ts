@@ -61,6 +61,10 @@ export interface TextContent {
   desc: string;
   text: string;
   format: "markdown";
+  orientation?: "horizontal" | "vertical";
+  title?: string;
+  url?: string;
+  alt?: string;
 }
 
 export interface ImageContent {
