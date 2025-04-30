@@ -525,8 +525,8 @@ const ImageBlock: React.FC<{
   content: {
     url: string;
     alt: string;
-    width: number;
-    height: number;
+    width?: number;
+    height?: number;
     caption: string;
   };
   onContinue: () => void;
@@ -551,55 +551,33 @@ const ImageBlock: React.FC<{
   }
 
   return (
-    <motion.div
-      className="flex flex-col items-center justify-center min-h-[40vh] max-w-2xl mx-auto px-4"
-      initial="hidden"
-      animate="visible"
-    >
-      <Card className="w-full overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-[40vh] max-w-2xl mx-auto px-4">
+      <Card className="w-full">
         <CardContent className="p-6">
-          <figure className="space-y-3">
-            <div className="flex justify-center">
-              <motion.div
-                className="relative rounded-lg overflow-hidden shadow-lg"
-                style={{ maxWidth: "100%", maxHeight: "400px" }}
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <Image
-                  src={content.url || "/placeholder.svg"}
-                  alt={content.alt || "Lesson content"}
-                  width={content.width}
-                  height={content.height}
-                  className="w-full h-full object-contain"
-                  style={{
-                    aspectRatio:
-                      content.width && content.height
-                        ? `${content.width} / ${content.height}`
-                        : "16 / 9",
-                  }}
-                />
-              </motion.div>
-            </div>
-            {content.caption && (
-              <figcaption className="text-center text-base text-muted-foreground">
-                {content.caption}
-              </figcaption>
-            )}
-          </figure>
+          <div className="relative aspect-video w-full">
+            <Image
+              src={content.url}
+              alt={content.alt || "image"}
+              width={content.width || 800}
+              height={content.height || 600}
+              className="object-cover rounded-lg"
+              unoptimized={process.env.NODE_ENV !== "production"} // Optional: disable optimization in development
+            />
+          </div>
+          {content.caption && (
+            <p className="mt-2 text-sm text-muted-foreground text-center">
+              {content.caption}
+            </p>
+          )}
         </CardContent>
-        <CardFooter className="flex justify-center p-6 pt-0">
-          <Button
-            onClick={onContinue}
-            className="px-8 py-6 text-lg rounded-xl"
-            size="lg"
-          >
-            {isLastBlock ? "Dhammee" : "Sii wado"}
-            <ChevronRight className="ml-2 h-5 w-5" />
+        <CardFooter className="flex justify-center">
+          <Button onClick={onContinue}>
+            {isLastBlock ? "Dhamee" : "Sii wado"}
+            <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </CardFooter>
       </Card>
-    </motion.div>
+    </div>
   );
 };
 
