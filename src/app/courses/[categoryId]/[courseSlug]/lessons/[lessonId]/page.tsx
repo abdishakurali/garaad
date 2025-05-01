@@ -643,10 +643,11 @@ const TextBlock: React.FC<{
             </div>
           )}
           {content.text1 && (
-            <div className="prose prose-base mt-2 text-muted-foreground text-left text-lg md:text-xl">
+            <div className="prose prose-base mt-1 text-muted-foreground text-left text-md  ">
               <div>{renderMDList(content.text1)}</div>
             </div>
           )}
+
           <div className="flex justify-center w-full pt-2">
             <Button
               onClick={handleContinue}
