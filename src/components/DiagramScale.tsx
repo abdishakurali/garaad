@@ -202,7 +202,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig }> = ({ config }) => {
   return (
     <div className="flex items-center justify-center">
       <div ref={controlRef} className="diagram-controls" />
-      <svg ref={svgRef} width="350" height="190" />
+      <svg ref={svgRef} width="280" height="150" />
     </div>
   );
 };
