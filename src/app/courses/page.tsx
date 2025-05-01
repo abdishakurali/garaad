@@ -166,20 +166,10 @@ export default function CoursesPage() {
                       />
                       <div>
                         <div className="flex flex-col gap-3">
-                          {/* <span>
-                            {category.in_progress && (
-                              <span className="bg-[#22C55E] text-white text-xs font-medium px-2 py-1 rounded-md uppercase">
-                                In Progress
-                              </span>
-                            )}
-                          </span> */}
                           <div className="flex items-center justify-between gap-2">
-                            <h2 className="md:text-2xl font-bold text-prima mb-1">
+                            <h2 className="md:text-2xl font-bold mb-1">
                               {category.title}
                             </h2>
-                            <p className="text-[#6B7280] flex text-sm space-x-1">
-                              <span>{category.courses?.length}</span>  <span className="text-primary">Cashar</span>
-                            </p>
                           </div>
                         </div>
 
@@ -194,7 +184,7 @@ export default function CoursesPage() {
                           key={course.id}
                           href={`/courses/${category.id}/${course.slug}`}
                         >
-                          <Card className="group overflow-hidden bg-white rounded-2xl hover:shadow-lg transition-all duration-300 border border-[#E5E7EB]">
+                          <Card className="group overflow-hidden bg-white rounded-3xl hover:shadow-lg transition-all duration-300 border border-[#E5E7EB]">
                             <div className="relative">
                               <CourseImage
                                 src={course.thumbnail}

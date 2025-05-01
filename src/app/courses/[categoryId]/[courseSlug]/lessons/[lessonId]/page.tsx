@@ -399,7 +399,7 @@ const ProblemBlock: React.FC<{
             <CardContent className="flex justify-center">
               <div className="relative w-full max-w-[400px] aspect-[16/7] my-4">
                 <Image
-                  src={content.img}
+                  src={content.img || "/placeholder.svg"}
                   alt={content.alt || "lesson image"}
                   fill
                   className="rounded-xl shadow-lg object-fit bg-white"
@@ -623,7 +623,7 @@ const TextBlock: React.FC<{
             <div className="flex justify-center w-full">
               <div className="relative w-full max-w-[500px] aspect-[16/7] md:aspect-[16/7] my-6">
                 <Image
-                  src={content.url}
+                  src={content.url || "/placeholder.svg"}
                   alt={content.alt || "lesson image"}
                   fill
                   className="rounded-2xl shadow-xl border border-gray-200 object-cover bg-white"
@@ -690,7 +690,7 @@ const ImageBlock: React.FC<{
         <CardContent className="p-6">
           <div className="relative aspect-video w-full">
             <Image
-              src={content.url}
+              src={content.url || "/placeholder.svg"}
               alt={content.alt || "image"}
               width={content.width || 800}
               height={content.height || 600}
@@ -731,6 +731,7 @@ const LessonPage = () => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [rewards, setRewards] = useState<UserReward[]>([]);
+  const [isLoadingRewards, setIsLoadingRewards] = useState(true);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<Partial<UserRank>>({
     rank: 0,
@@ -952,7 +953,6 @@ const LessonPage = () => {
           } catch (storageError) {
             console.error("Error with local storage:", storageError);
           }
-
           // Try API updates in background
           (async () => {
             try {
@@ -993,11 +993,13 @@ const LessonPage = () => {
                 );
               }
 
+              setIsLoadingRewards(true);
+
               // 4. Get updated user rewards
               const rewardsData =
                 await AuthService.getInstance().makeAuthenticatedRequest<
                   UserReward[]
-                >("get", "/api/lms/rewards/");
+                >("get", `/api/lms/rewards?lesson_id=${currentLesson.id}`);
 
               setRewards(rewardsData);
 
@@ -1017,21 +1019,11 @@ const LessonPage = () => {
               setLeaderboard(leaderboardData);
               setUserRank(userRankData);
             } catch (error) {
-              console.error("Error updating progress:", error);
-              // Show error toast but don't prevent completion
-              toast.error(
-                <div className="space-y-2">
-                  <p className="font-medium">Xalad ayaa dhacday</p>
-                  <p>
-                    Waxaa jira khalad markii la diiwaangelinayay horumarkaaga.
-                    Fadlan isku day mar kale.
-                  </p>
-                </div>,
-                {
-                  duration: 5000,
-                  id: "error-toast",
-                }
-              );
+              console.error("Error fetching rewards:", error);
+              toast.error("Could not load rewards. Please try again.");
+            } finally {
+              // 3. Always turn off loading when done
+              setIsLoadingRewards(false);
             }
           })().catch((error) => {
             console.error("Overall progress error:", error);
@@ -1053,6 +1045,7 @@ const LessonPage = () => {
         } else {
           // No lesson ID, still show completion modal
           setIsLessonCompleted(true);
+          setIsLoadingRewards(false);
         }
       } else {
         // Not the last block, move to the next block
@@ -1383,25 +1376,41 @@ const LessonPage = () => {
         </div>
       ) : isLessonCompleted ? (
         <div>
-          {rewards.length === 0 ? (
+          {isLoadingRewards ? (
             <div className="min-h-screen bg-white flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 <p className="text-muted-foreground">Loading rewards...</p>
               </div>
             </div>
+          ) : rewards.length === 0 && !isLoadingRewards ? (
+            <>
+              <div className="min-h-screen bg-white flex items-center justify-center">
+                {null}
+                <div className="flex flex-col  items-center gap-4">
+                  <p className="text-muted-foreground">
+                    No rewards found, show leaderboard
+                  </p>
+                  <Button onClick={handleShowLeaderboard}>
+                    Show Leaderboard
+                  </Button>
+                </div>
+              </div>
+            </>
           ) : (
-            <RewardComponent
-              onContinue={handleShowLeaderboard}
-              rewards={rewards.map((reward) => ({
-                id: reward.id,
-                user: reward.user,
-                reward_type: reward.reward_type,
-                reward_name: reward.reward_name,
-                value: reward.value,
-                awarded_at: reward.awarded_at,
-              }))}
-            />
+            <>
+              <RewardComponent
+                onContinue={handleShowLeaderboard}
+                rewards={rewards.map((reward) => ({
+                  id: reward.id,
+                  user: reward.user,
+                  reward_type: reward.reward_type,
+                  reward_name: reward.reward_name,
+                  value: reward.value,
+                  awarded_at: reward.awarded_at,
+                }))}
+              />
+            </>
           )}
         </div>
       ) : (
@@ -1412,13 +1421,7 @@ const LessonPage = () => {
           />
 
           <main className="pt-20 pb-32 mt-10">
-            <div className="container mx-auto">
-              {Array.isArray(currentBlock)
-                ? currentBlock.sort(
-                    (a, b) => (a.props.order || 0) - (b.props.order || 0)
-                  )
-                : currentBlock}
-            </div>
+            <div className="container mx-auto">{currentBlock}</div>
           </main>
 
           {/* Show AnswerFeedback for all answers */}
