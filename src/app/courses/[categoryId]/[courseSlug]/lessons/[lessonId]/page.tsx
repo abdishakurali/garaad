@@ -361,7 +361,7 @@ const ProblemBlock: React.FC<{
     const showImage = ["multiple_choice", "mcq"].includes(content.question_type || "");
 
     return (
-      <div className="max-w-5xl mx-auto  ">
+      <div className="max-w-2xl mx-auto  ">
         <motion.div className="space-y-8">
           {/* Question Card */}
           <Card className="border-none shadow-xl z-0">
@@ -567,7 +567,7 @@ const TextBlock: React.FC<{
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center min-h-[40vh] max-w-4xl mx-auto px-4"
+      className="flex flex-col items-center justify-center min-h-[40vh] max-w-2xl mx-auto px-4"
       initial="hidden"
       animate="visible"
     >
@@ -882,6 +882,9 @@ const LessonPage = () => {
 
     if (contentBlocks.length > 0) {
       playSound("continue");
+
+      // Scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Check if this is the last block in the lesson
       const isLastBlock = currentBlockIndex === contentBlocks.length - 1;
