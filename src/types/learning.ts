@@ -30,7 +30,7 @@ export interface Module {
 }
 
 export interface Lesson {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   module_id: number;

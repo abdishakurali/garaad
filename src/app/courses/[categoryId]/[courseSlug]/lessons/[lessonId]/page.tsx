@@ -813,6 +813,7 @@ const LessonPage = () => {
       const sortedBlocks = [...currentLesson.content_blocks]
         .filter((b) => !(b.block_type === "problem" && !b.problem))
         .sort((a, b) => (a.order || 0) - (b.order || 0));
+
       const problemBlocks = sortedBlocks.filter(
         (b) => b.block_type === "problem" && b.problem
       );
@@ -1411,7 +1412,13 @@ const LessonPage = () => {
           />
 
           <main className="pt-20 pb-32 mt-10">
-            <div className="container mx-auto">{currentBlock}</div>
+            <div className="container mx-auto">
+              {Array.isArray(currentBlock)
+                ? currentBlock.sort(
+                    (a, b) => (a.props.order || 0) - (b.props.order || 0)
+                  )
+                : currentBlock}
+            </div>
           </main>
 
           {/* Show AnswerFeedback for all answers */}
