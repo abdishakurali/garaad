@@ -897,8 +897,11 @@ const LessonPage = () => {
       if (isLastBlock) {
         // This is the last block - handle lesson completion
         if (currentLesson?.id) {
+          // Immediately show completion modal
+          setIsLessonCompleted(true);
+
+          // Try to store progress in local storage as a fallback
           try {
-            // Try to store progress in local storage as a fallback
             const completedLessons = JSON.parse(
               localStorage.getItem("completedLessons") || "[]"
             );
@@ -909,96 +912,78 @@ const LessonPage = () => {
                 JSON.stringify(completedLessons)
               );
             }
+          } catch (storageError) {
+            console.error("Error with local storage:", storageError);
+          }
 
-            // Immediately show completion modal without waiting for API
-            setIsLessonCompleted(true);
+          // Try API updates in background
+          (async () => {
+            try {
+              // 1. Mark lesson as completed with score
+              const completionResult =
+                await AuthService.getInstance().makeAuthenticatedRequest<{
+                  reward?: { value: number };
+                }>("post", `/api/lms/lessons/${currentLesson.id}/complete/`, {
+                  score: isCorrect ? 100 : 0,
+                });
 
-            // Try API updates in background
-            (async () => {
-              try {
-                // 1. Mark lesson as completed with score
-                const completionResult =
-                  await AuthService.getInstance().makeAuthenticatedRequest<{
-                    reward?: { value: number };
-                  }>("post", `/api/lms/lessons/${currentLesson.id}/complete/`, {
-                    score: isCorrect ? 100 : 0,
-                  });
+              // 2. Get updated course progress
+              const courseProgress =
+                await AuthService.getInstance().makeAuthenticatedRequest<{
+                  progress: number;
+                  user_progress: {
+                    progress_percent: number;
+                  };
+                }>("get", `/api/lms/courses/${courseId}/`);
 
-                // 2. Get updated course progress
-                const courseProgress =
-                  await AuthService.getInstance().makeAuthenticatedRequest<{
-                    progress: number;
-                    user_progress: {
-                      progress_percent: number;
-                    };
-                  }>("get", `/api/lms/courses/${courseId}/`);
-
-                // 3. Show reward notification if any
-                if (completionResult.reward) {
-                  toast.success(
-                    <div className="space-y-2">
-                      <p className="font-medium">Hambalyo!</p>
-                      <p>
-                        Waxaad ku guulaysatay {completionResult.reward.value} XP
-                      </p>
-                      <p>
-                        Horumarkaaga:{" "}
-                        {courseProgress.user_progress.progress_percent}%
-                      </p>
-                    </div>,
-                    {
-                      duration: 5000,
-                      id: "reward-toast",
-                    }
-                  );
-                }
-
-                // 4. Get updated user rewards
-                const rewardsData =
-                  await AuthService.getInstance().makeAuthenticatedRequest<
-                    UserReward[]
-                  >("get", "/api/lms/rewards/");
-
-                setRewards(rewardsData);
-
-                // 5. Get updated leaderboard
-                const leaderboardData =
-                  await AuthService.getInstance().makeAuthenticatedRequest<
-                    LeaderboardEntry[]
-                  >(
-                    "get",
-                    "/api/lms/leaderboard/?time_period=all_time&limit=10"
-                  );
-
-                // 6. Get user rank
-                const userRankData =
-                  await AuthService.getInstance().makeAuthenticatedRequest<
-                    Partial<UserRank>
-                  >("get", "/api/lms/leaderboard/my_rank/");
-
-                // Update state with new data
-                setLeaderboard(leaderboardData);
-                setUserRank(userRankData);
-              } catch (error) {
-                console.error("Error updating progress:", error);
-
-                // Show error toast but don't prevent completion
-                toast.error(
+              // 3. Show reward notification if any
+              if (completionResult.reward) {
+                toast.success(
                   <div className="space-y-2">
-                    <p className="font-medium">Xalad ayaa dhacday</p>
+                    <p className="font-medium">Hambalyo!</p>
                     <p>
-                      Waxaa jira khalad markii la diiwaangelinayay horumarkaaga.
-                      Fadlan isku day mar kale.
+                      Waxaad ku guulaysatay {completionResult.reward.value} XP
+                    </p>
+                    <p>
+                      Horumarkaaga:{" "}
+                      {courseProgress.user_progress.progress_percent}%
                     </p>
                   </div>,
                   {
                     duration: 5000,
-                    id: "error-toast",
+                    id: "reward-toast",
                   }
                 );
               }
-            })().catch((error) => {
-              console.error("Overall progress error:", error);
+
+              // 4. Get updated user rewards
+              const rewardsData =
+                await AuthService.getInstance().makeAuthenticatedRequest<
+                  UserReward[]
+                >("get", "/api/lms/rewards/");
+
+              setRewards(rewardsData);
+
+              // 5. Get updated leaderboard
+              const leaderboardData =
+                await AuthService.getInstance().makeAuthenticatedRequest<
+                  LeaderboardEntry[]
+                >(
+                  "get",
+                  "/api/lms/leaderboard/?time_period=all_time&limit=10"
+                );
+
+              // 6. Get user rank
+              const userRankData =
+                await AuthService.getInstance().makeAuthenticatedRequest<
+                  Partial<UserRank>
+                >("get", "/api/lms/leaderboard/my_rank/");
+
+              // Update state with new data
+              setLeaderboard(leaderboardData);
+              setUserRank(userRankData);
+            } catch (error) {
+              console.error("Error updating progress:", error);
               // Show error toast but don't prevent completion
               toast.error(
                 <div className="space-y-2">
@@ -1013,12 +998,24 @@ const LessonPage = () => {
                   id: "error-toast",
                 }
               );
-            });
-          } catch (storageError) {
-            console.error("Error with local storage:", storageError);
-            // Even if local storage fails, still show completion modal
-            setIsLessonCompleted(true);
-          }
+            }
+          })().catch((error) => {
+            console.error("Overall progress error:", error);
+            // Show error toast but don't prevent completion
+            toast.error(
+              <div className="space-y-2">
+                <p className="font-medium">Xalad ayaa dhacday</p>
+                <p>
+                  Waxaa jira khalad markii la diiwaangelinayay horumarkaaga.
+                  Fadlan isku day mar kale.
+                </p>
+              </div>,
+              {
+                duration: 5000,
+                id: "error-toast",
+              }
+            );
+          });
         } else {
           // No lesson ID, still show completion modal
           setIsLessonCompleted(true);
