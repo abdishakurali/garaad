@@ -72,6 +72,9 @@ interface ProblemData {
   question_type: string;
   img?: string;
   alt?: string;
+  content: {
+    format?: string;
+  };
 }
 
 interface ProblemContent {
@@ -89,6 +92,9 @@ interface ProblemContent {
     | "multiple_choice";
   img?: string;
   alt?: string;
+  content: {
+    format?: string;
+  };
 }
 
 // Sound manager for better audio handling
@@ -493,7 +499,13 @@ const ProblemBlock: React.FC<{
                 })}
               </div>
             ) : (
-              <div className="flex flex-col gap-4">
+              <div
+                className={`${
+                  content.content.format || "grid"
+                    ? "grid grid-cols-2 items-center gap-5"
+                    : ""
+                }`}
+              >
                 {content?.options?.map((option, idx) => {
                   const isSelected = selectedOption === option;
                   const isOptionCorrect =
@@ -506,7 +518,7 @@ const ProblemBlock: React.FC<{
                       onClick={() => onOptionSelect(option)}
                       disabled={hasAnswered && isSelected}
                       className={cn(
-                        "w-full p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                        "w-full p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
                         "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                         // Default state
                         !isSelected &&
@@ -595,10 +607,24 @@ const TextBlock: React.FC<{
     window.scrollTo({ top: 0, behavior: "smooth" });
     onContinue();
   };
-
-  function renderMd(input?: string | string[]) {
+  function renderMDList(input: string[] | string) {
     if (!input) return null;
-    return Array.isArray(input) ? input.join("\n\n") : input;
+
+    // If input is an array, render as an unordered list
+    if (Array.isArray(input)) {
+      return (
+        <ul className="list-disc pl-6 mb-4">
+          {input.map((item, index) => (
+            <li className="flex items-center px-10 m-2" key={index}>
+              {`• ${item}`}
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+    // If input is a string, wrap in a paragraph
+    return <p>{input}</p>;
   }
 
   return (
@@ -616,7 +642,7 @@ const TextBlock: React.FC<{
           )}
           {content.text && (
             <div className="prose prose-base mt-2 text-muted-foreground text-left text-lg md:text-xl">
-              <ReactMarkdown>{renderMd(content.text) || ""}</ReactMarkdown>
+              <div>{renderMDList(content.text)}</div>
             </div>
           )}
           {content.url && (
@@ -635,7 +661,7 @@ const TextBlock: React.FC<{
           )}
           {content.text1 && (
             <div className="prose prose-base mt-2 text-muted-foreground text-left text-lg md:text-xl">
-              <ReactMarkdown>{renderMd(content.text1)}</ReactMarkdown>
+              <div>{renderMDList(content.text1)}</div>
             </div>
           )}
           <div className="flex justify-center w-full pt-2">
@@ -866,6 +892,7 @@ const LessonPage = () => {
           )
             ? (pd.question_type as "code" | "mcq" | "short_input" | "diagram")
             : undefined,
+          content: pd.content,
         }));
         // Update state with new data
         setProblems(transformed);
