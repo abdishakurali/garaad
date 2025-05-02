@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
 
 interface LessonHeaderProps {
   currentQuestion: number;
@@ -40,10 +41,11 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
       {/* Header content */}
       <div className="flex items-center justify-between px-4 py-2 mt-2">
         {/* Back button */}
-        <button
+        <Button
           onClick={() => router.back()}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           aria-label="Go back"
+          variant={"outline"}
         >
           <svg
             className="w-6 h-6"
@@ -58,7 +60,7 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </Button>
 
         {/* Scrollable progress dots */}
         <div

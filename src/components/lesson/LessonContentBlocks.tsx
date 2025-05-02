@@ -10,6 +10,7 @@ import Image from "next/image";
 export function TestLessonContent() {
   const testBlocks: LessonContentBlock[] = [
     {
+      id: 1,
       block_type: "text",
       content: {
         desc: "## Test Description\nThis is a test description with some **bold** text and *italic* text.\n\n- List item 1\n- List item 2\n- List item 3",

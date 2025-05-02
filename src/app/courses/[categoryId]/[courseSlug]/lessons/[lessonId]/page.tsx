@@ -42,6 +42,7 @@ import type { Course } from "@/types/lms";
 import RewardComponent from "@/components/RewardComponent";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import DiagramScale from "@/components/DiagramScale";
+import ShareLesson from "@/components/ShareLesson";
 
 type Position = "left" | "center" | "right";
 type Orientation = "vertical" | "horizontal" | "none";
@@ -85,11 +86,11 @@ interface ProblemContent {
   explanation?: string;
   diagram_config?: DiagramConfig;
   question_type?:
-  | "code"
-  | "mcq"
-  | "short_input"
-  | "diagram"
-  | "multiple_choice";
+    | "code"
+    | "mcq"
+    | "short_input"
+    | "diagram"
+    | "multiple_choice";
   img?: string;
   alt?: string;
   content: {
@@ -341,243 +342,242 @@ const ProblemBlock: React.FC<{
   content,
   isCorrect,
 }) => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      );
-    }
-
-    if (error || !content) {
-      return (
-        <Card className="max-w-3xl mx-auto">
-          <CardContent className="p-6 text-center">
-            <p className="text-red-500">
-              {error || "Problem content could not be loaded"}
-            </p>
-            <Button onClick={onContinue} className="mt-2">
-              SiiWado Qaybta Kale
-            </Button>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Determine if user has checked an answer
-    const hasAnswered = answerState.isCorrect !== null;
-
-    // Render image only for multiple_choice and mcq types
-    // const showImage = ["multiple_choice", "mcq"].includes(
-    //   content.question_type || ""
-    // );
+  if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto  ">
-        <motion.div className="space-y-8">
-          {/* Question Card */}
-          <Card className="border-none shadow-xl z-0">
-            <CardHeader className="relative bg-gradient-to-r from-primary/10 to-primary/5 pb-6">
-
-
-              <div className="pt-2">
-                <CardTitle className="text-md text-max items-center justify-center flex text-center mt-2">
-                  {content.question}
-                </CardTitle>
-              </div>
-            </CardHeader>
-
-            {content.img && (
-              <CardContent className="flex justify-center">
-                <div className="relative w-full max-w-[400px] aspect-[16/7] my-4">
-                  <Image
-                    src={content.img || "/placeholder.svg"}
-                    alt={content.alt || "lesson image"}
-                    fill
-                    className="rounded-xl shadow-lg object-fit bg-white"
-                    sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 400px"
-                    priority
-                  />
-                </div>
-              </CardContent>
-            )}
-            {content.question_type === "diagram" && (
-              <CardContent className="p-6 flex flex-col md:flex-row items-center justify-center h-auto">
-                {content?.diagram_config &&
-                  (Array.isArray(content.diagram_config) ? (
-                    content.diagram_config.length === 1 ? (
-                      <DiagramScale config={content.diagram_config[0]} />
-                    ) : (
-                      content.diagram_config.map((config, index) => (
-                        <DiagramScale key={index} config={config} />
-                      ))
-                    )
-                  ) : (
-                    <DiagramScale config={content.diagram_config} />
-                  ))}
-              </CardContent>
-            )}
-            <CardContent className="p-4">
-              {/* Options Layout */}
-              {content.question_type === "diagram" ? (
-                <div className="grid gap-4  grid-cols-2">
-                  {content?.options?.map((option, idx) => {
-                    const isSelected = selectedOption === option;
-                    const isOptionCorrect =
-                      hasAnswered && isSelected && isCorrect;
-                    const isOptionIncorrect =
-                      hasAnswered && isSelected && !isCorrect;
-                    return (
-                      <motion.button
-                        key={idx}
-                        onClick={() => onOptionSelect(option)}
-                        disabled={hasAnswered && isSelected}
-                        className={cn(
-                          "p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
-                          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                          !isSelected &&
-                          !hasAnswered &&
-                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
-                          isSelected &&
-                          !hasAnswered &&
-                          "border-primary bg-primary/10 shadow-md",
-                          isOptionCorrect &&
-                          "border-green-500 bg-green-50 shadow-md",
-                          isOptionIncorrect &&
-                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
-                        )}
-                      >
-                        {/* X icon for incorrect */}
-                        {isOptionIncorrect && (
-                          <span className="absolute top-2 right-2 text-gray-400">
-                            <X className="h-5 w-5" />
-                          </span>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={cn(
-                              "text-lg font-medium",
-                              isOptionIncorrect
-                                ? "text-gray-400"
-                                : "text-gray-800"
-                            )}
-                          >
-                            {option}
-                          </span>
-                          {isOptionCorrect && (
-                            <motion.div
-                              initial="hidden"
-                              animate="visible"
-                              className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
-                            >
-                              <Check className="h-4 w-4 text-white" />
-                            </motion.div>
-                          )}
-                        </div>
-                        {isSelected && !hasAnswered && (
-                          <motion.div
-                            className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
-                            layoutId="selectedOption"
-                          />
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div
-                  className={`${content.content && content.content.format == "grid"
-                    ? "grid grid-cols-2 items-center gap-5"
-                    : "grid grid-cols-1 items-center gap-5 py-5 "
-                    }`}
-                >
-                  {content?.options?.map((option, idx) => {
-                    const isSelected = selectedOption === option;
-                    const isOptionCorrect =
-                      hasAnswered && isSelected && isCorrect;
-                    const isOptionIncorrect =
-                      hasAnswered && isSelected && !isCorrect;
-                    return (
-                      <motion.button
-                        key={idx}
-                        onClick={() => onOptionSelect(option)}
-                        disabled={hasAnswered && isSelected}
-                        className={cn(
-                          "w-full p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
-                          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                          // Default state
-                          !isSelected &&
-                          !hasAnswered &&
-                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
-                          // Selected but not yet checked
-                          isSelected &&
-                          !hasAnswered &&
-                          "border-primary bg-primary/10 shadow-md",
-                          // Correct
-                          isOptionCorrect &&
-                          "border-green-500 bg-green-50 shadow-md",
-                          // Incorrect (custom style)
-                          isOptionIncorrect &&
-                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
-                        )}
-                      >
-                        {/* X icon for incorrect */}
-                        {isOptionIncorrect && (
-                          <span className="absolute top-2 right-2 text-gray-400">
-                            <X className="h-5 w-5" />
-                          </span>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={cn(
-                              "text-base md:text-lg font-medium",
-                              isOptionIncorrect
-                                ? "text-gray-400"
-                                : "text-gray-800"
-                            )}
-                          >
-                            {option}
-                          </span>
-                          {isOptionCorrect && (
-                            <motion.div
-                              initial="hidden"
-                              animate="visible"
-                              className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
-                            >
-                              <Check className="h-4 w-4 text-white" />
-                            </motion.div>
-                          )}
-                        </div>
-                        {isSelected && !hasAnswered && (
-                          <motion.div
-                            className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
-                            layoutId="selectedOption"
-                          />
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="pt-2 pb-4 px-6">
-              <div className="w-full space-y-2">
-                {answerState.isCorrect === null && !hasAnswered && (
-                  <Button
-                    onClick={onCheckAnswer}
-                    className="w-full bg-primary hover:bg-primary/90"
-                    size="lg"
-                    disabled={!selectedOption || isLoading}
-                  >
-                    Hubi Jawaabta
-                  </Button>
-                )}
-              </div>
-            </CardFooter>
-          </Card>
-        </motion.div>
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
-  };
+  }
+
+  if (error || !content) {
+    return (
+      <Card className="max-w-3xl mx-auto">
+        <CardContent className="p-6 text-center">
+          <p className="text-red-500">
+            {error || "Problem content could not be loaded"}
+          </p>
+          <Button onClick={onContinue} className="mt-2">
+            SiiWado Qaybta Kale
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Determine if user has checked an answer
+  const hasAnswered = answerState.isCorrect !== null;
+
+  // Render image only for multiple_choice and mcq types
+  // const showImage = ["multiple_choice", "mcq"].includes(
+  //   content.question_type || ""
+  // );
+  return (
+    <div className="max-w-2xl mx-auto  ">
+      <motion.div className="space-y-8">
+        {/* Question Card */}
+        <Card className="border-none shadow-xl z-0">
+          <CardHeader className="relative bg-gradient-to-r from-primary/10 to-primary/5 pb-6">
+            <div className="pt-2">
+              <CardTitle className="text-md text-max items-center justify-center flex text-center mt-2">
+                {content.question}
+              </CardTitle>
+            </div>
+          </CardHeader>
+
+          {content.img && (
+            <CardContent className="flex justify-center">
+              <div className="relative w-full max-w-[400px] aspect-[16/7] my-4">
+                <Image
+                  src={content.img || "/placeholder.svg"}
+                  alt={content.alt || "lesson image"}
+                  fill
+                  className="rounded-xl shadow-lg object-fit bg-white"
+                  sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 400px"
+                  priority
+                />
+              </div>
+            </CardContent>
+          )}
+          {content.question_type === "diagram" && (
+            <CardContent className="p-6 flex flex-col md:flex-row items-center justify-center h-auto">
+              {content?.diagram_config &&
+                (Array.isArray(content.diagram_config) ? (
+                  content.diagram_config.length === 1 ? (
+                    <DiagramScale config={content.diagram_config[0]} />
+                  ) : (
+                    content.diagram_config.map((config, index) => (
+                      <DiagramScale key={index} config={config} />
+                    ))
+                  )
+                ) : (
+                  <DiagramScale config={content.diagram_config} />
+                ))}
+            </CardContent>
+          )}
+          <CardContent className="p-4">
+            {/* Options Layout */}
+            {content.question_type === "diagram" ? (
+              <div className="grid gap-4  grid-cols-2">
+                {content?.options?.map((option, idx) => {
+                  const isSelected = selectedOption === option;
+                  const isOptionCorrect =
+                    hasAnswered && isSelected && isCorrect;
+                  const isOptionIncorrect =
+                    hasAnswered && isSelected && !isCorrect;
+                  return (
+                    <motion.button
+                      key={idx}
+                      onClick={() => onOptionSelect(option)}
+                      disabled={hasAnswered && isSelected}
+                      className={cn(
+                        "p-5 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                        !isSelected &&
+                          !hasAnswered &&
+                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                        isSelected &&
+                          !hasAnswered &&
+                          "border-primary bg-primary/10 shadow-md",
+                        isOptionCorrect &&
+                          "border-green-500 bg-green-50 shadow-md",
+                        isOptionIncorrect &&
+                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
+                      )}
+                    >
+                      {/* X icon for incorrect */}
+                      {isOptionIncorrect && (
+                        <span className="absolute top-2 right-2 text-gray-400">
+                          <X className="h-5 w-5" />
+                        </span>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-lg font-medium",
+                            isOptionIncorrect
+                              ? "text-gray-400"
+                              : "text-gray-800"
+                          )}
+                        >
+                          {option}
+                        </span>
+                        {isOptionCorrect && (
+                          <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                          >
+                            <Check className="h-4 w-4 text-white" />
+                          </motion.div>
+                        )}
+                      </div>
+                      {isSelected && !hasAnswered && (
+                        <motion.div
+                          className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                          layoutId="selectedOption"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div
+                className={`${
+                  content.content && content.content.format == "grid"
+                    ? "grid grid-cols-2 items-center gap-5"
+                    : "grid grid-cols-1 items-center gap-5 py-5 "
+                }`}
+              >
+                {content?.options?.map((option, idx) => {
+                  const isSelected = selectedOption === option;
+                  const isOptionCorrect =
+                    hasAnswered && isSelected && isCorrect;
+                  const isOptionIncorrect =
+                    hasAnswered && isSelected && !isCorrect;
+                  return (
+                    <motion.button
+                      key={idx}
+                      onClick={() => onOptionSelect(option)}
+                      disabled={hasAnswered && isSelected}
+                      className={cn(
+                        "w-full p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                        // Default state
+                        !isSelected &&
+                          !hasAnswered &&
+                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                        // Selected but not yet checked
+                        isSelected &&
+                          !hasAnswered &&
+                          "border-primary bg-primary/10 shadow-md",
+                        // Correct
+                        isOptionCorrect &&
+                          "border-green-500 bg-green-50 shadow-md",
+                        // Incorrect (custom style)
+                        isOptionIncorrect &&
+                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
+                      )}
+                    >
+                      {/* X icon for incorrect */}
+                      {isOptionIncorrect && (
+                        <span className="absolute top-2 right-2 text-gray-400">
+                          <X className="h-5 w-5" />
+                        </span>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-base md:text-lg font-medium",
+                            isOptionIncorrect
+                              ? "text-gray-400"
+                              : "text-gray-800"
+                          )}
+                        >
+                          {option}
+                        </span>
+                        {isOptionCorrect && (
+                          <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                          >
+                            <Check className="h-4 w-4 text-white" />
+                          </motion.div>
+                        )}
+                      </div>
+                      {isSelected && !hasAnswered && (
+                        <motion.div
+                          className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                          layoutId="selectedOption"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="pt-2 pb-4 px-6">
+            <div className="w-full space-y-2">
+              {answerState.isCorrect === null && !hasAnswered && (
+                <Button
+                  onClick={onCheckAnswer}
+                  className="w-full bg-primary hover:bg-primary/90"
+                  size="lg"
+                  disabled={!selectedOption || isLoading}
+                >
+                  Hubi Jawaabta
+                </Button>
+              )}
+            </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};
 
 // TextBlock component for text-type content
 const TextBlock: React.FC<{
@@ -585,7 +585,6 @@ const TextBlock: React.FC<{
   onContinue: () => void;
   isLastBlock: boolean;
 }> = ({ content, onContinue, isLastBlock }) => {
-
   const handleContinue = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     onContinue();
@@ -755,9 +754,12 @@ const LessonPage = () => {
     image: "",
   });
   const { playSound } = useSoundManager();
-  const continueRef = useRef<() => void>(() => { });
+  const continueRef = useRef<() => void>(() => {});
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [navigating, setNavigating] = useState(false);
+
+  // 1. Add a new state to track whether to show the share component
+  const [showShareComponent, setShowShareComponent] = useState(false);
 
   // State for all problems and current problem
   const [problems, setProblems] = useState<ProblemContent[]>([]);
@@ -821,12 +823,12 @@ const LessonPage = () => {
       }
 
       // Sort and filter all problem blocks
-      const sortedBlocks = [...currentLesson.content_blocks]
+      const sortedBlocks = [...(currentLesson?.content_blocks || [])]
         .filter((b) => !(b.block_type === "problem" && !b.problem))
         .sort((a, b) => (a.order || 0) - (b.order || 0));
 
       const problemBlocks = sortedBlocks.filter(
-        (b) => b.block_type === "problem" && b.problem
+        (b) => b.block_type === "problem" && b.problem !== null
       );
 
       if (problemBlocks.length === 0) {
@@ -894,7 +896,7 @@ const LessonPage = () => {
         console.error("Error fetching problems:", err);
         setError(
           (err instanceof Error ? err.message : String(err)) ||
-          "Failed to load problems"
+            "Failed to load problems"
         );
       } finally {
         setProblemLoading(false);
@@ -903,6 +905,45 @@ const LessonPage = () => {
 
     fetchAllProblems();
   }, [currentLesson]);
+
+  // Save and restore lesson progress using localStorage
+  useEffect(() => {
+    // When component mounts, try to restore progress from localStorage
+    if (currentLesson?.id) {
+      const storageKey = `lesson_progress_${currentLesson.id}`;
+      const savedProgress = localStorage.getItem(storageKey);
+
+      if (savedProgress) {
+        try {
+          const { blockIndex } = JSON.parse(savedProgress);
+          // Only restore if the saved block index is valid
+          if (
+            blockIndex >= 0 &&
+            currentLesson.content_blocks &&
+            blockIndex < currentLesson.content_blocks.length
+          ) {
+            setCurrentBlockIndex(blockIndex);
+          }
+        } catch (e) {
+          console.error("Error parsing saved lesson progress:", e);
+        }
+      }
+    }
+  }, [currentLesson?.id]);
+
+  // Save progress whenever block changes
+  useEffect(() => {
+    if (currentLesson?.id && currentBlockIndex >= 0) {
+      const storageKey = `lesson_progress_${currentLesson.id}`;
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          blockIndex: currentBlockIndex,
+          timestamp: new Date().toISOString(),
+        })
+      );
+    }
+  }, [currentLesson?.id, currentBlockIndex]);
 
   // Update explanation data when current problem changes
   useEffect(() => {
@@ -926,11 +967,34 @@ const LessonPage = () => {
   );
 
   // Handle continue to next block
-  const handleContinue = useCallback(async () => {
-    console.log('handleContinue called');
-    const contentBlocks = currentLesson?.content_blocks || [];
-    console.log('Content blocks:', contentBlocks);
-    console.log('Current block index:', currentBlockIndex);
+  const handleContinue = useCallback(() => {
+    console.log(
+      "handleContinue called with currentBlockIndex:",
+      currentBlockIndex
+    );
+
+    // Get properly sorted blocks (same logic as in renderCurrentBlock)
+    const sortedBlocks = [...(currentLesson?.content_blocks || [])]
+      .filter((b) => !(b.block_type === "problem" && !b.problem))
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    console.log("Total sorted blocks:", sortedBlocks.length);
+    console.log(
+      "Is this the last block?",
+      currentBlockIndex === sortedBlocks.length - 1
+    );
+    console.log("Current block index:", currentBlockIndex);
+    console.log(
+      "Current block type:",
+      sortedBlocks[currentBlockIndex]?.block_type
+    );
+
+    // Check if this is the last block in the lesson
+    const isLastBlock = currentBlockIndex === sortedBlocks.length - 1;
+    console.log("Is last block:", isLastBlock);
+    const contentBlocks = sortedBlocks || [];
+    console.log("Content blocks:", contentBlocks);
+    console.log("Current block index:", currentBlockIndex);
 
     if (contentBlocks.length > 0) {
       playSound("continue");
@@ -940,7 +1004,7 @@ const LessonPage = () => {
 
       // Check if this is the last block in the lesson
       const isLastBlock = currentBlockIndex === contentBlocks.length - 1;
-      console.log('Is last block:', isLastBlock);
+      console.log("Is last block:", isLastBlock);
 
       // Clear any feedback or toasts
       setShowFeedback(false);
@@ -948,12 +1012,12 @@ const LessonPage = () => {
       toast.dismiss("reward-toast");
 
       if (isLastBlock) {
-        console.log('Setting lesson completed to true');
+        console.log("Setting lesson completed to true");
         // This is the last block - handle lesson completion
         setIsLessonCompleted(true); // Set this first to trigger the completion UI
 
         if (currentLesson?.id) {
-          console.log('Lesson ID exists:', currentLesson.id);
+          console.log("Lesson ID exists:", currentLesson.id);
           // Try to store progress in local storage as a fallback
           try {
             const completedLessons = JSON.parse(
@@ -969,11 +1033,10 @@ const LessonPage = () => {
           } catch (storageError) {
             console.error("Error with local storage:", storageError);
           }
-
           // Try API updates in background
           (async () => {
             try {
-              console.log('Starting API updates');
+              console.log("Starting API updates");
               // 1. Mark lesson as completed with score
               const completionResult =
                 await AuthService.getInstance().makeAuthenticatedRequest<{
@@ -981,7 +1044,7 @@ const LessonPage = () => {
                 }>("post", `/api/lms/lessons/${currentLesson.id}/complete/`, {
                   score: isCorrect ? 100 : 0,
                 });
-              console.log('Lesson completion result:', completionResult);
+              console.log("Lesson completion result:", completionResult);
 
               // 2. Get updated course progress
               const courseProgress =
@@ -991,7 +1054,7 @@ const LessonPage = () => {
                     progress_percent: number;
                   };
                 }>("get", `/api/lms/courses/${courseId}/`);
-              console.log('Course progress:', courseProgress);
+              console.log("Course progress:", courseProgress);
 
               // 3. Show reward notification if any
               if (completionResult.reward) {
@@ -1020,7 +1083,7 @@ const LessonPage = () => {
                 await AuthService.getInstance().makeAuthenticatedRequest<
                   UserReward[]
                 >("get", `/api/lms/rewards?lesson_id=${currentLesson.id}`);
-              console.log('Rewards data:', rewardsData);
+              console.log("Rewards data:", rewardsData);
 
               setRewards(rewardsData);
 
@@ -1029,14 +1092,14 @@ const LessonPage = () => {
                 await AuthService.getInstance().makeAuthenticatedRequest<
                   LeaderboardEntry[]
                 >("get", "/api/lms/leaderboard/?time_period=all_time&limit=10");
-              console.log('Leaderboard data:', leaderboardData);
+              console.log("Leaderboard data:", leaderboardData);
 
               // 6. Get user rank
               const userRankData =
                 await AuthService.getInstance().makeAuthenticatedRequest<
                   Partial<UserRank>
                 >("get", "/api/lms/leaderboard/my_rank/");
-              console.log('User rank data:', userRankData);
+              console.log("User rank data:", userRankData);
 
               // Update state with new data
               setLeaderboard(leaderboardData);
@@ -1065,10 +1128,10 @@ const LessonPage = () => {
             );
           });
         } else {
-          console.log('No lesson ID found');
+          console.log("No lesson ID found");
         }
       } else {
-        console.log('Moving to next block');
+        console.log("Moving to next block");
         // Not the last block, move to the next block
         setCurrentBlockIndex((prev) =>
           Math.min(prev + 1, contentBlocks.length - 1)
@@ -1151,6 +1214,11 @@ const LessonPage = () => {
       setShowLeaderboard(true);
       setLeaderboardLoading(false);
     }, 300);
+  };
+
+  // Add the new function to handle showing the share component
+  const handleShowShareComponent = () => {
+    setShowShareComponent(true);
   };
 
   // Reset answer state
@@ -1238,11 +1306,15 @@ const LessonPage = () => {
                 ? (JSON.parse(block.content) as TextContent)
                 : (block.content as TextContent);
 
+            // Ensure we're using the global sorted blocks for determining last block
+            const isActuallyLastBlock =
+              currentBlockIndex === sortedBlocks.length - 1;
+
             setCurrentBlock(
               <TextBlock
                 content={textContent}
                 onContinue={handleContinue}
-                isLastBlock={isLastBlock}
+                isLastBlock={isActuallyLastBlock}
               />
             );
             break;
@@ -1373,7 +1445,11 @@ const LessonPage = () => {
   }
 
   // Render the page
-  console.log('Render state:', { isLessonCompleted, showLeaderboard, leaderboardLoading });
+  console.log("Render state:", {
+    isLessonCompleted,
+    showLeaderboard,
+    leaderboardLoading,
+  });
   return (
     <div className="min-h-screen bg-white">
       {navigating ? (
@@ -1383,6 +1459,15 @@ const LessonPage = () => {
             <p className="text-muted-foreground">Loading course page...</p>
           </div>
         </div>
+      ) : isLessonCompleted && showShareComponent ? (
+        <ShareLesson
+          lessonTitle={currentLesson?.title || "Cashar"}
+          courseName={currentLesson?.title || "Koorso"}
+          points={rewards.reduce((total, reward) => total + reward.value, 0)}
+          onContinue={handleShowLeaderboard}
+          lessonId={currentLesson?.id || ""}
+          courseId={courseId || ""}
+        />
       ) : isLessonCompleted && showLeaderboard ? (
         <Leaderboard
           onContinue={handleContinueAfterCompletion}
@@ -1406,40 +1491,37 @@ const LessonPage = () => {
               </div>
             </div>
           ) : rewards.length === 0 && !isLoadingRewards ? (
-            <>
-              <div className="min-h-screen bg-white flex items-center justify-center">
-                {null}
-                <div className="flex flex-col  items-center gap-4">
-                  <p className="text-muted-foreground">
-                    No rewards found, show leaderboard
-                  </p>
-                  <Button onClick={handleShowLeaderboard}>
-                    Show Leaderboard
-                  </Button>
-                </div>
-              </div>
-            </>
+            <ShareLesson
+              lessonTitle={currentLesson?.title || "Cashar"}
+              courseName={currentLesson?.title || "Koorso"}
+              points={0}
+              onContinue={handleShowLeaderboard}
+              lessonId={currentLesson?.id || ""}
+              courseId={courseId || ""}
+            />
           ) : (
-            <>
-              <RewardComponent
-                onContinue={handleShowLeaderboard}
-                rewards={rewards.map((reward) => ({
-                  id: reward.id,
-                  user: reward.user,
-                  reward_type: reward.reward_type,
-                  reward_name: reward.reward_name,
-                  value: reward.value,
-                  awarded_at: reward.awarded_at,
-                }))}
-              />
-            </>
+            <RewardComponent
+              onContinue={handleShowShareComponent}
+              rewards={rewards.map((reward) => ({
+                id: reward.id,
+                user: reward.user,
+                reward_type: reward.reward_type,
+                reward_name: reward.reward_name,
+                value: reward.value,
+                awarded_at: reward.awarded_at,
+              }))}
+            />
           )}
         </div>
       ) : (
         <div>
           <LessonHeader
             currentQuestion={currentBlockIndex + 1}
-            totalQuestions={currentLesson.content_blocks?.length || 0}
+            totalQuestions={
+              currentLesson.content_blocks?.filter(
+                (b) => !(b.block_type === "problem" && b.problem === null)
+              ).length || 0
+            }
           />
 
           <main className="pt-20 pb-32 mt-10">
