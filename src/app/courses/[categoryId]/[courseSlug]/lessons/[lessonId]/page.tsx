@@ -43,6 +43,12 @@ import RewardComponent from "@/components/RewardComponent";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import DiagramScale from "@/components/DiagramScale";
 import ShareLesson from "@/components/ShareLesson";
+import {
+  useCourseProgress,
+  useLeaderboard,
+  useRewards,
+  useUserRank,
+} from "@/hooks/useCompletedLessonFetch";
 
 type Position = "left" | "center" | "right";
 type Orientation = "vertical" | "horizontal" | "none";
@@ -88,11 +94,11 @@ interface ProblemContent {
   explanation?: string;
   diagram_config?: DiagramConfig;
   question_type?:
-  | "code"
-  | "mcq"
-  | "short_input"
-  | "diagram"
-  | "multiple_choice";
+    | "code"
+    | "mcq"
+    | "short_input"
+    | "diagram"
+    | "multiple_choice";
   img?: string;
   alt?: string;
   content: {
@@ -344,245 +350,246 @@ const ProblemBlock: React.FC<{
   content,
   isCorrect,
 }) => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      );
-    }
-
-    if (error || !content) {
-      return (
-        <Card className="max-w-3xl mx-auto">
-          <CardContent className="p-6 text-center">
-            <p className="text-red-500">
-              {error || "Problem content could not be loaded"}
-            </p>
-            <Button onClick={onContinue} className="mt-2">
-              SiiWado Qaybta Kale
-            </Button>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Determine if user has checked an answer
-    const hasAnswered = answerState.isCorrect !== null;
-
-    // Render image only for multiple_choice and mcq types
-    // const showImage = ["multiple_choice", "mcq"].includes(
-    //   content.question_type || ""
-    // );
+  if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto  ">
-        <motion.div className="space-y-8">
-          {/* Question Card */}
-          <Card className="border-none shadow-xl z-0">
-            <CardHeader className="relative text-left items-center justify-center flex   bg-gradient-to-r from-primary/10 to-primary/5 pb-2">
-              <div className="pt-1">
-                <CardTitle className="text-md font-normal text-gray-600 items-center justify-center flex mt-1">
-                  {content.which}
-                </CardTitle>
-                <CardTitle className="text-md text-max font-medium items-center justify-center flex mt-1">
-                  {content.question}
-                </CardTitle>
-              </div>
-            </CardHeader>
-
-            {content.img && (
-              <CardContent className="flex justify-center py-2">
-                <div className="relative w-full max-w-[500px] h-[250px] my-2">
-                  <Image
-                    src={content.img || "/placeholder.svg"}
-                    alt={content.alt || "lesson image"}
-                    fill
-                    loading="lazy"
-                    className="rounded-xl shadow-lg object-contain bg-white"
-                    sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
-                    quality={90}
-                  />
-                </div>
-              </CardContent>
-            )}
-            {content.question_type === "diagram" && (
-              <CardContent className="p-6 flex flex-col md:flex-row items-center justify-center h-auto">
-                {content?.diagram_config &&
-                  (Array.isArray(content.diagram_config) ? (
-                    content.diagram_config.length === 1 ? (
-                      <DiagramScale config={content.diagram_config[0]} />
-                    ) : (
-                      content.diagram_config.map((config, index) => (
-                        <DiagramScale key={index} config={config} />
-                      ))
-                    )
-                  ) : (
-                    <DiagramScale config={content.diagram_config} />
-                  ))}
-              </CardContent>
-            )}
-            <CardContent className="p-4 -mt-4">
-              {/* Options Layout */}
-              {content.question_type === "diagram" ? (
-                <div className="grid gap-4  grid-cols-2">
-                  {content?.options?.map((option, idx) => {
-                    const isSelected = selectedOption === option;
-                    const isOptionCorrect =
-                      hasAnswered && isSelected && isCorrect;
-                    const isOptionIncorrect =
-                      hasAnswered && isSelected && !isCorrect;
-                    return (
-                      <motion.button
-                        key={idx}
-                        onClick={() => onOptionSelect(option)}
-                        disabled={hasAnswered && isSelected}
-                        className={cn(
-                          "p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
-                          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                          !isSelected &&
-                          !hasAnswered &&
-                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
-                          isSelected &&
-                          !hasAnswered &&
-                          "border-primary bg-primary/10 shadow-md",
-                          isOptionCorrect &&
-                          "border-green-500 bg-green-50 shadow-md",
-                          isOptionIncorrect &&
-                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
-                        )}
-                      >
-                        {/* X icon for incorrect */}
-                        {isOptionIncorrect && (
-                          <span className="absolute top-2 right-2 text-gray-400">
-                            <X className="h-5 w-5" />
-                          </span>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={cn(
-                              "text-sm   font-normal",
-                              isOptionIncorrect
-                                ? "text-gray-400"
-                                : "text-gray-800"
-                            )}
-                          >
-                            {option}
-                          </span>
-                          {isOptionCorrect && (
-                            <motion.div
-                              initial="hidden"
-                              animate="visible"
-                              className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
-                            >
-                              <Check className="h-4 w-4 text-white" />
-                            </motion.div>
-                          )}
-                        </div>
-                        {isSelected && !hasAnswered && (
-                          <motion.div
-                            className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
-                            layoutId="selectedOption"
-                          />
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div
-                  className={`${content.content && content.content.format == "grid"
-                    ? "grid grid-cols-2 items-center gap-5"
-                    : "grid grid-cols-1 items-center gap-5 py-5 "
-                    }`}
-                >
-                  {content?.options?.map((option, idx) => {
-                    const isSelected = selectedOption === option;
-                    const isOptionCorrect =
-                      hasAnswered && isSelected && isCorrect;
-                    const isOptionIncorrect =
-                      hasAnswered && isSelected && !isCorrect;
-                    return (
-                      <motion.button
-                        key={idx}
-                        onClick={() => onOptionSelect(option)}
-                        disabled={hasAnswered && isSelected}
-                        className={cn(
-                          "w-full p-3 text-sm rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
-                          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                          // Default state
-                          !isSelected &&
-                          !hasAnswered &&
-                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
-                          // Selected but not yet checked
-                          isSelected &&
-                          !hasAnswered &&
-                          "border-primary bg-primary/10 shadow-md",
-                          // Correct
-                          isOptionCorrect &&
-                          "border-green-500 bg-green-50 shadow-md",
-                          // Incorrect (custom style)
-                          isOptionIncorrect &&
-                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
-                        )}
-                      >
-                        {/* X icon for incorrect */}
-                        {isOptionIncorrect && (
-                          <span className="absolute top-2 right-2 text-gray-400">
-                            <X className="h-5 w-5" />
-                          </span>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={cn(
-                              "text-sm md:text-base font-medium",
-                              isOptionIncorrect
-                                ? "text-gray-400"
-                                : "text-gray-800"
-                            )}
-                          >
-                            {option}
-                          </span>
-                          {isOptionCorrect && (
-                            <motion.div
-                              initial="hidden"
-                              animate="visible"
-                              className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
-                            >
-                              <Check className="h-4 w-4 text-white" />
-                            </motion.div>
-                          )}
-                        </div>
-                        {isSelected && !hasAnswered && (
-                          <motion.div
-                            className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
-                            layoutId="selectedOption"
-                          />
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="pt-2 pb-4 px-6">
-              <div className="w-full space-y-2">
-                {answerState.isCorrect === null && !hasAnswered && (
-                  <Button
-                    onClick={onCheckAnswer}
-                    className="w-full bg-primary hover:bg-primary/90"
-                    size="lg"
-                    disabled={!selectedOption || isLoading}
-                  >
-                    Hubi Jawaabta
-                  </Button>
-                )}
-              </div>
-            </CardFooter>
-          </Card>
-        </motion.div>
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
-  };
+  }
+
+  if (error || !content) {
+    return (
+      <Card className="max-w-3xl mx-auto">
+        <CardContent className="p-6 text-center">
+          <p className="text-red-500">
+            {error || "Problem content could not be loaded"}
+          </p>
+          <Button onClick={onContinue} className="mt-2">
+            SiiWado Qaybta Kale
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Determine if user has checked an answer
+  const hasAnswered = answerState.isCorrect !== null;
+
+  // Render image only for multiple_choice and mcq types
+  // const showImage = ["multiple_choice", "mcq"].includes(
+  //   content.question_type || ""
+  // );
+  return (
+    <div className="max-w-2xl mx-auto  ">
+      <motion.div className="space-y-8">
+        {/* Question Card */}
+        <Card className="border-none shadow-xl z-0">
+          <CardHeader className="relative text-left items-center justify-center flex   bg-gradient-to-r from-primary/10 to-primary/5 pb-2">
+            <div className="pt-1">
+              <CardTitle className="text-md font-normal text-gray-600 items-center justify-center flex mt-1">
+                {content.which}
+              </CardTitle>
+              <CardTitle className="text-md text-max font-medium items-center justify-center flex mt-1">
+                {content.question}
+              </CardTitle>
+            </div>
+          </CardHeader>
+
+          {content.img && (
+            <CardContent className="flex justify-center py-2">
+              <div className="relative w-full max-w-[500px] h-[250px] my-2">
+                <Image
+                  src={content.img || "/placeholder.svg"}
+                  alt={content.alt || "lesson image"}
+                  fill
+                  loading="lazy"
+                  className="rounded-xl shadow-lg object-contain bg-white"
+                  sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
+                  quality={90}
+                />
+              </div>
+            </CardContent>
+          )}
+          {content.question_type === "diagram" && (
+            <CardContent className="p-6 flex flex-col md:flex-row items-center justify-center h-auto">
+              {content?.diagram_config &&
+                (Array.isArray(content.diagram_config) ? (
+                  content.diagram_config.length === 1 ? (
+                    <DiagramScale config={content.diagram_config[0]} />
+                  ) : (
+                    content.diagram_config.map((config, index) => (
+                      <DiagramScale key={index} config={config} />
+                    ))
+                  )
+                ) : (
+                  <DiagramScale config={content.diagram_config} />
+                ))}
+            </CardContent>
+          )}
+          <CardContent className="p-4 -mt-4">
+            {/* Options Layout */}
+            {content.question_type === "diagram" ? (
+              <div className="grid gap-4  grid-cols-2">
+                {content?.options?.map((option, idx) => {
+                  const isSelected = selectedOption === option;
+                  const isOptionCorrect =
+                    hasAnswered && isSelected && isCorrect;
+                  const isOptionIncorrect =
+                    hasAnswered && isSelected && !isCorrect;
+                  return (
+                    <motion.button
+                      key={idx}
+                      onClick={() => onOptionSelect(option)}
+                      disabled={hasAnswered && isSelected}
+                      className={cn(
+                        "p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                        !isSelected &&
+                          !hasAnswered &&
+                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                        isSelected &&
+                          !hasAnswered &&
+                          "border-primary bg-primary/10 shadow-md",
+                        isOptionCorrect &&
+                          "border-green-500 bg-green-50 shadow-md",
+                        isOptionIncorrect &&
+                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
+                      )}
+                    >
+                      {/* X icon for incorrect */}
+                      {isOptionIncorrect && (
+                        <span className="absolute top-2 right-2 text-gray-400">
+                          <X className="h-5 w-5" />
+                        </span>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-sm   font-normal",
+                            isOptionIncorrect
+                              ? "text-gray-400"
+                              : "text-gray-800"
+                          )}
+                        >
+                          {option}
+                        </span>
+                        {isOptionCorrect && (
+                          <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                          >
+                            <Check className="h-4 w-4 text-white" />
+                          </motion.div>
+                        )}
+                      </div>
+                      {isSelected && !hasAnswered && (
+                        <motion.div
+                          className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                          layoutId="selectedOption"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div
+                className={`${
+                  content.content && content.content.format == "grid"
+                    ? "grid grid-cols-2 items-center gap-5"
+                    : "grid grid-cols-1 items-center gap-5 py-5 "
+                }`}
+              >
+                {content?.options?.map((option, idx) => {
+                  const isSelected = selectedOption === option;
+                  const isOptionCorrect =
+                    hasAnswered && isSelected && isCorrect;
+                  const isOptionIncorrect =
+                    hasAnswered && isSelected && !isCorrect;
+                  return (
+                    <motion.button
+                      key={idx}
+                      onClick={() => onOptionSelect(option)}
+                      disabled={hasAnswered && isSelected}
+                      className={cn(
+                        "w-full p-3 text-sm rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                        // Default state
+                        !isSelected &&
+                          !hasAnswered &&
+                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                        // Selected but not yet checked
+                        isSelected &&
+                          !hasAnswered &&
+                          "border-primary bg-primary/10 shadow-md",
+                        // Correct
+                        isOptionCorrect &&
+                          "border-green-500 bg-green-50 shadow-md",
+                        // Incorrect (custom style)
+                        isOptionIncorrect &&
+                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
+                      )}
+                    >
+                      {/* X icon for incorrect */}
+                      {isOptionIncorrect && (
+                        <span className="absolute top-2 right-2 text-gray-400">
+                          <X className="h-5 w-5" />
+                        </span>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-sm md:text-base font-medium",
+                            isOptionIncorrect
+                              ? "text-gray-400"
+                              : "text-gray-800"
+                          )}
+                        >
+                          {option}
+                        </span>
+                        {isOptionCorrect && (
+                          <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                          >
+                            <Check className="h-4 w-4 text-white" />
+                          </motion.div>
+                        )}
+                      </div>
+                      {isSelected && !hasAnswered && (
+                        <motion.div
+                          className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                          layoutId="selectedOption"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="pt-2 pb-4 px-6">
+            <div className="w-full space-y-2">
+              {answerState.isCorrect === null && !hasAnswered && (
+                <Button
+                  onClick={onCheckAnswer}
+                  className="w-full bg-primary hover:bg-primary/90"
+                  size="lg"
+                  disabled={!selectedOption || isLoading}
+                >
+                  Hubi Jawaabta
+                </Button>
+              )}
+            </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};
 
 // TextBlock component for text-type content
 const TextBlock: React.FC<{
@@ -744,13 +751,12 @@ const LessonPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [rewards, setRewards] = useState<UserReward[]>([]);
-  const [isLoadingRewards, setIsLoadingRewards] = useState(true);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [userRank, setUserRank] = useState<Partial<UserRank>>({
-    rank: 0,
-    points: 0,
-  });
+  // const [rewards, setRewards] = useState<UserReward[]>([]);
+  // const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  // const [userRank, setUserRank] = useState<Partial<UserRank>>({
+  // rank: 0,
+  // points: 0,
+  // });
   const [explanationData, setExplanationData] = useState<{
     explanation: string;
     image: string;
@@ -759,7 +765,7 @@ const LessonPage = () => {
     image: "",
   });
   const { playSound } = useSoundManager();
-  const continueRef = useRef<() => void>(() => { });
+  const continueRef = useRef<() => void>(() => {});
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [navigating, setNavigating] = useState(false);
 
@@ -772,6 +778,42 @@ const LessonPage = () => {
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [currentBlock, setCurrentBlock] = useState<React.ReactNode>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+
+  const {
+    data: rewards,
+    mutate: mutateRewards,
+    isLoading: isLoadingRewards,
+  } = useRewards(currentLesson?.id) as {
+    data: UserReward[];
+    mutate: () => void;
+    isLoading: boolean;
+  };
+
+  const {
+    data: leaderboard,
+    mutate: mutateLeaderboard,
+    isLoading: isLoadingLeaderboard,
+  } = useLeaderboard() as {
+    data: LeaderboardEntry[];
+    mutate: () => void;
+    isLoading: boolean;
+  };
+
+  const {
+    data: userRank,
+    mutate: mutateUserRank,
+    isLoading: isLoadingUserRank,
+  } = useUserRank() as {
+    data: Partial<UserRank>;
+    mutate: () => void;
+    isLoading: boolean;
+  };
+
+  const {
+    data: courseProgress,
+    mutate: mutateCourseProgress,
+    isLoading: isLoadingCourseProgress,
+  } = useCourseProgress(courseId);
 
   // Derived state for current problem
   const currentProblem =
@@ -902,7 +944,7 @@ const LessonPage = () => {
         console.error("Error fetching problems:", err);
         setError(
           (err instanceof Error ? err.message : String(err)) ||
-          "Failed to load problems"
+            "Failed to load problems"
         );
       } finally {
         setProblemLoading(false);
@@ -972,179 +1014,99 @@ const LessonPage = () => {
     [dispatch, playSound]
   );
 
-  // Handle continue to next block
-  const handleContinue = useCallback(() => {
-    console.log(
-      "handleContinue called with currentBlockIndex:",
-      currentBlockIndex
-    );
+  const fetcher = async (
+    url: string,
+    method: "get" | "post" = "get",
+    body?: any
+  ) => {
+    const service = AuthService.getInstance();
+    return service.makeAuthenticatedRequest(method, url, body);
+  };
 
-    // Get properly sorted blocks (same logic as in renderCurrentBlock)
-    const sortedBlocks = [...(currentLesson?.content_blocks || [])]
+  // Handle continue to next block
+  const handleContinue = useCallback(async () => {
+    // 1) sort & filter your blocks
+    const sortedBlocks = (currentLesson?.content_blocks || [])
       .filter((b) => !(b.block_type === "problem" && !b.problem))
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    console.log("Total sorted blocks:", sortedBlocks.length);
-    console.log(
-      "Is this the last block?",
-      currentBlockIndex === sortedBlocks.length - 1
-    );
-    console.log("Current block index:", currentBlockIndex);
-    console.log(
-      "Current block type:",
-      sortedBlocks[currentBlockIndex]?.block_type
-    );
+    if (sortedBlocks.length === 0) {
+      return;
+    }
 
-    // Check if this is the last block in the lesson
-    const isLastBlock = currentBlockIndex === sortedBlocks.length - 1;
-    console.log("Is last block:", isLastBlock);
-    const contentBlocks = sortedBlocks || [];
-    console.log("Content blocks:", contentBlocks);
-    console.log("Current block index:", currentBlockIndex);
+    const lastIndex = sortedBlocks.length - 1;
+    const isLastBlock = currentBlockIndex === lastIndex;
 
-    if (contentBlocks.length > 0) {
-      playSound("continue");
+    // common UI stuff
+    playSound("continue");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setShowFeedback(false);
+    toast.dismiss("correct-answer-toast");
+    toast.dismiss("reward-toast");
 
-      // Scroll to top smoothly
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (!isLastBlock) {
+      // → not last: just advance
+      setCurrentBlockIndex((i) => Math.min(i + 1, lastIndex));
+      return;
+    }
 
-      // Check if this is the last block in the lesson
-      const isLastBlock = currentBlockIndex === contentBlocks.length - 1;
-      console.log("Is last block:", isLastBlock);
+    // → last block: handle completion
+    setIsLessonCompleted(true);
 
-      // Clear any feedback or toasts
-      setShowFeedback(false);
-      toast.dismiss("correct-answer-toast");
-      toast.dismiss("reward-toast");
-
-      if (isLastBlock) {
-        console.log("Setting lesson completed to true");
-        // This is the last block - handle lesson completion
-        setIsLessonCompleted(true); // Set this first to trigger the completion UI
-
-        if (currentLesson?.id) {
-          console.log("Lesson ID exists:", currentLesson.id);
-          // Try to store progress in local storage as a fallback
-          try {
-            const completedLessons = JSON.parse(
-              localStorage.getItem("completedLessons") || "[]"
-            );
-            if (!completedLessons.includes(currentLesson.id)) {
-              completedLessons.push(currentLesson.id);
-              localStorage.setItem(
-                "completedLessons",
-                JSON.stringify(completedLessons)
-              );
-            }
-          } catch (storageError) {
-            console.error("Error with local storage:", storageError);
-          }
-          // Try API updates in background
-          (async () => {
-            try {
-              console.log("Starting API updates");
-              // 1. Mark lesson as completed with score
-              const completionResult =
-                await AuthService.getInstance().makeAuthenticatedRequest<{
-                  reward?: { value: number };
-                }>("post", `/api/lms/lessons/${currentLesson.id}/complete/`, {
-                  score: isCorrect ? 100 : 0,
-                });
-              console.log("Lesson completion result:", completionResult);
-
-              // 2. Get updated course progress
-              const courseProgress =
-                await AuthService.getInstance().makeAuthenticatedRequest<{
-                  progress: number;
-                  user_progress: {
-                    progress_percent: number;
-                  };
-                }>("get", `/api/lms/courses/${courseId}/`);
-              console.log("Course progress:", courseProgress);
-
-              // 3. Show reward notification if any
-              if (completionResult.reward) {
-                toast.success(
-                  <div className="space-y-2">
-                    <p className="font-medium">Hambalyo!</p>
-                    <p>
-                      Waxaad ku guulaysatay {completionResult.reward.value} XP
-                    </p>
-                    <p>
-                      Horumarkaaga:{" "}
-                      {courseProgress.user_progress.progress_percent}%
-                    </p>
-                  </div>,
-                  {
-                    duration: 5000,
-                    id: "reward-toast",
-                  }
-                );
-              }
-
-              setIsLoadingRewards(true);
-
-              // 4. Get updated user rewards
-              const rewardsData =
-                await AuthService.getInstance().makeAuthenticatedRequest<
-                  UserReward[]
-                >("get", `/api/lms/rewards?lesson_id=${currentLesson.id}`);
-              console.log("Rewards data:", rewardsData);
-
-              setRewards(rewardsData);
-
-              // 5. Get updated leaderboard
-              const leaderboardData =
-                await AuthService.getInstance().makeAuthenticatedRequest<
-                  LeaderboardEntry[]
-                >("get", "/api/lms/leaderboard/?time_period=all_time&limit=10");
-              console.log("Leaderboard data:", leaderboardData);
-
-              // 6. Get user rank
-              const userRankData =
-                await AuthService.getInstance().makeAuthenticatedRequest<
-                  Partial<UserRank>
-                >("get", "/api/lms/leaderboard/my_rank/");
-              console.log("User rank data:", userRankData);
-
-              // Update state with new data
-              setLeaderboard(leaderboardData);
-              setUserRank(userRankData);
-            } catch (error) {
-              console.error("Error fetching rewards:", error);
-              toast.error("Could not load rewards. Please try again.");
-            } finally {
-              setIsLoadingRewards(false);
-            }
-          })().catch((error) => {
-            console.error("Overall progress error:", error);
-            // Show error toast but don't prevent completion
-            toast.error(
-              <div className="space-y-2">
-                <p className="font-medium">Xalad ayaa dhacday</p>
-                <p>
-                  Waxaa jira khalad markii la diiwaangelinayay horumarkaaga.
-                  Fadlan isku day mar kale.
-                </p>
-              </div>,
-              {
-                duration: 5000,
-                id: "error-toast",
-              }
-            );
-          });
-        } else {
-          console.log("No lesson ID found");
+    if (currentLesson?.id) {
+      // fallback localStorage
+      try {
+        const done = JSON.parse(
+          localStorage.getItem("completedLessons") || "[]"
+        );
+        if (!done.includes(currentLesson.id)) {
+          done.push(currentLesson.id);
+          localStorage.setItem("completedLessons", JSON.stringify(done));
         }
-      } else {
-        console.log("Moving to next block");
-        // Not the last block, move to the next block
-        setCurrentBlockIndex((prev) =>
-          Math.min(prev + 1, contentBlocks.length - 1)
+      } catch (err) {
+        console.error("LocalStorage error", err);
+      }
+
+      try {
+        // 1. mark lesson complete
+        await fetcher(
+          `/api/lms/lessons/${currentLesson.id}/complete/`,
+          "post",
+          {
+            score: isCorrect ? 100 : 0,
+          }
+        );
+
+        // 2. revalidate all SWR hooks in parallel
+        await Promise.all([
+          mutateCourseProgress(),
+          mutateRewards(),
+          mutateLeaderboard(),
+          mutateUserRank(),
+        ]);
+
+        // setIsLoadingRewards(false);
+      } catch (err) {
+        console.error("Completion error", err);
+        toast.error(
+          <div className="space-y-2">
+            <p className="font-medium">Xalad ayaa dhacday</p>
+            <p>Fadlan isku day mar kale.</p>
+          </div>,
+          { duration: 5000, id: "error-toast" }
         );
       }
     }
-  }, [currentLesson, currentBlockIndex, isCorrect, playSound, courseId]);
+  }, [
+    currentBlockIndex,
+    currentLesson,
+    isCorrect,
+    playSound,
+    mutateRewards,
+    mutateLeaderboard,
+    mutateUserRank,
+    mutateCourseProgress,
+  ]);
 
   // Update the ref when handleContinue changes
   useEffect(() => {
@@ -1469,7 +1431,6 @@ const LessonPage = () => {
         <ShareLesson
           lessonTitle={currentLesson?.title || "Cashar"}
           courseName={currentLesson?.title || "Koorso"}
-          points={rewards.reduce((total, reward) => total + reward.value, 0)}
           onContinue={handleShowLeaderboard}
           lessonId={currentLesson?.id || ""}
           courseId={courseId || ""}
@@ -1477,7 +1438,7 @@ const LessonPage = () => {
       ) : isLessonCompleted && showLeaderboard ? (
         <Leaderboard
           onContinue={handleContinueAfterCompletion}
-          leaderboard={leaderboard}
+          leaderboard={leaderboard || []}
           userRank={userRank}
         />
       ) : isLessonCompleted && leaderboardLoading ? (
@@ -1500,7 +1461,6 @@ const LessonPage = () => {
             <ShareLesson
               lessonTitle={currentLesson?.title || "Cashar"}
               courseName={currentLesson?.title || "Koorso"}
-              points={0}
               onContinue={handleShowLeaderboard}
               lessonId={currentLesson?.id || ""}
               courseId={courseId || ""}

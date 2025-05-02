@@ -2,30 +2,25 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Share,
-  Copy,
-  Check,
-  Twitter,
-  Facebook,
-  PhoneIcon as WhatsApp,
   ChevronRight,
+  Check,
+  Share2,
+  MessageCircle,
+  Mail,
+  Smartphone,
+  X,
 } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import AuthService from "@/services/auth";
+import { Button } from "./ui/button";
 
 interface ShareLessonProps {
   lessonTitle: string;
   courseName: string;
-  points: number;
   onContinue: () => void;
   lessonId: string;
   courseId: string;
@@ -34,20 +29,21 @@ interface ShareLessonProps {
 const ShareLesson: React.FC<ShareLessonProps> = ({
   lessonTitle,
   courseName,
-  points,
   onContinue,
   lessonId,
   courseId,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [isSharing, setIsSharing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  const storedUser = AuthService.getInstance().getCurrentUser();
 
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/courses/${courseId}/lessons/${lessonId}`
       : "";
 
-  const shareText = `Waxaan dhamaystiray casharkan "${lessonTitle}" ee kooraska "${courseName}" oo aan ku helay ${points} dhibcood! 🎉`;
+  const shareText = `${storedUser.first_name} wuxuu dhamaystiray casharkan "${lessonTitle}" ee kooraska "${courseName}"  Waxaad casharkan ka daawan kartaa: www.garaad.org/courses/${courseId}/lessons/${lessonId}`;
 
   const handleCopyLink = async () => {
     try {
@@ -62,25 +58,24 @@ const ShareLesson: React.FC<ShareLessonProps> = ({
   };
 
   const handleShare = async (platform: string) => {
-    setIsSharing(true);
     try {
       let shareUrl = "";
 
       switch (platform) {
-        case "twitter":
-          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-            shareText
-          )}&url=${encodeURIComponent(shareUrl)}`;
-          break;
-        case "facebook":
-          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            shareUrl
-          )}&quote=${encodeURIComponent(shareText)}`;
-          break;
         case "whatsapp":
           shareUrl = `https://wa.me/?text=${encodeURIComponent(
             `${shareText} ${shareUrl}`
           )}`;
+          break;
+        case "sms":
+          shareUrl = `sms:?body=${encodeURIComponent(
+            `${shareText} ${shareUrl}`
+          )}`;
+          break;
+        case "email":
+          shareUrl = `mailto:?subject=${encodeURIComponent(
+            `${courseName} - ${lessonTitle}`
+          )}&body=${encodeURIComponent(`${shareText} ${shareUrl}`)}`;
           break;
         default:
           if (navigator.share) {
@@ -90,11 +85,9 @@ const ShareLesson: React.FC<ShareLessonProps> = ({
               url: shareUrl,
             });
             toast.success("Waad la wadaagtay!");
-            setIsSharing(false);
             return;
           } else {
             await handleCopyLink();
-            setIsSharing(false);
             return;
           }
       }
@@ -105,123 +98,205 @@ const ShareLesson: React.FC<ShareLessonProps> = ({
       toast.error("Ma awoodin in la wadaago");
       console.error("Failed to share:", err);
     }
-    setIsSharing(false);
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-blue-50">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="w-full max-w-2xl"
       >
-        <Card className="overflow-hidden border-none shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 text-center">
-            <div className="mx-auto mb-2">
-              <div className="bg-primary/10 p-3 rounded-full inline-block">
-                <Share className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <CardTitle className="text-xl">La wadaag guushaada!</CardTitle>
-            <CardDescription>
-              Waxaad dhamaysatay casharkan "{lessonTitle}" oo aad ku heshay{" "}
-              {points} dhibcood
-            </CardDescription>
-          </CardHeader>
+        <Card className="overflow-hidden border-0 shadow-2xl relative">
+          <button
+            onClick={onContinue}
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <X className="h-5 w-5 text-gray-600" />
+          </button>
 
-          <CardContent className="p-6 space-y-6">
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-gray-100 shadow-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <div className="text-center p-4 bg-white/80 rounded-lg shadow-sm backdrop-blur-sm">
-                  <h3 className="font-bold text-primary">{courseName}</h3>
-                  <p className="text-sm text-gray-600">{lessonTitle}</p>
-                  <div className="mt-2 inline-flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full text-xs font-medium text-primary">
-                    <Check className="h-3 w-3" /> Dhamaystiray
+          <CardContent className="p-0">
+            <div className="bg-purple-200 p-8 text-black relative overflow-hidden">
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-purple-600/20" />
+
+              <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+                <div className="space-y-6 flex-1">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-white/10">
+                      <span className="text-sm font-medium">
+                        {new Date().toLocaleDateString("en-US")}
+                      </span>
+                    </div>
+                    <span className="text-sm font-light opacity-90">
+                      • {storedUser.first_name} {storedUser.last_name}
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h1 className="text-3xl md:text-4xl font-bold leading-tight max-w-[80%]">
+                      Casharkaan waa kuu dhamaaday! 🎉
+                    </h1>
+
+                    <div className="flex items-center gap-6">
+                      <div className="space-y-2">
+                        <h2 className="text-xl font-semibold">{courseName}</h2>
+                        <p className="text-lg opacity-90">{lessonTitle}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                <motion.div whileHover={{ scale: 1.05 }}>
+                  <Image
+                    src="/favicon.ico"
+                    alt="Course icon"
+                    width={100}
+                    height={100}
+                    className="rounded-2xl border-4 border-white/20"
+                  />
+                </motion.div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-sm text-center text-muted-foreground">
-                U sheeg saaxiibadaa guushaada!
-              </p>
-
-              <div className="flex justify-center gap-4">
-                <AnimatePresence mode="wait">
-                  <motion.button
-                    key="twitter"
-                    onClick={() => handleShare("twitter")}
-                    className="flex flex-col items-center gap-1"
-                    whileTap={{ scale: 0.95 }}
-                    disabled={isSharing}
-                  >
-                    <div className="bg-[#1DA1F2]/10 p-3 rounded-full">
-                      <Twitter className="h-5 w-5 text-[#1DA1F2]" />
-                    </div>
-                    <span className="text-xs text-gray-600">Twitter</span>
-                  </motion.button>
-
-                  <motion.button
-                    key="facebook"
-                    onClick={() => handleShare("facebook")}
-                    className="flex flex-col items-center gap-1"
-                    whileTap={{ scale: 0.95 }}
-                    disabled={isSharing}
-                  >
-                    <div className="bg-[#1877F2]/10 p-3 rounded-full">
-                      <Facebook className="h-5 w-5 text-[#1877F2]" />
-                    </div>
-                    <span className="text-xs text-gray-600">Facebook</span>
-                  </motion.button>
-
-                  <motion.button
-                    key="whatsapp"
-                    onClick={() => handleShare("whatsapp")}
-                    className="flex flex-col items-center gap-1"
-                    whileTap={{ scale: 0.95 }}
-                    disabled={isSharing}
-                  >
-                    <div className="bg-[#25D366]/10 p-3 rounded-full">
-                      <WhatsApp className="h-5 w-5 text-[#25D366]" />
-                    </div>
-                    <span className="text-xs text-gray-600">WhatsApp</span>
-                  </motion.button>
-                </AnimatePresence>
+            {/* Sharing section */}
+            <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  La wadaag saaxiibada
+                </h3>
+                <Share2 className="text-gray-600" />
               </div>
 
-              <div className="pt-2">
-                <Button
-                  onClick={handleCopyLink}
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2 border-dashed"
-                  disabled={copied || isSharing}
-                >
-                  {copied ? (
-                    <>
-                      <Check className="h-4 w-4 text-green-500" />
-                      <span>Waa la koobiyeeyay</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4" />
-                      <span>Koobi linkiga</span>
-                    </>
+              <div className="space-y-4">
+                <div
+                  className={cn(
+                    "p-4 bg-gray-50 rounded-xl border border-gray-200 text-gray-600 transition-all cursor-pointer",
+                    expanded ? "max-h-96" : "max-h-24"
                   )}
-                </Button>
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  <p
+                    className={cn(
+                      "transition-all",
+                      !expanded && "line-clamp-2"
+                    )}
+                  >
+                    {shareText}
+                  </p>
+                  {!expanded && (
+                    <span className="text-sm text-purple-600 mt-1 block">
+                      Riix si aad u buuxiso
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleCopyLink}
+                    className="p-4 bg-white rounded-xl border border-gray-200 w-full flex items-center justify-center gap-2"
+                  >
+                    <AnimatePresence mode="wait">
+                      {copied ? (
+                        <motion.div
+                          key="check"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                        >
+                          <Check className="h-6 w-6 text-green-500" />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="copy"
+                          initial={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                        >
+                          <Share2 className="h-6 w-6 text-purple-500" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    <span className="text-sm font-medium">
+                      {copied ? "Koobiyey" : "Koobi Link"}
+                    </span>
+                  </motion.button>
+                </div>
+
+                {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleShare("whatsapp")}
+                    className="p-4 bg-white rounded-xl border border-gray-200 flex flex-col items-center gap-2 hover:border-purple-500"
+                  >
+                    <MessageCircle className="h-6 w-6 text-green-500" />
+                    <span className="text-sm font-medium">WhatsApp</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleShare("sms")}
+                    className="p-4 bg-white rounded-xl border border-gray-200 flex flex-col items-center gap-2 hover:border-purple-500"
+                  >
+                    <Smartphone className="h-6 w-6 text-blue-500" />
+                    <span className="text-sm font-medium">SMS</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleShare("email")}
+                    className="p-4 bg-white rounded-xl border border-gray-200 flex flex-col items-center gap-2 hover:border-purple-500"
+                  >
+                    <Mail className="h-6 w-6 text-red-500" />
+                    <span className="text-sm font-medium">Email</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleCopyLink}
+                    className="p-4 bg-white rounded-xl border border-gray-200 flex flex-col items-center gap-2 hover:border-purple-500"
+                  >
+                    <AnimatePresence mode="wait">
+                      {copied ? (
+                        <motion.div
+                          key="check"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                        >
+                          <Check className="h-6 w-6 text-green-500" />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="copy"
+                          initial={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                        >
+                          <Share2 className="h-6 w-6 text-purple-500" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    <span className="text-sm font-medium">
+                      {copied ? "Koobiyey" : "Koobi Link"}
+                    </span>
+                  </motion.button>
+                </div> */}
               </div>
             </div>
           </CardContent>
 
-          <CardFooter className="p-4 bg-gray-50 flex justify-between">
+          <CardFooter className="p-6 bg-gray-50 flex items-center border-t border-gray-200">
             <Button
               onClick={onContinue}
-              className="w-full bg-primary hover:bg-primary/90"
-              disabled={isSharing}
+              className="w-full py-5 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-shadow"
             >
-              Arag leaderboard-ka
-              <ChevronRight className="ml-2 h-4 w-4" />
+              Arag shaxda tartanka
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </CardFooter>
         </Card>
