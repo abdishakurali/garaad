@@ -29,7 +29,7 @@ export default function ModuleBox({
   return (
     <div
       className={`
-        flex flex-col items-center cursor-pointer transition-all duration-300 
+        flex flex-col items-center cursor-pointer transition-all duration-300 mt-[10px]
         ${isActive ? "scale-105" : "hover:scale-105"}
       `}
       onClick={onClick}
@@ -72,8 +72,10 @@ export default function ModuleBox({
       </div>
 
       {/* Module title */}
-      <div className="mt-2 text-center max-w-[160px]">
-        <p className="text-sm font-medium ">{module.title}</p>
+      <div className="mt-2 text-center max-w-[160px] relative">
+        <p className="text-sm font-medium z-10 px-2 py-1 rounded">
+          {module.title}
+        </p>
       </div>
     </div>
   );

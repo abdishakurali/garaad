@@ -65,16 +65,37 @@ export interface Feature {
 }
 
 export interface TextContent {
+  title?: string;
   type: string;
-  desc: string;
+  desc?: string;
   text: string;
   text1?: string;
+  text2?: string;
+  text3?: string;
+  text4?: string;
+  text5?: string;
+  text6?: string;
+  "hover-1"?: string;
+  "hover-2"?: string;
   format: "markdown";
   orientation?: "horizontal" | "vertical";
-  title?: string;
   url?: string;
   alt?: string;
   features?: Feature[];
+  table?: {
+    header: string[];
+    rows: string[][];
+  };
+}
+
+export interface ExplanationText {
+  text?: string;
+  text1?: string;
+  text2?: string;
+  text3?: string;
+  text4?: string;
+  text5?: string;
+  text6?: string;
 }
 
 export interface ImageContent {

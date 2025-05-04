@@ -72,7 +72,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     isCurrentUser ? "bg-green-50" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1 md:gap-3">
                     {/* Rank Number */}
                     <span className="text-gray-500 w-6">{rank}</span>
 
@@ -94,7 +94,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
                   {/* Points */}
                   <span className="text-gray-500">
-                    {entry.user_info.stats.total_points} Dhibcood
+                    {entry.user_info.stats.total_points} Dhibic
                   </span>
                 </div>
               );

@@ -118,7 +118,7 @@ export default function CourseDetailPage() {
       <div className="max-w-6xl mx-auto p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left Column: Course Info */}
-          <div className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md border-gray-200 sticky top-10">
+          <div className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md border-gray-200 md:sticky md:top-10">
             {/* Detached Icon/Image */}
             <div className="flex mb-6 border-border border-2 px-4 py-2 rounded-md w-fit">
               <div className="relative w-16 h-16">
@@ -170,19 +170,19 @@ export default function CourseDetailPage() {
 
               <div className="relative flex flex-col items-center gap-12">
                 {/* Connecting line */}
-                <div className="absolute w-1 h-full bg-gradient-to-b from-blue-200 to-transparent left-1/2 -translate-x-1/2 z-0" />
+                {/* <div className="absolute w-1 h-full bg-gradient-to-b from-blue-200 to-transparent left-1/2 -translate-x-1/2 z-0" /> */}
 
-                {(currentCourse?.modules ?? []).map(
+                {/* {(currentCourse?.modules ?? []).map(
                   (module: Module, index: number) => (
                     <div key={module.id} className="relative z-10">
-                      {/* Module Block */}
+                    
                       <div className="relative hover:scale-[1.02] transition-transform duration-300 translate-y-12">
                         <ModuleZigzag
                           modules={[module]}
                           activeModuleId={activeModuleId}
                           onModuleClick={handleModuleClick}
                         />
-                        {/* Progress connector */}
+                        
                         {index < (currentCourse.modules?.length ?? 0) - 1 && (
                           <div className="absolute left-1/2 bottom-0 translate-y-24 -translate-x-1/2 text-blue-500">
                             <ChevronRight className="w-8 h-8 animate-bounce" />
@@ -191,6 +191,14 @@ export default function CourseDetailPage() {
                       </div>
                     </div>
                   )
+                )} */}
+
+                {currentCourse?.modules && (
+                  <ModuleZigzag
+                    modules={currentCourse.modules}
+                    activeModuleId={activeModuleId}
+                    onModuleClick={handleModuleClick}
+                  />
                 )}
               </div>
             </div>

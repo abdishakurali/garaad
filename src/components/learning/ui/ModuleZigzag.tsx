@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import ModuleBox from "./ModuleBox";
 import ModulePopup from "./ModulePopup";
 import type { Module } from "@/types/learning";
@@ -28,6 +28,15 @@ export default function ModuleZigzag({
   const moduleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [openPopoverId, setOpenPopoverId] = useState<number | null>(null);
+
+  const uniqueModules = useMemo(() => {
+    return modules.filter(
+      (module, index, self) =>
+        index === self.findIndex((m) => m.id === module.id)
+    );
+  }, [modules]);
+
+  console.log("+++++++++++++++++MODULES+++++++++++++");
 
   const fetchProgress = useCallback(async () => {
     try {
@@ -101,15 +110,15 @@ export default function ModuleZigzag({
       points.push({
         x: startX,
         y: startY,
-        completed: isModuleCompleted(modules[0].title),
-        inProgress: hasModuleProgress(modules[0].course_id),
+        completed: isModuleCompleted(uniqueModules[0].title),
+        inProgress: hasModuleProgress(uniqueModules[0].course_id),
       });
 
       let lastCompletedIndex = -1;
 
       // Find last completed module
-      for (let i = 0; i < modules.length; i++) {
-        if (isModuleCompleted(modules[i].title)) {
+      for (let i = 0; i < uniqueModules.length; i++) {
+        if (isModuleCompleted(uniqueModules[i].title)) {
           lastCompletedIndex = i;
         } else {
           break;
@@ -137,8 +146,8 @@ export default function ModuleZigzag({
         points.push({
           x: currentX,
           y: currentY,
-          completed: isModuleCompleted(modules[i].title),
-          inProgress: hasModuleProgress(modules[i].course_id),
+          completed: isModuleCompleted(uniqueModules[i].title),
+          inProgress: hasModuleProgress(uniqueModules[i].course_id),
         });
 
         const dx = currentX - prevX;
@@ -169,10 +178,10 @@ export default function ModuleZigzag({
     window.addEventListener("resize", calculateZigzagPath);
 
     return () => window.removeEventListener("resize", calculateZigzagPath);
-  }, [modules, isModuleCompleted, hasModuleProgress]);
+  }, [uniqueModules, isModuleCompleted, hasModuleProgress]);
 
   const getModulePosition = (index: number) => {
-    if (index === 0 || index === modules.length - 1) {
+    if (index === 0 || index === uniqueModules.length - 1) {
       return "justify-center";
     }
     return index % 2 === 1 ? "justify-start ml-56" : "justify-end mr-56";
@@ -184,33 +193,29 @@ export default function ModuleZigzag({
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
         style={{ zIndex: 0 }}
       >
-        {/* Background path */}
         <path
           d={zigzagPath}
           fill="none"
           stroke="gray"
-          strokeWidth={3}
+          strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeDasharray="4 4"
           className="stroke-gray-300 transition-all duration-500 ease-in-out"
         />
 
-        {/* Completed path */}
         <path
           d={completedPath}
           fill="none"
           stroke="#3b82f6"
-          strokeWidth={4}
+          strokeWidth={3}
           strokeLinecap="round"
           strokeLinejoin="round"
           className="transition-all duration-500 ease-in-out"
         />
 
-        {/* Module markers */}
         {modulePoints.map((point, index) => (
           <g key={index} className="transition-all duration-300 ease-in-out">
-            {/* Outer circle */}
             <circle
               cx={point.x}
               cy={point.y}
@@ -220,13 +225,12 @@ export default function ModuleZigzag({
                   ? "fill-green-500"
                   : point.inProgress
                   ? "fill-blue-400"
-                  : activeModuleId === modules[index]?.id
+                  : activeModuleId === uniqueModules[index]?.id
                   ? "fill-blue-200"
                   : "fill-gray-200"
               } transition-all duration-300`}
             />
 
-            {/* Inner circle or check icon */}
             {point.completed ? (
               <g transform={`translate(${point.x - 6}, ${point.y - 6})`}>
                 <circle cx="6" cy="6" r="6" fill="white" />
@@ -258,14 +262,13 @@ export default function ModuleZigzag({
                 cy={point.y}
                 r={6}
                 className={`${
-                  activeModuleId === modules[index]?.id
+                  activeModuleId === uniqueModules[index]?.id
                     ? "fill-blue-400"
                     : "fill-white"
                 } transition-all duration-300`}
               />
             )}
 
-            {/* Module number */}
             <text
               x={point.x}
               y={point.y}
@@ -274,7 +277,7 @@ export default function ModuleZigzag({
               className={`text-xs font-bold ${
                 point.completed ||
                 point.inProgress ||
-                activeModuleId === modules[index]?.id
+                activeModuleId === uniqueModules[index]?.id
                   ? "fill-white"
                   : "fill-gray-500"
               }`}
@@ -286,7 +289,7 @@ export default function ModuleZigzag({
       </svg>
 
       <div className="relative flex flex-col items-center z-10 no animate">
-        {modules.map((module, index) => (
+        {uniqueModules.map((module, index) => (
           <div
             key={module.id}
             ref={(el) => {
@@ -318,7 +321,7 @@ export default function ModuleZigzag({
               <Popover.Portal>
                 <Popover.Content
                   side={index % 2 === 0 ? "right" : "left"}
-                  sideOffset={30}
+                  sideOffset={-10}
                   className="z-[1000] bg-transparent p-0 shadow-none"
                 >
                   <ModulePopup

@@ -27,7 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { TextContent } from "@/types/learning";
+import type { ExplanationText, TextContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
 import Image from "next/image";
@@ -53,6 +53,7 @@ import {
 // import { BlockMath, InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import Latex from "react-latex-next";
+import HoverText from "@/components/lesson/HoverText";
 
 type Position = "left" | "center" | "right";
 type Orientation = "vertical" | "horizontal" | "none";
@@ -187,8 +188,9 @@ const ScaleBalanceInteractive: React.FC<{
   content: ScaleBalanceContent;
   onComplete: () => void;
   onExplanationChange?: (explanation: {
-    explanation: string;
+    explanation: string | ExplanationText;
     image: string;
+    type: string;
   }) => void;
 }> = ({ content, onComplete, onExplanationChange }) => {
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
@@ -205,6 +207,7 @@ const ScaleBalanceInteractive: React.FC<{
       onExplanationChange({
         explanation: content.explanation || "",
         image: content.image || "",
+        type: content.type,
       });
     }
   }, [content.explanation, content.image, onExplanationChange]);
@@ -662,7 +665,19 @@ const TextBlock: React.FC<{
             </div>
           )}
 
-          {content.text && (
+          {content.type === "2_hovers" && content.text && (
+            <HoverText
+              type={content.type}
+              text={content.text}
+              hoverTexts={{
+                "hover-1": content["hover-1"] || "",
+                "hover-2": content["hover-2"] || "",
+              }}
+              format={content.format as "markdown" | "plain"}
+            />
+          )}
+
+          {content.type !== "2_hovers" && content.text && (
             <div className="prose prose-base mt-1 text-muted-foreground text-left text-md">
               {renderMDList(content.text)}
             </div>
@@ -689,31 +704,105 @@ const TextBlock: React.FC<{
             </div>
           )}
 
-          {content.type === "table" && (content.features ?? []).length > 0 && (
-            <div className="overflow-x-auto mb-6">
-              <table className="min-w-full bg-white border border-gray-200 shadow rounded-lg border-separate overflow-hidden">
-                <tbody>
-                  {content.features?.map((feature, idx) => (
-                    <tr
-                      key={idx}
-                      className={
-                        `border-b last:border-0 ` +
-                        (idx % 2 === 0 ? "bg-white" : "bg-gray-50") +
-                        " hover:bg-blue-50 transition-colors"
-                      }
-                    >
-                      <td className="px-6 py-4 text-sm font-bold text-gray-800">
-                        {feature.title}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        {feature.text}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {content.text2 && (
+            <div className="prose prose-base mt-1 text-muted-foreground text-left text-md">
+              {renderMDList(content.text2)}
             </div>
           )}
+
+          {content.text3 && (
+            <div className="prose prose-base mt-1 text-muted-foreground text-left text-md">
+              {renderMDList(content.text3)}
+            </div>
+          )}
+
+          {content.text4 && (
+            <div className="prose prose-base mt-1 text-muted-foreground text-left text-md">
+              {renderMDList(content.text4)}
+            </div>
+          )}
+
+          {content.text5 && (
+            <div className="prose prose-base mt-1 text-muted-foreground text-left text-md">
+              {renderMDList(content.text5)}
+            </div>
+          )}
+
+          {content.text6 && (
+            <div className="prose prose-base mt-1 text-muted-foreground text-left text-md">
+              {renderMDList(content.text6)}
+            </div>
+          )}
+
+          {content.type === "table" &&
+            content.features &&
+            (content.features ?? []).length > 0 && (
+              <div className="overflow-x-auto mb-6">
+                <table className="min-w-full bg-white border border-gray-200 shadow rounded-lg border-separate overflow-hidden">
+                  <tbody>
+                    {content.features?.map((feature, idx) => (
+                      <tr
+                        key={idx}
+                        className={
+                          `border-b last:border-0 ` +
+                          (idx % 2 === 0 ? "bg-white" : "bg-gray-50") +
+                          " hover:bg-blue-50 transition-colors"
+                        }
+                      >
+                        <td className="px-6 py-4 text-sm font-bold text-gray-800">
+                          {feature.title}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          {feature.text}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+          {content.type === "table-grid" &&
+            content.table &&
+            content.table.rows && (
+              <div className="overflow-x-auto mb-6 w-full">
+                <table className="min-w-full bg-white border border-gray-200 shadow rounded-lg">
+                  {content.table.header && (
+                    <thead>
+                      <tr className="bg-gray-100 text-gray-700 text-sm">
+                        {content.table.header.map((headerCell, index) => (
+                          <th
+                            key={index}
+                            className="px-6 py-3 text-left font-semibold border-b border-gray-300"
+                          >
+                            {headerCell}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                  )}
+                  <tbody>
+                    {content.table.rows.map((row, rowIndex) => (
+                      <tr
+                        key={rowIndex}
+                        className={
+                          rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        }
+                      >
+                        {row.map((cell, cellIndex) => (
+                          <td
+                            key={cellIndex}
+                            className="px-6 py-4 text-sm text-gray-800 border-b border-gray-200"
+                          >
+                            {cell || ""}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
           <div className="flex justify-center w-full pt-2">
             <Button
@@ -792,6 +881,56 @@ const ImageBlock: React.FC<{
   );
 };
 
+const VideoBlock: React.FC<{
+  content: {
+    source: string;
+    type: string;
+    title?: string;
+    controls?: boolean;
+    description?: string;
+  };
+  onContinue: () => void;
+  isLastBlock: boolean;
+}> = ({ content, onContinue, isLastBlock }) => {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[40vh] max-w-2xl mx-auto px-4">
+      <Card className="w-full shadow-lg rounded-2xl border border-gray-100 bg-white">
+        <CardContent className="p-6">
+          {content.title && (
+            <h3 className="text-lg font-bold text-center mb-4">
+              {content.title}
+            </h3>
+          )}
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-md">
+            <video
+              src={content.source}
+              controls={content.controls}
+              className="w-full h-full object-cover"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          {content.description && (
+            <p className="mt-2 text-sm text-muted-foreground text-center">
+              {content.description}
+            </p>
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-center pt-2">
+          <Button
+            onClick={onContinue}
+            className="w-full bg-primary hover:bg-primary/90"
+            size="lg"
+          >
+            {isLastBlock ? "Dhamee" : "Sii wado"}
+            <ChevronRight className="ml-2 h-5 w-5" />
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+};
+
 const LessonPage = () => {
   const params = useParams();
   const router = useRouter();
@@ -814,11 +953,13 @@ const LessonPage = () => {
   // points: 0,
   // });
   const [explanationData, setExplanationData] = useState<{
-    explanation: string;
+    explanation: string | ExplanationText;
     image: string;
+    type: string;
   }>({
     explanation: "",
     image: "",
+    type: "",
   });
   const { playSound } = useSoundManager();
   const continueRef = useRef<() => void>(() => {});
@@ -983,6 +1124,7 @@ const LessonPage = () => {
             ? (pd.question_type as "code" | "mcq" | "short_input" | "diagram")
             : undefined,
           content: pd.content,
+          type: pd.content.type,
         }));
         // Update state with new data
         setProblems(transformed);
@@ -992,6 +1134,7 @@ const LessonPage = () => {
           setExplanationData({
             explanation: transformed[0].explanation || "",
             image: "", // Set image if available in your data
+            type: transformed[0].content.type || "",
           });
         }
 
@@ -1055,6 +1198,7 @@ const LessonPage = () => {
       setExplanationData({
         explanation: currentProblem.explanation || "",
         image: "", // Set image if available in your data
+        type: currentProblem.content.type || "",
       });
     }
   }, [currentProblem]);
@@ -1353,6 +1497,21 @@ const LessonPage = () => {
             setCurrentBlock(
               <ImageBlock
                 content={imageContent}
+                onContinue={handleContinue}
+                isLastBlock={isLastBlock}
+              />
+            );
+            break;
+
+          case "video":
+            const videoContent =
+              typeof block.content === "string"
+                ? JSON.parse(block.content)
+                : block.content;
+
+            setCurrentBlock(
+              <VideoBlock
+                content={videoContent}
                 onContinue={handleContinue}
                 isLastBlock={isLastBlock}
               />
