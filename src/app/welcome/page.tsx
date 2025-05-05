@@ -127,35 +127,30 @@ const topics = [
     id: "data-analysis",
     text: "Xogta Falanqeynta",
     badge: "Fahan xogta iyo muhiimkeeda",
-    disabled: true,
     icon: <BarChart className="w-5 h-5" />,
   },
   {
     id: "science",
     text: "Saynis & Injineernimo",
     badge: "Wax kasta cilmi baa lagu gaaraa",
-    disabled: true,
     icon: <Atom className="w-5 h-5" />,
   },
   {
     id: "programming",
     text: "Samaynta Barnaamijyada",
     badge: "Dhis Barnaamijyo tayo leh",
-    disabled: true,
     icon: <Code className="w-5 h-5" />,
   },
   {
     id: "logical-reasoning",
     text: "Fikirka iyo Xalinta",
     badge: "Xalinta mushkiladaha ayaa muhiim ah",
-    disabled: true,
     icon: <Brain className="w-5 h-5" />,
   },
   {
     id: "puzzles",
     text: "Tijaabooyinka (puzzles)",
     badge: "Ku tababar maskaxdaada xalinta dhibta",
-    disabled: true,
     icon: <Puzzle className="w-5 h-5" />,
   },
 ];
@@ -424,13 +419,13 @@ export default function Page() {
                           "flex items-center p-4 rounded-xl border-2 transition-all",
                           " hover:shadow-sm",
                           selections[currentStep] === option.id
-                            ? "border-emerald-500 bg-emerald-50/50"
+                            ? "border-primary bg-primary/5"
                             : "border-slate-200",
                           option.disabled && "opacity-50 cursor-not-allowed"
                         )}
                       >
                         <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-                          <div className="text-emerald-600">{option.icon}</div>
+                          <div className="text-primary">{option.icon}</div>
                         </div>
                         <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-slate-700">
                           {option.text}
@@ -465,14 +460,14 @@ export default function Page() {
                       <div
                         className={cn(
                           "p-5 rounded-xl border-2 transition-all h-full",
-                          "hover:border-emerald-500/50 hover:shadow-sm",
+                          "hover:border-primary/50 hover:shadow-sm",
                           selections[currentStep] === level.level
-                            ? "border-emerald-500 bg-emerald-50/50"
+                            ? "border-primary bg-primary/5"
                             : "border-slate-200"
                         )}
                       >
                         <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
-                          <div className="text-emerald-600">{level.icon}</div>
+                          <div className="text-primary">{level.icon}</div>
                         </div>
                         <h3 className="font-bold text-lg mb-2 text-slate-800">
                           {level.title}
@@ -505,15 +500,15 @@ export default function Page() {
                       <div
                         className={cn(
                           "flex items-center p-4 rounded-xl border-2 transition-all",
-                          "hover:border-emerald-500/50 hover:shadow-sm",
+                          "hover:border-primary/50 hover:shadow-sm",
                           selections[currentStep] === option.id
-                            ? "border-emerald-500 bg-emerald-50/50"
+                            ? "border-primary bg-primary/5"
                             : "border-slate-200",
                           option.disabled && "opacity-50 cursor-not-allowed"
                         )}
                       >
                         <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-                          <div className="text-emerald-600">{option.icon}</div>
+                          <div className="text-primary">{option.icon}</div>
                         </div>
                         <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-slate-700">
                           {option.text}
@@ -554,7 +549,7 @@ export default function Page() {
                       onChange={(e) =>
                         setUserData({ ...userData, firstName: e.target.value })
                       }
-                      className="w-full p-3 rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+                      className="w-full p-3 rounded-lg border-slate-200 focus:border-peimary focus:ring-primary/20"
                       disabled={isLoading}
                     />
                   </div>
@@ -573,7 +568,7 @@ export default function Page() {
                       onChange={(e) =>
                         setUserData({ ...userData, lastName: e.target.value })
                       }
-                      className="w-full p-3 rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+                      className="w-full p-3 rounded-lg border-slate-200 focus:border-primary focus:ring-primary/20"
                       disabled={isLoading}
                     />
                   </div>
@@ -594,7 +589,7 @@ export default function Page() {
                       onChange={(e) =>
                         setUserData({ ...userData, age: e.target.value })
                       }
-                      className="w-full p-3 rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+                      className="w-full p-3 rounded-lg border-slate-200 focus:border-primary focus:ring-primary/20"
                       disabled={isLoading}
                     />
                   </div>
@@ -614,7 +609,7 @@ export default function Page() {
                     onChange={(e) =>
                       setUserData({ ...userData, email: e.target.value })
                     }
-                    className="w-full p-3 rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+                    className="w-full p-3 rounded-lg border-slate-200 focus:border-primary focus:primary/20"
                     disabled={isLoading}
                   />
                 </div>
@@ -633,7 +628,7 @@ export default function Page() {
                     onChange={(e) =>
                       setUserData({ ...userData, password: e.target.value })
                     }
-                    className="w-full p-3 rounded-lg border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+                    className="w-full p-3 rounded-lg border-slate-200 focus:border-primary focus:primary/20"
                     disabled={isLoading}
                   />
                 </div>

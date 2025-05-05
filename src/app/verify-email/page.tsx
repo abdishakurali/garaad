@@ -196,27 +196,6 @@ export default function VerifyEmailPage() {
     }
   };
 
-  if (isVerified) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center space-y-2">
-            <div className="mx-auto bg-green-100 p-3 rounded-full">
-              <ShieldCheck className="h-8 w-8 text-green-600" />
-            </div>
-            <CardTitle className="text-2xl">
-              Email-kaaga waa la xaqiijiyay!
-            </CardTitle>
-            <CardDescription>
-              Email-kaaga si guul leh ayaa loo xaqiijiyay. Waxaa laguu
-              wareejinayaa dhawaan.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
@@ -270,14 +249,7 @@ export default function VerifyEmailPage() {
               className="w-full h-11 font-medium"
               disabled={isVerifying || codeDigits.join("").length !== 6}
             >
-              {isVerifying ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Xaqiijinayo...
-                </>
-              ) : (
-                "Xaqiiji Email"
-              )}
+              {isVerifying ? "Xaqiijinayo... " : "Xaqiiji Email"}
             </Button>
           </form>
         </CardContent>
