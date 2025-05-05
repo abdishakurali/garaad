@@ -133,28 +133,54 @@ interface DiagramConfig {
   objects: DiagramObject[];
 }
 
-export interface ProblemContent {
-  id?: number;
-  question: string;
-  question_text?: string;
-  question_type?: "mcq" | "short_input" | "code" | "diagram";
-  options: string[];
-  correct_answer: Array<{
-    id: string;
-    text: string;
-  }>;
-  explanation?: string;
-  image?: string;
-  language?: string;
-  hints?: Array<{
-    content: string;
-  }>;
-  solution_steps?: Array<{
-    explanation: string;
-  }>;
-  diagram_config?: DiagramConfig | DiagramConfig[];
-}
+// export interface ProblemContent {
+//   which?: string;
+//   img?: string;
+//   alt: string;
+//   content: any;
+//   id?: number;
+//   question: string;
+//   question_text?: string;
+//   question_type?: "mcq" | "short_input" | "code" | "diagram";
+//   options: string[];
+//   correct_answer: Array<{
+//     id: string;
+//     text: string;
+//   }>;
+//   explanation?: string;
+//   image?: string;
+//   language?: string;
+//   hints?: Array<{
+//     content: string;
+//   }>;
+//   solution_steps?: Array<{
+//     explanation: string;
+//   }>;
+//   diagram_config?: DiagramConfig | DiagramConfig[];
+// }
 
+export interface ProblemContent {
+  id: number;
+  question: string;
+  which: string;
+  options: string[];
+  correct_answer: { id: string; text: string }[];
+  explanation?: string | ExplanationText;
+  diagram_config?: DiagramConfig | DiagramConfig[];
+  question_type?:
+    | "code"
+    | "mcq"
+    | "short_input"
+    | "diagram"
+    | "multiple_choice";
+  img?: string;
+  alt?: string;
+  content: {
+    format?: string;
+    type?: string;
+  };
+  type?: string;
+}
 export interface Exercise {
   id: number;
   title: string;

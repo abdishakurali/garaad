@@ -1,147 +1,309 @@
-import { useState } from "react";
+"use client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { type Problem } from "@/types/learning";
-import dynamic from 'next/dynamic';
-import { type CodeEditor as CodeEditorType } from "@/components/ui/code-editor";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Image from "next/image";
+import DiagramScale from "../DiagramScale";
+import { Check, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import Latex from "react-latex-next";
+import { motion } from "framer-motion";
+import { ProblemContent } from "@/app/courses/[categoryId]/[courseSlug]/lessons/[lessonId]/page";
 
 // Dynamically import the code editor to avoid SSR issues
-const CodeEditor = dynamic<React.ComponentProps<typeof CodeEditorType>>(() => import('@/components/ui/code-editor').then(mod => mod.CodeEditor), {
-    ssr: false,
-    loading: () => (
-        <div className="w-full h-32 bg-muted animate-pulse rounded-md" />
-    ),
-});
 
-interface ProblemBlockProps {
-    content: string;
-}
-
-export function ProblemBlock({ content }: ProblemBlockProps) {
-    const problem: Problem = JSON.parse(content);
-    const [selectedAnswer, setSelectedAnswer] = useState<string>("");
-    const [showHints, setShowHints] = useState(false);
-    const [currentHintIndex, setCurrentHintIndex] = useState(0);
-    const [showSolution, setShowSolution] = useState(false);
-    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-
-    const handleSubmit = () => {
-        const correct = selectedAnswer === problem.correct_answer;
-        setIsCorrect(correct);
-    };
-
-    const handleNextHint = () => {
-        if (problem.hints && currentHintIndex < problem.hints.length - 1) {
-            setCurrentHintIndex(prev => prev + 1);
-        }
-    };
-
+const ProblemBlock: React.FC<{
+  onContinue: () => void;
+  selectedOption: string | null;
+  answerState: {
+    isCorrect: boolean | null;
+    showAnswer: boolean;
+    lastAttempt: string | null;
+  };
+  onOptionSelect: (option: string) => void;
+  onCheckAnswer: () => void;
+  isLoading: boolean;
+  error: string | null;
+  content: ProblemContent | null;
+  isCorrect: boolean;
+  isLastInLesson: boolean;
+}> = ({
+  onContinue,
+  selectedOption,
+  answerState,
+  onOptionSelect,
+  onCheckAnswer,
+  isLoading,
+  error,
+  content,
+  isCorrect,
+}) => {
+  if (isLoading) {
     return (
-        <Card className="p-6">
-            <div className="space-y-6">
-                {/* Question */}
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">{problem.question_text}</h3>
-
-                    {/* Multiple Choice */}
-                    {problem.question_type === "mcq" && problem.options && (
-                        <RadioGroup
-                            value={selectedAnswer}
-                            onValueChange={setSelectedAnswer}
-                            className="space-y-2"
-                        >
-                            {problem.options.map((option, index) => (
-                                <div key={index} className="flex items-center space-x-2">
-                                    <RadioGroupItem value={option} id={`option-${index}`} />
-                                    <Label htmlFor={`option-${index}`}>{option}</Label>
-                                </div>
-                            ))}
-                        </RadioGroup>
-                    )}
-
-                    {/* Short Input */}
-                    {problem.question_type === "short_input" && (
-                        <Input
-                            value={selectedAnswer}
-                            onChange={(e) => setSelectedAnswer(e.target.value)}
-                            placeholder="Enter your answer"
-                        />
-                    )}
-
-                    {/* Code Input */}
-                    {problem.question_type === "code" && (
-                        <div className="border rounded-md overflow-hidden">
-                            <CodeEditor
-                                value={selectedAnswer}
-                                onChange={setSelectedAnswer}
-                                language="javascript"
-                                theme="vs-dark"
-                                height="200px"
-                            />
-                        </div>
-                    )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-4">
-                    <Button onClick={handleSubmit}>Submit Answer</Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => setShowHints(true)}
-                        disabled={!problem.hints?.length}
-                    >
-                        Show Hints
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => setShowSolution(true)}
-                        disabled={!problem.solution_steps?.length}
-                    >
-                        Show Solution
-                    </Button>
-                </div>
-
-                {/* Feedback */}
-                {isCorrect !== null && (
-                    <Alert variant={isCorrect ? "default" : "destructive"}>
-                        <AlertDescription>
-                            {isCorrect ? "Correct!" : "Try again. Check the hints if you need help."}
-                        </AlertDescription>
-                    </Alert>
-                )}
-
-                {/* Hints */}
-                {showHints && problem.hints && (
-                    <Card className="p-4">
-                        <h4 className="font-semibold mb-2">Hint {currentHintIndex + 1}</h4>
-                        <p className="mb-4">{problem.hints[currentHintIndex].content}</p>
-                        {currentHintIndex < problem.hints.length - 1 && (
-                            <Button variant="outline" onClick={handleNextHint}>
-                                Next Hint
-                            </Button>
-                        )}
-                    </Card>
-                )}
-
-                {/* Solution */}
-                {showSolution && problem.solution_steps && (
-                    <Card className="p-4">
-                        <h4 className="font-semibold mb-4">Solution</h4>
-                        <div className="space-y-4">
-                            {problem.solution_steps.map((step, index) => (
-                                <div key={index}>
-                                    <h5 className="font-medium">Step {index + 1}</h5>
-                                    <p>{step.explanation}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </Card>
-                )}
-            </div>
-        </Card>
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     );
-} 
+  }
+
+  if (error || !content) {
+    return (
+      <Card className="max-w-3xl mx-auto">
+        <CardContent className="p-6 text-center">
+          <p className="text-red-500">
+            {error || "Problem content could not be loaded"}
+          </p>
+          <Button onClick={onContinue} className="mt-2">
+            SiiWado Qaybta Kale
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Determine if user has checked an answer
+  const hasAnswered = answerState.isCorrect !== null;
+
+  console.log("CONTENT", content);
+
+  return (
+    <div className="max-w-2xl mx-auto  ">
+      <motion.div className="space-y-8">
+        {/* Question Card */}
+        <Card className="border-none shadow-xl z-0">
+          <CardHeader className="relative text-left items-center justify-center flex   bg-gradient-to-r from-primary/10 to-primary/5 pb-2">
+            <div className="pt-1">
+              <CardTitle className="text-md font-normal text-gray-600 items-center justify-center flex mt-1">
+                {content.which}
+              </CardTitle>
+              <CardTitle className="text-md text-max font-medium items-center justify-center flex mt-1">
+                {content.question}
+              </CardTitle>
+            </div>
+          </CardHeader>
+
+          {content.img && (
+            <CardContent className="flex justify-center py-2">
+              <div className="relative w-full max-w-[500px] h-[250px] my-2">
+                <Image
+                  src={content.img || "/placeholder.svg"}
+                  alt={content.alt || "lesson image"}
+                  fill
+                  loading="lazy"
+                  className="rounded-xl shadow-lg object-contain bg-white"
+                  sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
+                  quality={90}
+                />
+              </div>
+            </CardContent>
+          )}
+          {content.question_type === "diagram" && (
+            <CardContent className="p-6 flex flex-col md:flex-row items-center justify-center h-auto">
+              {content?.diagram_config &&
+                (Array.isArray(content.diagram_config) ? (
+                  content.diagram_config.length === 1 ? (
+                    <DiagramScale config={content.diagram_config[0]} />
+                  ) : (
+                    content.diagram_config.map((config, index) => (
+                      <DiagramScale key={index} config={config} />
+                    ))
+                  )
+                ) : (
+                  <DiagramScale config={content.diagram_config} />
+                ))}
+            </CardContent>
+          )}
+          <CardContent className="p-4 -mt-4">
+            {/* Options Layout */}
+            {content.question_type === "diagram" ? (
+              <div className="grid gap-4  grid-cols-2">
+                {content?.options?.map((option, idx) => {
+                  const isSelected = selectedOption === option;
+                  const isOptionCorrect =
+                    hasAnswered && isSelected && isCorrect;
+                  const isOptionIncorrect =
+                    hasAnswered && isSelected && !isCorrect;
+                  return (
+                    <motion.button
+                      key={idx}
+                      onClick={() => onOptionSelect(option)}
+                      disabled={hasAnswered && isSelected}
+                      className={cn(
+                        "p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                        !isSelected &&
+                          !hasAnswered &&
+                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                        isSelected &&
+                          !hasAnswered &&
+                          "border-primary bg-primary/10 shadow-md",
+                        isOptionCorrect &&
+                          "border-green-500 bg-green-50 shadow-md",
+                        isOptionIncorrect &&
+                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
+                      )}
+                    >
+                      {/* X icon for incorrect */}
+                      {isOptionIncorrect && (
+                        <span className="absolute top-2 right-2 text-gray-400">
+                          <X className="h-5 w-5" />
+                        </span>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-sm   font-normal",
+                            isOptionIncorrect
+                              ? "text-gray-400"
+                              : "text-gray-800"
+                          )}
+                        >
+                          {content.content.type === "latex" ? (
+                            // <InlineMath
+                            //   math={
+                            //     option
+                            //       .replace(/^\\\(/, "") // remove leading \( if present
+                            //       .replace(/\\\)$/, "") // remove trailing \) if present
+                            //       .replace(/\\\\/g, "\\") // removes wrapping \( \)
+                            //   }
+                            // />
+                            <Latex>{option}</Latex>
+                          ) : (
+                            <span>{option} </span>
+                          )}
+                        </span>
+                        {isOptionCorrect && (
+                          <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                          >
+                            <Check className="h-4 w-4 text-white" />
+                          </motion.div>
+                        )}
+                      </div>
+                      {isSelected && !hasAnswered && (
+                        <motion.div
+                          className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                          layoutId="selectedOption"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div
+                className={`${
+                  content.content && content.content.format == "grid"
+                    ? "grid grid-cols-2 items-center gap-5"
+                    : "grid grid-cols-1 items-center gap-5 py-5 "
+                }`}
+              >
+                {content?.options?.map((option, idx) => {
+                  const isSelected = selectedOption === option;
+                  const isOptionCorrect =
+                    hasAnswered && isSelected && isCorrect;
+                  const isOptionIncorrect =
+                    hasAnswered && isSelected && !isCorrect;
+                  return (
+                    <motion.button
+                      key={idx}
+                      onClick={() => onOptionSelect(option)}
+                      disabled={hasAnswered && isSelected}
+                      className={cn(
+                        "w-full p-3 text-sm rounded-xl border-2 transition-all duration-300 relative overflow-hidden text-left",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                        // Default state
+                        !isSelected &&
+                          !hasAnswered &&
+                          "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
+                        // Selected but not yet checked
+                        isSelected &&
+                          !hasAnswered &&
+                          "border-primary bg-primary/10 shadow-md",
+                        // Correct
+                        isOptionCorrect &&
+                          "border-green-500 bg-green-50 shadow-md",
+                        // Incorrect (custom style)
+                        isOptionIncorrect &&
+                          "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
+                      )}
+                    >
+                      {/* X icon for incorrect */}
+                      {isOptionIncorrect && (
+                        <span className="absolute top-2 right-2 text-gray-400">
+                          <X className="h-5 w-5" />
+                        </span>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-sm   font-normal",
+                            isOptionIncorrect
+                              ? "text-gray-400"
+                              : "text-gray-800"
+                          )}
+                        >
+                          {content.content.type === "latex" ? (
+                            // <InlineMath
+                            //   math={
+                            //     option
+                            //       .replace(/^\\\(/, "") // remove leading \( if present
+                            //       .replace(/\\\)$/, "") // remove trailing \) if present
+                            //       .replace(/\\\\/g, "\\") // removes wrapping \( \)
+                            //   }
+                            // />
+                            <Latex>{option}</Latex>
+                          ) : (
+                            <span>{option} </span>
+                          )}
+                        </span>
+                        {isOptionCorrect && (
+                          <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"
+                          >
+                            <Check className="h-4 w-4 text-white" />
+                          </motion.div>
+                        )}
+                      </div>
+                      {isSelected && !hasAnswered && (
+                        <motion.div
+                          className="absolute inset-0 border-2 border-primary rounded-xl pointer-events-none"
+                          layoutId="selectedOption"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="pt-2 pb-4 px-6">
+            <div className="w-full space-y-2">
+              {answerState.isCorrect === null && !hasAnswered && (
+                <Button
+                  onClick={onCheckAnswer}
+                  className="w-full bg-primary hover:bg-primary/90"
+                  size="lg"
+                  disabled={!selectedOption || isLoading}
+                >
+                  Hubi Jawaabta
+                </Button>
+              )}
+            </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};
+
+export default ProblemBlock;

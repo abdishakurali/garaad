@@ -153,7 +153,7 @@ export default function ModuleZigzag({
         const dx = currentX - prevX;
         const dy = currentY - prevY;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const curveIntensity = distance * 0.5;
+        const curveIntensity = distance * 1;
 
         const isEven = i % 2 === 0;
         const controlX1 = prevX + (isEven ? -curveIntensity : curveIntensity);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface HoverTextProps {
@@ -19,25 +19,56 @@ export default function HoverText({
   format = "plain",
 }: HoverTextProps) {
   const [activeHover, setActiveHover] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Detect if the device is mobile
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(hover: none) and (pointer: coarse)");
+    setIsMobile(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  // Close tooltip when clicking or touching outside
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setActiveHover(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, []);
 
   // Parse markdown to find bolded sections
   const parseMarkdown = () => {
-    if (format !== "markdown") return [text];
+    if (format !== "markdown") return text.split("\n");
 
-    // More robust pattern to handle single and double asterisks for bold text
     const boldPattern = /(\*\*?)(.*?)(\*\*?)/g;
-
-    // Find text wrapped in asterisks (bold in markdown)
-    const parts = [];
+    const parts: Array<
+      | { type: "text"; content: string }
+      | { type: "hover"; content: string; hoverKey: string }
+    > = [];
     let lastIndex = 0;
     let match;
     let hoverIndex = 1;
 
-    // First, let's log the text to debug
-    console.log("Text to parse:", text);
-
     while ((match = boldPattern.exec(text)) !== null) {
-      // Add text before the match
       if (match.index > lastIndex) {
         parts.push({
           type: "text",
@@ -45,8 +76,6 @@ export default function HoverText({
         });
       }
 
-      // Add the bolded text with hover functionality
-      // match[2] contains the text between asterisks
       parts.push({
         type: "hover",
         content: match[2],
@@ -55,14 +84,8 @@ export default function HoverText({
 
       lastIndex = match.index + match[0].length;
       hoverIndex++;
-
-      // Log what we found for debugging
-      console.log(
-        `Found bold text: "${match[2]}" with hover key: hover-${hoverIndex - 1}`
-      );
     }
 
-    // Add any remaining text
     if (lastIndex < text.length) {
       parts.push({
         type: "text",
@@ -76,7 +99,10 @@ export default function HoverText({
   const textParts = parseMarkdown();
 
   return (
-    <div className="relative max-w-2xl mx-auto p-4 font-sans">
+    <div
+      ref={containerRef}
+      className="relative max-w-2xl mx-auto p-4 font-sans"
+    >
       <div className="text-base leading-relaxed">
         {Array.isArray(textParts) ? (
           textParts.map((part, index) => {
@@ -85,23 +111,37 @@ export default function HoverText({
                 <span
                   key={index}
                   className="font-medium border-b-2 border-blue-500 rounded px-1 py-0.5 hover:bg-blue-200 cursor-pointer relative"
-                  onMouseEnter={() =>
-                    part.hoverKey && setActiveHover(part.hoverKey)
+                  onMouseEnter={
+                    !isMobile
+                      ? () => part.hoverKey && setActiveHover(part.hoverKey)
+                      : undefined
                   }
-                  onMouseLeave={() => setActiveHover(null)}
+                  onMouseLeave={
+                    !isMobile ? () => setActiveHover(null) : undefined
+                  }
+                  onClick={
+                    isMobile
+                      ? () =>
+                          setActiveHover((prev) =>
+                            prev === part.hoverKey ? null : part.hoverKey
+                          )
+                      : undefined
+                  }
                 >
-                  {typeof part === "string" ? part : part.content}
+                  {part.content}
                 </span>
               );
             }
             return (
               <span key={index}>
-                {typeof part === "string" ? part : part.content}
+                {typeof part === "object" && "content" in part
+                  ? part.content
+                  : part}
               </span>
             );
           })
         ) : (
-          <span>{text}</span>
+          <span>{textParts}</span>
         )}
       </div>
 

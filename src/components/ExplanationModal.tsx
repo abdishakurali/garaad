@@ -12,7 +12,7 @@ interface ExplanationModalProps {
   onClose: () => void;
   content: {
     image?: string;
-    explanation: string | ExplanationText;
+    explanation: string | string[] | ExplanationText;
     type: "markdown" | "latex";
   };
 }

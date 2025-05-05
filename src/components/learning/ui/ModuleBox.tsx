@@ -29,7 +29,7 @@ export default function ModuleBox({
   return (
     <div
       className={`
-        flex flex-col items-center cursor-pointer transition-all duration-300 mt-[10px]
+        flex flex-col items-center cursor-pointer transition-all duration-300 mt-[20px]
         ${isActive ? "scale-105" : "hover:scale-105"}
       `}
       onClick={onClick}
