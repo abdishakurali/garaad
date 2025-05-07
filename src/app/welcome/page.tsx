@@ -267,8 +267,7 @@ export default function Page() {
     {}
   );
   const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -300,8 +299,8 @@ export default function Page() {
     try {
       // Validate all data
       if (
-        !userData.firstName.trim() ||
-        !userData.lastName.trim() ||
+        !userData.name.trim() ||
+        // !userData.lastName.trim() ||
         !userData.email.trim() ||
         !userData.password.trim() ||
         !userData.age.trim()
@@ -328,8 +327,8 @@ export default function Page() {
       const signUpData = {
         email: userData.email.trim(),
         password: userData.password.trim(),
-        first_name: userData.firstName.trim(),
-        last_name: userData.lastName.trim(),
+        name: userData.name.trim(),
+        // last_name: userData.lastName.trim(),
         username: userData.email.trim(),
         age: Number.parseInt(userData.age),
         onboarding_data: {
@@ -539,21 +538,21 @@ export default function Page() {
                       htmlFor="firstName"
                       className="text-sm font-medium text-slate-700"
                     >
-                      Magacaaga Hore
+                      Magacaaga
                     </Label>
                     <Input
                       id="firstName"
                       type="text"
                       placeholder="Geli magacaaga"
-                      value={userData.firstName}
+                      value={userData.name}
                       onChange={(e) =>
-                        setUserData({ ...userData, firstName: e.target.value })
+                        setUserData({ ...userData, name: e.target.value })
                       }
                       className="w-full p-3 rounded-lg border-slate-200 focus:border-peimary focus:ring-primary/20"
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Label
                       htmlFor="lastName"
                       className="text-sm font-medium text-slate-700"
@@ -571,7 +570,7 @@ export default function Page() {
                       className="w-full p-3 rounded-lg border-slate-200 focus:border-primary focus:ring-primary/20"
                       disabled={isLoading}
                     />
-                  </div>
+                  </div> */}
                   <div className="space-y-2">
                     <Label
                       htmlFor="age"
@@ -644,8 +643,8 @@ export default function Page() {
                     : currentStep === 5
                     ? userData.email &&
                       userData.password &&
-                      userData.firstName &&
-                      userData.lastName &&
+                      userData.name &&
+                      // userData.lastName &&
                       userData.age
                       ? " text-white"
                       : "bg-slate-200 text-slate-500 cursor-not-allowed"

@@ -328,6 +328,7 @@ export default function ModuleZigzag({
                     module={module}
                     isInProgress={hasModuleProgress(module.course_id)}
                     isCompleted={isModuleCompleted(module.title)}
+                    side={index % 2 === 0 ? "right" : "left"}
                   />
                 </Popover.Content>
               </Popover.Portal>

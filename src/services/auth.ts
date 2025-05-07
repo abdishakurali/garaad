@@ -4,8 +4,8 @@ import { jwtDecode } from "jwt-decode";
 export interface SignUpData {
   email: string;
   password: string;
-  first_name: string;
-  last_name: string;
+  name: string;
+  // last_name: string;
   age: number;
   onboarding_data: {
     goal: string;
