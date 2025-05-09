@@ -1,19 +1,34 @@
-'use client';
+// app/ClientLayout.tsx
+"use client";
 
-import { useEffect } from 'react';
-import AuthService from '@/services/auth';
-import { Providers } from '@/app/providers';
+import { useEffect } from "react";
+import AuthService from "@/services/auth";
+import { useDispatch } from "react-redux";
+import { setUser, logout } from "@/store/features/authSlice";
 
 export default function ClientLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    useEffect(() => {
-        // Initialize auth service
-        const authService = AuthService.getInstance();
-        authService.initializeAuth();
-    }, []);
+  const dispatch = useDispatch();
 
-    return <Providers>{children}</Providers>;
-} 
+  useEffect(() => {
+    const authService = AuthService.getInstance();
+
+    const init = async () => {
+      const isValid = await authService.ensureValidToken();
+      if (isValid) {
+        const user = authService.getCurrentUser();
+        if (user) dispatch(setUser(user));
+      } else {
+        dispatch(logout());
+      }
+    };
+
+    init();
+  }, [dispatch]);
+
+  // Just render children - no Providers here
+  return <>{children}</>;
+}

@@ -8,6 +8,7 @@ import { logoutAction } from "@/store/features/authSlice";
 import { Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
+import AuthService from "@/services/auth";
 
 export const ProfileDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,9 @@ export const ProfileDropdown: React.FC = () => {
   const router = useRouter();
 
   const handleLogout = () => {
+    const authService = AuthService.getInstance();
+
+    authService.logout();
     dispatch(logoutAction());
     router.push("/welcome");
     setIsOpen(false);

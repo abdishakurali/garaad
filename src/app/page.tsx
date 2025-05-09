@@ -1,5 +1,5 @@
-"use client"
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 import { Header } from "@/components/Header";
 import { ConceptsSection } from "@/components/sections/ConceptsSection";
 import { CourseGrid } from "@/components/CourseGrid";
@@ -9,15 +9,29 @@ import { MotivationSection } from "@/components/sections/MotivationSection";
 import { GuidedPathsSection } from "@/components/sections/GuidedPathsSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import DownloadApp from "@/components/sections/DownloadApp";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import AuthService from "@/services/auth";
+import { useRouter } from "next/navigation";
 
 // Dynamically import heavy components
-const DynamicLearnAnimation = dynamic(() => import('@/components/LearnAnimation').then(mod => mod.LearnAnimation), {
-  loading: () => <div className="h-[400px] w-full bg-gray-100 animate-pulse" />,
-  ssr: false
-});
+const DynamicLearnAnimation = dynamic(
+  () => import("@/components/LearnAnimation").then((mod) => mod.LearnAnimation),
+  {
+    loading: () => (
+      <div className="h-[400px] w-full bg-gray-100 animate-pulse" />
+    ),
+    ssr: false,
+  }
+);
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const authService = AuthService.getInstance();
+    if (authService.isAuthenticated()) router.push("/courses");
+  }, [router]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

@@ -75,7 +75,7 @@ const TextBlock: React.FC<{
                   src={content.url}
                   alt={content.alt || "lesson image"}
                   fill
-                  className="rounded-2xl shadow-xl border border-gray-200 object-cover bg-white"
+                  className="rounded-lg shadow-xl border border-gray-200 object-cover bg-white h-full"
                   sizes="(max-width: 900px) 90vw, (max-width: 1200px) 50vw, 500px"
                   priority
                 />

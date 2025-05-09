@@ -5,18 +5,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import type { RootState, AppDispatch } from "@/store";
 import { fetchLesson, resetAnswerState } from "@/store/features/learningSlice";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
+  ChevronLeft,
   ChevronRight,
   Scale,
   MinusCircle,
   Check,
-  X,
   ArrowRight,
   ReplaceIcon,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 import {
   Card,
@@ -30,7 +28,6 @@ import { Badge } from "@/components/ui/badge";
 import type { ExplanationText, TextContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
-import Image from "next/image";
 import { toast } from "sonner";
 import type {
   LeaderboardEntry,
@@ -41,7 +38,6 @@ import AuthService from "@/services/auth";
 import type { Course } from "@/types/lms";
 import RewardComponent from "@/components/RewardComponent";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
-import DiagramScale from "@/components/DiagramScale";
 import ShareLesson from "@/components/ShareLesson";
 import {
   useCourseProgress,
@@ -52,8 +48,6 @@ import {
 // import "katex/dist/katex.min.css";
 // import { BlockMath, InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
-import Latex from "react-latex-next";
-import HoverText from "@/components/lesson/HoverText";
 import ProblemBlock from "@/components/lesson/ProblemBlock";
 import TextBlock from "@/components/lesson/TextBlock";
 import ImageBlock from "@/components/lesson/ImageBlock";
@@ -375,6 +369,7 @@ const LessonPage = () => {
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [currentBlock, setCurrentBlock] = useState<React.ReactNode>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [viewedBlocks, setViewedBlocks] = useState<number[]>([0]);
 
   const {
     data: rewards,
@@ -592,6 +587,17 @@ const LessonPage = () => {
       );
     }
   }, [currentLesson?.id, currentBlockIndex]);
+
+  useEffect(() => {
+    if (currentBlockIndex >= 0) {
+      setViewedBlocks((prev) => {
+        if (!prev.includes(currentBlockIndex)) {
+          return [...prev, currentBlockIndex].sort((a, b) => a - b);
+        }
+        return prev;
+      });
+    }
+  }, [currentBlockIndex]);
 
   // Update explanation data when current problem changes
   useEffect(() => {
@@ -1107,7 +1113,52 @@ const LessonPage = () => {
             }
           />
 
-          <main className="pt-20 pb-32 mt-10">
+          {viewedBlocks.length > 1 && (
+            <div className="container mx-auto px-4 mt-20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center mx-auto gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      if (currentBlockIndex > 0) {
+                        setCurrentBlockIndex(currentBlockIndex - 1);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        setShowFeedback(false);
+                        playSound("click");
+                      }
+                    }}
+                    disabled={currentBlockIndex === 0}
+                    className="h-9 w-9"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="sr-only">Previous block</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      const maxIndex = Math.max(...viewedBlocks);
+                      if (currentBlockIndex < maxIndex) {
+                        setCurrentBlockIndex(currentBlockIndex + 1);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        setShowFeedback(false);
+                        playSound("click");
+                      }
+                    }}
+                    disabled={currentBlockIndex >= Math.max(...viewedBlocks)}
+                    className="h-9 w-9"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                    <span className="sr-only">Next block</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <main className="pt-20 pb-32 mt-4">
             <div className="container mx-auto">{currentBlock}</div>
           </main>
 
