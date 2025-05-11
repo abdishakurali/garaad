@@ -51,6 +51,8 @@ import ProblemBlock from "@/components/lesson/ProblemBlock";
 import TextBlock from "@/components/lesson/TextBlock";
 import ImageBlock from "@/components/lesson/ImageBlock";
 import VideoBlock from "@/components/lesson/VideoBlock";
+import SignatureCalculator from "@/components/lesson/SignatureCalculator";
+import CalculatorProblemBlock from '@/components/lesson/CalculatorProblemBlock';
 
 type Position = "left" | "center" | "right";
 type Orientation = "vertical" | "horizontal" | "none";
@@ -504,7 +506,7 @@ const LessonPage = () => {
           id: pd.id,
           question: pd.question_text,
           which: pd.which,
-          options: pd.options.map((opt) => opt.text),
+          options: Array.isArray(pd.options) ? pd.options.map((opt) => opt.text) : [],
           correct_answer: pd.correct_answer.map((ans, index) => ({
             id: `answer-${index}`,
             text: ans.text,
@@ -808,6 +810,12 @@ const LessonPage = () => {
         currentLesson?.content_blocks &&
         currentLesson.content_blocks.length > 0
       ) {
+        // Debug: log all block types in the lesson
+        const allBlockTypes = currentLesson.content_blocks.map((b, i) => ({ i, type: b.block_type }));
+        console.log('[DEBUG] All block types in lesson:', allBlockTypes);
+        if (!currentLesson.content_blocks.some(b => b.block_type === 'calculator_interface')) {
+          console.warn('[DEBUG] No calculator_interface block found in lesson!');
+        }
         const sortedBlocks = [...currentLesson.content_blocks]
           .filter((b) => !(b.block_type === "problem" && !b.problem))
           .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -816,6 +824,7 @@ const LessonPage = () => {
         if (!block) return;
 
         const isLastBlock = currentBlockIndex === sortedBlocks.length - 1;
+        console.log(block)
 
         switch (block.block_type) {
           case "problem":
@@ -823,11 +832,19 @@ const LessonPage = () => {
             const problemId = block.problem;
             const problemIndex = problems.findIndex((p) => p.id === problemId);
 
-            // Update current problem index if found
             if (problemIndex !== -1) {
+              const problem = problems[problemIndex];
+              // Special case: render calculator interface for problems with content.type === 'calculator'
+              if (problem.content && problem.content.type === 'calculator') {
+                setCurrentBlock(
+                  <CalculatorProblemBlock
+                    {...problem}
+                  />
+                );
+                break;
+              }
               setCurrentProblemIndex(problemIndex);
             }
-
             setCurrentBlock(
               <ProblemBlock
                 onContinue={handleContinue}
@@ -927,13 +944,38 @@ const LessonPage = () => {
               typeof block.content === "string"
                 ? JSON.parse(block.content)
                 : block.content;
-
+            // Extract calculator props from options.view if present
+            let calcProps = {};
+            if (block.options && block.options.view && interactiveContent.type === "calculator") {
+              const view = block.options.view;
+              // Find n and g from view.sections
+              let n = 29, g = 17, sk = 35, m = 7;
+              if (Array.isArray(view.sections)) {
+                for (const section of view.sections) {
+                  if (section.elements) {
+                    for (const el of section.elements) {
+                      if (el.label === "n" && el.value) n = Number(el.value);
+                      if (el.label === "g" && el.value) g = Number(el.value);
+                      if (el.label === "furaha qarsoon (sk)" && el.value) sk = Number(el.value);
+                      if (el.label === "farriin (m)" && el.value) m = Number(el.value);
+                    }
+                  }
+                }
+              }
+              calcProps = { n, g, defaultSk: sk, defaultM: m };
+            }
             if (interactiveContent.type === "scale_balance") {
               setCurrentBlock(
                 <ScaleBalanceInteractive
                   content={interactiveContent}
                   onComplete={handleContinue}
                   onExplanationChange={setExplanationData}
+                />
+              );
+            } else if (interactiveContent.type === "calculator") {
+              setCurrentBlock(
+                <SignatureCalculator
+                  {...calcProps}
                 />
               );
             } else {
@@ -955,6 +997,45 @@ const LessonPage = () => {
                 </div>
               );
             }
+            break;
+
+          case "calculator":
+            // Extract calculator props from options.view if present
+            let calcProps2 = {};
+            if (block.options && block.options.view) {
+              const view = block.options.view;
+              let n = 29, g = 17, sk = 35, m = 7;
+              if (Array.isArray(view.sections)) {
+                for (const section of view.sections) {
+                  if (section.elements) {
+                    for (const el of section.elements) {
+                      if (el.label === "n" && el.value) n = Number(el.value);
+                      if (el.label === "g" && el.value) g = Number(el.value);
+                      if (el.label === "furaha qarsoon (sk)" && el.value) sk = Number(el.value);
+                      if (el.label === "farriin (m)" && el.value) m = Number(el.value);
+                    }
+                  }
+                }
+              }
+              calcProps2 = { n, g, defaultSk: sk, defaultM: m };
+            }
+            setCurrentBlock(
+              <SignatureCalculator
+                {...calcProps2}
+              />
+            );
+            break;
+
+          case "calculator_interface":
+            // Debug: log block and options
+            console.log("[DEBUG] calculator_interface block:", block);
+            console.log("[DEBUG] calculator_interface options:", block.options);
+            // Pass the full options.view config to SignatureCalculator
+            setCurrentBlock(
+              <SignatureCalculator
+                config={block.options?.view}
+              />
+            );
             break;
 
           default:

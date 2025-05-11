@@ -57,7 +57,9 @@ export type BlockType =
   | "code"
   | "quiz"
   | "exercise"
-  | "interactive";
+  | "interactive"
+  | "calculator"
+  | "calculator_interface";
 
 export interface Feature {
   title: string;
@@ -112,6 +114,7 @@ export interface LessonContentBlock {
   content: string | TextContent | ImageContent | ProblemContent;
   order?: number;
   problem?: number;
+  options?: any;
 }
 
 type Position = "left" | "center" | "right";
