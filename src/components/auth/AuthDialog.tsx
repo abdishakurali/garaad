@@ -133,15 +133,14 @@ export function AuthDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="font-semibold">
           Soo gal
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-[420px] w-full px-4 py-6 rounded-2xl shadow-2xl border bg-white
+        className="max-w-[300px] sm:max-w-[420px] md:max-w-[450px] px-4 py-6 rounded-2xl shadow-2xl border bg-white
         transition-all duration-300 ease-in-out
         data-[state=open]:animate-in data-[state=closed]:animate-out
         data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
@@ -254,15 +253,15 @@ export function AuthDialog() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Number sir ah</FormLabel>
+                      <FormLabel>lamberka sir ah</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="Geli number sir ah"
+                          placeholder="Geli lambarka sirta"
                           {...field}
                           disabled={isLoading}
-                          className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/30 outline-none text-base md:text-lg transition-all duration-200 ease-in-out bg-white"
-                          style={{ fontSize: '16px' }}
+                          // className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/30 outline-none text-base md:text-lg transition-all duration-200 ease-in-out bg-white"
+                          // style={{ fontSize: "16px" }}
                         />
                       </FormControl>
                       <FormMessage />

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import type React from "react";
+import React from "react";
+import type { JSX } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -36,9 +37,7 @@ import {
   Clock12,
   Sunrise,
   Moon,
-  MoonIcon,
   SunDim,
-  Sun,
 } from "lucide-react";
 
 // Step titles
@@ -46,7 +45,7 @@ const stepTitles = [
   "Waa maxey hadafkaaga ugu weyn?", // What's your top goal?
   "Waqtigee kuugu habboon inad waxbarato?",
   "Maadada aad ugu horayn rabto inaad barato?", // Which topic do you want to explore first?
-  "Heerkaaga xisaabta?", // What's your math comfort level?
+  "Heerkaaga waxbarashada?", // What's your learning level?
   "Immisa daqiiqo ayad rabtaa inad Wax-barato maalin walba?",
   "Fadlan geli Xogtaaga:", // Please enter your email
 ];
@@ -155,84 +154,303 @@ const topics = [
   },
 ];
 
-// Step 4: Math comfort level with all levels
-const topicLevels = [
-  {
-    title: "Xisaabta aasaasiga ah",
-    description:
-      "Waxaan doonayaa inaan ka bilaabo aasaaska xisaabta si aan u fahmo",
-    example: "2,000 + 500 = ?",
-    level: "Arithmetic",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Aljebra aasaasiga ah",
-    description:
-      "Waxaan fahmi karaa isticmaalka xarfaha iyo calaamadaha xisaabta",
-    example: "x + 5 = 12",
-    level: "Basic Algebra",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Aljebra sare",
-    description:
-      "Waxaan si fiican u fahmi karaa xiriirka xisaabta iyo jaantuskeeda",
-    example: "y = 2x + 1",
-    level: "Algebra",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Calculus",
-    description: "Waxaan fahmi karaa isbedelka iyo cabbirka xisaabta",
-    example: "dy/dx (x²)",
-    level: "Calculus",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Xisaabta nolol maalmeedka",
-    description: "Waxaan ku dabbiqi karaa xisaabta arrimaha nolol maalmeedka",
-    example:
-      "Haddii alaab qiimaheedu yahay $50, cashuurta (VAT) 15% tahay, waa maxay qiimaha guud?",
-    level: "Real-World Algebra",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Cabbirka iyo qaababka",
-    description: "Waxaan fahmi karaa cabbirka iyo qaababka kala duwan",
-    example: "Ka hel wareegga goobaab dhererkiisu yahay 10cm",
-    level: "Geometry",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Xisaabta xaglaha",
-    description: "Waxaan fahmi karaa xiriirka xaglaha iyo dhererkooda",
-    example: "Ka hel sin(30°)",
-    level: "Trigonometry",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Shaqooyinka xisaabeed",
-    description: "Waxaan fahmi karaa shaqooyinka xisaabeed iyo isticmaalkooda",
-    example: "f(x) = x² + 2x waa maxay qiimaha marka x = 3?",
-    level: "Functions",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Tirakoobka iyo suurtogalnimada",
-    description: "Waxaan xisaabin karaa celceliska iyo suurtogalnimada xogta",
-    example: "Waa maxay celceliska 75, 80, 85, 90, 95?",
-    level: "Statistics and Probability",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Tilmaamayaasha xisaabeed",
-    description:
-      "Waxaan fahmi karaa tilmaamayaasha xisaabeed iyo isticmaalkooda",
-    example: "A = (2,3) iyo B = (4,6) ka hel masaafada u dhexeysa",
-    level: "Vectors",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-];
+const topicLevelsByTopic: Record<
+  string,
+  Array<{
+    title: string;
+    description: string;
+    example: string;
+    level: string;
+    icon: JSX.Element;
+  }>
+> = {
+  math: [
+    {
+      title: "Xisaabta aasaasiga ah",
+      description:
+        "Waxaan doonayaa inaan ka bilaabo aasaaska xisaabta si aan u fahmo",
+      example: "2,000 + 500 = ?",
+      level: "Arithmetic",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Aljebra aasaasiga ah",
+      description:
+        "Waxaan fahmi karaa isticmaalka xarfaha iyo calaamadaha xisaabta",
+      example: "x + 5 = 12",
+      level: "Basic Algebra",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Aljebra sare",
+      description:
+        "Waxaan si fiican u fahmi karaa xiriirka xisaabta iyo jaantuskeeda",
+      example: "y = 2x + 1",
+      level: "Algebra",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Calculus",
+      description: "Waxaan fahmi karaa isbedelka iyo cabbirka xisaabta",
+      example: "dy/dx (x²)",
+      level: "Calculus",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Xisaabta nolol maalmeedka",
+      description: "Waxaan ku dabbiqi karaa xisaabta arrimaha nolol maalmeedka",
+      example:
+        "Haddii alaab qiimaheedu yahay $50, cashuurta (VAT) 15% tahay, waa maxay qiimaha guud?",
+      level: "Real-World Algebra",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Cabbirka iyo qaababka",
+      description: "Waxaan fahmi karaa cabbirka iyo qaababka kala duwan",
+      example: "Ka hel wareegga goobaab dhererkiisu yahay 10cm",
+      level: "Geometry",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Xisaabta xaglaha",
+      description: "Waxaan fahmi karaa xiriirka xaglaha iyo dhererkooda",
+      example: "Ka hel sin(30°)",
+      level: "Trigonometry",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Shaqooyinka xisaabeed",
+      description:
+        "Waxaan fahmi karaa shaqooyinka xisaabeed iyo isticmaalkooda",
+      example: "f(x) = x² + 2x waa maxay qiimaha marka x = 3?",
+      level: "Functions",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Tirakoobka iyo suurtogalnimada",
+      description: "Waxaan xisaabin karaa celceliska iyo suurtogalnimada xogta",
+      example: "Waa maxay celceliska 75, 80, 85, 90, 95?",
+      level: "Statistics and Probability",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+    {
+      title: "Tilmaamayaasha xisaabeed",
+      description:
+        "Waxaan fahmi karaa tilmaamayaasha xisaabeed iyo isticmaalkooda",
+      example: "A = (2,3) iyo B = (4,6) ka hel masaafada u dhexeysa",
+      level: "Vectors",
+      icon: <Calculator className="w-5 h-5" />,
+    },
+  ],
+  "data-analysis": [
+    {
+      title: "Ururinta Xogta Aasaasiga ah",
+      description:
+        "Sida loo ururiyo xog laga soo qaado ilaha kala duwan sida CSV, APIs, ama sahan.",
+      example: "Dhexdeeda CSV ka soo dejiso iibkii bishii hore.",
+      level: "Basic Data Collection",
+      icon: <BarChart className="w-5 h-5" />,
+    },
+    {
+      title: "Nadiifinta Xogta (Data Cleaning)",
+      description:
+        "Ka saarid xogta nuqullada ah, la tacaalidda qiyamka maqan, iyo qaabeynta xogta.",
+      example: "Ka saar safafka leh qiimayaal null ah ee column 'da'da'.",
+      level: "Data Cleaning",
+      icon: <BarChart className="w-5 h-5" />,
+    },
+    {
+      title: "Falanqaynta Xogta (Exploratory Data Analysis)",
+      description:
+        "Soo saaridda jaantusyo, cabbirada celcelis, iyo faahfaahinta qaybinta xogta.",
+      example: "Sawir histogram muujinaya qaybinta da'da isticmaaleyaasha.",
+      level: "Exploratory Data Analysis",
+      icon: <BarChart className="w-5 h-5" />,
+    },
+    {
+      title: "Saadaasha Iyo Tijaabinta Istatistikada",
+      description:
+        "Samaynta tijaabooyinka hypothesis iyo xisaabinta intervals-ka kalsoonida.",
+      example: "Fuli t-test si loo barbardhigo celcelisyada laba kooxood.",
+      level: "Statistical Inference",
+      icon: <BarChart className="w-5 h-5" />,
+    },
+    {
+      title: "Hordhac Barashada Mashiinka",
+      description: "Dhismo moodallo fudud oo regression iyo classification ah.",
+      example: "Tababar regression model si loo saadaaliyo qiimaha guryaha.",
+      level: "Intro to Machine Learning",
+      icon: <BarChart className="w-5 h-5" />,
+    },
+  ],
+
+  science: [
+    {
+      title: "Aasaaska Sayniska",
+      description:
+        "Fahamka erayada aasaasiga ah sida tamarta, xoog, iyo dhaqdhaqaaq.",
+      example: "Sharax sida tamartu u beddesho qaabab kale.",
+      level: "Basic Science",
+      icon: <Atom className="w-5 h-5" />,
+    },
+    {
+      title: "Bayoolaji (Biology)",
+      description:
+        "Daraasadda unugyada noolaha, hababka nolosha, iyo ecology-ga.",
+      example: "Sharax habka cellular respiration.",
+      level: "Biology",
+      icon: <Atom className="w-5 h-5" />,
+    },
+    {
+      title: "Kimistari (Chemistry)",
+      description:
+        "Fahamka isku-darka maaddooyinka, isbeddelka kiimikaad, iyo miisaanka mol-ka.",
+      example: "Soo dheelli tir fal-celinta combustion-ka methane.",
+      level: "Chemistry",
+      icon: <Atom className="w-5 h-5" />,
+    },
+    {
+      title: "Fiisigiska (Physics)",
+      description: "Xeerarka dhaq-dhaqaaqa, xoogga, iyo tamarta.",
+      example: "Xisaabi acceleration-ka walax 5kg ah marka la saaro xoog 10N.",
+      level: "Physics",
+      icon: <Atom className="w-5 h-5" />,
+    },
+    {
+      title: "Sayniska Dhulka (Earth Science)",
+      description: "Barashada geology, cimilada, iyo juqraafi.",
+      example: "Sharax wareegga dhagaxa (rock cycle).",
+      level: "Earth Science",
+      icon: <Atom className="w-5 h-5" />,
+    },
+  ],
+
+  programming: [
+    {
+      title: "Barnaamijyada Aasaasiga ah",
+      description: "Isticmaalka variables, shuruudaha if, iyo loops.",
+      example: "Qor function dib u celinaysa string.",
+      level: "Basic Programming",
+      icon: <Code className="w-5 h-5" />,
+    },
+    {
+      title: "Barnaamijyada OOP",
+      description: "Abuurista classes, objects, iyo inheritance.",
+      example:
+        "Samee class matalaya xisaabaad bangi oo leh deposit iyo withdraw.",
+      level: "Object-Oriented Programming",
+      icon: <Code className="w-5 h-5" />,
+    },
+    {
+      title: "Qaab-dhismeedka Xogta & Algorithms",
+      description:
+        "Fahamka arrays, linked lists, trees, iyo algorithms sida sorting.",
+      example: "Fuli quicksort si aad xog u kala hormariso.",
+      level: "Data Structures & Algorithms",
+      icon: <Code className="w-5 h-5" />,
+    },
+    {
+      title: "Horumarinta Webka (Web Development)",
+      description: "Isticmaalka HTML, CSS, JavaScript, iyo frameworks.",
+      example: "Samee bog fudud oo form leh oo loo qurxiyo CSS.",
+      level: "Web Development",
+      icon: <Code className="w-5 h-5" />,
+    },
+    {
+      title: "APIs & Backend",
+      description: "Naqshadeynta REST APIs iyo wada shaqeynta databases.",
+      example: "Naqshad endpoint API ah oo maareeya login user.",
+      level: "APIs & Backend",
+      icon: <Code className="w-5 h-5" />,
+    },
+  ],
+
+  "logical-reasoning": [
+    {
+      title: "Fikirka Aasaasiga ah",
+      description: "Xallinta syllogism-yada iyo xalinta dhibaatooyinka fudud.",
+      example: "Dhisto deducation: All X are Y; Z is X; therefore Z is Y.",
+      level: "Deductive Reasoning",
+      icon: <Brain className="w-5 h-5" />,
+    },
+    {
+      title: "Fikirka Tarjumida (Inductive Reasoning)",
+      description: "Aqoonsiga qaababka iyo saadaasha xogaha.",
+      example:
+        "Markaad aragto roob rogumaya 5 jeer galab kasta, saadaali marka xiga.",
+      level: "Inductive Reasoning",
+      icon: <Brain className="w-5 h-5" />,
+    },
+    {
+      title: "Fallacy-ga Loogaga Fogaado",
+      description: "Aqoonsashada khaladaadka macquulka ah ee doodaha.",
+      example: "Ka hel fallacy-ga 'red herring' ee hadalkan.",
+      level: "Logical Fallacies",
+      icon: <Brain className="w-5 h-5" />,
+    },
+    {
+      title: "Fikirka Dhaleeceynta (Critical Thinking)",
+      description: "Qiimeynta doodaha iyo caddeymaha.",
+      example: "Falaar falanqee doodda ku saabsan saameynta climate change.",
+      level: "Critical Thinking",
+      icon: <Brain className="w-5 h-5" />,
+    },
+    {
+      title: "Xallinta Dhibaatoyinka Casrigga ah",
+      description:
+        "Isticmaalka hababka macquulka ah ee xalinta dhibaatooyinka adag.",
+      example: "Xallinta cadawga casriga ah ee chess.",
+      level: "Advanced Reasoning",
+      icon: <Brain className="w-5 h-5" />,
+    },
+  ],
+
+  puzzles: [
+    {
+      title: "Sudoku",
+      description:
+        "Buuxi shax 9x9 ah si saf kasta, column kasta, iyo block 3x3 kasta uu yeesho tirooyinka 1-9.",
+      example: "Xalliso Sudoku heer fudud oo leh 30 calaamad.",
+      level: "Basic Sudoku",
+      icon: <Puzzle className="w-5 h-5" />,
+    },
+    {
+      title: "Logic Grid Puzzles",
+      description:
+        "Habaynta xogaha xog-ogaalnimada si loo xalliyo shuruudaha la isku xiray.",
+      example:
+        "Ogow qof walba wuxuu cunteeyay xilliga X iyagoo isticmaalaya tilmaamaha.",
+      level: "Intermediate Logic Grids",
+      icon: <Puzzle className="w-5 h-5" />,
+    },
+    {
+      title: "Crossword Puzzles",
+      description:
+        "Buuxi calaamadaha iskutallaabta ah iyadoo la isticmaalayo tilmaamaha ereyada.",
+      example:
+        "Cali talo: Magaalo madax ah oo Faransiis ah (5 xuruuud) => PARIS.",
+      level: "Basic Crosswords",
+      icon: <Puzzle className="w-5 h-5" />,
+    },
+    {
+      title: "Halxiraalaha Riddles",
+      description: "Xallinta halxiraalo ku saleysan macnayaasha iyo sirdoonka.",
+      example:
+        "Waa maxay shay la jaro laakiin had iyo jeer wuu kordhaa? Jawaab: Jirrid.",
+      level: "Riddles",
+      icon: <Puzzle className="w-5 h-5" />,
+    },
+    {
+      title: "Kakuro",
+      description:
+        "Buuxi shax leh wadarta tiirarka iyo safafka iyadoo la raacayo tilmaamaha.",
+      example:
+        "Shax leh sumad 16: buuxi labo masuul in ay yeeshaan wadarta 16.",
+      level: "Advanced Kakuro",
+      icon: <Puzzle className="w-5 h-5" />,
+    },
+  ],
+};
 
 const learningGoals = [
   {
@@ -266,6 +484,10 @@ export default function Page() {
   const [selections, setSelections] = useState<Record<number, number | string>>(
     {}
   );
+  // Add a new state to track the selected topic
+  const [selectedTopic, setSelectedTopic] = useState<string>("math");
+  // Add a new state to track topic-specific levels
+  const [topicLevels, setTopicLevels] = useState<Record<string, string>>({});
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -273,7 +495,8 @@ export default function Page() {
     confirmPassword: "",
     age: "",
   });
-  const steps = [goals, learningApproach, topics, topicLevels, learningGoals];
+  // Update the steps array to include a new step for setting levels for all topics
+  const steps = [goals, learningApproach, topics, null, learningGoals];
   const router = useRouter();
   const progress = (currentStep / (steps.length + 2)) * 100;
 
@@ -284,7 +507,21 @@ export default function Page() {
   const { toast } = useToast();
 
   const handleSelect = (value: number | string) => {
-    setSelections((prev) => ({ ...prev, [currentStep]: value }));
+    if (currentStep === 2) {
+      // Topic selection step
+      setSelectedTopic(value as string);
+      setSelections((prev) => ({ ...prev, [currentStep]: value }));
+    } else if (currentStep === 3) {
+      // Level selection step
+      // Store the level for the currently selected topic
+      setTopicLevels((prev) => ({
+        ...prev,
+        [selectedTopic]: value as string,
+      }));
+      setSelections((prev) => ({ ...prev, [currentStep]: value }));
+    } else {
+      setSelections((prev) => ({ ...prev, [currentStep]: value }));
+    }
   };
 
   const handleContinue = () => {
@@ -294,13 +531,18 @@ export default function Page() {
     }
   };
 
+  // Add this function to check if all required topics have levels set
+  const allRequiredTopicsHaveLevels = () => {
+    // At minimum, the selected topic must have a level
+    return !!topicLevels[selectedTopic];
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       // Validate all data
       if (
         !userData.name.trim() ||
-        // !userData.lastName.trim() ||
         !userData.email.trim() ||
         !userData.password.trim() ||
         !userData.age.trim()
@@ -328,14 +570,14 @@ export default function Page() {
         email: userData.email.trim(),
         password: userData.password.trim(),
         name: userData.name.trim(),
-        // last_name: userData.lastName.trim(),
         username: userData.email.trim(),
         age: Number.parseInt(userData.age),
         onboarding_data: {
           goal: String(selections[0]).trim(),
           learning_approach: String(selections[1]).trim(),
           topic: String(selections[2]).trim(),
-          math_level: String(selections[3]).trim(),
+          math_level: String(selections[3]).trim(), // Add math_level
+          topic_levels: topicLevels, // Include all topic-specific levels
           minutes_per_day: Number.parseInt(String(selections[4]).split(" ")[0]),
         },
       };
@@ -344,6 +586,8 @@ export default function Page() {
 
       // Use Redux for signup
       const result = await dispatch(signup(signUpData));
+
+      console.log(result);
 
       if (result) {
         console.log("Signup successful");
@@ -355,7 +599,7 @@ export default function Page() {
         router.push(`/verify-email?email=${userData.email}`);
       }
     } catch (error: any) {
-      console.error("Submission failed:", error);
+      console.log("Submission failed:", error.response);
       let errorMessage = "Wax khalad ah ayaa dhacay";
       // Axios/fetch error with response
       if (error?.response) {
@@ -363,9 +607,11 @@ export default function Page() {
         const status = error.response.status;
         if (
           status === 400 &&
-          (backendError === "Email already exists" || backendError === "Username already exists")
+          (backendError === "Email already exists" ||
+            backendError === "Username already exists")
         ) {
-          errorMessage = "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
+          errorMessage =
+            "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
         } else if (backendError) {
           errorMessage = backendError;
         } else if (error.response.data?.detail) {
@@ -394,7 +640,7 @@ export default function Page() {
             <h2 className="text-2xl font-bold mb-6 text-slate-800">
               {currentStep <= steps.length
                 ? stepTitles[currentStep]
-                : "Fadlan geli Xogtaaga"}
+                : "Fadlan geli Xogtaada"}
             </h2>
 
             {/* Display Redux error if it exists */}
@@ -410,92 +656,149 @@ export default function Page() {
             )}
 
             {/* Options Grid */}
-            {currentStep < 3 && (
+            {currentStep < 2 && (
               <div className="grid gap-3">
-                {currentOptions.map((option: any) => (
-                  <div key={option.id}>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleSelect(option.id);
-                      }}
-                      className="w-full group relative"
-                      disabled={option.disabled || isLoading}
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center p-4 rounded-xl border-2 transition-all",
-                          " hover:shadow-sm",
-                          selections[currentStep] === option.id
-                            ? "border-primary bg-primary/5"
-                            : "border-slate-200",
-                          option.disabled && "opacity-50 cursor-not-allowed"
-                        )}
+                {currentOptions &&
+                  currentOptions.map((option: any) => (
+                    <div key={option.id}>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleSelect(option.id);
+                        }}
+                        className="w-full group relative"
+                        disabled={option.disabled || isLoading}
                       >
-                        <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-                          <div className="text-primary">{option.icon}</div>
+                        <div
+                          className={cn(
+                            "flex items-center p-4 rounded-xl border-2 transition-all",
+                            " hover:shadow-sm",
+                            selections[currentStep] === option.id
+                              ? "border-primary bg-primary/5"
+                              : "border-slate-200",
+                            option.disabled && "opacity-50 cursor-not-allowed"
+                          )}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                            <div className="text-primary">{option.icon}</div>
+                          </div>
+                          <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-slate-700">
+                            {option.text}
+                          </div>
+                          {option.disabled && (
+                            <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
+                              Dhowaan
+                            </span>
+                          )}
                         </div>
-                        <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-slate-700">
-                          {option.text}
-                        </div>
-                        {option.disabled && (
-                          <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
-                            Dhowaan
-                          </span>
-                        )}
-                      </div>
 
-                      {selections[currentStep] === option.id && (
-                        <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200">
-                          {option.badge}
+                        {selections[currentStep] === option.id && (
+                          <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200">
+                            {option.badge}
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="grid gap-3">
+                {currentOptions &&
+                  currentOptions.map((option: any) => (
+                    <div key={option.id}>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleSelect(option.id);
+                        }}
+                        className="w-full group relative"
+                        disabled={option.disabled || isLoading}
+                      >
+                        <div
+                          className={cn(
+                            "flex items-center p-4 rounded-xl border-2 transition-all",
+                            "hover:border-primary/50 hover:shadow-sm",
+                            selections[currentStep] === option.id
+                              ? "border-primary bg-primary/5"
+                              : "border-slate-200",
+                            option.disabled && "opacity-50 cursor-not-allowed"
+                          )}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                            <div className="text-primary">{option.icon}</div>
+                          </div>
+                          <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-slate-700">
+                            {option.text}
+                          </div>
+                          {option.disabled && (
+                            <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
+                              Dhowaan
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </button>
-                  </div>
-                ))}
+
+                        {selections[currentStep] === option.id && (
+                          <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200">
+                            {option.badge}
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  ))}
               </div>
             )}
 
             {currentStep === 3 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {topicLevels.map((level) => (
-                  <div key={level.level}>
-                    <button
-                      onClick={() => handleSelect(level.level)}
-                      className="w-full text-left"
-                      disabled={isLoading}
-                    >
-                      <div
-                        className={cn(
-                          "p-5 rounded-xl border-2 transition-all h-full",
-                          "hover:border-primary/50 hover:shadow-sm",
-                          selections[currentStep] === level.level
-                            ? "border-primary bg-primary/5"
-                            : "border-slate-200"
-                        )}
+              <>
+                <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <p className="text-slate-700 font-medium">
+                    Heerkaaga{" "}
+                    {topics.find((t) => t.id === selectedTopic)?.text ||
+                      selectedTopic}
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {topicLevelsByTopic[selectedTopic].map((level) => (
+                    <div key={level.level}>
+                      <button
+                        onClick={() => handleSelect(level.level)}
+                        className="w-full text-left"
+                        disabled={isLoading}
                       >
-                        <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
-                          <div className="text-primary">{level.icon}</div>
+                        <div
+                          className={cn(
+                            "p-5 rounded-xl border-2 transition-all h-full",
+                            "hover:border-primary/50 hover:shadow-sm",
+                            topicLevels[selectedTopic] === level.level
+                              ? "border-primary bg-primary/5"
+                              : "border-slate-200"
+                          )}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
+                            <div className="text-primary">{level.icon}</div>
+                          </div>
+                          <h3 className="font-bold text-lg mb-2 text-slate-800">
+                            {level.title}
+                          </h3>
+                          <p className="text-slate-600 text-sm mb-3">
+                            {level.description}
+                          </p>
+                          <div className="p-3 bg-slate-50 rounded-lg font-mono text-sm text-slate-700 border border-slate-200">
+                            {level.example}
+                          </div>
                         </div>
-                        <h3 className="font-bold text-lg mb-2 text-slate-800">
-                          {level.title}
-                        </h3>
-                        <p className="text-slate-600 text-sm mb-3">
-                          {level.description}
-                        </p>
-                        <div className="p-3 bg-slate-50 rounded-lg font-mono text-sm text-slate-700 border border-slate-200">
-                          {level.example}
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                ))}
-              </div>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
 
             {currentStep === 4 && (
               <div className="grid gap-3">
-                {currentOptions.map((option: any) => (
+                {learningGoals.map((option: any) => (
                   <div key={option.id}>
                     <button
                       onClick={(e) => {
@@ -650,16 +953,19 @@ export default function Page() {
                   currentStep === 6
                     ? " text-white"
                     : currentStep === 5
-                      ? userData.email &&
-                        userData.password &&
-                        userData.name &&
-                        // userData.lastName &&
-                        userData.age
-                        ? " text-white"
-                        : "bg-slate-200 text-slate-500 cursor-not-allowed"
-                      : selections[currentStep]
-                        ? " text-white"
-                        : "bg-slate-200 text-slate-500 cursor-not-allowed",
+                    ? userData.email &&
+                      userData.password &&
+                      userData.name &&
+                      userData.age
+                      ? " text-white"
+                      : "bg-slate-200 text-slate-500 cursor-not-allowed"
+                    : currentStep === 3
+                    ? topicLevels[selectedTopic]
+                      ? " text-white"
+                      : "bg-slate-200 text-slate-500 cursor-not-allowed"
+                    : selections[currentStep]
+                    ? " text-white"
+                    : "bg-slate-200 text-slate-500 cursor-not-allowed",
                   isLoading && "opacity-70 cursor-wait"
                 )}
                 onClick={(e) => {
@@ -669,7 +975,14 @@ export default function Page() {
                       handleSubmit(e);
                     }
                   } else {
-                    if (selections[currentStep]) {
+                    if (currentStep === 3 && !topicLevels[selectedTopic]) {
+                      // Don't continue if no level is selected for the current topic
+                      return;
+                    }
+                    if (
+                      (currentStep !== 3 && selections[currentStep]) ||
+                      (currentStep === 3 && topicLevels[selectedTopic])
+                    ) {
                       handleContinue();
                     }
                   }

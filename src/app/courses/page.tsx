@@ -15,7 +15,6 @@ import type { Course } from "@/types/lms";
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-course.svg";
 
-// Optimize image loading
 const CategoryImage = ({ src, alt }: { src?: string; alt: string }) => {
   const isValidUrl = (url: string) => {
     try {
@@ -89,7 +88,6 @@ export default function CoursesPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Initialize with URL params or first published course
   useEffect(() => {
     const categoryId = searchParams.get("categoryId");
     const courseId = searchParams.get("courseId");
@@ -109,13 +107,11 @@ export default function CoursesPage() {
     }
   }, [isLoading, categories, searchParams]);
 
-  // Auth guard
   useEffect(() => {
     const authService = AuthService.getInstance();
     if (!authService.isAuthenticated()) router.push("/");
   }, [router]);
 
-  // Intersection observer updates URL
   useEffect(() => {
     if (typeof window !== "undefined") {
       observerRef.current = new IntersectionObserver(
@@ -145,7 +141,6 @@ export default function CoursesPage() {
     }
   };
 
-  // Scroll active into view
   useEffect(() => {
     if (activeCourse) {
       const id = `course-${activeCourse.categoryId}-${activeCourse.courseId}`;
@@ -166,7 +161,6 @@ export default function CoursesPage() {
     setActiveCourse({ categoryId, courseId });
   };
 
-  // Drag-to-scroll
   useEffect(() => {
     const slider = scrollRef.current;
     if (!slider) return;
@@ -174,38 +168,71 @@ export default function CoursesPage() {
     let startX: number;
     let scrollLeft: number;
 
+    // Mouse handlers
     const onMouseDown = (e: MouseEvent) => {
       isDown = true;
       slider.classList.add("cursor-grabbing");
       startX = e.pageX - slider.offsetLeft;
       scrollLeft = slider.scrollLeft;
     };
+
     const onMouseLeave = () => {
       isDown = false;
       slider.classList.remove("cursor-grabbing");
     };
+
     const onMouseUp = () => {
       isDown = false;
       slider.classList.remove("cursor-grabbing");
     };
+
     const onMouseMove = (e: MouseEvent) => {
       if (!isDown) return;
       e.preventDefault();
       const x = e.pageX - slider.offsetLeft;
-      const walk = (x - startX) * 1; // scroll-fast
+      const walk = (x - startX) * 1;
       slider.scrollLeft = scrollLeft - walk;
     };
 
+    // Touch handlers
+    const onTouchStart = (e: TouchEvent) => {
+      isDown = true;
+      startX = e.touches[0].pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+      e.preventDefault();
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDown) return;
+      const x = e.touches[0].pageX - slider.offsetLeft;
+      const walk = (x - startX) * 1;
+      slider.scrollLeft = scrollLeft - walk;
+      e.preventDefault();
+    };
+
+    const onTouchEnd = () => {
+      isDown = false;
+    };
+
+    // Event listeners
     slider.addEventListener("mousedown", onMouseDown);
     slider.addEventListener("mouseleave", onMouseLeave);
     slider.addEventListener("mouseup", onMouseUp);
     slider.addEventListener("mousemove", onMouseMove);
+
+    slider.addEventListener("touchstart", onTouchStart, { passive: false });
+    slider.addEventListener("touchmove", onTouchMove, { passive: false });
+    slider.addEventListener("touchend", onTouchEnd);
 
     return () => {
       slider.removeEventListener("mousedown", onMouseDown);
       slider.removeEventListener("mouseleave", onMouseLeave);
       slider.removeEventListener("mouseup", onMouseUp);
       slider.removeEventListener("mousemove", onMouseMove);
+
+      slider.removeEventListener("touchstart", onTouchStart);
+      slider.removeEventListener("touchmove", onTouchMove);
+      slider.removeEventListener("touchend", onTouchEnd);
     };
   }, []);
 
@@ -280,7 +307,7 @@ export default function CoursesPage() {
                     </div>
                     <div
                       ref={scrollRef}
-                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-x-auto p-4 rounded-lg bg-accent scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent cursor-grab"
+                      className="grid grid-flow-col auto-cols-[minmax(280px,1fr)] sm:grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-x-auto p-4 rounded-lg bg-accent scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent cursor-grab touch-pan-x"
                     >
                       {category.courses?.map((course: Course) => {
                         const courseId = `course-${category.id}-${course.id}`;

@@ -78,10 +78,27 @@ export const signup =
       );
       dispatch(setError(null));
       return true; // Return success
-    } catch (error) {
-      dispatch(
-        setError(error instanceof Error ? error.message : "An error occurred")
-      );
+    } catch (error: any) {
+      let errorMessage = "Wax khalad ah ayaa dhacay";
+      console.error("ERROR", error.response.data.error);
+      // Axios/fetch error with response
+      if (error?.response) {
+        const backendError = error.response.data?.error;
+        const status = error.response.status;
+        if (
+          status === 400 &&
+          (backendError === "Email already exists" ||
+            backendError === "Username already exists")
+        ) {
+          errorMessage =
+            "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
+        } else if (backendError) {
+          errorMessage = backendError;
+        } else if (error.response.data?.detail) {
+          errorMessage = error.response.data.detail;
+        }
+      }
+      dispatch(setError(error instanceof Error ? errorMessage : error.message));
       return false; // Return failure
     } finally {
       dispatch(setLoading(false));

@@ -606,7 +606,7 @@ const LessonPage = () => {
   const handleOptionSelect = useCallback(
     (option: string) => {
       // Prevent further selection after the first choice
-      if (selectedOption !== null) return;
+      // if (selectedOption !== null) return;
       setShowFeedback(false);
       dispatch(resetAnswerState());
       setSelectedOption(String(option));
