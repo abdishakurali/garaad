@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronRight, X } from "lucide-react";
 import ExplanationModal from "./ExplanationModal";
+import BugReportButton from "./BugRepportButton";
 
 interface AnswerFeedbackProps {
   currentLesson: Lesson | null;
@@ -156,6 +157,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = React.memo(
                 >
                   Sharaxaad
                 </Button>
+                <BugReportButton />
                 <Button
                   size="lg"
                   variant={isCorrect ? "default" : "secondary"}

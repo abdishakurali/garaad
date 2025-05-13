@@ -5,6 +5,7 @@ import { inter } from "@/lib/fonts";
 import ClientLayout from "./client-layout";
 import { Analytics } from "@vercel/analytics/react";
 import { Providers } from "./providers";
+import ShakeInitializer from "@/components/ShakeInitializer";
 
 export const metadata: Metadata = {
   title: {
@@ -196,6 +197,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <ClientLayout>
+            {/* <ShakeInitializer /> */}
             {children}
             <Toaster />
           </ClientLayout>
