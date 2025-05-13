@@ -197,7 +197,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <ClientLayout>
-            {/* <ShakeInitializer /> */}
+            <ShakeInitializer />
             {children}
             <Toaster />
           </ClientLayout>

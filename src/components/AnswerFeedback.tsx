@@ -31,13 +31,14 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = React.memo(
   }) => {
     const dispatch = useDispatch();
     const [showExplanation, setShowExplanation] = useState(false);
+    const [isReportingBug, setIsReportingBug] = useState(false);
 
     // Memoize the sorted blocks and last question check
     const { isLastQuestion } = useMemo(() => {
       const sortedBlocks = currentLesson?.content_blocks
         ? [...currentLesson.content_blocks].sort(
-            (a, b) => (a.order || 0) - (b.order || 0)
-          )
+          (a, b) => (a.order || 0) - (b.order || 0)
+        )
         : [];
 
       const problemBlockIndex = sortedBlocks.findIndex(
@@ -82,6 +83,8 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = React.memo(
       [isCorrect, isLastQuestion, handleContinueClick, onResetAnswer]
     );
 
+    if (isReportingBug) return null;
+
     return (
       <>
         <AnimatePresence>
@@ -94,7 +97,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = React.memo(
                 image: explanationData?.image || "",
                 type:
                   explanationData?.type === "markdown" ||
-                  explanationData?.type === "latex"
+                    explanationData?.type === "latex"
                     ? explanationData.type
                     : "markdown",
               }}
@@ -157,7 +160,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = React.memo(
                 >
                   Sharaxaad
                 </Button>
-                <BugReportButton />
+
                 <Button
                   size="lg"
                   variant={isCorrect ? "default" : "secondary"}
@@ -173,6 +176,10 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = React.memo(
                   {feedbackContent.continueText}
                   <ChevronRight className="h-5 w-5" />
                 </Button>
+                <div className="flex flex-col items-center">
+                  <BugReportButton setIsReportingBug={setIsReportingBug} />
+
+                </div>
               </div>
             </div>
           </div>
