@@ -13,12 +13,12 @@ export function middleware(request: NextRequest) {
     path.startsWith("/api/auth");
 
   // Get the token from the cookies
-  const token = request.cookies.get("token")?.value || "";
+  const token = request.cookies.get("accessToken")?.value || "";
 
   // Redirect logic
   if (isPublicPath && token && path === "/") {
     // Only redirect from welcome to dashboard if user is logged in
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/courses", request.url));
   }
 
   if (!isPublicPath && !token) {
