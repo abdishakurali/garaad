@@ -320,11 +320,10 @@ export default function CoursesPage() {
                             key={course.id}
                             id={courseId}
                             ref={(el) => registerCourseRef(courseId, el)}
-                            className={`${
-                              isActive
+                            className={`${isActive
                                 ? "scale-105 ring-2 ring-primary ring-offset-2"
                                 : ""
-                            } transition-all duration-300`}
+                              } transition-all duration-300`}
                             onClick={() =>
                               course.is_published &&
                               handleCourseSelect(category.id, course.id)

@@ -16,6 +16,7 @@ import ModuleZigzag from "@/components/learning/ui/ModuleZigzag";
 import { CourseProgress } from "@/components/learning/CourseProgress";
 import { Module } from "@/types/learning";
 import { progressService, UserProgress } from "@/services/progress";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const defaultCourseImage = "/images/placeholder-course.svg";
 
@@ -113,98 +114,100 @@ export default function CourseDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="max-w-6xl mx-auto p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Column: Course Info */}
-          <div className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md border-gray-200 md:sticky md:top-10">
-            {/* Detached Icon/Image */}
-            <div className="flex mb-6 border-border border-2 px-4 py-2 rounded-md w-fit">
-              <div className="relative w-16 h-16">
-                <Image
-                  src={currentCourse.thumbnail || defaultCourseImage}
-                  alt={currentCourse.title}
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
-
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {currentCourse.title}
-            </h2>
-
-            {/* Progress */}
-            <CourseProgress progress={completedPercentage} />
-
-            {/* Description */}
-            <p className="text-sm text-gray-600 mb-6">
-              {currentCourse.description}
-            </p>
-
-            {/* Stats Row */}
-            <div className="flex justify-start gap-6 text-sm text-gray-700">
-              <div className="flex items-center gap-1">
-                <span>📘</span>
-                <span>
-                  {currentCourse.modules?.flatMap((m) => m.lessons).length || 0}{" "}
-                  casharo
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span>🧩</span>
-                <span>{currentCourse.estimatedHours} waydiimo</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Enhanced Learning Path */}
-          <div className="relative">
-            <div className="space-y-12">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">Naqshada Barashada</h2>
-              </div>
-
-              <div className="relative flex flex-col items-center gap-12">
-                {/* Connecting line */}
-                {/* <div className="absolute w-1 h-full bg-gradient-to-b from-blue-200 to-transparent left-1/2 -translate-x-1/2 z-0" /> */}
-
-                {/* {(currentCourse?.modules ?? []).map(
-                  (module: Module, index: number) => (
-                    <div key={module.id} className="relative z-10">
-                    
-                      <div className="relative hover:scale-[1.02] transition-transform duration-300 translate-y-12">
-                        <ModuleZigzag
-                          modules={[module]}
-                          activeModuleId={activeModuleId}
-                          onModuleClick={handleModuleClick}
-                        />
-                        
-                        {index < (currentCourse.modules?.length ?? 0) - 1 && (
-                          <div className="absolute left-1/2 bottom-0 translate-y-24 -translate-x-1/2 text-blue-500">
-                            <ChevronRight className="w-8 h-8 animate-bounce" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                )} */}
-
-                {currentCourse?.modules && (
-                  <ModuleZigzag
-                    modules={currentCourse.modules}
-                    activeModuleId={activeModuleId}
-                    onModuleClick={handleModuleClick}
+      <ProtectedRoute>
+        <div className="max-w-6xl mx-auto p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Left Column: Course Info */}
+            <div className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white rounded-xl shadow-md border-gray-200 md:sticky md:top-10">
+              {/* Detached Icon/Image */}
+              <div className="flex mb-6 border-border border-2 px-4 py-2 rounded-md w-fit">
+                <div className="relative w-16 h-16">
+                  <Image
+                    src={currentCourse.thumbnail || defaultCourseImage}
+                    alt={currentCourse.title}
+                    fill
+                    className="object-contain"
+                    priority
                   />
-                )}
+                </div>
+              </div>
+
+              {/* Title */}
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {currentCourse.title}
+              </h2>
+
+              {/* Progress */}
+              <CourseProgress progress={completedPercentage} />
+
+              {/* Description */}
+              <p className="text-sm text-gray-600 mb-6">
+                {currentCourse.description}
+              </p>
+
+              {/* Stats Row */}
+              <div className="flex justify-start gap-6 text-sm text-gray-700">
+                <div className="flex items-center gap-1">
+                  <span>📘</span>
+                  <span>
+                    {currentCourse.modules?.flatMap((m) => m.lessons).length || 0}{" "}
+                    casharo
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>🧩</span>
+                  <span>{currentCourse.estimatedHours} waydiimo</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Enhanced Learning Path */}
+            <div className="relative">
+              <div className="space-y-12">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold mb-4">Naqshada Barashada</h2>
+                </div>
+
+                <div className="relative flex flex-col items-center gap-12">
+                  {/* Connecting line */}
+                  {/* <div className="absolute w-1 h-full bg-gradient-to-b from-blue-200 to-transparent left-1/2 -translate-x-1/2 z-0" /> */}
+
+                  {/* {(currentCourse?.modules ?? []).map(
+                    (module: Module, index: number) => (
+                      <div key={module.id} className="relative z-10">
+                      
+                        <div className="relative hover:scale-[1.02] transition-transform duration-300 translate-y-12">
+                          <ModuleZigzag
+                            modules={[module]}
+                            activeModuleId={activeModuleId}
+                            onModuleClick={handleModuleClick}
+                          />
+                          
+                          {index < (currentCourse.modules?.length ?? 0) - 1 && (
+                            <div className="absolute left-1/2 bottom-0 translate-y-24 -translate-x-1/2 text-blue-500">
+                              <ChevronRight className="w-8 h-8 animate-bounce" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  )} */}
+
+                  {currentCourse?.modules && (
+                    <ModuleZigzag
+                      modules={currentCourse.modules}
+                      activeModuleId={activeModuleId}
+                      onModuleClick={handleModuleClick}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </ProtectedRoute>
     </div>
   );
 }
