@@ -20,7 +20,7 @@ export const ProfileDropdown: React.FC = () => {
 
     authService.logout();
     dispatch(logoutAction());
-    router.push("/welcome");
+    router.push("/");
     setIsOpen(false);
   };
 
