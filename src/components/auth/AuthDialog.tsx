@@ -88,7 +88,11 @@ export function AuthDialog() {
   // Show toast when error changes
   useEffect(() => {
     if (error) {
-
+      toast({
+        variant: "destructive",
+        title: "Khalad ayaa dhacay",
+        description: error,
+      });
       dispatch(clearError());
     }
   }, [error, toast, dispatch]);
@@ -100,6 +104,10 @@ export function AuthDialog() {
           login({ email: values.email, password: values.password })
         );
         if (result) {
+          toast({
+            title: "Waad mahadsantahay!",
+            description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
+          });
           router.push("/courses");
         }
       } else {
@@ -107,24 +115,31 @@ export function AuthDialog() {
           email: values.email,
           password: values.password,
           name: values.email.split("@")[0],
-          // last_name: values.email.split("@")[0],
-          age: 18, // Default age
+          age: 18,
           onboarding_data: {
-            goal: "learn_math", // Default goal
-            learning_approach: "self_paced", // Default learning approach
-            topic: "general_math", // Default topic
-            math_level: "beginner", // Default math level
-            minutes_per_day: 30, // Default minutes per day
+            goal: "learn_math",
+            learning_approach: "self_paced",
+            topic: "general_math",
+            math_level: "beginner",
+            minutes_per_day: 30,
           },
-          // profile is optional, so we don't need to include it
         };
         const result = await dispatch(signup(signupData));
         if (result) {
+          toast({
+            title: "Waad mahadsantahay!",
+            description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
+          });
           router.push("/courses");
         }
       }
     } catch (error) {
       console.error("Auth error:", error);
+      toast({
+        variant: "destructive",
+        title: "Khalad ayaa dhacay",
+        description: "Fadlan isku day mar kale.",
+      });
     }
   };
 

@@ -547,7 +547,11 @@ export default function Page() {
         !userData.password.trim() ||
         !userData.age.trim()
       ) {
-
+        toast({
+          variant: "destructive",
+          title: "Khalad ayaa dhacay",
+          description: "Fadlan buuxi dhammaan xogta",
+        });
         return;
       }
 
@@ -572,45 +576,51 @@ export default function Page() {
           goal: String(selections[0]).trim(),
           learning_approach: String(selections[1]).trim(),
           topic: String(selections[2]).trim(),
-          math_level: String(selections[3]).trim(), // Add math_level
-          topic_levels: topicLevels, // Include all topic-specific levels
+          math_level: String(selections[3]).trim(),
+          topic_levels: topicLevels,
           minutes_per_day: Number.parseInt(String(selections[4]).split(" ")[0]),
         },
       };
 
-      console.log("Submitting signup data:", signUpData);
-
       // Use Redux for signup
       const result = await dispatch(signup(signUpData));
 
-      console.log(result);
-
       if (result) {
-        console.log("Signup successful");
-
+        toast({
+          title: "Waad mahadsantahay!",
+          description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
+        });
         router.push(`/verify-email?email=${userData.email}`);
       }
-    } catch (error: any) {
-      console.log("Submission failed:", error.response);
+    } catch (error: unknown) {
+      console.log("Submission failed:", error);
       let errorMessage = "Wax khalad ah ayaa dhacay";
-      // Axios/fetch error with response
-      if (error?.response) {
-        const backendError = error.response.data?.error;
-        const status = error.response.status;
-        if (
-          status === 400 &&
-          (backendError === "Email already exists" ||
-            backendError === "Username already exists")
-        ) {
-          errorMessage =
-            "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
-        } else if (backendError) {
-          errorMessage = backendError;
-        } else if (error.response.data?.detail) {
-          errorMessage = error.response.data.detail;
+
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorResponse = error.response as {
+          data?: {
+            error?: string;
+            detail?: string;
+          };
+          status?: number;
+        };
+
+        if (errorResponse.status === 400 &&
+          (errorResponse.data?.error === "Email already exists" ||
+            errorResponse.data?.error === "Username already exists")) {
+          errorMessage = "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
+        } else if (errorResponse.data?.error) {
+          errorMessage = errorResponse.data.error;
+        } else if (errorResponse.data?.detail) {
+          errorMessage = errorResponse.data.detail;
         }
       }
 
+      toast({
+        variant: "destructive",
+        title: "Khalad ayaa dhacay",
+        description: errorMessage,
+      });
     }
   };
 
