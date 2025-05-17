@@ -125,7 +125,7 @@ function HeroSection() {
                   <Calculator className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex items-center gap-2 text-gray-600">
-                  <Code className="w-5 h-5 text-primary " />
+                  <Code className="w-5 h-5 text-primary" />
                 </div>
               </div>
 
