@@ -43,7 +43,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 </p>
                 <button
                   onClick={this.handleReload}
-                  className="mt-4 px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/50 focus:outline-none focus:ring-2 focus:ring-1 focus:ring-offset-2"
+                  className="mt-4 px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/50 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 >
                   Dib u cusbooneysii bogga
                 </button>

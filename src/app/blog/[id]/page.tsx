@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import {
   getBlogPageById,
   getBlogPages,
@@ -10,8 +10,17 @@ import { RichTextRenderer } from "@/components/RichTextRenderer";
 import { notFound } from "next/navigation";
 import { SharePost } from "@/components/SharePost";
 import { Header } from "@/components/Header";
+import { Button } from "@/components/ui/button";
 
-// 1️⃣ SEO metadata
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat("so-SO", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
+// SEO metadata
 export async function generateMetadata({
   params,
 }: {
@@ -49,19 +58,19 @@ export async function generateMetadata({
       description,
       images: ogUrl
         ? [
-          {
-            url: ogUrl,
-            width: 1200,
-            height: 630,
-            alt: typeof title === "string" ? title : "",
-          },
-        ]
+            {
+              url: ogUrl,
+              width: 1200,
+              height: 630,
+              alt: typeof title === "string" ? title : "",
+            },
+          ]
         : [],
     },
   };
 }
 
-// 2️⃣ Static params
+// Static params
 export async function generateStaticParams() {
   const posts = await getBlogPages();
   return posts.map((post) => ({ id: post.sys.id }));
@@ -79,16 +88,15 @@ interface RecommendedPost {
   fields: RecommendedPostFields;
 }
 
-// 3️⃣ Page component
-// 3️⃣ Page component
+// Page component
 export default async function BlogPageById({
   params,
 }: {
-  params: Promise<{ id: string }>; // 🔑 Promise here too
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params; // 🔑 pull out id
+  const { id } = await params;
   if (!id) notFound();
-  const post = await getBlogPageById((await params).id);
+  const post = await getBlogPageById(id);
 
   if (!post) notFound();
 
@@ -109,32 +117,62 @@ export default async function BlogPageById({
   const alt =
     image && image.fields && "title" in image.fields
       ? (typeof (image.fields as { title?: unknown }).title === "string"
-        ? (image.fields as { title?: string }).title
-        : undefined) ?? (typeof title === "string" ? title : "")
+          ? (image.fields as { title?: string }).title
+          : undefined) ?? (typeof title === "string" ? title : "")
       : typeof title === "string"
-        ? title
-        : "";
+      ? title
+      : "";
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Header />
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <Link
-            href="/blog"
-            className="inline-flex items-center text-muted-foreground mb-8 hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            ku laabo bogga hore
-          </Link>
 
-          <article className="max-w-3xl mx-auto">
-            <header className="mb-12 text-center">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 relative inline-block">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-6xl mx-auto">
+          {/* Back navigation */}
+          <Button
+            asChild
+            variant="ghost"
+            className="group mb-8 hover:bg-slate-100 transition-all duration-200"
+          >
+            <Link
+              href="/blog"
+              className="inline-flex items-center text-slate-600"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              <span>Ku laabo bogga hore</span>
+            </Link>
+          </Button>
+
+          <article>
+            {/* Featured image */}
+            {src && (
+              <div className="relative aspect-[21/9] w-full mb-8 rounded-2xl overflow-hidden shadow-xl">
+                <Image
+                  alt={alt || ""}
+                  src={src || "/placeholder.svg"}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 800px"
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+            )}
+
+            {/* Article header */}
+            <header className="mb-12">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900 leading-tight relative inline-block">
                 {typeof title === "string" ? title : ""}
                 <div className="absolute -bottom-2 left-0 right-0 h-1 bg-primary/20 rounded-full transform -skew-x-12" />
               </h1>
-              <div className="flex items-center justify-center gap-4 text-muted-foreground mb-4">
+
+              <div className="flex flex-wrap items-center gap-6 text-slate-500 mb-4">
+                {post.sys.createdAt && (
+                  <div className="flex items-center">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    <span>{formatDate(new Date(post.sys.createdAt))}</span>
+                  </div>
+                )}
                 <div className="flex items-center">
                   <Clock className="mr-2 h-4 w-4" />
                   <span>{readingTime} daq ku akhri</span>
@@ -146,53 +184,47 @@ export default async function BlogPageById({
               </div>
             </header>
 
-            {src && (
-              <div className="relative h-[400px] w-full mb-12 rounded-lg overflow-hidden shadow-lg">
-                <Image
-                  alt={alt || ""}
-                  src={src || "/placeholder.svg"}
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 800px"
-                  className="object-cover"
-                />
-              </div>
-            )}
-
-            <div className="prose prose-lg dark:prose-invert max-w-none mb-16 bg-white p-8 rounded-lg shadow-sm">
+            {/* Article content */}
+            <div className="prose prose-lg max-w-none mb-16 p-8 sm:p-10 prose-headings:text-slate-800 prose-p:text-slate-600 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl">
               {RichTextRenderer.render(body)}
             </div>
 
+            {/* Recommended posts */}
             {(safeRecommendedPosts?.length ?? 0) > 0 && (
-              <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
-                <h2 className="text-2xl font-semibold mb-6 relative inline-block">
+              <section className="mt-16 bg-white p-8 sm:p-10 rounded-2xl shadow-sm">
+                <h2 className="text-2xl font-semibold mb-8 text-slate-800 border-b pb-4">
                   Wararka la xiriira
-                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary/20 rounded-full" />
                 </h2>
-                <ul className="space-y-4">
+                <ul className="grid gap-4 sm:grid-cols-2">
                   {Array.isArray(safeRecommendedPosts)
                     ? safeRecommendedPosts.map((entry) => {
-                      const post = entry as RecommendedPost;
-                      const fields = post.fields;
-                      const id = post.sys.id;
-                      return (
-                        <li key={id}>
-                          <Link
-                            href={`/blog/${id}`}
-                            className="text-lg font-medium text-primary hover:underline"
-                          >
-                            {fields.title || "Untitled"}
-                          </Link>
-                        </li>
-                      );
-                    })
+                        const post = entry as RecommendedPost;
+                        const fields = post.fields;
+                        const id = post.sys.id;
+                        return (
+                          <li key={id} className="group">
+                            <Link
+                              href={`/blog/${id}`}
+                              className="block p-4 rounded-xl transition-all duration-200 hover:bg-slate-50 group-hover:shadow-sm"
+                            >
+                              <h3 className="text-lg font-medium text-slate-800 group-hover:text-primary transition-colors">
+                                {fields.title || "Untitled"}
+                              </h3>
+                              <div className="mt-2 flex items-center text-sm text-slate-500">
+                                <ArrowLeft className="mr-2 h-3 w-3 rotate-180 transition-transform group-hover:translate-x-1" />
+                                <span>Read article</span>
+                              </div>
+                            </Link>
+                          </li>
+                        );
+                      })
                     : null}
                 </ul>
               </section>
             )}
           </article>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
