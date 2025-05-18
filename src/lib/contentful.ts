@@ -14,6 +14,7 @@ export interface BlogPageFields {
   body?: any; // RichText content
   image?: ContentfulImage;
   recommendedPosts?: Entry<any>[]; // Linked entries
+  slug?: string;
 }
 
 export type BlogPageSkeleton = {
@@ -51,6 +52,55 @@ export async function getBlogPageById(id: string): Promise<BlogPage | null> {
     return entry as BlogPage;
   } catch (error) {
     console.error(`Error fetching blog page with ID "${id}":`, error);
+    return null;
+  }
+}
+
+/**
+ * Converts a string to a URL-friendly slug
+ */
+export function createSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .trim(); // Remove leading/trailing spaces
+}
+
+/**
+ * Fetches a single BlogPage entry by its slug.
+ * @param slug The slug of the BlogPage entry.
+ */
+export async function getBlogPageBySlug(
+  slug: string
+): Promise<BlogPage | null> {
+  try {
+    const response = await client.getEntries<BlogPageSkeleton>({
+      content_type: "blogPage",
+      include: 2,
+      ...({ ["fields.slug"]: slug } as any),
+    } as any);
+
+    return (response.items[0] as BlogPage) || null;
+  } catch (error) {
+    console.error(`Error fetching blog page with slug "${slug}":`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetches a single BlogPage entry by its title.
+ * @param title The title of the BlogPage entry.
+ */
+export async function getBlogPageByTitle(
+  title: string
+): Promise<BlogPage | null> {
+  try {
+    const slug = createSlug(title);
+    return await getBlogPageBySlug(slug);
+  } catch (error) {
+    console.error(`Error fetching blog page with title "${title}":`, error);
     return null;
   }
 }

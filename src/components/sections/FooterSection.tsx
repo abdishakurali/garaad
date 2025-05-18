@@ -4,7 +4,7 @@ export function FooterSection() {
   const navigation = {
     product: [
       { name: "Koorsooyin", href: "/courses" },
-      { name: "Wargeys", href: "/blog" },
+      { name: "Wargeys", href: "/wargeys" },
 
     ],
     company: [

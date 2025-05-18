@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import {
-  getBlogPageById,
+  getBlogPageBySlug,
   getBlogPages,
   estimateReadingTime,
+  createSlug,
+  type BlogPage,
 } from "@/lib/contentful";
 import { RichTextRenderer } from "@/components/RichTextRenderer";
 import { notFound } from "next/navigation";
@@ -24,9 +26,9 @@ function formatDate(date: Date): string {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const post = await getBlogPageById((await params).id);
+  const post = await getBlogPageBySlug((await params).slug);
 
   if (!post) {
     return {
@@ -58,13 +60,13 @@ export async function generateMetadata({
       description,
       images: ogUrl
         ? [
-            {
-              url: ogUrl,
-              width: 1200,
-              height: 630,
-              alt: typeof title === "string" ? title : "",
-            },
-          ]
+          {
+            url: ogUrl,
+            width: 1200,
+            height: 630,
+            alt: typeof title === "string" ? title : "",
+          },
+        ]
         : [],
     },
   };
@@ -73,7 +75,10 @@ export async function generateMetadata({
 // Static params
 export async function generateStaticParams() {
   const posts = await getBlogPages();
-  return posts.map((post) => ({ id: post.sys.id }));
+  return posts.map((post: any) => {
+    const title = typeof post.fields.title === 'string' ? post.fields.title : "Untitled Post";
+    return { slug: createSlug(title) };
+  });
 }
 
 interface RecommendedPostFields {
@@ -89,14 +94,27 @@ interface RecommendedPost {
 }
 
 // Page component
-export default async function BlogPageById({
+export default async function BlogPageBySlug({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id } = await params;
-  if (!id) notFound();
-  const post = await getBlogPageById(id);
+  const { slug } = await params;
+  if (!slug) notFound();
+
+  // Try to get post by slug
+  let post = await getBlogPageBySlug(slug);
+  if (!post) {
+    // If not found by slug, try to find by title
+    const posts = await getBlogPages();
+    const matchingPost = posts.find((p: any) => {
+      const title = typeof p.fields.title === 'string' ? p.fields.title : "";
+      return createSlug(title) === slug;
+    });
+    if (matchingPost) {
+      post = matchingPost;
+    }
+  }
 
   if (!post) notFound();
 
@@ -117,11 +135,11 @@ export default async function BlogPageById({
   const alt =
     image && image.fields && "title" in image.fields
       ? (typeof (image.fields as { title?: unknown }).title === "string"
-          ? (image.fields as { title?: string }).title
-          : undefined) ?? (typeof title === "string" ? title : "")
+        ? (image.fields as { title?: string }).title
+        : undefined) ?? (typeof title === "string" ? title : "")
       : typeof title === "string"
-      ? title
-      : "";
+        ? title
+        : "";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -198,26 +216,27 @@ export default async function BlogPageById({
                 <ul className="grid gap-4 sm:grid-cols-2">
                   {Array.isArray(safeRecommendedPosts)
                     ? safeRecommendedPosts.map((entry) => {
-                        const post = entry as RecommendedPost;
-                        const fields = post.fields;
-                        const id = post.sys.id;
-                        return (
-                          <li key={id} className="group">
-                            <Link
-                              href={`/blog/${id}`}
-                              className="block p-4 rounded-xl transition-all duration-200 hover:bg-slate-50 group-hover:shadow-sm"
-                            >
-                              <h3 className="text-lg font-medium text-slate-800 group-hover:text-primary transition-colors">
-                                {fields.title || "Untitled"}
-                              </h3>
-                              <div className="mt-2 flex items-center text-sm text-slate-500">
-                                <ArrowLeft className="mr-2 h-3 w-3 rotate-180 transition-transform group-hover:translate-x-1" />
-                                <span>Read article</span>
-                              </div>
-                            </Link>
-                          </li>
-                        );
-                      })
+                      const post = entry as RecommendedPost;
+                      const fields = post.fields;
+                      const title = fields.title || "Untitled Post";
+                      const postSlug = createSlug(title);
+                      return (
+                        <li key={post.sys.id} className="group">
+                          <Link
+                            href={`/wargeys/${postSlug}`}
+                            className="block p-4 rounded-xl transition-all duration-200 hover:bg-slate-50 group-hover:shadow-sm"
+                          >
+                            <h3 className="text-lg font-medium text-slate-800 group-hover:text-primary transition-colors">
+                              {fields.title || "Untitled"}
+                            </h3>
+                            <div className="mt-2 flex items-center text-sm text-slate-500">
+                              <ArrowLeft className="mr-2 h-3 w-3 rotate-180 transition-transform group-hover:translate-x-1" />
+                              <span>Read article</span>
+                            </div>
+                          </Link>
+                        </li>
+                      );
+                    })
                     : null}
                 </ul>
               </section>

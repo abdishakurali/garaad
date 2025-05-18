@@ -12,7 +12,7 @@ import {
   Search,
 } from "lucide-react";
 import { SharePost } from "@/components/SharePost";
-import { getBlogPages } from "@/lib/contentful";
+import { getBlogPages, createSlug, type BlogPage } from "@/lib/contentful";
 import { Header } from "@/components/Header";
 import { Input } from "@/components/ui/input";
 
@@ -73,18 +73,18 @@ export default async function BlogListPage() {
   };
 
   // Function to render a post card
-  const renderPostCard = (post: any) => {
+  const renderPostCard = (post: BlogPage) => {
     const fields = post.fields as PostFields;
+    const title = fields.title || "Untitled Post";
+    const slug = createSlug(title);
+    const href = `/wargeys/${slug}`;
 
     const readingTime = fields.body
       ? Math.max(
-          1,
-          Math.ceil(JSON.stringify(fields.body).split(/\s+/).length / 200)
-        )
+        1,
+        Math.ceil(JSON.stringify(fields.body).split(/\s+/).length / 200)
+      )
       : 1;
-
-    const slug = post.sys.id;
-    const href = `/blog/${slug ?? ""}`;
 
     const imageFields = (fields.image?.fields ?? {}) as ImageFields;
     const rawUrl = imageFields.file?.url ?? "";
