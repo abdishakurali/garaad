@@ -240,6 +240,7 @@ export default function CoursesPage() {
                         onClick={(e) => {
                           if (!course.is_published) {
                             e.preventDefault();
+                            window.location.reload();
                             return;
                           }
                           handleCourseSelect(category.id, course.id);
