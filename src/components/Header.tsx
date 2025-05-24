@@ -8,10 +8,82 @@ import { ProfileDropdown } from "./layout/ProfileDropdown";
 import { usePathname } from "next/navigation";
 import { FolderDot, Home } from "lucide-react";
 import clsx from "clsx";
+import StreakDisplay from "./StreakDisplay";
+import { useUserStreak } from "@/hooks/useApi";
+import { useEffect, useState } from "react";
+import AuthService from "@/services/auth";
+import axios from "axios";
+
+interface Energy {
+  current: number;
+  max: number;
+  next_update: string;
+}
+
+interface DailyActivity {
+  date: string;
+  day: string;
+  status: "none" | "partial" | "complete";
+  problems_solved: number;
+  lesson_ids: string[];
+  isToday: boolean;
+}
+
+interface StreakData {
+  userId: string;
+  username: string;
+  current_streak: number;
+  max_streak: number;
+  lessons_completed: number;
+  problems_to_next_streak: number;
+  energy: Energy;
+  daily_activity: DailyActivity[];
+}
 
 export function Header() {
+  const [streakData, setStreakData] = useState<StreakData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const user = useSelector(selectCurrentUser);
   const pathname = usePathname();
+
+  // const { streak, isLoading, isError } = useUserStreak();
+
+  // console.log("user:", user);
+  console.log("streak:", streakData);
+
+  const fetchStreakData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const authService = AuthService.getInstance();
+      const token = authService.getToken();
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/streaks/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setStreakData(response.data);
+      setLoading(false);
+      console.log(response.data);
+      console.log(response.data.username);
+    } catch (err) {
+      console.error("Error fetching streak data:", err);
+      setError("Failed to load streak data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStreakData();
+  }, []);
 
   const navLinks = user
     ? [
@@ -53,6 +125,14 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
+          {user && (
+            <StreakDisplay
+              loading={loading}
+              error={error}
+              streakData={streakData}
+            />
+          )}
+
           {user ? <ProfileDropdown /> : <AuthDialog />}
         </div>
       </div>

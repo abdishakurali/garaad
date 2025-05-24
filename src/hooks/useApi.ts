@@ -169,3 +169,21 @@ export function useUserRewards(lessonId?: string) {
     mutate,
   };
 }
+
+// User Streak
+export function useUserStreak() {
+  const { data, error, isLoading, mutate } = useSWR(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/streaks/`,
+    fetcher,
+    swrConfig
+  );
+
+  console.log("streak:", data);
+
+  return {
+    streak: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}

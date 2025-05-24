@@ -1,6 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import { useUserStreak } from "@/hooks/useApi";
+import LessonStreak from "./LessonStreak";
+import AuthService from "@/services/auth";
+import axios from "axios";
 
 interface LessonHeaderProps {
   currentQuestion: number;
@@ -8,14 +12,77 @@ interface LessonHeaderProps {
   coursePath: string;
 }
 
+interface Energy {
+  current: number;
+  max: number;
+  next_update: string;
+}
+
+interface DailyActivity {
+  date: string;
+  day: string;
+  status: "none" | "partial" | "complete";
+  problems_solved: number;
+  lesson_ids: string[];
+  isToday: boolean;
+}
+
+interface StreakData {
+  userId: string;
+  username: string;
+  current_streak: number;
+  max_streak: number;
+  lessons_completed: number;
+  problems_to_next_streak: number;
+  energy: Energy;
+  daily_activity: DailyActivity[];
+}
+
 const LessonHeader: React.FC<LessonHeaderProps> = ({
   currentQuestion,
   totalQuestions,
   coursePath,
 }) => {
+  const [streakData, setStreakData] = useState<StreakData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const activeDotRef = useRef<HTMLDivElement>(null);
+  // const { streak, isLoading, isError } = useUserStreak();
+
+  const fetchStreakData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const authService = AuthService.getInstance();
+      const token = authService.getToken();
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/streaks/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setStreakData(response.data);
+      setLoading(false);
+      console.log(response.data);
+      console.log(response.data.username);
+    } catch (err) {
+      console.error("Error fetching streak data:", err);
+      setError("Failed to load streak data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStreakData();
+  }, []);
 
   // Whenever currentQuestion changes, scroll the active dot into view
   useEffect(() => {
@@ -91,6 +158,9 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
             );
           })}
         </div>
+
+        {/* Streak display */}
+        <LessonStreak streakData={streakData} loading={loading} error={error} />
 
         {/* Right spacer */}
         <div className="w-10" />

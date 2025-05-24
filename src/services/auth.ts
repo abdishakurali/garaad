@@ -72,6 +72,10 @@ export interface SignInResponse {
   user: User;
   refresh: string;
   access: string;
+  tokens: {
+    refresh: string;
+    access: string;
+  };
 }
 
 interface JWTPayload {
@@ -240,9 +244,9 @@ class AuthService {
       console.log("Sign in response:", response.data);
 
       // Store tokens and user data
-      if (response.data.refresh && response.data.access) {
+      if (response.data.tokens.refresh && response.data.tokens.access) {
         console.log("Storing tokens from signin response");
-        const { access, refresh } = response.data;
+        const { access, refresh } = response.data.tokens;
 
         this.setTokens(access, refresh);
         // Store user data
