@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -12,7 +11,6 @@ import {
 import { Zap } from "lucide-react";
 import AuthService from "@/services/auth";
 
-// Define types based on the API documentation
 interface Energy {
   current: number;
   max: number;
@@ -36,13 +34,15 @@ interface StreakData {
   lessons_completed: number;
   problems_to_next_streak: number;
   energy: Energy;
-  daily_activity: DailyActivity[];
+  dailyActivity: DailyActivity[];
+  xp: number;
+  daily_xp: number;
 }
 
 interface StreakDisplayProps {
   loading: boolean;
   streakData: StreakData | null;
-  error: string | null;
+  error: string | Error | null;
 }
 
 export default function StreakDisplay({
@@ -51,39 +51,24 @@ export default function StreakDisplay({
   error,
 }: StreakDisplayProps) {
   const [open, setOpen] = useState(false);
-  // const [streakData, setStreakData] = useState<StreakData | null>(null);
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Check authentication on component mount
+  console.log("STREAKDISPLAY", streakData)
+
   useEffect(() => {
     const authService = AuthService.getInstance();
     if (!authService.isAuthenticated()) router.push("/");
   }, [router]);
 
-  // Fetch streak data when the popup is opened
-  // useEffect(() => {
-  //   if (open && !streakData) {
-  //     fetchStreakData();
-  //   }
-  // }, [open, streakData]);
-
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    // Reset error when closing
-    if (!newOpen) {
-      // setError(null);
-    }
   };
-
-  console.log("steak =====", streakData?.current_streak);
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button className="font-medium rounded-xl" variant={"outline"}>
-          {streakData?.current_streak}
+          {streakData?.current_streak ?? 0}
           <Zap />
         </Button>
       </PopoverTrigger>
@@ -101,11 +86,12 @@ export default function StreakDisplay({
           </div>
         ) : error ? (
           <div className="text-center py-6">
-            <p className="text-red-500 text-sm mb-3">{error}</p>
+            <p className="text-red-500 text-sm mb-3">
+              {error instanceof Error ? error.message : String(error)}
+            </p>
           </div>
         ) : streakData ? (
           <div className="space-y-4">
-            {/* Header with streak count and energy */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-3xl font-bold">
@@ -133,15 +119,13 @@ export default function StreakDisplay({
               </div>
             </div>
 
-            {/* Progress message */}
             <p className="text-xs text-gray-600">
               Xalli ugu yaraan {streakData.problems_to_next_streak} waydiimood
               saad u sameysatid streak.
             </p>
 
-            {/* Daily activity */}
             <div className="flex justify-between">
-              {streakData?.daily_activity?.slice(-7).map((activity, index) => {
+              {streakData.dailyActivity.slice(-7).map((activity, index) => {
                 const isComplete = activity.status === "complete";
                 return (
                   <div key={index} className="flex flex-col items-center">
@@ -162,7 +146,6 @@ export default function StreakDisplay({
               })}
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 bg-gray-50 rounded-md overflow-hidden">
               <div className="p-3 text-center border-r border-gray-200">
                 <div className="text-lg font-bold">{streakData.max_streak}</div>

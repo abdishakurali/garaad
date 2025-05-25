@@ -36,7 +36,9 @@ interface StreakData {
   lessons_completed: number;
   problems_to_next_streak: number;
   energy: Energy;
-  daily_activity: DailyActivity[];
+  dailyActivity: DailyActivity[];
+  xp: number;
+  daily_xp: number;
 }
 
 // SWR fetcher function with authentication
