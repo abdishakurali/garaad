@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { useUserStreak } from "@/hooks/useApi";
 import LessonStreak from "./LessonStreak";
 import AuthService from "@/services/auth";
 import axios from "axios";

@@ -110,9 +110,8 @@ const TextBlock: React.FC<{
                   {content.features?.map((feature, idx) => (
                     <tr
                       key={idx}
-                      className={`border-b last:border-0 ${
-                        idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      } hover:bg-blue-50 transition-colors`}
+                      className={`border-b last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        } hover:bg-blue-50 transition-colors`}
                     >
                       <td className="px-6 py-4 text-sm font-bold text-gray-800">
                         {feature.title}
