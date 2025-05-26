@@ -1044,10 +1044,6 @@ const LessonPage = () => {
     );
   }
 
-  if (isLessonCompleted) {
-    <ShareLesson lessonTitle={currentLesson?.title || "Lesson"} />;
-  }
-
   // Show rewards after completion
   if (showRewards) {
     if (isStreakLoading || isLeagueLoading || isLeaderboardLoading) {
@@ -1065,6 +1061,7 @@ const LessonPage = () => {
           onContinue={handleContinueAfterRewards}
           streak={streakData}
           leaderboard={leagueLeaderboard}
+          completedLesson={currentLesson.title}
         />
       );
     }
@@ -1074,7 +1071,7 @@ const LessonPage = () => {
 
   // Show navigating state
   if (navigating) {
-    return <LoadingSpinner message="ku laabanaya koordooyinks..." />;
+    return <LoadingSpinner message="ku laabanaya koordooyinka..." />;
   }
 
   // Render the main lesson page

@@ -145,7 +145,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                 </div>
 
                 {isCorrect && (
-                  <div className=" py-2 px-1.5 font-bold rounded-md bg-[#8ef53f42] flex items-center gap-2">
+                  <div className=" py-2 px-1.5 font-bold text-sm rounded-md bg-[#8ef53f42] flex items-center gap-2">
                     <BadgeCheck className="text-green-400" size={17} />+ {xp}{" "}
                     dhibco
                   </div>

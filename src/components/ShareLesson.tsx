@@ -18,19 +18,39 @@ const Watermark = () => (
     style={{ objectFit: "contain" }}
   >
     <g>
-      <path d="M106.883 387.394V395.569H162.201V387.394L138.493 368.318H122.272L106.883 387.394Z" fill="black" />
-      <path d="M90.5195 387.394V395.569H145.838V387.394L122.13 368.318H105.909L90.5195 387.394Z" fill="black" />
-      <path d="M98.3086 386.987V391.529H134.928V386.987L119.234 374.371H108.496L98.3086 386.987Z" fill="black" />
+      <path
+        d="M106.883 387.394V395.569H162.201V387.394L138.493 368.318H122.272L106.883 387.394Z"
+        fill="black"
+      />
+      <path
+        d="M90.5195 387.394V395.569H145.838V387.394L122.13 368.318H105.909L90.5195 387.394Z"
+        fill="black"
+      />
+      <path
+        d="M98.3086 386.987V391.529H134.928V386.987L119.234 374.371H108.496L98.3086 386.987Z"
+        fill="black"
+      />
     </g>
   </svg>
 );
 
 const formatDate = (date: Date) =>
-  date.toLocaleDateString("so-SO", { year: "numeric", month: "long", day: "numeric" });
+  date.toLocaleDateString("so-SO", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-const ShareLesson: React.FC<{ lessonTitle: string }> = ({ lessonTitle }) => {
+const Certificate: React.FC<{
+  lessonTitle: string;
+  onContinue: () => void;
+}> = ({ lessonTitle, onContinue }) => {
   const router = useRouter();
-  const params = useParams<{ category: string; courseSlug: string; lessonId: string }>();
+  const params = useParams<{
+    category: string;
+    courseSlug: string;
+    lessonId: string;
+  }>();
   const { courseSlug } = params;
   const storedUser = AuthService.getInstance().getCurrentUser();
   const courseName = courseSlug
@@ -42,25 +62,32 @@ const ShareLesson: React.FC<{ lessonTitle: string }> = ({ lessonTitle }) => {
 
   // Somali full name with Garaad prefix
   const garaadName = `Garaad ${storedUser.username} ${storedUser.last_name}`;
-  console.log("storedUser", storedUser)
+  console.log("storedUser", storedUser);
   // Share handler
   const handleShare = async () => {
     if (!certRef.current) return;
-    const canvas = await html2canvas(certRef.current, { backgroundColor: null, scale: 2 });
+    const canvas = await html2canvas(certRef.current, {
+      backgroundColor: null,
+      scale: 2,
+    });
     const dataUrl = canvas.toDataURL("image/png");
     let shared = false;
     if (navigator.canShare && navigator.canShare({ files: [] })) {
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      const file = new File([blob], "garaad-certificate.png", { type: "image/png" });
+      const file = new File([blob], "garaad-certificate.png", {
+        type: "image/png",
+      });
       try {
         await navigator.share({
           files: [file],
           title: "Shahaadada Garaad",
-          text: "Eeg shahaadada aan helay Garaad!"
+          text: "Eeg shahaadada aan helay Garaad!",
         });
         shared = true;
-        window.alert("Waa lagu guuleystay! La wadaagista si toos ah waa shaqeysay.");
+        window.alert(
+          "Waa lagu guuleystay! La wadaagista si toos ah waa shaqeysay."
+        );
       } catch {
         // If user cancels or error, fallback to download
       }
@@ -73,7 +100,9 @@ const ShareLesson: React.FC<{ lessonTitle: string }> = ({ lessonTitle }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.alert("La wadaagista tooska ah ma shaqayn. Sawirka waa la soo dejiyey. Fadlan la wadaag asxaabtaada adigoo sawirka isticmaalaya!");
+      window.alert(
+        "La wadaagista tooska ah ma shaqayn. Sawirka waa la soo dejiyey. Fadlan la wadaag asxaabtaada adigoo sawirka isticmaalaya!"
+      );
     }
   };
 
@@ -85,7 +114,7 @@ const ShareLesson: React.FC<{ lessonTitle: string }> = ({ lessonTitle }) => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 to-white print:bg-white relative">
       {/* Close button in top-right corner */}
       <button
-        onClick={handleContinue}
+        onClick={() => onContinue()}
         className="absolute top-4 right-4 z-50 bg-white/90 hover:bg-white text-gray-600 hover:text-primary p-2 rounded-full shadow-lg transition-all duration-200 print:hidden"
         aria-label="Si wad"
       >
@@ -98,27 +127,59 @@ const ShareLesson: React.FC<{ lessonTitle: string }> = ({ lessonTitle }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
         className={`w-full max-w-3xl mx-auto p-8 md:p-16 border-4 border-primary rounded-3xl shadow-2xl print:shadow-none print:border-black print:rounded-none print:p-0 relative bg-white/90`}
-        style={{ background: "repeating-linear-gradient(135deg, #f3e8ff 0px, #fff 40px, #f3e8ff 80px)", boxShadow: '0 8px 32px 0 rgba(168,85,247,0.15)' }}
+        style={{
+          background:
+            "repeating-linear-gradient(135deg, #f3e8ff 0px, #fff 40px, #f3e8ff 80px)",
+          boxShadow: "0 8px 32px 0 rgba(168,85,247,0.15)",
+        }}
       >
         <Watermark />
         {/* Garaad logo in left corner */}
         <div className="absolute top-2 left-2 z-20">
-          <Image src="/favicon.ico" alt="Garaad Logo" width={48} height={48} className="rounded-full border-2 border-primary bg-white shadow" />
+          <Image
+            src="/favicon.ico"
+            alt="Garaad Logo"
+            width={48}
+            height={48}
+            className="rounded-full border-2 border-primary bg-white shadow"
+          />
         </div>
         {/* Certificate border and content */}
         <div className="flex flex-col items-center gap-2 relative z-10">
-          <h2 className={`text-xl md:text-2xl tracking-widest text-primary font-extrabold uppercase mb-2 ${CERTIFICATE_FONT}`}>Shahaadada Dhamaystirka</h2>
-          <span className="block text-sm text-gray-500 mb-4">Waxaa la guddoonsiiyay</span>
-          <span className="block text-3xl md:text-4xl font-extrabold text-primary mb-4 underline decoration-primary/30 decoration-2 underline-offset-4 font-sans tracking-tight" style={{ letterSpacing: '-1px' }}>{garaadName}</span>
-          <span className="block text-base text-gray-700 mb-2">dhamaystirka koorsada</span>
-          <span className="block text-xl md:text-2xl font-semibold text-primary mb-2">{courseName}</span>
-          <span className="block text-base text-gray-700 mb-2">Casharka: <span className="font-semibold">{lessonTitle}</span></span>
-          <span className="block text-base text-gray-700 mb-6 text-center max-w-xl">Waad ku mahadsantahay muujinta dabeecad iyo daacadnimo sare. Hambalyo guushaada!</span>
+          <h2
+            className={`text-xl md:text-2xl tracking-widest text-primary font-extrabold uppercase mb-2 ${CERTIFICATE_FONT}`}
+          >
+            Shahaadada Dhamaystirka
+          </h2>
+          <span className="block text-sm text-gray-500 mb-4">
+            Waxaa la guddoonsiiyay
+          </span>
+          <span
+            className="block text-3xl md:text-4xl font-extrabold text-primary mb-4 underline decoration-primary/30 decoration-2 underline-offset-4 font-sans tracking-tight"
+            style={{ letterSpacing: "-1px" }}
+          >
+            {garaadName}
+          </span>
+          <span className="block text-base text-gray-700 mb-2">
+            dhamaystirka koorsada
+          </span>
+          <span className="block text-xl md:text-2xl font-semibold text-primary mb-2">
+            {courseName}
+          </span>
+          <span className="block text-base text-gray-700 mb-2">
+            Casharka: <span className="font-semibold">{lessonTitle}</span>
+          </span>
+          <span className="block text-base text-gray-700 mb-6 text-center max-w-xl">
+            Waad ku mahadsantahay muujinta dabeecad iyo daacadnimo sare.
+            Hambalyo guushaada!
+          </span>
           <div className="flex w-full justify-between items-center mt-6 gap-4">
             {/* Date */}
             <div className="flex flex-col items-center z-10 min-w-[110px]">
               <span className="text-xs text-gray-500">La bixiyay:</span>
-              <span className="text-sm font-semibold text-primary">{formatDate(today)}</span>
+              <span className="text-sm font-semibold text-primary">
+                {formatDate(today)}
+              </span>
             </div>
             {/* Share Button */}
             <div className="flex justify-center print:hidden z-20">
@@ -132,22 +193,40 @@ const ShareLesson: React.FC<{ lessonTitle: string }> = ({ lessonTitle }) => {
             </div>
             {/* Signature Block */}
             <div className="flex flex-col items-center z-10 min-w-[130px]">
-              <svg width="100" height="32" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 30 Q 40 10, 60 30 Q 80 50, 110 10" stroke="#a855f7" strokeWidth="2.5" fill="none" />
-                <path d="M20 35 Q 30 25, 50 35 Q 70 45, 100 15" stroke="#a855f7" strokeWidth="1.5" fill="none" />
+              <svg
+                width="100"
+                height="32"
+                viewBox="0 0 120 40"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10 30 Q 40 10, 60 30 Q 80 50, 110 10"
+                  stroke="#a855f7"
+                  strokeWidth="2.5"
+                  fill="none"
+                />
+                <path
+                  d="M20 35 Q 30 25, 50 35 Q 70 45, 100 15"
+                  stroke="#a855f7"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
               </svg>
               <div className="w-20 border-t border-primary my-1" />
-              <span className="block text-xs text-primary font-semibold mt-1">garaad.org</span>
+              <span className="block text-xs text-primary font-semibold mt-1">
+                garaad.org
+              </span>
             </div>
           </div>
         </div>
         {/* Slogan at bottom */}
         <div className="absolute bottom-4 left-0 w-full text-center text-primary font-semibold text-lg tracking-wide z-20">
-          Aqoon la&apos;aan,  waa iftiin la&apos;aan.
+          Aqoon la&apos;aan, waa iftiin la&apos;aan.
         </div>
       </motion.div>
     </div>
   );
 };
 
-export default ShareLesson;
+export default Certificate;

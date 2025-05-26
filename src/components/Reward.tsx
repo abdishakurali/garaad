@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import StreakCelebration from "./StreakCelebaration";
 import LeaderboardLeague from "./LeaderboardLeague";
+import Certificate from "./ShareLesson";
 
 interface DailyActivity {
   date: string;
@@ -57,13 +58,19 @@ interface LeaderboardData {
 type RewardProps = {
   streak: StreakData;
   leaderboard: LeaderboardData;
+  completedLesson: string;
   onContinue: () => void;
 };
 
-const sections = ["streak", "leaderboard"] as const;
+const sections = ["streak", "leaderboard", "certificate"] as const;
 type Section = (typeof sections)[number];
 
-const RewardSequence = ({ streak, leaderboard, onContinue }: RewardProps) => {
+const RewardSequence = ({
+  streak,
+  leaderboard,
+  completedLesson,
+  onContinue,
+}: RewardProps) => {
   const [step, setStep] = useState(0);
   const current = sections[step];
 
@@ -77,7 +84,11 @@ const RewardSequence = ({ streak, leaderboard, onContinue }: RewardProps) => {
         )}
 
         {current === "leaderboard" && (
-          <LeaderboardLeague data={leaderboard} onContinue={onContinue} />
+          <LeaderboardLeague data={leaderboard} onContinue={handleContinue} />
+        )}
+
+        {current === "certificate" && (
+          <Certificate lessonTitle={completedLesson} onContinue={onContinue} />
         )}
       </AnimatePresence>
     </div>
