@@ -5,7 +5,7 @@ import { resetAnswerState, revealAnswer } from "@/store/features/learningSlice";
 import { ExplanationText, Lesson } from "@/types/learning";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Check, ChevronRight, X } from "lucide-react";
+import { BadgeCheck, Check, ChevronRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion"; // Import motion and AnimatePresence
 
 // Lazy‑load heavy components
@@ -22,6 +22,7 @@ interface AnswerFeedbackProps {
     image: string;
     type: "markdown" | "latex" | string;
   };
+  xp: number;
 }
 
 export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
@@ -31,6 +32,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
     onResetAnswer,
     onContinue,
     explanationData,
+    xp,
   }) => {
     const dispatch = useDispatch();
     const [showExplanation, setShowExplanation] = useState(false);
@@ -133,6 +135,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                       <X className="h-5 w-5 text-white" />
                     )}
                   </div>
+
                   <div className="flex flex-col gap-1 text-left">
                     <p className="font-semibold text-sm sm:text-base">
                       {title}
@@ -140,6 +143,13 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     <p className="text-xs sm:text-sm">{message}</p>
                   </div>
                 </div>
+
+                {isCorrect && (
+                  <div className=" py-2 px-1.5 font-bold rounded-md bg-[#8ef53f42] flex items-center gap-2">
+                    <BadgeCheck className="text-green-400" size={17} />+ {xp}{" "}
+                    dhibco
+                  </div>
+                )}
 
                 {/* Buttons */}
                 <div className="flex gap-2">

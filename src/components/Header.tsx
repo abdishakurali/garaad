@@ -12,19 +12,14 @@ import StreakDisplay from "./StreakDisplay";
 import { useMemo, useCallback } from "react";
 import AuthService from "@/services/auth";
 import useSWR from "swr";
-
-interface Energy {
-  current: number;
-  max: number;
-  next_update: string;
-}
+import NotificationPanel from "./Notifications";
 
 interface DailyActivity {
   date: string;
   day: string;
-  status: "none" | "partial" | "complete";
+  status: "complete" | "none";
   problems_solved: number;
-  lesson_ids: string[];
+  lesson_ids: number[];
   isToday: boolean;
 }
 
@@ -35,7 +30,11 @@ interface StreakData {
   max_streak: number;
   lessons_completed: number;
   problems_to_next_streak: number;
-  energy: Energy;
+  energy: {
+    current: number;
+    max: number;
+    next_update: string;
+  };
   dailyActivity: DailyActivity[];
   xp: number;
   daily_xp: number;
@@ -158,6 +157,8 @@ export function Header() {
               streakData={streakData || null}
             />
           )}
+
+          {user && <NotificationPanel />}
 
           {user ? <ProfileDropdown /> : <AuthDialog />}
         </div>

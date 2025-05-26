@@ -8,7 +8,14 @@ import useSWR from "swr";
 import type { RootState, AppDispatch } from "@/store";
 import { fetchLesson, resetAnswerState } from "@/store/features/learningSlice";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, RefreshCw, Home, CheckCircle } from "lucide-react";
+import {
+  ChevronRight,
+  RefreshCw,
+  Home,
+  CheckCircle,
+  Loader,
+  Sparkles,
+} from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { ExplanationText, TextContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
@@ -27,6 +34,7 @@ import { useSoundManager } from "@/hooks/use-sound-effects";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import RewardDisplay from "@/components/Reward";
+import RewardSequence from "@/components/Reward";
 
 // Types and Interfaces
 type Position = "left" | "center" | "right";
@@ -94,18 +102,12 @@ interface ProblemOptions {
   };
 }
 
-interface Energy {
-  current: number;
-  max: number;
-  next_update: string;
-}
-
 interface DailyActivity {
   date: string;
   day: string;
-  status: "none" | "partial" | "complete";
+  status: "complete" | "none";
   problems_solved: number;
-  lesson_ids: string[];
+  lesson_ids: number[];
   isToday: boolean;
 }
 
@@ -116,31 +118,36 @@ interface StreakData {
   max_streak: number;
   lessons_completed: number;
   problems_to_next_streak: number;
-  energy: Energy;
+  energy: {
+    current: number;
+    max: number;
+    next_update: string;
+  };
   dailyActivity: DailyActivity[];
   xp: number;
   daily_xp: number;
 }
 
-interface LeagueData {
-  current_league: {
-    id: string;
-    name: string;
-    min_xp: number;
-  };
-  current_points: number;
-  weekly_rank: number;
-  streak: {
-    current_streak: number;
-    max_streak: number;
-    streak_charges: number;
-    last_activity_date: string;
-  };
-  next_league: {
-    id: string;
-    name: string;
-    min_xp: number;
-    points_needed: number;
+interface User {
+  id: number;
+  name: string;
+}
+
+interface Standing {
+  rank: number;
+  user: User;
+  points: number;
+  streak: number;
+}
+
+interface LeaderboardData {
+  time_period: string;
+  league: string;
+  standings: Standing[];
+  my_standing: {
+    rank: number;
+    points: number;
+    streak: number;
   };
 }
 
@@ -220,27 +227,17 @@ const LoadingSpinner = ({
 }) => (
   <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
     <div className="flex flex-col items-center gap-8 p-8">
-      <div className="relative">
-        <div className="animate-spin rounded-full h-20 w-20 border-4 border-blue-200 border-t-blue-600"></div>
-        <div
-          className="absolute inset-0 rounded-full h-20 w-20 border-4 border-transparent border-t-blue-400 animate-spin"
-          style={{ animationDelay: "0.1s", animationDuration: "1.5s" }}
-        ></div>
-        <div
-          className="absolute inset-2 rounded-full h-16 w-16 border-4 border-transparent border-t-purple-400 animate-spin"
-          style={{ animationDelay: "0.2s", animationDuration: "2s" }}
-        ></div>
-      </div>
+      <Loader className="animate-spin w-16 h-16" />
       <div className="text-center space-y-2">
         <p className="text-gray-700 font-medium text-xl">{message}</p>
-        {progress !== undefined && (
+        {/* {progress !== undefined && (
           <div className="w-64 bg-gray-200 rounded-full h-2">
             <div
               className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   </div>
@@ -263,11 +260,10 @@ const ErrorCard = ({
           </div>
           <div className="space-y-3">
             <h2 className="text-2xl font-bold text-gray-900">
-              Lesson Not Found
+              Wax cashar ah lama helin
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              We couldn't load the requested lesson. Please check your
-              connection and try again.
+              waa soo dajin weynay casharka aad dalbatay sababo jira awgood
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -280,7 +276,7 @@ const ErrorCard = ({
                 className="flex items-center justify-center gap-2"
               >
                 <Home className="w-4 h-4" />
-                Return to Course
+                Ku laabo bogga koorsada
               </a>
             </Button>
             <Button
@@ -289,7 +285,7 @@ const ErrorCard = ({
               onClick={onRetry}
             >
               <RefreshCw className="w-4 h-4" />
-              Try Again
+              soo daji markale
             </Button>
           </div>
         </div>
@@ -301,43 +297,99 @@ const ErrorCard = ({
 // Lesson Completion Animation Component
 const LessonCompletionAnimation = ({
   onComplete,
+  totalXp,
 }: {
   onComplete: () => void;
+  totalXp: number;
 }) => {
   const [stage, setStage] = useState(0);
 
   useEffect(() => {
-    const timer1 = setTimeout(() => setStage(1), 500);
-    const timer2 = setTimeout(() => setStage(2), 1500);
-    const timer3 = setTimeout(() => onComplete(), 3000);
+    const timers = [
+      setTimeout(() => setStage(1), 200),
+      setTimeout(() => setStage(2), 900),
+      setTimeout(() => setStage(3), 1700),
+    ];
 
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
-  }, [onComplete]);
+    return () => timers.forEach(clearTimeout);
+  }, []);
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-green-400 via-blue-500 to-purple-600 flex items-center justify-center z-50">
-      <div className="text-center text-white space-y-8">
-        <div
-          className={cn(
-            "transform transition-all duration-1000",
-            stage >= 1 ? "scale-100 opacity-100" : "scale-50 opacity-0"
-          )}
-        >
-          <CheckCircle className="w-24 h-24 mx-auto mb-4" />
-          <h2 className="text-4xl font-bold">Casharku waa dhamaaday!</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 p-4">
+      <div className="text-center space-y-8 max-w-md w-full">
+        {/* Decorative sparkles and main icon */}
+        <div className="relative">
+          {/* Top sparkles */}
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+            <div className="flex space-x-2">
+              <Sparkles className="w-4 h-4 text-green-400" />
+              <Sparkles className="w-3 h-3 text-green-300" />
+            </div>
+          </div>
+
+          {/* Side sparkles */}
+          <div className="absolute top-4 -right-8">
+            <Sparkles className="w-3 h-3 text-green-300" />
+          </div>
+          <div className="absolute top-8 -left-6">
+            <Sparkles className="w-4 h-4 text-green-400" />
+          </div>
+
+          {/* Main diamond icon */}
+          <div
+            className={cn(
+              "transition-all duration-500 ease-out mx-auto",
+              stage >= 1 ? "scale-100 opacity-100" : "scale-90 opacity-0"
+            )}
+          >
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <div className="w-20 h-20 bg-green-500 transform rotate-45 rounded-lg flex items-center justify-center">
+                <div className="w-4 h-4 bg-black rounded-sm transform -rotate-45"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* Lesson complete text */}
         <div
           className={cn(
-            "transform transition-all duration-1000 delay-500",
-            stage >= 2 ? "scale-100 opacity-100" : "scale-50 opacity-0"
+            "transition-all duration-500 ease-out",
+            stage >= 2 ? "scale-100 opacity-100" : "scale-90 opacity-0"
           )}
         >
-          <p className="text-xl">Shaqo Wacan! Nala Arag abaalmarinadaada...</p>
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">
+            Cashar baa
+            <br />
+            la Dhammeeyay!
+          </h2>
+        </div>
+
+        {/* XP display */}
+        <div
+          className={cn(
+            "transition-all duration-500 ease-out",
+            stage >= 2 ? "scale-100 opacity-100" : "scale-90 opacity-0"
+          )}
+        >
+          <p className="text-sm text-gray-500 uppercase tracking-wide mb-2">
+            Dhibcaha Guud
+          </p>
+          <div className="flex items-center justify-center space-x-2">
+            <span className="text-4xl font-bold text-gray-800">{totalXp}</span>
+            <Sparkles className="w-6 h-6 text-green-500" />
+          </div>
+        </div>
+
+        {/* Continue button */}
+        <div
+          className={cn(
+            "transition-all duration-500 ease-out pt-8",
+            stage >= 3 ? "scale-100 opacity-100" : "scale-90 opacity-0"
+          )}
+        >
+          <Button onClick={onComplete} className="w-full rounded-md">
+            Sii wado
+          </Button>
         </div>
       </div>
     </div>
@@ -379,8 +431,11 @@ const LessonPage = () => {
   const [currentBlock, setCurrentBlock] = useState<React.ReactNode>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
+
   const [leagueId, setLeagueId] = useState<number>();
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [xp, setXp] = useState<number>();
+  const [totalXp, setTotalXp] = useState<number>();
 
   const { playSound } = useSoundManager();
   const continueRef = useRef<() => void>(() => {});
@@ -417,7 +472,7 @@ const LessonPage = () => {
     error: leagueError,
     isLoading: isLeagueLoading,
     mutate: refreshLeagueData,
-  } = useSWR<LeagueData>(
+  } = useSWR<LeaderboardData>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/league/leagues/status/`,
     streakFetcher,
     {
@@ -427,7 +482,7 @@ const LessonPage = () => {
       errorRetryCount: 3,
       errorRetryInterval: 5000,
       onSuccess: (data) => {
-        setLeagueId(Number(data.current_league.id));
+        setLeagueId(Number(1));
       },
     }
   );
@@ -437,7 +492,7 @@ const LessonPage = () => {
     error: leaderboardError,
     isLoading: isLeaderboardLoading,
     mutate: refreshLeaderboardData,
-  } = useSWR<LeagueLeaderboardData>(
+  } = useSWR<LeaderboardData>(
     `${
       process.env.NEXT_PUBLIC_API_URL
     }/api/league/leagues/leaderboard/?time_period=weekly&league=${
@@ -784,6 +839,37 @@ const LessonPage = () => {
 
     const isLastBlock = currentBlockIndex === sortedBlocks.length - 1;
 
+    if (block.block_type === "problem") {
+      const numberOfProblem = currentLesson?.content_blocks?.filter(
+        (b) => b.block_type === "problem"
+      ).length;
+
+      const totalPoints = sortedBlocks
+        .filter((b) => b.block_type === "problem")
+        .reduce((sum, block) => {
+          const points =
+            typeof block.content === "object" &&
+            block.content !== null &&
+            "points" in block.content
+              ? (block.content as { points?: number }).points || 0
+              : 0;
+          return sum + points;
+        }, 0);
+
+      console.log(totalPoints);
+
+      setTotalXp((numberOfProblem ?? 0) * 10);
+
+      const experience =
+        typeof block.content === "object" &&
+        block.content !== null &&
+        "points" in block.content
+          ? (block.content as { points?: number }).points
+          : undefined;
+
+      setXp(experience);
+    }
+
     switch (block.block_type) {
       case "problem":
         const problemId = block.problem;
@@ -941,7 +1027,7 @@ const LessonPage = () => {
 
   // Loading state
   if (isLoading) {
-    return <LoadingSpinner message="Loading lesson content..." />;
+    return <LoadingSpinner message="soo dajinaya casharada..." />;
   }
 
   // No lesson found
@@ -949,10 +1035,12 @@ const LessonPage = () => {
     return <ErrorCard coursePath={coursePath} onRetry={handleRetry} />;
   }
 
-  // Show completion animation
   if (showCompletionAnimation) {
     return (
-      <LessonCompletionAnimation onComplete={handleCompletionAnimationFinish} />
+      <LessonCompletionAnimation
+        onComplete={handleCompletionAnimationFinish}
+        totalXp={totalXp ?? 0}
+      />
     );
   }
 
@@ -965,53 +1053,28 @@ const LessonPage = () => {
     if (isStreakLoading || isLeagueLoading || isLeaderboardLoading) {
       return (
         <LoadingSpinner
-          message="Loading your achievements..."
-          progress={loadingProgress}
+          message="soo dajinaya abaalmarinaada..."
+          // progress={loadingProgress}
         />
       );
     }
 
-    // Transform leagueLeaderboard to match LeagueStanding type if it exists
-    const leaderboardStanding = leagueLeaderboard
-      ? {
-          ...leagueLeaderboard,
-          league:
-            typeof leagueLeaderboard.league === "string"
-              ? {
-                  id: leagueLeaderboard.league,
-                  name: leagueLeaderboard.league,
-                }
-              : leagueLeaderboard.league,
-        }
-      : undefined;
+    if (streakData && leagueLeaderboard) {
+      return (
+        <RewardSequence
+          onContinue={handleContinueAfterRewards}
+          streak={streakData}
+          leaderboard={leagueLeaderboard}
+        />
+      );
+    }
 
-    return (
-      <RewardDisplay
-        onContinue={handleContinueAfterRewards}
-        streak={
-          streakData
-            ? {
-                current_streak: streakData.current_streak,
-                max_streak: streakData.max_streak,
-                problems_solved_today:
-                  streakData.dailyActivity?.find((a) => a.isToday)
-                    ?.problems_solved ?? 0,
-                problems_to_next_streak: streakData.problems_to_next_streak,
-                energy: streakData.energy,
-              }
-            : undefined
-        }
-        league={league}
-        leaderboard={leaderboardStanding}
-        rewards={[]}
-        lessonTitle={currentLesson?.title || "Lesson"}
-      />
-    );
+    return null;
   }
 
   // Show navigating state
   if (navigating) {
-    return <LoadingSpinner message="Returning to course..." />;
+    return <LoadingSpinner message="ku laabanaya koordooyinks..." />;
   }
 
   // Render the main lesson page
@@ -1035,6 +1098,7 @@ const LessonPage = () => {
           currentLesson={currentLesson}
           onResetAnswer={handleResetAnswer}
           onContinue={handleContinue}
+          xp={xp ?? 0}
           explanationData={explanationData}
         />
       )}

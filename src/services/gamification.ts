@@ -46,6 +46,21 @@ export function useProblem(problemId?: string) {
   };
 }
 
+export function useNotifcation() {
+  const { data, error, isLoading, mutate } = useSWR(
+    `${API_URL}/api/lms/notifications/`,
+    fetcher,
+    swrConfig
+  );
+
+  return {
+    notification: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
 export function useStreak() {
   const { data, error, isLoading, mutate } = useSWR(
     `${API_URL}/api/streaks/`,

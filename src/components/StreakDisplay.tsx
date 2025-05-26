@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,18 +11,12 @@ import {
 import { Zap } from "lucide-react";
 import AuthService from "@/services/auth";
 
-interface Energy {
-  current: number;
-  max: number;
-  next_update: string;
-}
-
 interface DailyActivity {
   date: string;
   day: string;
-  status: "none" | "partial" | "complete";
+  status: "complete" | "none";
   problems_solved: number;
-  lesson_ids: string[];
+  lesson_ids: number[];
   isToday: boolean;
 }
 
@@ -33,7 +27,11 @@ interface StreakData {
   max_streak: number;
   lessons_completed: number;
   problems_to_next_streak: number;
-  energy: Energy;
+  energy: {
+    current: number;
+    max: number;
+    next_update: string;
+  };
   dailyActivity: DailyActivity[];
   xp: number;
   daily_xp: number;
@@ -53,117 +51,124 @@ export default function StreakDisplay({
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  console.log("STREAKDISPLAY", streakData)
-
   useEffect(() => {
     const authService = AuthService.getInstance();
     if (!authService.isAuthenticated()) router.push("/");
   }, [router]);
 
-  const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
-  };
+  const handleOpenChange = (newOpen: boolean) => setOpen(newOpen);
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button className="font-medium rounded-xl" variant={"outline"}>
-          {streakData?.current_streak ?? 0}
-          <Zap />
+        <Button
+          className="font-medium rounded-full px-4 py-2 flex items-center gap-2 shadow-sm border-gray-300 hover:shadow-md"
+          variant="outline"
+        >
+          <span className=" font-semibold">
+            {streakData?.current_streak ?? 0}
+          </span>
+          <Zap
+            className={`w-5 h-5 transition-colors duration-200 ${
+              streakData?.current_streak ? "text-yellow-500" : "text-gray-400"
+            }`}
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-80 p-4 mr-[30px] md:mr-[60px] lg:mr-[80px]"
+        className="w-96 p-5 rounded-2xl shadow-xl border border-gray-200 bg-white mr-10"
         align="center"
       >
         {loading ? (
-          <div className="flex justify-center py-6">
-            <div className="animate-pulse flex flex-col items-center">
-              <div className="h-10 w-10 bg-gray-200 rounded-full mb-3"></div>
-              <div className="h-3 w-20 bg-gray-200 rounded mb-2"></div>
-              <div className="h-3 w-24 bg-gray-200 rounded"></div>
-            </div>
+          <div className="flex flex-col items-center space-y-2 animate-pulse">
+            <div className="w-10 h-10 bg-gray-200 rounded-full" />
+            <div className="h-3 w-24 bg-gray-200 rounded" />
+            <div className="h-3 w-28 bg-gray-200 rounded" />
           </div>
         ) : error ? (
-          <div className="text-center py-6">
-            <p className="text-red-500 text-sm mb-3">
-              {error instanceof Error ? error.message : String(error)}
-            </p>
+          <div className="text-center text-sm text-red-500">
+            {error instanceof Error ? error.message : String(error)}
           </div>
         ) : streakData ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {/* Header with current streak and energy */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-3xl font-bold">
+                <span className="text-4xl font-bold">
                   {streakData.current_streak}
                 </span>
-                <Zap className="w-6 h-6 text-gray-400" />
+                <Zap className="w-6 h-6 text-yellow-500" />
               </div>
-              <div className="flex gap-1">
-                {Array.from({ length: streakData.energy.current }).map(
-                  (_, i) => (
-                    <Zap
-                      key={i}
-                      className="w-5 h-5 text-yellow-400 fill-yellow-400"
-                    />
-                  )
-                )}
-                {Array.from({
-                  length: streakData.energy.max - streakData.energy.current,
-                }).map((_, i) => (
+              <div className="flex gap-1 bg-gray-100 rounded-md p-2">
+                {Array.from({ length: streakData.energy.max }).map((_, i) => (
                   <Zap
-                    key={i + streakData.energy.current}
-                    className="w-5 h-5 text-gray-200"
+                    key={i}
+                    className={`w-5 h-5 ${
+                      i < streakData.energy.current
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-200"
+                    }`}
                   />
                 ))}
               </div>
             </div>
 
-            <p className="text-xs text-gray-600">
+            {/* Streak Progress Text */}
+            <p className="text-sm text-gray-600 text-center">
               Xalli ugu yaraan {streakData.problems_to_next_streak} waydiimood
-              saad u sameysatid streak.
+              si aad u hesho streak cusub.
             </p>
 
-            <div className="flex justify-between">
-              {streakData.dailyActivity.slice(-7).map((activity, index) => {
-                const isComplete = activity.status === "complete";
-                return (
+            {/* Daily Activity Chart */}
+            <div className="flex justify-between px-4">
+              {streakData.dailyActivity
+                .slice(0, 5)
+                .reverse()
+                .map((activity, index) => (
                   <div key={index} className="flex flex-col items-center">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        isComplete ? "bg-yellow-400" : "bg-gray-200"
+                      className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                        activity.status === "complete"
+                          ? "bg-yellow-400"
+                          : "bg-gray-100"
                       }`}
                     >
                       <Zap
                         className={`w-4 h-4 ${
-                          isComplete ? "text-black" : "text-gray-400"
+                          activity.status === "complete"
+                            ? "text-black"
+                            : "text-gray-400"
                         }`}
                       />
                     </div>
-                    <span className="text-xs mt-1">{activity.day}</span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      {activity.day}
+                    </span>
                   </div>
-                );
-              })}
+                ))}
             </div>
 
-            <div className="grid grid-cols-2 bg-gray-50 rounded-md overflow-hidden">
-              <div className="p-3 text-center border-r border-gray-200">
-                <div className="text-lg font-bold">{streakData.max_streak}</div>
-                <div className="text-xs text-gray-500">
-                  istriigii ugu badnaa
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 divide-x divide-gray-200 border rounded-xl overflow-hidden bg-gray-50">
+              <div className="p-4 text-center">
+                <div className="text-xl font-semibold">
+                  {streakData.max_streak}
                 </div>
+                <div className="text-xs text-gray-500">Streak-ga ugu dheer</div>
               </div>
-              <div className="p-3 text-center">
-                <div className="text-lg font-bold">
+              <div className="p-4 text-center">
+                <div className="text-xl font-semibold">
                   {streakData.lessons_completed}
                 </div>
-                <div className="text-xs text-gray-500">cashar la dhameyay</div>
+                <div className="text-xs text-gray-500">
+                  Casharro la dhameeyay
+                </div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="text-center py-6 text-gray-500 text-sm">
-            Click to load streak data
+          <div className="text-center text-sm text-gray-500">
+            Riix si aad u aragto streak-kaaga.
           </div>
         )}
       </PopoverContent>

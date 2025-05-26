@@ -345,7 +345,7 @@ export default function Home() {
           {/* Left Column: Rank & Leaderboard */}
           <div className="space-y-6">
             {/* User Rank Card */}
-            <Card className="p-6 rounded-lg bg-card shadow-sm">
+            {/* <Card className="p-6 rounded-lg bg-card shadow-sm">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-lg">Booskaaga</h3>
@@ -468,7 +468,7 @@ export default function Home() {
                   )}
                 </div>
               ) : null}
-            </Card>
+            </Card> */}
 
             {/* Leaderboard Card */}
             <Card className="p-6 rounded-lg bg-card shadow-sm">
