@@ -60,14 +60,7 @@ interface Achievement {
   earned_at?: string;
 }
 
-interface Challenge {
-  id: number;
-  title: string;
-  description: string;
-  challenge_date: string;
-  points_reward: number;
-  completed?: boolean;
-}
+
 
 interface UserLevel {
   level: number;
@@ -384,18 +377,16 @@ export default function Home() {
           .map((activity, index) => (
             <div key={index} className="flex flex-col items-center">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center ${
-                  activity.status === "complete"
+                className={`w-9 h-9 rounded-full flex items-center justify-center ${activity.status === "complete"
                     ? "bg-yellow-400"
                     : "bg-gray-100"
-                }`}
+                  }`}
               >
                 <Zap
-                  className={`w-4 h-4 ${
-                    activity.status === "complete"
+                  className={`w-4 h-4 ${activity.status === "complete"
                       ? "text-black"
                       : "text-gray-400"
-                  }`}
+                    }`}
                 />
               </div>
               <span className="text-xs text-gray-500 mt-1">{activity.day}</span>
@@ -559,10 +550,10 @@ export default function Home() {
                               standing.rank === 1
                                 ? "bg-yellow-500/20 text-yellow-700"
                                 : standing.rank === 2
-                                ? "bg-gray-400/20 text-gray-700"
-                                : standing.rank === 3
-                                ? "bg-orange-500/20 text-orange-700"
-                                : "bg-muted text-muted-foreground"
+                                  ? "bg-gray-400/20 text-gray-700"
+                                  : standing.rank === 3
+                                    ? "bg-orange-500/20 text-orange-700"
+                                    : "bg-muted text-muted-foreground"
                             )}
                           >
                             {standing.rank}
