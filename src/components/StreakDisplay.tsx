@@ -112,18 +112,18 @@ export default function StreakDisplay({
                   }`}
                 />
               </div>
-              <div className="flex gap-1 bg-gray-200 rounded-md p-2 relative">
+              <div className="flex gap-1 bg-gray-100 rounded-md p-1.5 relative">
                 {Array.from({ length: streakData.energy.max }).map((_, i) => (
                   <Zap
                     key={i}
-                    className={`w-5 h-5 ${
+                    className={`w-4 h-4 ${
                       i < streakData.energy.current
                         ? "text-yellow-400 fill-yellow-400"
                         : "text-gray-300"
                     }`}
                   />
                 ))}
-                <div className="absolute -right-2 top-[5px] rounded-sm text-amber-200  w-3 h-6 bg-gray-200 flex items-center justify-center text-xs font-bold"></div>
+                <div className="absolute -right-2 top-[5px] rounded-sm text-amber-200  w-3 h-4 bg-gray-100 flex items-center justify-center text-xs font-bold"></div>
               </div>
             </div>
 
@@ -131,7 +131,7 @@ export default function StreakDisplay({
             <p className="text-sm text-gray-600 text-center">
               {streakData?.dailyActivity?.[0]?.status === "complete"
                 ? "Shaqo wacan! Waad ilaashatay istriiga maanta "
-                : "Xalli ugu yaraan {streakData.problems_to_next_streak} waydiimood si aad u hesho streak cusub."}
+                : `Xalli ugu yaraan ${streakData.problems_to_next_streak} waydiimood si aad u hesho streak cusub.`}
             </p>
 
             {/* Daily Activity Chart */}

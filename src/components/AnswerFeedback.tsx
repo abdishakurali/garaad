@@ -5,7 +5,7 @@ import { resetAnswerState, revealAnswer } from "@/store/features/learningSlice";
 import { ExplanationText, Lesson } from "@/types/learning";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { BadgeCheck, Check, ChevronRight, X } from "lucide-react";
+import { Award, Check, ChevronRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion"; // Import motion and AnimatePresence
 
 // Lazy‑load heavy components
@@ -146,8 +146,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
 
                 {isCorrect && (
                   <div className=" py-2 px-1.5 font-bold text-sm rounded-md bg-[#8ef53f42] flex items-center gap-2">
-                    <BadgeCheck className="text-green-400" size={17} />+ {xp}{" "}
-                    dhibco
+                    <Award className="text-green-400" size={17} />+{xp} dhibco
                   </div>
                 )}
 

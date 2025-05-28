@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import AuthService from "@/services/auth";
 import { useRef } from "react";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro"; // Updated to support oklch
 import { Share2, X } from "lucide-react";
 import Image from "next/image";
 
@@ -60,16 +60,15 @@ const Certificate: React.FC<{
   const today = new Date();
   const certRef = useRef<HTMLDivElement>(null);
 
-  // Somali full name with Garaad prefix
   const garaadName = `Garaad ${storedUser.username} ${storedUser.last_name}`;
-  console.log("storedUser", storedUser);
-  // Share handler
+
   const handleShare = async () => {
     if (!certRef.current) return;
     const canvas = await html2canvas(certRef.current, {
-      backgroundColor: null,
+      backgroundColor: "#ffffff",
       scale: 2,
     });
+
     const dataUrl = canvas.toDataURL("image/png");
     let shared = false;
     if (navigator.canShare && navigator.canShare({ files: [] })) {
@@ -88,12 +87,9 @@ const Certificate: React.FC<{
         window.alert(
           "Waa lagu guuleystay! La wadaagista si toos ah waa shaqeysay."
         );
-      } catch {
-        // If user cancels or error, fallback to download
-      }
+      } catch {}
     }
     if (!shared) {
-      // Download the image as fallback
       const link = document.createElement("a");
       link.href = dataUrl;
       link.download = "garaad-certificate.png";
@@ -106,13 +102,8 @@ const Certificate: React.FC<{
     }
   };
 
-  const handleContinue = () => {
-    router.push(`/courses/${params.category}/${params.courseSlug}`);
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 to-white print:bg-white relative">
-      {/* Close button in top-right corner */}
       <button
         onClick={() => onContinue()}
         className="absolute top-4 right-4 z-50 bg-white/90 hover:bg-white text-gray-600 hover:text-primary p-2 rounded-full shadow-lg transition-all duration-200 print:hidden"
@@ -120,13 +111,12 @@ const Certificate: React.FC<{
       >
         <X className="w-6 h-6" />
       </button>
-
       <motion.div
         ref={certRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className={`w-full max-w-3xl mx-auto p-8 md:p-16 border-4 border-primary rounded-3xl shadow-2xl print:shadow-none print:border-black print:rounded-none print:p-0 relative bg-white/90`}
+        className="w-full max-w-3xl mx-auto p-8 md:p-16 border-4 border-primary rounded-3xl shadow-2xl print:shadow-none print:border-black print:rounded-none print:p-0 relative bg-white/90"
         style={{
           background:
             "repeating-linear-gradient(135deg, #f3e8ff 0px, #fff 40px, #f3e8ff 80px)",
@@ -134,7 +124,6 @@ const Certificate: React.FC<{
         }}
       >
         <Watermark />
-        {/* Garaad logo in left corner */}
         <div className="absolute top-2 left-2 z-20">
           <Image
             src="/favicon.ico"
@@ -144,7 +133,6 @@ const Certificate: React.FC<{
             className="rounded-full border-2 border-primary bg-white shadow"
           />
         </div>
-        {/* Certificate border and content */}
         <div className="flex flex-col items-center gap-2 relative z-10">
           <h2
             className={`text-xl md:text-2xl tracking-widest text-primary font-extrabold uppercase mb-2 ${CERTIFICATE_FONT}`}
@@ -174,14 +162,12 @@ const Certificate: React.FC<{
             Hambalyo guushaada!
           </span>
           <div className="flex w-full justify-between items-center mt-6 gap-4">
-            {/* Date */}
             <div className="flex flex-col items-center z-10 min-w-[110px]">
               <span className="text-xs text-gray-500">La bixiyay:</span>
               <span className="text-sm font-semibold text-primary">
                 {formatDate(today)}
               </span>
             </div>
-            {/* Share Button */}
             <div className="flex justify-center print:hidden z-20">
               <button
                 onClick={handleShare}
@@ -191,7 +177,6 @@ const Certificate: React.FC<{
                 La wadaag
               </button>
             </div>
-            {/* Signature Block */}
             <div className="flex flex-col items-center z-10 min-w-[130px]">
               <svg
                 width="100"
@@ -220,7 +205,6 @@ const Certificate: React.FC<{
             </div>
           </div>
         </div>
-        {/* Slogan at bottom */}
         <div className="absolute bottom-4 left-0 w-full text-center text-primary font-semibold text-lg tracking-wide z-20">
           Aqoon la&apos;aan, waa iftiin la&apos;aan.
         </div>

@@ -84,7 +84,11 @@ const RewardSequence = ({
         )}
 
         {current === "leaderboard" && (
-          <LeaderboardLeague data={leaderboard} onContinue={handleContinue} />
+          <LeaderboardLeague
+            data={leaderboard}
+            xp={streak.xp}
+            onContinue={handleContinue}
+          />
         )}
 
         {current === "certificate" && (

@@ -229,24 +229,24 @@ export default function Home() {
     }
   );
 
-  const {
-    data: dailyChallenges = [],
-    isLoading: isLoadingChallenges,
-    mutate: mutateChallenges,
-    error: challengesError,
-  } = useSWR<Challenge[]>("/api/lms/challenges/", authFetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 300000,
-  });
+  // const {
+  //   data: dailyChallenges = [],
+  //   isLoading: isLoadingChallenges,
+  //   mutate: mutateChallenges,
+  //   error: challengesError,
+  // } = useSWR<Challenge[]>("/api/lms/challenges/", authFetcher, {
+  //   revalidateOnFocus: false,
+  //   dedupingInterval: 300000,
+  // });
 
-  const {
-    data: userLevel,
-    isLoading: isLoadingUserLevel,
-    error: userLevelError,
-  } = useSWR<UserLevel>("/api/lms/levels/", authFetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 600000,
-  });
+  // const {
+  //   data: userLevel,
+  //   isLoading: isLoadingUserLevel,
+  //   error: userLevelError,
+  // } = useSWR<UserLevel>("/api/lms/levels/", authFetcher, {
+  //   revalidateOnFocus: false,
+  //   dedupingInterval: 600000,
+  // });
 
   const {
     data: streak,
@@ -309,39 +309,39 @@ export default function Home() {
     []
   );
 
-  const handleCompleteChallenge = useCallback(
-    async (challengeId: number) => {
-      const service = AuthService.getInstance();
-      try {
-        await service.makeAuthenticatedRequest(
-          "post",
-          `/api/lms/challenges/${challengeId}/submit_attempt/`
-        );
+  // const handleCompleteChallenge = useCallback(
+  //   async (challengeId: number) => {
+  //     const service = AuthService.getInstance();
+  //     try {
+  //       await service.makeAuthenticatedRequest(
+  //         "post",
+  //         `/api/lms/challenges/${challengeId}/submit_attempt/`
+  //       );
 
-        const updatedChallenges = dailyChallenges.map((challenge) =>
-          challenge.id === challengeId
-            ? { ...challenge, completed: true }
-            : challenge
-        );
+  //       const updatedChallenges = dailyChallenges.map((challenge) =>
+  //         challenge.id === challengeId
+  //           ? { ...challenge, completed: true }
+  //           : challenge
+  //       );
 
-        mutateChallenges(updatedChallenges, false);
+  //       mutateChallenges(updatedChallenges, false);
 
-        const challenge = dailyChallenges.find((c) => c.id === challengeId);
-        setNotificationMessage(
-          `Challenge completed! +${challenge?.points_reward} points`
-        );
-        setShowNotification(true);
-        setTimeout(() => setShowNotification(false), 3000);
+  //       const challenge = dailyChallenges.find((c) => c.id === challengeId);
+  //       setNotificationMessage(
+  //         `Challenge completed! +${challenge?.points_reward} points`
+  //       );
+  //       setShowNotification(true);
+  //       setTimeout(() => setShowNotification(false), 3000);
 
-        mutateLeagueStatus();
-        mutateLeaderboard();
-      } catch (err) {
-        console.error("Error completing challenge:", err);
-        mutateChallenges();
-      }
-    },
-    [dailyChallenges, mutateChallenges, mutateLeagueStatus, mutateLeaderboard]
-  );
+  //       mutateLeagueStatus();
+  //       mutateLeaderboard();
+  //     } catch (err) {
+  //       console.error("Error completing challenge:", err);
+  //       mutateChallenges();
+  //     }
+  //   },
+  //   [dailyChallenges, mutateChallenges, mutateLeagueStatus, mutateLeaderboard]
+  // );
 
   // Find current user's rank in the leaderboard standings
   const myRank = useMemo(() => {
@@ -408,13 +408,13 @@ export default function Home() {
   // Calculate progress to next league
   const nextLeagueProgress = useMemo(() => {
     if (!leagueStatus?.next_league) return 100;
-    const currentPoints = leagueStatus.current_points;
+    const currentPoints = streak?.xp ?? 0;
     const currentLeagueMin = leagueStatus.current_league.min_xp;
     const nextLeagueMin = leagueStatus.next_league.min_xp;
     const totalNeeded = nextLeagueMin - currentLeagueMin;
     const currentProgress = currentPoints - currentLeagueMin;
     return Math.min((currentProgress / totalNeeded) * 100, 100);
-  }, [leagueStatus]);
+  }, [leagueStatus, streak]);
 
   return (
     <>
@@ -455,9 +455,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md">
                   <Sparkles className="h-5 w-5" />
-                  <span className="font-bold">
-                    {leagueStatus.current_points} Dhibco
-                  </span>
+                  <span className="font-bold">{streak?.xp} Dhibco</span>
                 </div>
 
                 <div className="flex items-center gap-2 bg-muted text-muted-foreground px-4 py-2 rounded-md">
@@ -603,7 +601,7 @@ export default function Home() {
                                   variant="outline"
                                   className="flex items-center gap-1 py-0 h-5"
                                 >
-                                  <Flame className="h-3 w-3" />
+                                  <Flame className="h-3 w-3 text-yellow-400 fill-amber-500" />
                                   {standing.streak}
                                 </Badge>
                               </div>
@@ -642,9 +640,7 @@ export default function Home() {
                       <span className="font-medium">#{myRank}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-bold">
-                        {leagueLeaderboard.my_standing.points} Dhibco
-                      </span>
+                      <span className="font-bold">{streak?.xp} Dhibco</span>
                       <Badge
                         variant="secondary"
                         className="flex items-center gap-1"

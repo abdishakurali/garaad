@@ -11,18 +11,12 @@ interface LessonHeaderProps {
   coursePath: string;
 }
 
-interface Energy {
-  current: number;
-  max: number;
-  next_update: string;
-}
-
 interface DailyActivity {
   date: string;
   day: string;
-  status: "none" | "partial" | "complete";
+  status: "complete" | "none";
   problems_solved: number;
-  lesson_ids: string[];
+  lesson_ids: number[];
   isToday: boolean;
 }
 
@@ -33,8 +27,14 @@ interface StreakData {
   max_streak: number;
   lessons_completed: number;
   problems_to_next_streak: number;
-  energy: Energy;
-  daily_activity: DailyActivity[];
+  energy: {
+    current: number;
+    max: number;
+    next_update: string;
+  };
+  dailyActivity: DailyActivity[];
+  xp: number;
+  daily_xp: number;
 }
 
 const LessonHeader: React.FC<LessonHeaderProps> = ({
@@ -157,13 +157,15 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
         </div>
 
         {/* Streak Widget */}
-        <div className="flex-shrink-0">
-          <LessonStreak
-            streakData={streakData}
-            loading={loading}
-            error={error}
-          />
-        </div>
+        {streakData && (
+          <div className="flex-shrink-0">
+            <LessonStreak
+              streakData={streakData}
+              loading={loading}
+              error={error}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
