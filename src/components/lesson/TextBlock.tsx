@@ -10,10 +10,30 @@ import ReactMarkdown from "react-markdown";
 const renderMDList = (input: string[] | string | undefined) => {
   if (!input) return null;
 
+  // Handle JSON string arrays
+  if (typeof input === 'string' && input.startsWith('[')) {
+    try {
+      const parsedArray = JSON.parse(input);
+      if (Array.isArray(parsedArray)) {
+        return (
+          <ul className="mb-4 !pl-0 !list-none not-prose [&>li]:before:content-['•'] [&>li]:before:text-xl [&>li]:before:mr-2 [&>li]:before:inline-block">
+            {parsedArray.map((item, index) => (
+              <li className="mb-2" key={index}>
+                {item}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+    } catch (e) {
+      console.error('Failed to parse JSON string:', e);
+    }
+  }
+
   return Array.isArray(input) ? (
-    <ul className="list-disc mb-4">
+    <ul className="mb-4 !pl-0 !list-none not-prose [&>li]:before:content-['•'] [&>li]:before:text-xl [&>li]:before:mr-2 [&>li]:before:inline-block">
       {input.map((item, index) => (
-        <li className="flex items-center md:px-10 m-2" key={index}>
+        <li className="mb-2" key={index}>
           {item}
         </li>
       ))}
