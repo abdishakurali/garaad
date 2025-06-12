@@ -37,7 +37,15 @@ export interface PaymentResponse {
 class WaafiPayService {
   async createPayment(params: CreatePaymentParams): Promise<PaymentResponse> {
     try {
-      const response = await axios.post("/api/payment", params);
+      // Get the auth token from localStorage or your auth service
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post("/api/payment", params, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

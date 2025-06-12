@@ -17,21 +17,27 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_WAAFIPAY_ENVIRONMENT ||
       "sandbox";
 
-    // Log environment variable status (without exposing values)
-    console.log("Environment variables status:", {
-      apiKey: apiKey ? "Set" : "Missing",
-      storeId: storeId ? "Set" : "Missing",
-      merchantUid: merchantUid ? "Set" : "Missing",
-      environment: environment ? "Set" : "Missing",
-      nodeEnv: process.env.NODE_ENV,
-    });
+    // Detailed environment variable logging
+    console.log("=== Environment Variables Debug ===");
+    console.log("WAAFIPAY_API_KEY:", apiKey ? "Set" : "Missing");
+    console.log("WAAFIPAY_STORE_ID:", storeId ? "Set" : "Missing");
+    console.log("WAAFIPAY_MERCHANT_UID:", merchantUid ? "Set" : "Missing");
+    console.log("WAAFIPAY_ENVIRONMENT:", environment);
+    console.log("NODE_ENV:", process.env.NODE_ENV);
+    console.log("=== Request Headers ===");
+    console.log(
+      "Authorization:",
+      request.headers.get("authorization") ? "Present" : "Missing"
+    );
+    console.log("Content-Type:", request.headers.get("content-type"));
+    console.log("================================");
 
     if (!apiKey || !storeId || !merchantUid) {
       console.error("Missing WaafiPay configuration:", {
         apiKey: !!apiKey,
         storeId: !!storeId,
         merchantUid: !!merchantUid,
-        environment: !!environment,
+        environment: environment,
       });
       return NextResponse.json(
         {
@@ -44,6 +50,14 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { accountNumber, amount, description, referenceId } = body;
+
+    // Log request body
+    console.log("=== Request Body ===");
+    console.log("Account Number:", accountNumber);
+    console.log("Amount:", amount);
+    console.log("Description:", description);
+    console.log("Reference ID:", referenceId);
+    console.log("================================");
 
     // Validate request body
     if (!accountNumber || !amount || !description || !referenceId) {
@@ -60,7 +74,8 @@ export async function POST(request: Request) {
 
     console.log("Making payment request to:", baseURL);
 
-    const response = await axios.post(`${baseURL}/payment`, {
+    // Log the final request payload
+    const requestPayload = {
       apiKey,
       storeId: Number(storeId),
       merchantUid,
@@ -70,13 +85,29 @@ export async function POST(request: Request) {
       referenceId,
       paymentMethod: "WALLET",
       sdkVersion: "0.0.2",
-    });
+    };
+    console.log("=== WaafiPay Request Payload ===");
+    console.log(JSON.stringify(requestPayload, null, 2));
+    console.log("================================");
+
+    const response = await axios.post(`${baseURL}/payment`, requestPayload);
+
+    // Log the response
+    console.log("=== WaafiPay Response ===");
+    console.log(JSON.stringify(response.data, null, 2));
+    console.log("================================");
 
     return NextResponse.json(response.data);
   } catch (error) {
     console.error("Payment processing error:", error);
 
     if (axios.isAxiosError(error) && error.response) {
+      console.error("=== Error Response ===");
+      console.error("Status:", error.response.status);
+      console.error("Data:", error.response.data);
+      console.error("Headers:", error.response.headers);
+      console.error("================================");
+
       return NextResponse.json(
         {
           error: error.response.data.responseMsg || "Payment processing error",
