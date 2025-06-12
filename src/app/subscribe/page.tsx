@@ -4,13 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Phone, Banknote, Coins } from "lucide-react";
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '@/store/features/authSlice';
-import { selectCurrentUser } from '@/store/features/authSlice';
+import { setUser, selectCurrentUser } from '@/store/features/authSlice';
 
 const PAYMENT_METHODS = [
     { key: "waafipay", label: "WaafiPay", icon: <Phone className="w-5 h-5" /> },
@@ -19,19 +17,20 @@ const PAYMENT_METHODS = [
 ];
 
 const PLAN_OPTIONS = [
-    { key: "monthly", label: "Bixi Bil kasta", price: 20, note: "$20 / Bil kasta / Xubin" },
-    { key: "annual", label: "Bixi Sanadkiiba", price: 16, note: "$16 / Bil kasta / Xubin", badge: "Keydi 15%" },
+    { key: "monthly", label: "Bixi Bil kasta", price: 10, note: "$10 / Bil kasta / Xubin" },
+    { key: "annual", label: "Bixi Sanadkiiba", price: 10, note: "$10 / Bil kasta / Xubin", badge: "Keydi 15%" },
 ];
 
 const ERROR_TRANSLATIONS: Record<string, string> = {
     "Payment Failed (Receiver is Locked)": "Bixinta waa guuldareysatay (Qofka qaataha waa la xidhay)",
     "Payment Failed (Haraaga xisaabtaadu kuguma filna, mobile No: 252618995283)": "Bixinta waa guuldareysatay (Haraaga xisaabtaadu kuguma filna, lambarka: 252618995283)",
+    "RCS_USER_REJECTED": "Bixinta waa la joojiyay adiga ayaa diiday",
     // Add more error translations as needed
 };
 
 function translateError(error: string) {
     for (const key in ERROR_TRANSLATIONS) {
-        if (error.includes(key)) return ERROR_TRANSLATIONS[key];
+        if (error.includes(key) || error === key) return ERROR_TRANSLATIONS[key];
     }
     return error;
 }
@@ -46,7 +45,7 @@ export default function SubscribePage() {
     const [plan, setPlan] = useState("annual");
     const [formData, setFormData] = useState({
         accountNo: "",
-        amount: "9.99",
+        amount: "10",
         description: "Isdiiwaangeli Premium"
     });
 
@@ -110,44 +109,35 @@ export default function SubscribePage() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-8 px-2">
-            <div className="w-full max-w-4xl flex flex-col md:flex-row gap-8">
+            <div className="w-full max-w-5xl flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16 xl:gap-24">
                 {/* Left: Payment Form */}
-                <div className="flex-1">
-                    <Card className="p-6 md:p-10">
-                        <CardHeader>
-                            <CardTitle className="text-2xl font-bold mb-2 text-purple-700">Kor u qaad Xubinnimadaada</CardTitle>
-                            <CardDescription className="text-gray-600 mb-4">
-                                Ku hel dhammaan casharrada, faylasha, iyo adeegyada dheeraadka ah oo xadidnayn la&apos;aan ah.
-                            </CardDescription>
-                        </CardHeader>
-                        <form onSubmit={handleSubmit}>
-                            <CardContent className="space-y-4">
-                                {error && (
-                                    <Alert variant="destructive">
-                                        <AlertDescription>{error}</AlertDescription>
-                                    </Alert>
-                                )}
-                                <div className="space-y-2">
-                                    <Label htmlFor="accountNo">Lambarka WaafiPay</Label>
+                <div className="flex-1 min-w-0">
+                    <Card className="p-0 overflow-hidden shadow-lg border border-gray-100 bg-white">
+                        <div className="p-6 md:p-10">
+                            <div className="mb-8">
+                                <h1 className="text-3xl font-bold text-purple-700 mb-2">Kor u qaad Plus</h1>
+                                <p className="text-gray-500 text-base">Ku hel blocks, faylal, iyo adeegyo aan xadidnayn.</p>
+                            </div>
+                            <form onSubmit={handleSubmit} className="space-y-8">
+                                {/* Billed To */}
+                                <div>
+                                    <h2 className="text-sm font-semibold text-gray-700 mb-2">Lagu xisaabi doono</h2>
                                     <Input
-                                        id="accountNo"
-                                        name="accountNo"
-                                        value={formData.accountNo}
-                                        onChange={handleInputChange}
-                                        placeholder="Geli lambarka WaafiPay"
-                                        required
-                                        pattern="[0-9]+"
-                                        title="Fadlan geli lambarka saxda ah"
+                                        placeholder="Magaca buuxa"
+                                        className="w-full h-12 text-base bg-white"
+                                        value={currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name}` : ""}
+                                        disabled
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Habka Bixinta</Label>
-                                    <div className="flex gap-2">
+                                {/* Payment Details */}
+                                <div>
+                                    <h2 className="text-sm font-semibold text-gray-700 mb-2">Faahfaahinta Bixinta</h2>
+                                    <div className="flex gap-2 flex-wrap mb-4">
                                         {PAYMENT_METHODS.map((method) => (
                                             <button
                                                 type="button"
                                                 key={method.key}
-                                                className={`flex-1 flex flex-col items-center justify-center border rounded-lg p-3 transition-all ${paymentMethod === method.key ? "border-purple-500 bg-purple-50" : "border-gray-200 bg-white"}`}
+                                                className={`flex-1 min-w-[110px] flex flex-col items-center justify-center border rounded-lg p-3 transition-all ${paymentMethod === method.key ? "border-purple-500 bg-purple-50" : "border-gray-200 bg-white"}`}
                                                 onClick={() => setPaymentMethod(method.key)}
                                                 disabled={method.key !== "waafipay"}
                                             >
@@ -159,47 +149,61 @@ export default function SubscribePage() {
                                             </button>
                                         ))}
                                     </div>
+                                    <div className="space-y-4">
+                                        <Input
+                                            id="accountNo"
+                                            name="accountNo"
+                                            value={formData.accountNo}
+                                            onChange={handleInputChange}
+                                            placeholder="Lambarka WaafiPay (2526xxxxxxx)"
+                                            required
+                                            pattern="[0-9]+"
+                                            title="Fadlan geli lambarka saxda ah"
+                                            className="w-full h-12 text-base bg-white"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="amount">Lacagta (USD)</Label>
-                                    <Input
-                                        id="amount"
-                                        name="amount"
-                                        type="number"
-                                        step="0.01"
-                                        value={formData.amount}
-                                        onChange={handleInputChange}
-                                        required
-                                        disabled
-                                    />
+                                {/* Error */}
+                                {error && (
+                                    <Alert variant="destructive">
+                                        <AlertDescription>{error}</AlertDescription>
+                                    </Alert>
+                                )}
+                                {/* Action Buttons */}
+                                <div className="flex gap-3 mt-4">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="flex-1 h-12 bg-gray-50 hover:bg-gray-100"
+                                        onClick={() => router.back()}
+                                    >
+                                        Ka noqo
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        className="flex-1 h-12 bg-purple-600 hover:bg-purple-700 text-white"
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Waa la dirayaa...
+                                            </>
+                                        ) : (
+                                            "Isdiiwaangeli"
+                                        )}
+                                    </Button>
                                 </div>
-                            </CardContent>
-                            <CardFooter className="flex gap-2">
-                                <Button type="button" variant="outline" className="flex-1" onClick={() => router.back()}>
-                                    Ka noqo
-                                </Button>
-                                <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 text-white" disabled={loading}>
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Waa la dirayaa...
-                                        </>
-                                    ) : (
-                                        "Isdiiwaangeli"
-                                    )}
-                                </Button>
-                            </CardFooter>
-                        </form>
+                            </form>
+                        </div>
                     </Card>
                 </div>
                 {/* Right: Plan Summary */}
-                <div className="w-full md:w-[350px]">
-                    <Card className="p-6 md:p-8 bg-white/80">
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold mb-2">Qorshaha Bilowga ah</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col gap-3">
+                <div className="w-full md:w-[350px] flex-shrink-0">
+                    <Card className="p-0 overflow-hidden bg-white/80 shadow-md border border-gray-100">
+                        <div className="p-6 md:p-8">
+                            <h2 className="text-base font-semibold text-gray-700 mb-4">Qorshaha Bilowga ah</h2>
+                            <div className="flex flex-col gap-3 mb-6">
                                 {PLAN_OPTIONS.map((option) => (
                                     <button
                                         key={option.key}
@@ -215,7 +219,7 @@ export default function SubscribePage() {
                                     </button>
                                 ))}
                             </div>
-                            <div className="flex justify-between items-center mt-6 mb-2">
+                            <div className="flex justify-between items-center mb-2">
                                 <span className="font-medium">Wadarta</span>
                                 <span className="font-bold text-xl text-purple-700">${formData.amount} / Bil</span>
                             </div>
@@ -223,7 +227,10 @@ export default function SubscribePage() {
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#a78bfa" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                                 <span>Hubi in dhammaan macaamilada si ammaan ah loo ilaaliyo.</span>
                             </div>
-                        </CardContent>
+                            <div className="mt-8 text-xs text-gray-400">
+                                Marka aad bixiso macluumaadkaaga, waxaad ogolaatay in mustaqbalka lagaa jari karo si waafaqsan shuruudaha adeegga.
+                            </div>
+                        </div>
                     </Card>
                 </div>
             </div>
