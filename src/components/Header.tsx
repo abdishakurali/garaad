@@ -97,10 +97,13 @@ export function Header() {
     () =>
       user
         ? [
-            { name: "Guriga", href: "/home", icon: Home },
-            { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
-          ]
-        : [],
+          { name: "Guriga", href: "/home", icon: Home },
+          { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
+        ]
+        : [
+          { name: "Guriga", href: "/", icon: Home },
+          { name: "Ku biir", href: "/subscribe", icon: FolderDot },
+        ],
     [user]
   );
 
