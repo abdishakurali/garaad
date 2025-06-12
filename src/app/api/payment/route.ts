@@ -12,10 +12,14 @@ export async function POST(request: Request) {
     const merchantUid =
       process.env.WAAFIPAY_MERCHANT_UID ||
       process.env.NEXT_PUBLIC_WAAFIPAY_MERCHANT_UID;
+
+    // Force production environment when in production
     const environment =
-      process.env.WAAFIPAY_ENVIRONMENT ||
-      process.env.NEXT_PUBLIC_WAAFIPAY_ENVIRONMENT ||
-      "sandbox";
+      process.env.NODE_ENV === "production"
+        ? "production"
+        : process.env.WAAFIPAY_ENVIRONMENT ||
+          process.env.NEXT_PUBLIC_WAAFIPAY_ENVIRONMENT ||
+          "sandbox";
 
     // Detailed environment variable logging
     console.log("=== Environment Variables Debug ===");
@@ -90,7 +94,14 @@ export async function POST(request: Request) {
     console.log(JSON.stringify(requestPayload, null, 2));
     console.log("================================");
 
-    const response = await axios.post(`${baseURL}/payment`, requestPayload);
+    // Add additional headers for WaafiPay
+    const response = await axios.post(`${baseURL}/payment`, requestPayload, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-API-KEY": apiKey,
+      },
+    });
 
     // Log the response
     console.log("=== WaafiPay Response ===");
