@@ -11,6 +11,7 @@ export interface User {
   last_login: string;
   avatar_url?: string;
   bio?: string;
+  is_premium: boolean;
   preferences?: {
     language: string;
     theme: string;

@@ -1,64 +1,55 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  // Get the pathname of the request
+// Add paths that should be accessible without premium
+const publicPaths = [
+  "/",
+  "/login",
+  "/signup",
+  "/subscribe",
+  "/api",
+  "/_next",
+  "/static",
+  "/favicon.ico",
+];
+
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  // Define public paths that don't require authentication
-  const isPublicPath =
-    path === "/" ||
-    path.startsWith("/welcome") ||
-    path.startsWith("/about") ||
-    path.startsWith("/blog") ||
-    path.startsWith("/wargeys") ||
-    path.startsWith("/api/auth");
-
-  // Get the token from the cookies
-  const token = request.cookies.get("accessToken")?.value || "";
-
-  // Redirect logic
-  if (isPublicPath && token && path === "/") {
-    // Only redirect from welcome to dashboard if user is logged in
-    return NextResponse.redirect(new URL("/courses", request.url));
+  // Allow public paths
+  if (publicPaths.some((publicPath) => path.startsWith(publicPath))) {
+    return NextResponse.next();
   }
 
-  if (!isPublicPath && !token) {
-    // If user is not logged in and tries to access protected path, redirect to welcome
-    return NextResponse.redirect(new URL("/", request.url));
+  // Get user from cookie
+  const userStr = request.cookies.get("user")?.value;
+  if (!userStr) {
+    return NextResponse.next();
   }
 
-  // Add security headers
-  const response = NextResponse.next();
+  try {
+    const user = JSON.parse(userStr);
 
-  // Add security headers
-  response.headers.set("X-DNS-Prefetch-Control", "on");
-  response.headers.set(
-    "Strict-Transport-Security",
-    "max-age=63072000; includeSubDomains; preload"
-  );
-  response.headers.set("X-XSS-Protection", "1; mode=block");
-  response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "origin-when-cross-origin");
-  response.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=()"
-  );
+    // If user is not premium, redirect to subscribe page
+    if (!user.is_premium) {
+      return NextResponse.redirect(new URL("/subscribe", request.url));
+    }
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+  }
 
-  return response;
+  return NextResponse.next();
 }
 
-// Configure which paths the middleware should run on
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
+     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
      */
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
