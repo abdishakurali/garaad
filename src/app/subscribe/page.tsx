@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Phone, Banknote, Coins } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { setUser } from '@/store/features/authSlice';
+import { selectCurrentUser } from '@/store/features/authSlice';
 
 const PAYMENT_METHODS = [
     { key: "waafipay", label: "WaafiPay", icon: <Phone className="w-5 h-5" /> },
@@ -35,13 +38,15 @@ function translateError(error: string) {
 
 export default function SubscribePage() {
     const router = useRouter();
+    const dispatch = useDispatch();
+    const currentUser = useSelector(selectCurrentUser);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [paymentMethod, setPaymentMethod] = useState("waafipay");
     const [plan, setPlan] = useState("annual");
     const [formData, setFormData] = useState({
         accountNo: "",
-        amount: PLAN_OPTIONS.find((p) => p.key === "annual")?.price.toString() || "16",
+        amount: "10",
         description: "Isdiiwaangeli Premium"
     });
 
@@ -70,6 +75,10 @@ export default function SubscribePage() {
             }
 
             if (data.success) {
+                // Update Redux user state to is_premium: true
+                if (currentUser) {
+                    dispatch(setUser({ ...currentUser, is_premium: true }));
+                }
                 router.push("/dashboard");
             } else {
                 setError(translateError(data.message || "Bixinta waa guuldareysatay"));
@@ -96,8 +105,7 @@ export default function SubscribePage() {
     // Update amount when plan changes
     const handlePlanChange = (key: string) => {
         setPlan(key);
-        const planObj = PLAN_OPTIONS.find((p) => p.key === key);
-        setFormData((prev) => ({ ...prev, amount: planObj?.price.toString() || "16" }));
+        setFormData((prev) => ({ ...prev, amount: "10" }));
     };
 
     return (
