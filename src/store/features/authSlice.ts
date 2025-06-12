@@ -1,71 +1,66 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { User, SignUpData, LoginCredentials } from "@/types/auth";
-import { AppDispatch } from "@/store/store";
+import { User, SignUpData, AuthState } from "@/types/auth";
 import AuthService from "@/services/auth";
-
-interface AuthState {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-}
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState: AuthState = {
   user: null,
-  loading: false,
+  accessToken: null,
+  refreshToken: null,
+  isAuthenticated: false,
+  isLoading: false,
   error: null,
 };
 
-export const authSlice = createSlice({
+const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<User | null>) => {
+    setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
-      state.loading = false;
-      state.error = null;
+      state.isAuthenticated = true;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
+      state.isLoading = action.payload;
     },
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
-      state.loading = false;
-    },
-    clearError: (state) => {
-      state.error = null;
     },
     logout: (state) => {
       state.user = null;
-      state.loading = false;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.isAuthenticated = false;
       state.error = null;
     },
   },
 });
 
-export const { setUser, setLoading, setError, clearError, logout } =
-  authSlice.actions;
+export const { setUser, setLoading, setError, logout } = authSlice.actions;
 
 // Export the logout action as logoutAction for consistency
 export const logoutAction = logout;
 
 // Export selectors
 export const selectCurrentUser = (state: RootState) => state.auth.user;
-export const selectAuthLoading = (state: RootState) => state.auth.loading;
+export const selectAuthLoading = (state: RootState) => state.auth.isLoading;
 export const selectIsLoading = selectAuthLoading; // Alias for selectAuthLoading
 export const selectAuthError = (state: RootState) => state.auth.error;
 
 // Export the signup thunk
-export const signup =
-  (userData: SignUpData) => async (dispatch: AppDispatch) => {
+export const signUp = createAsyncThunk(
+  "auth/signUp",
+  async (userData: SignUpData, { dispatch }) => {
     try {
-      dispatch(setLoading(true));
       const response = await AuthService.getInstance().signUp(userData);
       dispatch(
         setUser({
           ...response.user,
+          is_premium: response.user.is_premium || false, // Use existing value or default to false
           profile: userData.profile || {
             bio: "",
+            avatar: "",
             location: "",
             website: "",
             socialLinks: {
@@ -76,58 +71,30 @@ export const signup =
           },
         })
       );
-      dispatch(setError(null));
-      return true; // Return success
-    } catch (error: any) {
-      let errorMessage = "Wax khalad ah ayaa dhacay";
-      console.error("ERROR", error.response.data.error);
-      // Axios/fetch error with response
-      if (error?.response) {
-        const backendError = error.response.data?.error;
-        const status = error.response.status;
-        if (
-          status === 400 &&
-          (backendError === "Email already exists" ||
-            backendError === "Username already exists")
-        ) {
-          errorMessage =
-            "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
-        } else if (backendError) {
-          errorMessage = backendError;
-        } else if (error.response.data?.detail) {
-          errorMessage = error.response.data.detail;
-        }
-      }
-      dispatch(setError(error instanceof Error ? errorMessage : error.message));
-      return false; // Return failure
-    } finally {
-      dispatch(setLoading(false));
+      return response;
+    } catch (error) {
+      throw error;
     }
-  };
+  }
+);
 
 // Export the login thunk
-export const login =
-  (credentials: LoginCredentials) => async (dispatch: AppDispatch) => {
+export const login = createAsyncThunk(
+  "auth/login",
+  async (credentials: { email: string; password: string }, { dispatch }) => {
     try {
-      dispatch(setLoading(true));
-      const authService = AuthService.getInstance();
-      const response = await authService.signIn(credentials);
-
-      if (response.user) {
-        dispatch(setUser(response.user));
-        dispatch(setError(null));
-        return true;
-      } else {
-        throw new Error("No user data received from server");
-      }
-    } catch (error) {
+      const response = await AuthService.getInstance().signIn(credentials);
       dispatch(
-        setError(error instanceof Error ? error.message : "An error occurred")
+        setUser({
+          ...response.user,
+          is_premium: response.user.is_premium || false, // Use existing value or default to false
+        })
       );
-      return false;
-    } finally {
-      dispatch(setLoading(false));
+      return response;
+    } catch (error) {
+      throw error;
     }
-  };
+  }
+);
 
 export default authSlice.reducer;

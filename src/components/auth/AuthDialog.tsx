@@ -21,12 +21,14 @@ import {
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
-import { login, clearError } from "@/store/features/authSlice";
-import type { AppDispatch } from "@/store";
+import {
+  login,
+  signUp,
+  setError
+} from "@/store/features/authSlice";
+import type { AppDispatch, RootState } from "@/store";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { signup } from "@/store/features/authSlice";
-import type { RootState } from "@/store";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
@@ -46,7 +48,7 @@ export function AuthDialog() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const authState = useSelector((state: RootState) => state.auth);
-  const { error, loading: isLoading, user } = authState;
+  const { error, isLoading, user } = authState;
   const isAuthenticated = !!user;
   const { toast } = useToast();
   const router = useRouter();
@@ -62,7 +64,7 @@ export function AuthDialog() {
   useEffect(() => {
     if (!open) {
       form.reset();
-      dispatch(clearError());
+      dispatch(setError(null));
     }
   }, [open, form, dispatch]);
 
@@ -78,7 +80,7 @@ export function AuthDialog() {
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
-        dispatch(clearError());
+        dispatch(setError(null));
       }, 5000);
 
       return () => clearTimeout(timer);
@@ -93,7 +95,7 @@ export function AuthDialog() {
         title: "Khalad ayaa dhacay",
         description: error,
       });
-      dispatch(clearError());
+      dispatch(setError(null));
     }
   }, [error, toast, dispatch]);
 
@@ -122,7 +124,7 @@ export function AuthDialog() {
           },
           // profile is optional, so we don't need to include it
         };
-        const result = await dispatch(signup(signupData));
+        const result = await dispatch(signUp(signupData));
         if (result) {
           router.push("/courses");
         }
@@ -170,7 +172,7 @@ export function AuthDialog() {
                     type="button"
                     className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                     onClick={() => {
-                      dispatch(clearError());
+                      dispatch(setError(null));
                     }}
                   >
                     <X size={16} />

@@ -40,6 +40,7 @@ export interface User {
   last_login: string;
   avatar_url?: string;
   bio?: string;
+  is_premium: boolean;
   preferences?: {
     language: string;
     theme: string;
@@ -49,6 +50,17 @@ export interface User {
     rank: number;
     points: number;
     completed: number;
+  };
+  profile?: {
+    bio?: string;
+    avatar?: string;
+    location?: string;
+    website?: string;
+    socialLinks?: {
+      twitter?: string;
+      linkedin?: string;
+      github?: string;
+    };
   };
 }
 

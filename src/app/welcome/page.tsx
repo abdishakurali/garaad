@@ -9,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  signup,
+  signUp,
   selectAuthError,
   selectIsLoading,
 } from "@/store/features/authSlice";
@@ -576,7 +576,7 @@ export default function Page() {
         },
       };
       //  Redux for signup
-      const result = await dispatch(signup(signUpData));
+      const result = await dispatch(signUp(signUpData));
 
       if (result) {
         toast({
