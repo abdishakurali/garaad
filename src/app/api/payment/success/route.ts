@@ -4,7 +4,12 @@ import { cookies } from "next/headers";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { transactionId, referenceId, state } = body;
+    const {
+      transactionId,
+      referenceId,
+      state,
+      subscriptionType = "monthly",
+    } = body;
 
     // Validate required fields
     if (!transactionId || !referenceId || !state) {
@@ -33,12 +38,54 @@ export async function POST(request: Request) {
     try {
       const user = JSON.parse(userStr);
 
-      // Update user premium status
+      // Calculate subscription dates
+      const startDate = new Date();
+      const endDate = new Date();
+      if (subscriptionType === "monthly") {
+        endDate.setMonth(endDate.getMonth() + 1);
+      } else if (subscriptionType === "yearly") {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      }
+
+      // Get access token from cookie
+      const accessToken = cookieStore.get("access_token")?.value;
+      if (!accessToken) {
+        throw new Error("No access token found");
+      }
+
+      // Update premium status in the backend
+      const updateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/update-premium/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            is_premium: true,
+            subscription_type: subscriptionType,
+            subscription_start_date: startDate.toISOString(),
+            subscription_end_date:
+              subscriptionType === "lifetime" ? null : endDate.toISOString(),
+          }),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        throw new Error("Failed to update premium status in backend");
+      }
+
+      // Update user premium status in cookie
       const updatedUser = {
         ...user,
         is_premium: true,
-        premium_since: new Date().toISOString(),
+        premium_since: startDate.toISOString(),
         transaction_id: transactionId,
+        subscription_type: subscriptionType,
+        subscription_start_date: startDate.toISOString(),
+        subscription_end_date:
+          subscriptionType === "lifetime" ? null : endDate.toISOString(),
       };
 
       // Create response with updated user data
@@ -59,9 +106,14 @@ export async function POST(request: Request) {
 
       return response;
     } catch (error) {
-      return NextResponse.json({ error: "Invalid user data" }, { status: 400 });
+      console.error("Error updating premium status:", error);
+      return NextResponse.json(
+        { error: "Failed to update premium status" },
+        { status: 500 }
+      );
     }
   } catch (error) {
+    console.error("Payment success error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
