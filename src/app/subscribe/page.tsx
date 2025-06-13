@@ -170,16 +170,17 @@ export default function SubscribePage() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-8 px-2">
-            <div className="w-full max-w-5xl flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16 xl:gap-24">
+            <div className="w-full max-w-6xl flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16 xl:gap-24">
                 {/* Left: Payment Form */}
                 <div className="flex-1 min-w-0">
-                    <Card className="p-0 overflow-hidden shadow-lg border border-gray-100 bg-white">
-                        <div className="p-6 md:p-10">
-                            <div className="mb-8">
-                                <h1 className="text-3xl font-bold text-purple-700 mb-2">Kor u qaad Plus</h1>
-                                <p className="text-gray-500 text-base">Ku hel blocks, faylal, iyo adeegyo aan xadidnayn.</p>
+                    <Card className="p-0 overflow-hidden shadow-2xl border border-gray-100 bg-white rounded-3xl">
+                        <div className="p-8 md:p-14">
+                            <div className="flex flex-col items-center mb-8">
+                                <img src="/logo.png" alt="Garaad Logo" className="h-14 w-auto mb-4 drop-shadow-md rounded-xl" />
+                                <h1 className="text-4xl font-extrabold text-purple-700 mb-2 text-center">Kor u qaad Plus</h1>
+                                <p className="text-gray-500 text-lg text-center">Ku hel blocks, faylal, iyo adeegyo aan xadidnayn.</p>
                             </div>
-                            <form onSubmit={handleSubmit} className="space-y-8">
+                            <form onSubmit={handleSubmit} className="space-y-10">
                                 {/* Billed To */}
                                 <div>
                                     <h2 className="text-sm font-semibold text-gray-700 mb-2">Lagu xisaabi doono</h2>
@@ -193,17 +194,17 @@ export default function SubscribePage() {
                                 {/* Payment Details */}
                                 <div>
                                     <h2 className="text-sm font-semibold text-gray-700 mb-2">Faahfaahinta Bixinta</h2>
-                                    <div className="flex gap-2 flex-wrap mb-4">
+                                    <div className="flex gap-3 flex-wrap mb-4">
                                         {PAYMENT_METHODS.map((method) => (
                                             <button
                                                 type="button"
                                                 key={method.key}
-                                                className={`flex-1 min-w-[110px] flex flex-col items-center justify-center border rounded-lg p-3 transition-all ${paymentMethod === method.key ? "border-purple-500 bg-purple-50" : "border-gray-200 bg-white"}`}
+                                                className={`flex-1 min-w-[110px] flex flex-col items-center justify-center border rounded-xl p-4 transition-all text-base font-medium shadow-sm ${paymentMethod === method.key ? "border-purple-500 bg-purple-50" : "border-gray-200 bg-white"}`}
                                                 onClick={() => setPaymentMethod(method.key)}
                                                 disabled={method.key !== "waafipay"}
                                             >
                                                 {method.icon}
-                                                <span className="text-xs mt-1 font-medium">{method.label}</span>
+                                                <span className="text-xs mt-1 font-semibold">{method.label}</span>
                                                 {method.key !== "waafipay" && (
                                                     <span className="text-[10px] text-gray-400">Dhowaan</span>
                                                 )}
@@ -220,7 +221,7 @@ export default function SubscribePage() {
                                             required
                                             pattern="[0-9]+"
                                             title="Fadlan geli lambarka saxda ah"
-                                            className="w-full h-12 text-base bg-white"
+                                            className="w-full h-12 text-base bg-white rounded-lg"
                                         />
                                     </div>
                                 </div>
@@ -231,18 +232,18 @@ export default function SubscribePage() {
                                     </Alert>
                                 )}
                                 {/* Action Buttons */}
-                                <div className="flex gap-3 mt-4">
+                                <div className="flex gap-4 mt-4">
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        className="flex-1 h-12 bg-gray-50 hover:bg-gray-100"
+                                        className="flex-1 h-12 bg-gray-50 hover:bg-gray-100 rounded-lg"
                                         onClick={() => router.back()}
                                     >
                                         Ka noqo
                                     </Button>
                                     <Button
                                         type="submit"
-                                        className="flex-1 h-12 bg-purple-600 hover:bg-purple-700 text-white"
+                                        className="flex-1 h-12 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-md"
                                         disabled={loading}
                                     >
                                         {loading ? (
@@ -260,19 +261,19 @@ export default function SubscribePage() {
                     </Card>
                 </div>
                 {/* Right: Plan Summary */}
-                <div className="w-full md:w-[350px] flex-shrink-0">
-                    <Card className="p-0 overflow-hidden bg-white/80 shadow-md border border-gray-100">
-                        <div className="p-6 md:p-8">
-                            <h2 className="text-base font-semibold text-gray-700 mb-4">Qorshaha Bilowga ah</h2>
-                            <div className="flex flex-col gap-3 mb-6">
+                <div className="w-full md:w-[380px] flex-shrink-0">
+                    <Card className="p-0 overflow-hidden bg-white/90 shadow-lg border border-gray-100 rounded-2xl">
+                        <div className="p-8 md:p-10">
+                            <h2 className="text-lg font-semibold text-gray-700 mb-4">Qorshaha Bilowga ah</h2>
+                            <div className="flex flex-col gap-4 mb-8">
                                 {PLAN_OPTIONS.map((option) => (
                                     <button
                                         key={option.key}
                                         type="button"
-                                        className={`flex items-center justify-between w-full border rounded-lg p-3 mb-2 transition-all ${plan === option.key ? "border-purple-500 bg-purple-50" : "border-gray-200 bg-white"}`}
+                                        className={`flex items-center justify-between w-full border rounded-xl p-4 mb-2 transition-all text-base font-medium shadow-sm ${plan === option.key ? "border-purple-500 bg-purple-50" : "border-gray-200 bg-white"}`}
                                         onClick={() => handlePlanChange(option.key)}
                                     >
-                                        <span className="font-medium">{option.label}</span>
+                                        <span className="font-semibold">{option.label}</span>
                                         <span className="text-sm text-gray-500">{option.note}</span>
                                         {option.badge && plan === option.key && (
                                             <span className="ml-2 bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full">{option.badge}</span>
@@ -282,9 +283,9 @@ export default function SubscribePage() {
                             </div>
                             <div className="flex justify-between items-center mb-2">
                                 <span className="font-medium">Wadarta</span>
-                                <span className="font-bold text-xl text-purple-700">${formData.amount} / {plan === 'monthly' ? 'Bil' : 'Sanad'}</span>
+                                <span className="font-bold text-2xl text-purple-700">${formData.amount} / {plan === 'monthly' ? 'Bil' : 'Sanad'}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+                            <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#a78bfa" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                                 <span>Hubi in dhammaan macaamilada si ammaan ah loo ilaaliyo.</span>
                             </div>
