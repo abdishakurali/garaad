@@ -102,7 +102,6 @@ export function Header() {
         ]
         : [
           { name: "Guriga", href: "/", icon: Home },
-          { name: "Ku biir", href: "/subscribe", icon: FolderDot },
         ],
     [user]
   );

@@ -203,10 +203,9 @@ const ProblemBlock: React.FC<{
             <CardContent className="p-4">
               <div
                 className={cn(
-                  "gap-4",
-                  content.content?.format === "grid"
-                    ? "grid grid-cols-2"
-                    : "grid grid-cols-1"
+                  content.question_type === "diagram"
+                    ? "grid grid-cols-2 gap-4 w-full max-w-xl mx-auto"
+                    : "flex flex-col gap-4 w-full max-w-xl mx-auto"
                 )}
               >
                 {content.options.map(renderOption)}

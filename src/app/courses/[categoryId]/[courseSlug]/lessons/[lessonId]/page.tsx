@@ -12,7 +12,6 @@ import {
   ChevronRight,
   RefreshCw,
   Home,
-  CheckCircle,
   Loader,
   Sparkles,
 } from "lucide-react";
@@ -21,8 +20,6 @@ import type { ExplanationText, TextContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
 import type { Course } from "@/types/lms";
-import EnhancedRewardDisplay from "@/components/Reward";
-import ShareLesson from "@/components/ShareLesson";
 import AuthService from "@/services/auth";
 import "katex/dist/katex.min.css";
 import ProblemBlock from "@/components/lesson/ProblemBlock";
@@ -33,7 +30,6 @@ import CalculatorProblemBlock from "@/components/lesson/CalculatorProblemBlock";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import RewardDisplay from "@/components/Reward";
 import RewardSequence from "@/components/Reward";
 
 // Types and Interfaces
@@ -71,6 +67,8 @@ interface ProblemData {
     format?: string;
     type?: string;
   };
+  xp?: number;
+  xp_value?: number;
 }
 
 export interface ProblemContent {
@@ -82,17 +80,20 @@ export interface ProblemContent {
   explanation?: string;
   diagram_config?: DiagramConfig;
   question_type?:
-    | "code"
-    | "mcq"
-    | "short_input"
-    | "diagram"
-    | "multiple_choice";
+  | "code"
+  | "mcq"
+  | "short_input"
+  | "diagram"
+  | "multiple_choice";
   img?: string;
   alt?: string;
   content: {
     format?: string;
     type?: string;
   };
+  points?: number;
+  xp?: number;
+  xp_value?: number;
 }
 
 interface ProblemOptions {
@@ -151,51 +152,23 @@ interface LeaderboardData {
   };
 }
 
-interface LeagueLeaderboardData {
-  time_period: string;
-  league: string;
-  standings: Array<{
-    rank: number;
-    user: {
-      id: string;
-      name: string;
-    };
-    points: number;
-    streak: number;
-  }>;
-  my_standing: {
-    rank: number;
-    points: number;
-    streak: number;
-  };
-}
-
-interface UserReward {
-  id: number;
-  user: number;
-  reward_type: string;
-  reward_name: string;
-  value: number;
-  awarded_at: string;
-}
-
 // SWR fetchers
-const publicFetcher = async (url: string) => {
+const publicFetcher = async <T = unknown>(url: string): Promise<T> => {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
   return response.json();
 };
 
-const authFetcher = async (
+const authFetcher = async <T = unknown>(
   url: string,
   method: "get" | "post" = "get",
   body?: Record<string, unknown>
-): Promise<any> => {
+): Promise<T> => {
   const service = AuthService.getInstance();
   return service.makeAuthenticatedRequest(method, url, body);
 };
 
-const streakFetcher = async (url: string): Promise<any> => {
+const streakFetcher = async <T = unknown>(url: string): Promise<T> => {
   const authService = AuthService.getInstance();
   const token = authService.getToken();
 
@@ -220,24 +193,14 @@ const streakFetcher = async (url: string): Promise<any> => {
 // Enhanced Loading Component with smooth animations
 const LoadingSpinner = ({
   message,
-  progress,
 }: {
   message: string;
-  progress?: number;
 }) => (
   <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
     <div className="flex flex-col items-center gap-8 p-8">
       <Loader className="animate-spin w-16 h-16" />
       <div className="text-center space-y-2">
         <p className="text-gray-700 font-medium text-xl">{message}</p>
-        {/* {progress !== undefined && (
-          <div className="w-64 bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-        )} */}
       </div>
     </div>
   </div>
@@ -407,8 +370,6 @@ const LessonPage = () => {
   const isLoading = useSelector((state: RootState) => state.learning.isLoading);
 
   // Local state
-  const [courseId, setCourseId] = useState("");
-  const [isLessonCompleted, setIsLessonCompleted] = useState(false);
   const [showCompletionAnimation, setShowCompletionAnimation] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
   const [problemLoading, setProblemLoading] = useState(true);
@@ -433,12 +394,11 @@ const LessonPage = () => {
   const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
 
   const [leagueId, setLeagueId] = useState<number>();
-  const [loadingProgress, setLoadingProgress] = useState(0);
   const [xp, setXp] = useState<number>();
   const [totalXp, setTotalXp] = useState<number>();
 
   const { playSound } = useSoundManager();
-  const continueRef = useRef<() => void>(() => {});
+  const continueRef = useRef<() => void>(() => { });
 
   // SWR hooks for data fetching
   const { data: courses } = useSWR<Course[]>(
@@ -452,7 +412,6 @@ const LessonPage = () => {
 
   const {
     data: streakData,
-    error: streakError,
     isLoading: isStreakLoading,
     mutate: refreshStreakData,
   } = useSWR<StreakData>(
@@ -468,8 +427,6 @@ const LessonPage = () => {
   );
 
   const {
-    data: league,
-    error: leagueError,
     isLoading: isLeagueLoading,
     mutate: refreshLeagueData,
   } = useSWR<LeaderboardData>(
@@ -481,7 +438,7 @@ const LessonPage = () => {
       dedupingInterval: 300000,
       errorRetryCount: 3,
       errorRetryInterval: 5000,
-      onSuccess: (data) => {
+      onSuccess: () => {
         setLeagueId(Number(1));
       },
     }
@@ -489,14 +446,11 @@ const LessonPage = () => {
 
   const {
     data: leagueLeaderboard,
-    error: leaderboardError,
     isLoading: isLeaderboardLoading,
     mutate: refreshLeaderboardData,
   } = useSWR<LeaderboardData>(
-    `${
-      process.env.NEXT_PUBLIC_API_URL
-    }/api/league/leagues/leaderboard/?time_period=weekly&league=${
-      leagueId ?? 1
+    `${process.env.NEXT_PUBLIC_API_URL
+    }/api/league/leagues/leaderboard/?time_period=weekly&league=${leagueId ?? 1
     }`,
     streakFetcher,
     {
@@ -512,15 +466,15 @@ const LessonPage = () => {
   useEffect(() => {
     if (isStreakLoading || isLeagueLoading || isLeaderboardLoading) {
       const interval = setInterval(() => {
-        setLoadingProgress((prev) => {
-          if (prev >= 90) return prev;
-          return prev + Math.random() * 10;
-        });
+        // setLoadingProgress((prev) => {
+        //   if (prev >= 90) return prev;
+        //   return prev + Math.random() * 10;
+        // });
       }, 200);
 
       return () => clearInterval(interval);
     } else {
-      setLoadingProgress(100);
+      // setLoadingProgress(100);
     }
   }, [isStreakLoading, isLeagueLoading, isLeaderboardLoading]);
 
@@ -554,7 +508,7 @@ const LessonPage = () => {
   // Update courseId when found
   useEffect(() => {
     if (courseIdFromSlug) {
-      setCourseId(String(courseIdFromSlug));
+      // setCourseId(String(courseIdFromSlug));
     }
   }, [courseIdFromSlug]);
 
@@ -608,7 +562,7 @@ const LessonPage = () => {
         responses.map((r) => r.json() as Promise<ProblemData>)
       );
 
-      const transformed: ProblemContent[] = datas.map((pd: ProblemData) => ({
+      const transformed: ProblemContent[] = datas.map((pd: ProblemData & { xp?: number }) => ({
         id: pd.id,
         question: pd.question_text,
         which: pd.which,
@@ -629,6 +583,9 @@ const LessonPage = () => {
           ? (pd.question_type as "code" | "mcq" | "short_input" | "diagram")
           : undefined,
         content: pd.content,
+        points: pd.xp,
+        xp: pd.xp,
+        xp_value: pd.xp_value,
       }));
 
       setProblems(transformed);
@@ -646,7 +603,7 @@ const LessonPage = () => {
       console.error("Error fetching problems:", err);
       setError(
         (err instanceof Error ? err.message : String(err)) ||
-          "Failed to load problems"
+        "Failed to load problems"
       );
     } finally {
       setProblemLoading(false);
@@ -789,7 +746,6 @@ const LessonPage = () => {
 
   const handleCompletionAnimationFinish = useCallback(() => {
     setShowCompletionAnimation(false);
-    setIsLessonCompleted(true);
     setShowRewards(true);
   }, []);
 
@@ -815,7 +771,6 @@ const LessonPage = () => {
 
   const handleContinueAfterRewards = useCallback(() => {
     setShowRewards(false);
-    setIsLessonCompleted(false);
     setNavigating(true);
     router.push(coursePath);
   }, [router, coursePath]);
@@ -840,34 +795,26 @@ const LessonPage = () => {
     const isLastBlock = currentBlockIndex === sortedBlocks.length - 1;
 
     if (block.block_type === "problem") {
-      const numberOfProblem = currentLesson?.content_blocks?.filter(
-        (b) => b.block_type === "problem"
-      ).length;
-
       const totalPoints = sortedBlocks
         .filter((b) => b.block_type === "problem")
         .reduce((sum, block) => {
           const points =
             typeof block.content === "object" &&
-            block.content !== null &&
-            "points" in block.content
+              block.content !== null &&
+              "points" in block.content
               ? (block.content as { points?: number }).points || 0
               : 0;
           return sum + points;
         }, 0);
 
-      console.log(totalPoints);
+      setTotalXp(totalPoints);
 
-      setTotalXp((numberOfProblem ?? 0) * 10);
-
-      const experience =
-        typeof block.content === "object" &&
-        block.content !== null &&
-        "points" in block.content
-          ? (block.content as { points?: number }).points
-          : undefined;
-
-      setXp(experience);
+      // Get the current problem's XP value
+      const currentProblem = problems.find(p => p.id === block.problem);
+      if (currentProblem) {
+        const experience = currentProblem.xp || currentProblem.xp_value || 0;
+        setXp(experience);
+      }
     }
 
     switch (block.block_type) {
@@ -1050,7 +997,6 @@ const LessonPage = () => {
       return (
         <LoadingSpinner
           message="soo dajinaya abaalmarinaada..."
-          // progress={loadingProgress}
         />
       );
     }

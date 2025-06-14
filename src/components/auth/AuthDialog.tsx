@@ -24,7 +24,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   login,
   signUp,
-  setError
+  setError,
+  selectAuthLoading
 } from "@/store/features/authSlice";
 import type { AppDispatch, RootState } from "@/store";
 import { useEffect, useState } from "react";
@@ -44,14 +45,16 @@ const formSchema = z.object({
 });
 
 export function AuthDialog() {
-  const [isLogin] = useState(true);
-  const [open, setOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-  const authState = useSelector((state: RootState) => state.auth);
-  const { error, isLoading, user } = authState;
-  const isAuthenticated = !!user;
-  const { toast } = useToast();
   const router = useRouter();
+  const { toast } = useToast();
+  const [isLogin] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const isLoading = useSelector(selectAuthLoading);
+  const authState = useSelector((state: RootState) => state.auth);
+  const { error, user } = authState;
+  const isAuthenticated = !!user;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,16 +65,16 @@ export function AuthDialog() {
 
   // Reset form and error when dialog opens/closes
   useEffect(() => {
-    if (!open) {
+    if (!isOpen) {
       form.reset();
       dispatch(setError(null));
     }
-  }, [open, form, dispatch]);
+  }, [isOpen, form, dispatch]);
 
   // Handle successful authentication
   useEffect(() => {
     if (isAuthenticated) {
-      setOpen(false);
+      setIsOpen(false);
       router.push("/courses");
     }
   }, [isAuthenticated, router]);
@@ -113,7 +116,6 @@ export function AuthDialog() {
           email: values.email,
           password: values.password,
           name: values.email.split("@")[0],
-          // last_name: values.email.split("@")[0],
           age: 18, // Default age
           onboarding_data: {
             goal: "learn_math", // Default goal
@@ -122,7 +124,6 @@ export function AuthDialog() {
             math_level: "beginner", // Default math level
             minutes_per_day: 30, // Default minutes per day
           },
-          // profile is optional, so we don't need to include it
         };
         const result = await dispatch(signUp(signupData));
         if (result) {
@@ -135,7 +136,7 @@ export function AuthDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"

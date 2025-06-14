@@ -110,12 +110,12 @@ export interface ImageContent {
 }
 
 export interface LessonContentBlock {
-  id: any;
+  id: number;
   block_type: BlockType;
   content: string | TextContent | ImageContent | ProblemContent;
   order?: number;
   problem?: number;
-  options?: any;
+  options?: Record<string, unknown>;
 }
 
 type Position = "left" | "center" | "right";
@@ -137,31 +137,47 @@ interface DiagramConfig {
   objects: DiagramObject[];
 }
 
-// export interface ProblemContent {
-//   which?: string;
-//   img?: string;
-//   alt: string;
-//   content: any;
-//   id?: number;
-//   question: string;
-//   question_text?: string;
-//   question_type?: "mcq" | "short_input" | "code" | "diagram";
-//   options: string[];
-//   correct_answer: Array<{
-//     id: string;
-//     text: string;
-//   }>;
-//   explanation?: string;
-//   image?: string;
-//   language?: string;
-//   hints?: Array<{
-//     content: string;
-//   }>;
-//   solution_steps?: Array<{
-//     explanation: string;
-//   }>;
-//   diagram_config?: DiagramConfig | DiagramConfig[];
-// }
+// Example JSON format expected from the backend for a diagram problem:
+/*
+{
+  "id": 1,
+  "question": "What is the total weight on the scale?",
+  "which": "diagram",
+  "options": ["10", "15", "20", "25"],
+  "correct_answer": [{ "id": "1", "text": "15" }],
+  "explanation": "The total weight is the sum of all objects.",
+  "diagram_config": {
+    "diagram_id": 101,
+    "diagram_type": "scale",
+    "scale_weight": 15,
+    "objects": [
+      {
+        "type": "cube",
+        "color": "#FF5733",
+        "number": 2,
+        "position": "left",
+        "orientation": "vertical",
+        "weight_value": 5
+      },
+      {
+        "type": "circle",
+        "color": "#33FF57",
+        "number": 1,
+        "position": "center",
+        "orientation": "none",
+        "weight_value": 5
+      }
+    ]
+  },
+  "question_type": "diagram",
+  "img": null,
+  "alt": null,
+  "content": {
+    "format": "default",
+    "type": "diagram"
+  }
+}
+*/
 
 export interface ProblemContent {
   id: number;
