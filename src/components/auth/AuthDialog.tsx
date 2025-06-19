@@ -18,14 +18,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
   login,
   signUp,
   setError,
-  selectAuthLoading
+  selectAuthLoading,
 } from "@/store/features/authSlice";
 import type { AppDispatch, RootState } from "@/store";
 import { useEffect, useState } from "react";
@@ -35,6 +35,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { SignUpData } from "@/types/auth";
+import { eye, EyeOff } from "lucide-react";
 
 // Define the form schema
 const formSchema = z.object({
@@ -54,6 +55,7 @@ export function AuthDialog() {
   const authState = useSelector((state: RootState) => state.auth);
   const { error, user } = authState;
   const isAuthenticated = !!user;
+  const [showPassword, setIsShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -206,13 +208,26 @@ export function AuthDialog() {
                   <FormItem>
                     <FormLabel>lamberka sirta ah</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Geli lambarka sirta"
-                        {...field}
-                        disabled={isLoading}
-                        className="text-base md:text-lg"
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Geli lambarka sirta"
+                          {...field}
+                          disabled={isLoading}
+                          className="text-base md:text-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setIsShowPassword((prev) => !prev)}
+                          className="absolute right-2 top-1/2  transform -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1.5"
+                        >
+                          {showPassword ? (
+                            <EyeOff size={18} />
+                          ) : (
+                            <Eye size={18} />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
