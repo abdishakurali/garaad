@@ -142,71 +142,66 @@ export function AuthDialog() {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="font-semibold text-base md:text-lg"
+          className="font-semibold text-base md:text-lg bg-primary hover:bg-primary/90 text-white hover:text-white shadow-md transition-all"
         >
           Soo gal
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[375px] sm:max-w-[480px] md:max-w-[550px] px-4 py-6 rounded-xl shadow-2xl border bg-white
-        transition-all duration-300 ease-in-out
-        data-[state=open]:animate-in data-[state=closed]:animate-out
-        data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
-        data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
-        data-[state=closed]:slide-out-to-bottom-[48%] data-[state=open]:slide-in-from-bottom-[48%]"
+        className="max-w-[400px] sm:max-w-[450px] md:max-w-[500px] px-6 py-8 rounded-xl shadow-xl border border-gray-100 bg-white dark:bg-gray-900 dark:border-gray-700"
         aria-describedby="auth-description"
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4 animate-in fade-in-50 duration-500">
+          <DialogTitle className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
             Soo gal
           </DialogTitle>
         </DialogHeader>
 
-        <div id="auth-description" className="sr-only">
-          Doorashooyinka soo gelista: Google, Facebook ama email
-        </div>
-
-        <div className="space-y-4 animate-in fade-in-50 duration-500 delay-200">
+        <div className="space-y-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {error && (
-                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md relative">
+                <div className="p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
+                  <span>{error}</span>
                   <button
                     type="button"
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                    onClick={() => {
-                      dispatch(setError(null));
-                    }}
+                    onClick={() => dispatch(setError(null))}
+                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                   >
-                    <X size={16} />
+                    <X size={18} />
                   </button>
-                  {error}
                 </div>
               )}
+
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email-kaaga</FormLabel>
+                    <FormLabel className="text-gray-700 dark:text-gray-300">
+                      Email-kaaga
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="email@example.com"
                         {...field}
                         disabled={isLoading}
-                        className="text-base md:text-lg"
+                        className="h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/50 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 dark:text-red-400" />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>lamberka sirta ah</FormLabel>
+                    <FormLabel className="text-gray-700 dark:text-gray-300">
+                      Lambarka sirta ah
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -214,36 +209,40 @@ export function AuthDialog() {
                           placeholder="Geli lambarka sirta"
                           {...field}
                           disabled={isLoading}
-                          className="text-base md:text-lg"
+                          className="h-12 text-base pr-12 focus-visible:ring-2 focus-visible:ring-primary/50 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         />
                         <button
                           type="button"
                           onClick={() => setIsShowPassword((prev) => !prev)}
-                          className="absolute right-2 top-1/2  transform -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1.5"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
                         >
                           {showPassword ? (
-                            <EyeOff size={18} />
+                            <EyeOff size={20} />
                           ) : (
-                            <Eye size={18} />
+                            <Eye size={20} />
                           )}
                         </button>
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 dark:text-red-400" />
                   </FormItem>
                 )}
               />
+
               <Button
                 type="submit"
                 className={cn(
-                  "w-full relative text-base md:text-lg",
-                  isLoading && "animate-bounce"
+                  "w-full h-12 text-base md:text-lg font-medium bg-primary hover:bg-primary/90 transition-all",
+                  isLoading && "animate-pulse"
                 )}
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Soo galaya...
                   </>
                 ) : (
