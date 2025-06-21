@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import ModuleBox from "./ModuleBox";
 import ModulePopup from "./ModulePopup";
 import type { Module } from "@/types/learning";
@@ -11,108 +11,134 @@ interface ModuleZigzagProps {
   modules: Module[];
   progress: UserProgress[];
   onModuleClick: (moduleId: number) => void;
-  energyKeys: number;
 }
 
 export default function ModuleZigzag({
   modules,
   progress,
   onModuleClick,
-  energyKeys,
 }: ModuleZigzagProps) {
-  const moduleRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [openPopoverId, setOpenPopoverId] = useState<number | null>(null);
 
   const uniqueModules = useMemo(() => {
-    return modules.filter(
-      (module, index, self) =>
-        index === self.findIndex((m) => m.id === module.id)
-    );
+    const seenIds = new Set<number>();
+    return modules.filter(module => {
+      if (seenIds.has(module.id)) {
+        return false;
+      } else {
+        seenIds.add(module.id);
+        return true;
+      }
+    });
   }, [modules]);
-
-  console.log("+++++++++++++++++MODULES+++++++++++++");
 
   const isModuleCompleted = useCallback(
     (lessonTitle: string) => {
-      const moduleProgress = progress.filter(
+      return progress.some(
         (p) => p.lesson_title === lessonTitle && p.status === "completed"
       );
-      return moduleProgress.length > 0;
     },
     [progress]
   );
 
   const hasModuleProgress = useCallback(
     (moduleId: number) => {
-      const moduleProgress = progress.filter(
-        (p) => p.module_id === moduleId && p.status === "in_progress"
-      );
-      return moduleProgress.length > 0;
+      return progress.some(p => p.module_id === moduleId && p.status === 'in_progress');
     },
     [progress]
   );
 
-  const isModuleLocked = useCallback(() => {
-    return energyKeys === 0;
-  }, [energyKeys]);
+  const isModuleLocked = useCallback((module: Module, index: number) => {
+    if (index === 0) return false;
+    const prevModule = uniqueModules[index - 1];
+    return !isModuleCompleted(prevModule.title);
+  }, [uniqueModules, isModuleCompleted]);
 
-  const getModulePosition = (index: number) => {
-    // On mobile, always center
-    return "justify-center w-full";
-  };
 
   return (
-    <div className="relative w-full px-2 sm:px-0" ref={containerRef}>
-      <div className="relative flex flex-col items-center z-10">
-        {uniqueModules.map((module, index) => (
-          <div
-            key={module.id}
-            ref={(el) => {
-              moduleRefs.current[index] = el;
-            }}
-            className={`relative mb-6 w-full max-w-xs mx-auto ${getModulePosition(index)}`}
-          >
-            <Popover.Root
-              open={openPopoverId === module.id}
-              onOpenChange={(open) => setOpenPopoverId(open ? module.id : null)}
-            >
-              <Popover.Trigger asChild>
-                <div>
-                  <ModuleBox
-                    module={module}
-                    isActive={openPopoverId === module.id}
-                    onClick={() => onModuleClick(module.id)}
-                    iconType={
-                      isModuleCompleted(module.title)
-                        ? "green"
-                        : hasModuleProgress(module.course_id)
-                          ? "blue"
-                          : "gray"
-                    }
-                  />
-                </div>
-              </Popover.Trigger>
+    <div className="relative w-full py-12">
+      <div
+        className="absolute top-0 bottom-0 left-1/2 w-1 bg-gray-200"
+        style={{ transform: "translateX(-50%)" }}
+      ></div>
 
-              <Popover.Portal>
-                <Popover.Content
-                  sideOffset={0}
-                  className="z-[1000] bg-transparent p-0 shadow-none no-animate"
+      <div className="relative flex flex-col items-center z-10 space-y-24">
+        {uniqueModules.map((module, index) => {
+          const isCompleted = isModuleCompleted(module.title);
+          const inProgress = hasModuleProgress(module.id);
+          const locked = isModuleLocked(module, index);
+          const side = index % 2 === 0 ? "left" : "right";
+
+          return (
+            <div
+              key={module.id}
+              className={`w-full flex ${side === "left" ? "justify-start" : "justify-end"
+                }`}
+            >
+              <div
+                className="relative w-1/2"
+                style={{
+                  paddingLeft: side === "right" ? "4rem" : "0",
+                  paddingRight: side === "left" ? "4rem" : "0",
+                }}
+              >
+                <Popover.Root
+                  open={openPopoverId === module.id}
+                  onOpenChange={(open) => {
+                    if (locked) return;
+                    setOpenPopoverId(open ? module.id : null);
+                  }}
                 >
-                  <ModulePopup
-                    module={module}
-                    isInProgress={hasModuleProgress(module.course_id)}
-                    isCompleted={isModuleCompleted(module.title)}
-                    isLocked={isModuleLocked()}
-                    side={index % 2 === 0 ? "right" : "left"}
-                    isFirstModule={module.id === modules[0]?.id}
-                    isLastModule={module.id === modules[modules.length - 1].id}
-                  />
-                </Popover.Content>
-              </Popover.Portal>
-            </Popover.Root>
-          </div>
-        ))}
+                  <Popover.Trigger asChild>
+                    <div className="cursor-pointer">
+                      <ModuleBox
+                        module={module}
+                        isActive={openPopoverId === module.id}
+                        onClick={() => !locked && onModuleClick(module.id)}
+                        iconType={
+                          isCompleted
+                            ? "green"
+                            : inProgress
+                              ? "blue"
+                              : locked
+                                ? "locked"
+                                : "gray"
+                        }
+                      />
+                    </div>
+                  </Popover.Trigger>
+
+                  <Popover.Portal>
+                    <Popover.Content
+                      sideOffset={10}
+                      side={side === 'left' ? 'right' : 'left'}
+                      className="z-50"
+                    >
+                      <ModulePopup
+                        module={module}
+                        isInProgress={inProgress}
+                        isCompleted={isCompleted}
+                        isLocked={locked}
+                        side={side}
+                        isFirstModule={index === 0}
+                        isLastModule={index === uniqueModules.length - 1}
+                      />
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+                <div
+                  className="absolute top-1/2 w-16 h-1 bg-gray-300"
+                  style={{
+                    transform: "translateY(-50%)",
+                    ...(side === "left"
+                      ? { right: "-4rem" }
+                      : { left: "-4rem" }),
+                  }}
+                ></div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

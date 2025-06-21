@@ -27,18 +27,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface Notification {
   id: number;
   type:
-    | "streak"
-    | "league"
-    | "milestone"
-    | "energy"
-    | "welcome"
-    | "reminder"
-    | "achievement"
-    | "competition"
-    | "social";
+  | "streak"
+  | "league"
+  | "milestone"
+  | "energy"
+  | "welcome"
+  | "reminder"
+  | "achievement"
+  | "competition"
+  | "social";
   title: string;
   message: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   is_read: boolean;
   created_at: string;
 }
@@ -55,7 +55,7 @@ const getNotificationIcon = (type: Notification["type"]) => {
     competition: Users,
     social: Star,
   };
-  return iconMap[type];
+  return iconMap[type] || Bell;
 };
 
 const getNotificationColor = (type: Notification["type"]) => {
@@ -172,14 +172,18 @@ export default function NotificationPanel() {
                   const IconComponent = getNotificationIcon(notif.type);
                   const colorClass = getNotificationColor(notif.type);
 
+                  // Safety check to ensure IconComponent is defined
+                  if (!IconComponent) {
+                    console.warn(`No icon found for notification type: ${notif.type}`);
+                  }
+
                   return (
                     <div
                       key={notif.id}
-                      className={`relative group mb-2 p-4 rounded-lg border transition-all duration-200 hover:shadow-md ${
-                        !notif.is_read
-                          ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
-                          : "bg-background hover:bg-muted/50"
-                      }`}
+                      className={`relative group mb-2 p-4 rounded-lg border transition-all duration-200 hover:shadow-md ${!notif.is_read
+                        ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
+                        : "bg-background hover:bg-muted/50"
+                        }`}
                     >
                       <button
                         onClick={() => handleDismiss(notif.id)}
@@ -192,7 +196,7 @@ export default function NotificationPanel() {
                         <div
                           className={`flex-shrink-0 p-2 rounded-full ${colorClass}`}
                         >
-                          <IconComponent className="h-4 w-4" />
+                          {IconComponent && <IconComponent className="h-4 w-4" />}
                         </div>
 
                         <div className="flex-1 min-w-0">

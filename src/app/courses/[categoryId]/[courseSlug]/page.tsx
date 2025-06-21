@@ -60,9 +60,9 @@ const CourseProgress = dynamic(() =>
   )
 );
 
-const authFetcher = async <T = any,>(url: string): Promise<T> => {
+const authFetcher = async <T,>(url: string): Promise<T> => {
   const service = AuthService.getInstance();
-  return await service.makeAuthenticatedRequest("get", url);
+  return await service.makeAuthenticatedRequest<T>("get", url);
 };
 
 const defaultCourseImage = "/images/placeholder-course.svg";
@@ -77,8 +77,6 @@ export default function CourseDetailPage() {
 
   const {
     data: enrollments,
-    isLoading: isLoadingEnrollments,
-    error: enrollementsError,
   } = useSWR<EnrollmentProgress[]>("/api/lms/enrollments/", authFetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 600000,
@@ -86,19 +84,12 @@ export default function CourseDetailPage() {
 
   const {
     data: progress,
-    isLoading: isLoadingProgress,
-    error: progressError,
   } = useSWR<UserProgress[]>("/api/lms/user-progress/", authFetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 600000,
   });
 
-  const {
-    data: streak,
-    isLoading: isLoadingStreak,
-    error: streakError,
-    mutate,
-  } = useSWR<StreakData>("/api/streaks/", authFetcher, {
+  useSWR<StreakData>("/api/streaks/", authFetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 600000,
   });
@@ -202,7 +193,6 @@ export default function CourseDetailPage() {
                     modules={currentCourse.modules}
                     onModuleClick={() => { }}
                     progress={progress ?? []}
-                    energyKeys={streak?.energy?.current ?? 0}
                   />
                 )}
               </div>

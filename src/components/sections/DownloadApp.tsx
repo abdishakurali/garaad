@@ -1,5 +1,3 @@
-import Image from 'next/image'
-
 function DownloadApp() {
     return (
         <section className="py-16 bg-gradient-to-b from-primary/5 to-background pb-24">

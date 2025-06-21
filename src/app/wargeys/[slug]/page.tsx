@@ -6,7 +6,6 @@ import {
   getBlogPages,
   estimateReadingTime,
   createSlug,
-  type BlogPage,
 } from "@/lib/contentful";
 import { RichTextRenderer } from "@/components/RichTextRenderer";
 import { notFound } from "next/navigation";
@@ -41,8 +40,9 @@ export async function generateMetadata({
   if (!post) {
     // If not found by slug, try to find by title
     const posts = await getBlogPages();
-    const matchingPost = posts.find((p: any) => {
-      const title = typeof p.fields.title === 'string' ? p.fields.title : "";
+    const matchingPost = posts.find((p: Record<string, unknown>) => {
+      const fields = p.fields as Record<string, unknown>;
+      const title = typeof fields.title === 'string' ? fields.title : "";
       return createSlug(title) === slug;
     });
     if (matchingPost) {
@@ -95,8 +95,9 @@ export async function generateMetadata({
 // Static params
 export async function generateStaticParams() {
   const posts = await getBlogPages();
-  return posts.map((post: any) => {
-    const title = typeof post.fields.title === 'string' ? post.fields.title : "Untitled Post";
+  return posts.map((post: Record<string, unknown>) => {
+    const fields = post.fields as Record<string, unknown>;
+    const title = typeof fields.title === 'string' ? fields.title : "Untitled Post";
     return { slug: createSlug(title) };
   });
 }
@@ -127,8 +128,9 @@ export default async function BlogPageBySlug({
   if (!post) {
     // If not found by slug, try to find by title
     const posts = await getBlogPages();
-    const matchingPost = posts.find((p: any) => {
-      const title = typeof p.fields.title === 'string' ? p.fields.title : "";
+    const matchingPost = posts.find((p: Record<string, unknown>) => {
+      const fields = p.fields as Record<string, unknown>;
+      const title = typeof fields.title === 'string' ? fields.title : "";
       return createSlug(title) === slug;
     });
     if (matchingPost) {

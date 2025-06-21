@@ -81,6 +81,18 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true, // Allow build to pass even with lint errors
   },
+
+  // Build configuration
+  trailingSlash: false,
+  generateBuildId: async () => {
+    return "build-" + Date.now();
+  },
+
+  // Handle static generation errors gracefully
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
 };
 
 module.exports = nextConfig;

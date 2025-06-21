@@ -16,7 +16,7 @@ interface ModuleBoxProps {
   module: Module;
   isActive: boolean;
   onClick: () => void;
-  iconType: "green" | "blue" | "gray";
+  iconType: "green" | "blue" | "gray" | "locked";
 }
 
 const ModuleBox = memo(
@@ -37,6 +37,10 @@ const ModuleBox = memo(
         case "blue":
           icon = <PlayCircle className="w-6 h-6 text-blue-500" />;
           glowColor = "#3b82f6";
+          break;
+        case "locked":
+          icon = <Lock className="w-6 h-6 text-gray-400" />;
+          glowColor = "#a0a0a0";
           break;
         default:
           icon = <Lock className="w-6 h-6 text-gray-400" />;
@@ -83,6 +87,7 @@ const ModuleBox = memo(
               ${iconType === "green" ? "bg-green-100/80 border-green-300" : ""}
               ${iconType === "blue" ? "bg-blue-100/80 border-blue-300" : ""}
               ${iconType === "gray" ? "bg-gray-100/80 border-gray-300" : ""}
+              ${iconType === "locked" ? "bg-gray-200/80 border-gray-400" : ""}
               ${hovered || isActive ? "scale-100 shadow-lg" : ""}`}
             >
               {icon}
