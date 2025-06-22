@@ -22,6 +22,13 @@ const DiagramScale = dynamic(() => import("../DiagramScale"), {
   loading: () => <div>Loading diagram...</div>,
 });
 
+// Helper function to check if URL is a video file
+const isVideoFile = (url: string): boolean => {
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.m4v'];
+  const lowerUrl = url.toLowerCase();
+  return videoExtensions.some(ext => lowerUrl.endsWith(ext));
+};
+
 const ProblemBlock: React.FC<{
   onContinue: () => void;
   selectedOption: string | null;
@@ -170,20 +177,35 @@ const ProblemBlock: React.FC<{
                   {imgLoading && (
                     <div className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse rounded-xl z-10" />
                   )}
-                  <Image
-                    key={imgSrc}
-                    src={imgSrc || ""}
-                    alt={content.alt || "lesson image"}
-                    fill
-                    loading="lazy"
-                    className="rounded-xl shadow-lg object-contain bg-white"
-                    sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
-                    quality={75}
-                    priority={false}
-                    onLoad={() => setImgLoading(false)}
-                    onError={() => setImgLoading(false)}
-                    style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.2s" }}
-                  />
+                  {isVideoFile(content.img) ? (
+                    <video
+                      key={imgSrc}
+                      src={imgSrc || ""}
+                      controls
+                      className="rounded-xl shadow-lg object-contain bg-black w-full h-full"
+                      onLoadStart={() => setImgLoading(true)}
+                      onCanPlay={() => setImgLoading(false)}
+                      onError={() => setImgLoading(false)}
+                      style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.2s" }}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <Image
+                      key={imgSrc}
+                      src={imgSrc || ""}
+                      alt={content.alt || "lesson image"}
+                      fill
+                      loading="lazy"
+                      className="rounded-xl shadow-lg object-contain bg-white"
+                      sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
+                      quality={75}
+                      priority={false}
+                      onLoad={() => setImgLoading(false)}
+                      onError={() => setImgLoading(false)}
+                      style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.2s" }}
+                    />
+                  )}
                 </div>
               </CardContent>
             )}

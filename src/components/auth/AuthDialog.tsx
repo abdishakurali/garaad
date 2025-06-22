@@ -35,7 +35,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { SignUpData } from "@/types/auth";
-import { eye, EyeOff } from "lucide-react";
+import { EyeOff } from "lucide-react";
 
 // Define the form schema
 const formSchema = z.object({
