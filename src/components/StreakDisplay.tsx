@@ -62,20 +62,19 @@ export default function StreakDisplay({
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          className={`font-medium rounded-full px-4 py-2 flex items-center gap-2 shadow-sm border-gray-300 hover:shadow-md `}
+          className={`font-medium ml-4 rounded-full px-3 py-2 flex items-center gap-1.5 shadow-sm border-gray-300 hover:shadow-md `}
           variant="outline"
         >
           <span className="font-semibold">
             {streakData?.current_streak ?? 0}
           </span>
           <Zap
-            className={`w-5 h-5 transition-colors duration-200 ${
-              streakData?.dailyActivity?.[0]?.status === "complete"
-                ? "text-yellow-500 fill-amber-300"
-                : streakData?.current_streak && streakData.current_streak > 0
+            className={`w-5 h-5 transition-colors duration-200 ${streakData?.dailyActivity?.[0]?.status === "complete"
+              ? "text-yellow-500 fill-amber-300"
+              : streakData?.current_streak && streakData.current_streak > 0
                 ? "text-yellow-500"
                 : "text-gray-400"
-            }`}
+              }`}
           />
         </Button>
       </PopoverTrigger>
@@ -105,22 +104,20 @@ export default function StreakDisplay({
                 </span>
 
                 <Zap
-                  className={`w-6 h-6 text-yellow-500 ${
-                    streakData?.dailyActivity?.[0]?.status === "complete"
-                      ? "fill-amber-300"
-                      : ""
-                  }`}
+                  className={`w-6 h-6 text-yellow-500 ${streakData?.dailyActivity?.[0]?.status === "complete"
+                    ? "fill-amber-300"
+                    : ""
+                    }`}
                 />
               </div>
               <div className="flex gap-1 bg-gray-100 rounded-md p-1.5 relative">
                 {Array.from({ length: streakData.energy.max }).map((_, i) => (
                   <Zap
                     key={i}
-                    className={`w-4 h-4 ${
-                      i < streakData.energy.current
-                        ? "text-yellow-400 fill-yellow-400"
-                        : "text-gray-300"
-                    }`}
+                    className={`w-4 h-4 ${i < streakData.energy.current
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-300"
+                      }`}
                   />
                 ))}
                 <div className="absolute -right-2 top-[5px] rounded-sm text-amber-200  w-3 h-4 bg-gray-100 flex items-center justify-center text-xs font-bold"></div>
@@ -142,18 +139,16 @@ export default function StreakDisplay({
                 .map((activity, index) => (
                   <div key={index} className="flex flex-col items-center">
                     <div
-                      className={`w-9 h-9 rounded-full flex items-center justify-center ${
-                        activity.status === "complete"
-                          ? "bg-yellow-400"
-                          : "bg-gray-100"
-                      }`}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center ${activity.status === "complete"
+                        ? "bg-yellow-400"
+                        : "bg-gray-100"
+                        }`}
                     >
                       <Zap
-                        className={`w-4 h-4 ${
-                          activity.status === "complete"
-                            ? "text-black"
-                            : "text-gray-400"
-                        }`}
+                        className={`w-4 h-4 ${activity.status === "complete"
+                          ? "text-black"
+                          : "text-gray-400"
+                          }`}
                       />
                     </div>
                     <span className="text-xs text-gray-500 mt-1">

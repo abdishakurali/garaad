@@ -133,7 +133,7 @@ export default function NotificationPanel() {
             {unreadCount > 0 && (
               <Badge
                 variant="destructive"
-                className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                className="absolute text-gray-200 text-md  -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
               >
                 {unreadCount > 9 ? "9+" : unreadCount}
               </Badge>
