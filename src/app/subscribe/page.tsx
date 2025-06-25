@@ -77,7 +77,7 @@ export default function SubscribePage() {
     useEffect(() => {
         const authService = AuthService.getInstance();
         if (authService.isPremium()) {
-            router.push("/dashboard");
+            router.push("/courses");
         }
     }, [router]);
 
@@ -183,7 +183,7 @@ export default function SubscribePage() {
                         if (currentUser) {
                             dispatch(setUser(successData.data.user));
                         }
-                        router.push("/dashboard");
+                        router.push("/courses");
                     } else {
                         setError(translateError(successData.message || "Failed to update premium status"));
                     }

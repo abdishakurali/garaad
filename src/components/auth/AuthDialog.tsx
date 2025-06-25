@@ -33,7 +33,6 @@ import { z } from "zod";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import type { SignUpData } from "@/types/auth";
 import { EyeOff } from "lucide-react";
 
@@ -47,7 +46,6 @@ const formSchema = z.object({
 
 export function AuthDialog() {
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
   const { toast } = useToast();
   const [isLogin] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -77,9 +75,9 @@ export function AuthDialog() {
   useEffect(() => {
     if (isAuthenticated) {
       setIsOpen(false);
-      router.push("/courses");
+      // Don't redirect here - let the parent component handle it
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   // Auto-hide error after 5 seconds
   useEffect(() => {
@@ -107,12 +105,9 @@ export function AuthDialog() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (isLogin) {
-        const result = await dispatch(
+        await dispatch(
           login({ email: values.email, password: values.password })
         );
-        if (result) {
-          router.push("/courses");
-        }
       } else {
         const signupData: SignUpData = {
           email: values.email,
@@ -127,10 +122,7 @@ export function AuthDialog() {
             minutes_per_day: 30, // Default minutes per day
           },
         };
-        const result = await dispatch(signUp(signupData));
-        if (result) {
-          router.push("/courses");
-        }
+        await dispatch(signUp(signupData));
       }
     } catch (error) {
       console.error("Auth error:", error);

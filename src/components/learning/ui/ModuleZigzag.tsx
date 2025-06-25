@@ -11,12 +11,14 @@ interface ModuleZigzagProps {
   modules: Module[];
   progress: UserProgress[];
   onModuleClick: (moduleId: number) => void;
+  isPreview?: boolean;
 }
 
 export default function ModuleZigzag({
   modules,
   progress,
   onModuleClick,
+  isPreview = false,
 }: ModuleZigzagProps) {
   const [openPopoverId, setOpenPopoverId] = useState<number | null>(null);
 
@@ -34,25 +36,28 @@ export default function ModuleZigzag({
 
   const isModuleCompleted = useCallback(
     (lessonTitle: string) => {
+      if (isPreview) return false;
       return progress.some(
         (p) => p.lesson_title === lessonTitle && p.status === "completed"
       );
     },
-    [progress]
+    [progress, isPreview]
   );
 
   const hasModuleProgress = useCallback(
     (moduleId: number) => {
+      if (isPreview) return false;
       return progress.some(p => p.module_id === moduleId && p.status === 'in_progress');
     },
-    [progress]
+    [progress, isPreview]
   );
 
   const isModuleLocked = useCallback((module: Module, index: number) => {
+    if (isPreview) return index > 0;
     if (index === 0) return false;
     const prevModule = uniqueModules[index - 1];
     return !isModuleCompleted(prevModule.title);
-  }, [uniqueModules, isModuleCompleted]);
+  }, [uniqueModules, isModuleCompleted, isPreview]);
 
 
   return (
