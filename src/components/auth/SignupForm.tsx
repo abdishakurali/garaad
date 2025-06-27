@@ -113,7 +113,14 @@ export function SignupForm({ onClose }: SignupFormProps) {
           title: "Waad mahadsantahay!",
           description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
         });
-        router.push(`/verify-email?email=${formData.email}`);
+
+        // Get the user from the result payload
+        const user = result.payload?.user;
+        if (user?.is_premium) {
+          router.push('/courses');
+        } else {
+          router.push('/subscribe');
+        }
         onClose?.();
       }
     } catch (error) {

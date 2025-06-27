@@ -1,6 +1,5 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PlayCircle, ReplyIcon } from "lucide-react";
 import type { Module } from "@/types/learning";
@@ -9,81 +8,54 @@ interface ModulePopupProps {
   module: Module;
   isInProgress: boolean;
   isCompleted: boolean;
-  side: "left" | "right";
-  isFirstModule: boolean;
-  isLastModule: boolean;
+  onStartLesson: () => void;
 }
 
 export default function ModulePopup({
   module,
   isInProgress,
   isCompleted,
-  side,
-  isFirstModule,
-  isLastModule,
+  onStartLesson,
 }: ModulePopupProps) {
-  const params = useParams();
-  const router = useRouter();
-
-  const handleModuleClick = (moduleId: string | number) => {
-    router.push(
-      `/courses/${params.categoryId}/${params.courseSlug}/lessons/${moduleId}`
-    );
-  };
-
-  console.log(isLastModule);
-
   return (
-    <div
-      className={`
-        absolute
-        top-full mt-8
-        left-1/2
-        transform
-        -translate-y-16
-        ${side === "left" && !isLastModule
-          ? " -translate-x-[70%]"
-          : "-translate-x-[10%]"
-        }
-        ${isFirstModule ? "-translate-x-[50%]" : ""} 
-        ${isLastModule ? "-translate-x-[50%]" : ""}
+    <div className="p-8 max-w-2xl mx-auto">
+      {/* Pill indicator */}
+      <div className="flex justify-center mb-4">
+        <div className="w-12 h-1.5 rounded-full bg-gray-200" />
+      </div>
 
-        w-80
-        bg-white
-        rounded-lg
-        shadow-lg
-        p-4
-        border-2 border-border
-        z-20
-        animate-fadeIn
-        text-center
-      `}
-    >
-      <h3 className="font-bold mb-2">{module.title}</h3>
-      <p className="text-sm mb-4">{module.description}</p>
+      {/* Content */}
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-gray-900">{module.title}</h2>
+          <p className="text-sm leading-relaxed text-gray-600">{module.description}</p>
+        </div>
 
-      <Button
-        onClick={() => handleModuleClick(module.id)}
-        variant="default"
-        className="w-full bg-foreground text-background hover:bg-foreground/70 rounded-full"
-      >
-        {isInProgress ? (
-          <>
-            Sii Wado Casharka
-            <PlayCircle className="ml-2 w-4 h-4" />
-          </>
-        ) : isCompleted ? (
-          <>
-            Muraajacee Casharka
-            <ReplyIcon className="ml-2 w-4 h-4" />
-          </>
-        ) : (
-          <>
-            Billow Casharka
-            <PlayCircle className="ml-2 w-4 h-4" />
-          </>
-        )}
-      </Button>
+        <Button
+          onClick={onStartLesson}
+          variant="default"
+          className="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 
+            text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-600/25 
+            transition-all duration-300 rounded-2xl py-6 text-lg font-medium"
+        >
+          {isInProgress ? (
+            <>
+              Sii Wado Casharka
+              <PlayCircle className="ml-2 w-5 h-5" />
+            </>
+          ) : isCompleted ? (
+            <>
+              Muraajacee Casharka
+              <ReplyIcon className="ml-2 w-5 h-5" />
+            </>
+          ) : (
+            <>
+              Billow Casharka
+              <PlayCircle className="ml-2 w-5 h-5" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

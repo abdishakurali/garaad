@@ -257,69 +257,55 @@ export class AuthService {
       console.log("Sign in response:", response.data);
 
       // Store tokens and user data
-      if (response.data.tokens.refresh && response.data.tokens.access) {
+      if (
+        response.data?.tokens?.refresh &&
+        response.data?.tokens?.access &&
+        response.data?.user
+      ) {
         console.log("Storing tokens from signin response");
         const { access, refresh } = response.data.tokens;
 
+        // Store tokens and user data
         this.setTokens(access, refresh);
-        // Store user data
         this.setCurrentUser(response.data.user);
 
         // Verify storage
         const storedAccessToken = this.getCookie("accessToken");
-        console.log("Token storage verification:", {
-          expectedToken: access,
-          storedToken: storedAccessToken,
-          matches: storedAccessToken === access,
+        const storedUser = this.getCurrentUser();
+
+        console.log("Storage verification:", {
+          tokenMatches: storedAccessToken === access,
+          userStored: !!storedUser,
+          isPremium: storedUser?.is_premium,
         });
 
         return response.data;
-      } else {
-        console.error("No tokens received in signin response");
-        throw new Error("No tokens received from server");
       }
-    } catch (error) {
-      console.error("Signin error details:", {
-        error,
-        response: axios.isAxiosError(error) ? error.response?.data : undefined,
-        status: axios.isAxiosError(error) ? error.response?.status : undefined,
-        headers: axios.isAxiosError(error)
-          ? error.response?.headers
-          : undefined,
-        config: axios.isAxiosError(error) ? error.config : undefined,
-      });
 
+      console.error("Invalid response data:", response.data);
+      throw new Error("Invalid response data from server");
+    } catch (error) {
+      console.error("SignIn error:", error);
       if (axios.isAxiosError(error)) {
         const responseData = error.response?.data;
-        console.log("Error response data:", responseData);
-
-        // Handle 401 Unauthorized
         if (error.response?.status === 401) {
           throw new Error(
             "Email-ka ama password-ka aad gelisay waa khalad. Fadlan hubi xogtaada oo mar kale isku day."
           );
         }
-
-        // Handle other status codes
-        if (responseData) {
-          // Check for specific error formats
-          if (typeof responseData === "object") {
-            const errorMessage =
-              responseData.detail ||
-              responseData.message ||
-              responseData.error ||
-              (Array.isArray(responseData.non_field_errors)
-                ? responseData.non_field_errors[0]
-                : null);
-
-            if (errorMessage) {
-              throw new Error(errorMessage);
-            }
+        if (responseData && typeof responseData === "object") {
+          const errorMessage =
+            responseData.detail ||
+            responseData.message ||
+            responseData.error ||
+            (Array.isArray(responseData.non_field_errors)
+              ? responseData.non_field_errors[0]
+              : null);
+          if (errorMessage) {
+            throw new Error(errorMessage);
           }
         }
       }
-
-      // Generic error
       throw new Error("Cilad ayaa dhacday. Fadlan mar kale isku day.");
     }
   }

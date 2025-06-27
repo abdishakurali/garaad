@@ -109,14 +109,20 @@ export const login = createAsyncThunk(
   async (credentials: { email: string; password: string }, { dispatch }) => {
     try {
       const response = await AuthService.getInstance().signIn(credentials);
-      dispatch(
-        setUser({
+
+      if (response?.user) {
+        const userData = {
           ...response.user,
-          is_premium: response.user.is_premium || false, // Use existing value or default to false
-        })
-      );
-      return response;
+          is_premium: response.user.is_premium || false,
+        };
+
+        dispatch(setUser(userData));
+        return response;
+      }
+
+      throw new Error("Invalid response from server");
     } catch (error) {
+      console.error("Login error:", error);
       throw error;
     }
   }

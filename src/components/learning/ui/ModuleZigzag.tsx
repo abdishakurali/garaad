@@ -1,24 +1,25 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import ModuleBox from "./ModuleBox";
 import ModulePopup from "./ModulePopup";
 import type { Module } from "@/types/learning";
-import * as Popover from "@radix-ui/react-popover";
 import { UserProgress } from "@/services/progress";
 
 interface ModuleZigzagProps {
   modules: Module[];
   progress: UserProgress[];
   onModuleClick: (moduleId: number) => void;
+  activeModuleId?: number;
 }
 
 export default function ModuleZigzag({
   modules,
   progress,
   onModuleClick,
+  activeModuleId,
 }: ModuleZigzagProps) {
-  const [openPopoverId, setOpenPopoverId] = useState<number | null>(null);
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 
   const uniqueModules = useMemo(() => {
     const seenIds = new Set<number>();
@@ -48,84 +49,60 @@ export default function ModuleZigzag({
     [progress]
   );
 
-  return (
-    <div className="relative w-full py-12">
-      <div
-        className="absolute top-0 bottom-0 left-1/2 w-1 bg-gray-200"
-        style={{ transform: "translateX(-50%)" }}
-      ></div>
+  // Handle module box click
+  const handleModuleClick = (module: Module) => {
+    setSelectedModule(module);
+  };
 
-      <div className="relative flex flex-col items-center z-10 space-y-24">
+  // Update selected module when activeModuleId changes
+  useEffect(() => {
+    if (activeModuleId) {
+      const activeModule = uniqueModules.find(m => m.id === activeModuleId);
+      if (activeModule) {
+        setSelectedModule(activeModule);
+      }
+    }
+  }, [activeModuleId, uniqueModules]);
+
+  return (
+    <div className="w-full max-w-2xl mx-auto pb-40">
+      {/* Modules in vertical list */}
+      <div className="space-y-3 px-4 md:px-6">
         {uniqueModules.map((module, index) => {
           const isCompleted = isModuleCompleted(module.title);
           const inProgress = hasModuleProgress(module.id);
-          const side = index % 2 === 0 ? "left" : "right";
+          const isLocked = !isCompleted && !inProgress && index > 0 && !isModuleCompleted(uniqueModules[index - 1]?.title);
+          const isActive = selectedModule?.id === module.id || activeModuleId === module.id;
 
           return (
-            <div
+            <ModuleBox
               key={module.id}
-              className={`w-full flex ${side === "left" ? "justify-start" : "justify-end"}`}
-            >
-              <div
-                className="relative w-1/2"
-                style={{
-                  paddingLeft: side === "right" ? "4rem" : "0",
-                  paddingRight: side === "left" ? "4rem" : "0",
-                }}
-              >
-                <Popover.Root
-                  open={openPopoverId === module.id}
-                  onOpenChange={(open) => {
-                    setOpenPopoverId(open ? module.id : null);
-                  }}
-                >
-                  <Popover.Trigger asChild>
-                    <div className="cursor-pointer">
-                      <ModuleBox
-                        module={module}
-                        isActive={openPopoverId === module.id}
-                        onClick={() => onModuleClick(module.id)}
-                        iconType={
-                          isCompleted
-                            ? "green"
-                            : inProgress
-                              ? "blue"
-                              : "gray"
-                        }
-                      />
-                    </div>
-                  </Popover.Trigger>
-
-                  <Popover.Portal>
-                    <Popover.Content
-                      sideOffset={10}
-                      side={side === 'left' ? 'right' : 'left'}
-                      className="z-50"
-                    >
-                      <ModulePopup
-                        module={module}
-                        isInProgress={inProgress}
-                        isCompleted={isCompleted}
-                        side={side}
-                        isFirstModule={index === 0}
-                        isLastModule={index === uniqueModules.length - 1}
-                      />
-                    </Popover.Content>
-                  </Popover.Portal>
-                </Popover.Root>
-                <div
-                  className="absolute top-1/2 w-16 h-1 bg-gray-300"
-                  style={{
-                    transform: "translateY(-50%)",
-                    ...(side === "left"
-                      ? { right: "-4rem" }
-                      : { left: "-4rem" }),
-                  }}
-                ></div>
-              </div>
-            </div>
+              module={module}
+              onClick={() => handleModuleClick(module)}
+              isLocked={isLocked}
+              isActive={isActive}
+            />
           );
         })}
+      </div>
+
+      {/* Fixed bottom card for module details */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 transform transition-all duration-300 ease-in-out
+          ${selectedModule ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'}`}
+      >
+        <div className="bg-gradient-to-t from-white via-white to-white/95 shadow-[0_-8px_30px_-12px_rgba(0,0,0,0.1)] rounded-t-[32px] backdrop-blur-sm">
+          {selectedModule && (
+            <ModulePopup
+              module={selectedModule}
+              isInProgress={hasModuleProgress(selectedModule.id)}
+              isCompleted={isModuleCompleted(selectedModule.title)}
+              onStartLesson={() => {
+                onModuleClick(selectedModule.id);
+              }}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

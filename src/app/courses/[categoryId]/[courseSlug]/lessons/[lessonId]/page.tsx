@@ -19,7 +19,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { ExplanationText, TextContent, DiagramConfig, ProblemContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
-import type { Course } from "@/types/lms";
+import type { Course, Lesson } from "@/types/lms";
 import AuthService from "@/services/auth";
 import "katex/dist/katex.min.css";
 import ProblemBlock from "@/components/lesson/ProblemBlock";
@@ -355,6 +355,10 @@ const LessonPage = () => {
 
     const { playSound } = useSoundManager();
     const continueRef = useRef<() => void>(() => { });
+
+    // In the LessonPage component, add state for lesson navigation
+    const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
+    const [courseLessons, setCourseLessons] = useState<Lesson[]>([]);
 
     // SWR hooks for data fetching
     const { data: courses } = useSWR<Course[]>(
@@ -934,6 +938,48 @@ const LessonPage = () => {
         return sortedBlocks.length;
     }, [sortedBlocks]);
 
+    // Add this after other useEffect hooks
+    useEffect(() => {
+        const fetchCourseLessons = async () => {
+            if (!courseIdFromSlug) return;
+
+            try {
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/?course=${courseIdFromSlug}`
+                );
+                if (!response.ok) throw new Error('Failed to fetch lessons');
+
+                const lessons = await response.json();
+                setCourseLessons(lessons);
+
+                // Find current lesson index
+                const index = lessons.findIndex((lesson: Lesson) => lesson.id === Number(params.lessonId));
+                if (index !== -1) {
+                    setCurrentLessonIndex(index);
+                }
+            } catch (error) {
+                console.error('Error fetching course lessons:', error);
+            }
+        };
+
+        fetchCourseLessons();
+    }, [courseIdFromSlug, params.lessonId]);
+
+    // Add navigation handlers
+    const handlePreviousLesson = () => {
+        if (currentLessonIndex > 0) {
+            const previousLesson = courseLessons[currentLessonIndex - 1];
+            router.push(`/courses/${params.categoryId}/${params.courseSlug}/lessons/${previousLesson.id}`);
+        }
+    };
+
+    const handleNextLesson = () => {
+        if (currentLessonIndex < courseLessons.length - 1) {
+            const nextLesson = courseLessons[currentLessonIndex + 1];
+            router.push(`/courses/${params.categoryId}/${params.courseSlug}/lessons/${nextLesson.id}`);
+        }
+    };
+
     // Loading state
     if (isLoading) {
         return <LoadingSpinner message="soo dajinaya casharada..." />;
@@ -989,6 +1035,10 @@ const LessonPage = () => {
                 currentQuestion={currentBlockIndex + 1}
                 totalQuestions={totalQuestions}
                 coursePath={coursePath}
+                onPreviousLesson={handlePreviousLesson}
+                onNextLesson={handleNextLesson}
+                hasPreviousLesson={currentLessonIndex > 0}
+                hasNextLesson={currentLessonIndex < courseLessons.length - 1}
             />
 
             <main className="pt-20 pb-32 mt-4">

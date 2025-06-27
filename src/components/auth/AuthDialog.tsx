@@ -35,6 +35,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import type { SignUpData } from "@/types/auth";
 import { EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Define the form schema
 const formSchema = z.object({
@@ -54,6 +55,7 @@ export function AuthDialog() {
   const { error, user } = authState;
   const isAuthenticated = !!user;
   const [showPassword, setIsShowPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,11 +75,15 @@ export function AuthDialog() {
 
   // Handle successful authentication
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       setIsOpen(false);
-      // Don't redirect here - let the parent component handle it
+      if (user.is_premium) {
+        router.push('/courses');
+      } else {
+        router.push('/subscribe');
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user, router]);
 
   // Auto-hide error after 5 seconds
   useEffect(() => {
@@ -105,9 +111,18 @@ export function AuthDialog() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (isLogin) {
-        await dispatch(
+        const response = await dispatch(
           login({ email: values.email, password: values.password })
-        );
+        ).unwrap();
+
+        if (response?.user) {
+          setIsOpen(false);
+          if (response.user.is_premium) {
+            router.push('/courses');
+          } else {
+            router.push('/subscribe');
+          }
+        }
       } else {
         const signupData: SignUpData = {
           email: values.email,

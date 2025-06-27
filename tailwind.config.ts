@@ -20,6 +20,10 @@ const config: Config = {
         "3xl": "1.5rem",
         full: "9999px",
       },
+      animation: {
+        "spin-slow": "spin 8s linear infinite",
+        "spin-slow-reverse": "spin 8s linear infinite reverse",
+      },
     },
   },
   plugins: [animate],

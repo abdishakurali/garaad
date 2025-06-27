@@ -1,109 +1,74 @@
 "use client";
 
-import { useState, useRef, useMemo, useCallback, memo } from "react";
-import { Canvas } from "@react-three/fiber";
-import { CheckCircle2, PlayCircle, Lock } from "lucide-react";
+import { memo } from "react";
 import type { Module } from "@/types/learning";
-import dynamic from "next/dynamic";
-
-// Dynamically import the 3D component to reduce initial bundle size
-const Fantasy3DCircle = dynamic(
-  () => import("./Fantazy3DCircle").then((mod) => mod.default),
-  { ssr: false }
-);
 
 interface ModuleBoxProps {
   module: Module;
-  isActive: boolean;
   onClick: () => void;
-  iconType: "green" | "blue" | "gray" | "locked";
+  isLocked?: boolean;
+  isActive?: boolean;
 }
 
-const ModuleBox = memo(
-  ({ module, isActive, onClick, iconType }: ModuleBoxProps) => {
-    const [hovered, setHovered] = useState(false);
-    const canvasRef = useRef<HTMLDivElement>(null);
-    const isDisabled = iconType === "gray";
+const ModuleBox = memo(({ module, onClick, isLocked = false, isActive = false }: ModuleBoxProps) => {
+  return (
+    <div
+      className={`flex items-center gap-6 cursor-pointer group transition-all duration-300 p-3 rounded-2xl
+        ${isActive
+          ? 'bg-gradient-to-r from-blue-50/80 to-blue-50/40 shadow-sm'
+          : 'hover:bg-gradient-to-r hover:from-gray-50/80 hover:to-transparent'}`}
+      onClick={!isLocked ? onClick : undefined}
+    >
+      {/* Module icon with rings */}
+      <div className="relative w-16 h-16 flex-shrink-0">
+        {/* Outer ring with gradient */}
+        <div className={`absolute inset-0 rounded-full ${isLocked
+          ? 'bg-gradient-to-br from-gray-200 to-gray-300/50'
+          : 'bg-gradient-to-br from-blue-200/40 to-blue-300/20'
+          }`} />
 
-    // Memoized values
-    const { icon, glowColor } = useMemo(() => {
-      let icon, glowColor;
+        {/* Inner ring with gradient */}
+        <div
+          className={`absolute inset-2 rounded-full ${isLocked
+            ? 'bg-gradient-to-br from-gray-300 to-gray-200'
+            : 'bg-gradient-to-br from-blue-300/50 to-blue-200/30'
+            }`}
+        />
 
-      switch (iconType) {
-        case "green":
-          icon = <CheckCircle2 className="w-6 h-6 text-green-500" />;
-          glowColor = "#10b981";
-          break;
-        case "blue":
-          icon = <PlayCircle className="w-6 h-6 text-blue-500" />;
-          glowColor = "#3b82f6";
-          break;
-        case "locked":
-          icon = <Lock className="w-6 h-6 text-gray-400" />;
-          glowColor = "#a0a0a0";
-          break;
-        default:
-          icon = <Lock className="w-6 h-6 text-gray-400" />;
-          glowColor = "#6b7280";
-      }
-
-      return { icon, glowColor };
-    }, [iconType]);
-
-    // Event handlers
-    const handleMouseEnter = useCallback(() => setHovered(true), []);
-    const handleMouseLeave = useCallback(() => setHovered(false), []);
-    const handleClick = useCallback(() => {
-      if (!isDisabled) onClick();
-    }, [isDisabled, onClick]);
-
-    return (
-      <div
-        className={`relative w-52 max-w-sm transform transition duration-300
-        ${isActive ? "scale-100" : "hover:scale-100"} 
-        ${isDisabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
-        onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div ref={canvasRef} className="relative w-full h-48">
-          <Canvas
-            camera={{ position: [0, 0, 3], fov: 50 }}
-            gl={{ antialias: false, powerPreference: "low-power" }}
-            dpr={Math.min(window.devicePixelRatio, 1)}
-            performance={{ min: 0.1 }}
-            frameloop={isActive || hovered ? "always" : "demand"}
-          >
-            <Fantasy3DCircle
-              color={glowColor}
-              isActive={isActive}
-              isHovered={hovered}
-            />
-          </Canvas>
-
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-            <div
-              className={`p-3 rounded-full backdrop-blur-sm border-2 transition-all duration-300
-              ${iconType === "green" ? "bg-green-100/80 border-green-300" : ""}
-              ${iconType === "blue" ? "bg-blue-100/80 border-blue-300" : ""}
-              ${iconType === "gray" ? "bg-gray-100/80 border-gray-300" : ""}
-              ${iconType === "locked" ? "bg-gray-200/80 border-gray-400" : ""}
-              ${hovered || isActive ? "scale-100 shadow-lg" : ""}`}
-            >
-              {icon}
-            </div>
-          </div>
+        {/* Center with gradient */}
+        <div
+          className={`absolute inset-4 rounded-full ${isLocked
+            ? 'bg-gradient-to-br from-gray-400 to-gray-500'
+            : 'bg-gradient-to-br from-blue-500 to-blue-600'
+            } flex items-center justify-center shadow-inner`}
+        >
+          {isLocked && (
+            <div className="w-4 h-4 bg-gray-200/90 rounded-sm" />
+          )}
         </div>
 
-        <div className="flex items-center justify-center">
-          <span className="absolute top-38 text-center font-semibold text-md">
-            {module.title}
-          </span>
-        </div>
+        {/* Subtle glow effect */}
+        <div className={`absolute -inset-1 rounded-full blur-md opacity-20 transition-opacity duration-300
+          ${isLocked ? 'bg-gray-400' : 'bg-blue-400'} 
+          ${isActive ? 'opacity-40' : 'group-hover:opacity-30'}`}
+        />
       </div>
-    );
-  }
-);
+
+      {/* Module title with better typography */}
+      <div className="flex-1 min-w-0">
+        <p className={`text-lg font-medium leading-snug line-clamp-2 transition-colors duration-200
+          ${isLocked
+            ? 'text-gray-400'
+            : isActive
+              ? 'text-gray-900'
+              : 'text-gray-700 group-hover:text-gray-900'}`}
+        >
+          {module.title}
+        </p>
+      </div>
+    </div>
+  );
+});
 
 ModuleBox.displayName = "ModuleBox";
 export default ModuleBox;

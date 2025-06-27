@@ -117,9 +117,9 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                   : "bg-red-50 border-red-200"
               )}
             >
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col md:flex-row items-left justify-between gap-4">
                 {/* Icon + Text */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-left text-left gap-3">
                   <div
                     className={cn(
                       "w-8 h-8 flex items-center justify-center rounded-full border-2",
@@ -133,6 +133,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     ) : (
                       <X className="h-5 w-5 text-white" />
                     )}
+
                   </div>
 
                   <div className="flex flex-col gap-1 text-left">
@@ -141,24 +142,27 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     </p>
                     <p className="text-xs sm:text-sm">{message}</p>
                   </div>
+                  {isCorrect && (
+                    <div className=" py-2 px-1.5 font-bold text-sm rounded-md bg-[#8ef53f42] flex items-center gap-2">
+                      <Award className="text-green-400" size={17} />+{xp} dhibco
+                    </div>
+                  )}
                 </div>
 
-                {isCorrect && (
-                  <div className=" py-2 px-1.5 font-bold text-sm rounded-md bg-[#8ef53f42] flex items-center gap-2">
-                    <Award className="text-green-400" size={17} />+{xp} dhibco
-                  </div>
-                )}
+
 
                 {/* Buttons */}
                 <div className="flex gap-2">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={handleWhyClick}
-                    className="rounded-full border-gray-300 hover:border-gray-400 text-base sm:text-sm"
-                  >
-                    Sharaxaad
-                  </Button>
+                  {isCorrect && (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={handleWhyClick}
+                      className="rounded-full border-gray-300 hover:border-gray-400 text-base sm:text-sm"
+                    >
+                      Sharaxaad
+                    </Button>
+                  )}
 
                   <Button
                     size="lg"
