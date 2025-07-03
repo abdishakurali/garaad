@@ -221,26 +221,36 @@ const ProblemBlock: React.FC<{
             {content.question_type === "diagram" && (content.diagram_config || content.diagrams) && (
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
-                  {content.diagrams ? (
-                    // Handle new diagrams array format
-                    content.diagrams.map((cfg, i) => (
-                      <div key={cfg.diagram_id || i} className="flex-shrink-0">
-                        <DiagramScale config={cfg} />
-                      </div>
-                    ))
-                  ) : Array.isArray(content.diagram_config) ? (
-                    // Handle existing diagram_config array format
-                    content.diagram_config.map((cfg, i) => (
-                      <div key={cfg.diagram_id || i} className="flex-shrink-0">
-                        <DiagramScale config={cfg} />
-                      </div>
-                    ))
-                  ) : content.diagram_config ? (
-                    // Handle existing single diagram_config format
-                    <div className="flex-shrink-0">
-                      <DiagramScale config={content.diagram_config} />
-                    </div>
-                  ) : null}
+                  {(() => {
+                    // Determine if there are multiple diagrams
+                    const diagramCount = content.diagrams?.length ||
+                      (Array.isArray(content.diagram_config) ? content.diagram_config.length : 1);
+                    const isMultiple = diagramCount > 1;
+
+                    if (content.diagrams) {
+                      // Handle new diagrams array format
+                      return content.diagrams.map((cfg, i) => (
+                        <div key={cfg.diagram_id || i} className="flex-shrink-0">
+                          <DiagramScale config={cfg} isMultiple={isMultiple} />
+                        </div>
+                      ));
+                    } else if (Array.isArray(content.diagram_config)) {
+                      // Handle existing diagram_config array format
+                      return content.diagram_config.map((cfg, i) => (
+                        <div key={cfg.diagram_id || i} className="flex-shrink-0">
+                          <DiagramScale config={cfg} isMultiple={isMultiple} />
+                        </div>
+                      ));
+                    } else if (content.diagram_config) {
+                      // Handle existing single diagram_config format
+                      return (
+                        <div className="flex-shrink-0">
+                          <DiagramScale config={content.diagram_config} isMultiple={isMultiple} />
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </CardContent>
             )}

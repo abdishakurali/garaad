@@ -122,10 +122,11 @@ export interface DiagramObject {
   type: string;
   color: string;
   number: number;
+  position?: "left" | "right" | "center"; // Platform position (which side of the scale)
   layout: {
     rows: number;
     columns: number;
-    position: "top" | "bottom" | "left" | "right" | "center";
+    position: "top" | "bottom" | "left" | "right" | "center"; // Position within the platform
     alignment: "center" | "left" | "right";
   };
   weight_value?: number;
