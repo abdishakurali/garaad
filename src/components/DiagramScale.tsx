@@ -116,6 +116,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
           // Scale down elements when multiple diagrams are present
           const scale = isMultiple ? 0.7 : 1.0;
           const spacing = (isMultiple ? 35 : 45) * scale; // Base spacing between shapes
+          const groupSpacing = (isMultiple ? 15 : 20) * scale; // Spacing between different groups of shapes
 
           // Check if this is a platform diagram
           const isPlatform = config.diagram_type === "platform";
@@ -124,10 +125,21 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
           let baseElements: any[] = [];
 
           if (isPlatform) {
-            // Platform layout: two separate platforms, each with its own support, no connecting beam
+            // Platform layout: two separate platforms connected by a beam
             const platformWidth = isMultiple ? 90 : 120;
             const platformHeight = isMultiple ? 9 : 12;
-            const platformOffset = isMultiple ? 120 : 170; // Separation
+            const beamWidth = isMultiple ? 300 : 400;
+            const beamHeight = isMultiple ? 5 : 6;
+            const platformOffset = isMultiple ? 110 : 150; // Distance from center to each platform
+
+            // Horizontal beam (centered vertically in SVG)
+            const beamY = isMultiple ? 15 : 20;
+            const beam = dg
+              .rectangle(beamWidth, beamHeight)
+              .fill("#AAAAAA")
+              .stroke("#888888")
+              .strokewidth(2)
+              .position(V2(0, beamY));
 
             // Left platform
             const leftPlatform = dg
@@ -136,7 +148,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               .fill("#CCCCCC")
               .stroke("#999999")
               .strokewidth(2)
-              .position(V2(-platformOffset, isMultiple ? 18 : 28));
+              .position(V2(-platformOffset, beamY));
 
             // Right platform  
             const rightPlatform = dg
@@ -145,12 +157,12 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               .fill("#CCCCCC")
               .stroke("#999999")
               .strokewidth(2)
-              .position(V2(platformOffset, isMultiple ? 18 : 28));
+              .position(V2(platformOffset, beamY));
 
             // Central fulcrum (triangle pointing up)
-            const fulcrumY = isMultiple ? 38 : 50;
+            const fulcrumY = isMultiple ? 28 : 35;
             const fulcrum = dg
-              .regular_polygon(3, isMultiple ? 12 : 16)
+              .regular_polygon(3, isMultiple ? 10 : 12)
               .fill("#777777")
               .stroke("#555555")
               .strokewidth(2)
@@ -158,8 +170,8 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               .position(V2(0, fulcrumY));
 
             // Support posts for each platform
-            const supportY = isMultiple ? 28 : 38;
-            const supportHeight = isMultiple ? 24 : 32;
+            const supportY = isMultiple ? 25 : 32;
+            const supportHeight = isMultiple ? 20 : 25;
             const leftSupport = dg
               .rectangle(4, supportHeight)
               .fill("#999999")
@@ -170,7 +182,8 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               .fill("#999999")
               .position(V2(platformOffset, supportY));
 
-            baseElements = [leftSupport, rightSupport, leftPlatform, rightPlatform, fulcrum];
+            // No weight display for platform diagrams
+            baseElements = [beam, leftSupport, rightSupport, leftPlatform, rightPlatform, fulcrum];
           } else {
             // Original scale layout - adjusted for vertical centering
             const scaleBaseY = isMultiple ? 15 : 20; // Match platform beam position
@@ -214,14 +227,27 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
 
           // Group objects by their platform position (left/right/center)
           const positionGroups = config.objects.reduce((acc, obj) => {
+            // For platform diagrams: use obj.position for platform selection
+            // For scale diagrams: use obj.layout.position only
             const pos = isPlatform ? (obj.position || obj.layout.position) : obj.layout.position;
             if (!acc[pos]) acc[pos] = [];
             acc[pos].push(obj);
             return acc;
           }, {} as Record<string, DiagramObject[]>);
 
+          // Calculate the maximum width needed for each position
+          const positionWidths = Object.entries(positionGroups).reduce((acc, [pos, objects]) => {
+            acc[pos] = objects.reduce((total, obj) => {
+              const cols = isPlatform ? obj.layout.columns : Math.ceil(obj.number / obj.layout.rows);
+              return total + (cols * spacing) + (total > 0 ? groupSpacing : 0);
+            }, 0);
+            return acc;
+          }, {} as Record<string, number>);
+
           const allShapes = Object.entries(positionGroups).flatMap(([position, objects]) => {
-            return objects.flatMap((obj) => {
+            let currentX = 0;
+
+            return objects.flatMap((obj, objIndex) => {
               const baseShape = makeShape(obj, isPlatform);
               const shapes: any[] = [];
 
@@ -236,27 +262,34 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
                 actualCols = Math.ceil(totalShapes / actualRows);
               }
               const gridWidth = (actualCols - 1) * spacing;
+              const objectWidth = (actualCols - 1) * spacing;
 
               // Calculate base position
               let baseX = 0;
-              let baseY = 0;
+              // Ensure both diagram types are vertically centered in the SVG
+              let baseY;
               if (isPlatform) {
-                baseY = isMultiple ? 8 : 18; // Place objects just above the platform
-                const platformOffset = isMultiple ? 120 : 170;
+                baseY = isMultiple ? 30 : 40; // Platform diagrams - above platforms
+              } else {
+                baseY = isMultiple ? 35 : 50; // Scale diagrams - above scale base
+              }
+
+              // Calculate position based on layout
+              if (isPlatform) {
+                const platformOffset = isMultiple ? 110 : 150; // Must match the platformOffset used above
                 switch (position) {
                   case "left":
-                    baseX = -platformOffset - gridWidth / 2;
+                    baseX = -platformOffset;
                     break;
                   case "right":
-                    baseX = platformOffset - gridWidth / 2;
+                    baseX = platformOffset;
                     break;
                   case "center":
                   default:
-                    baseX = 0 - gridWidth / 2;
+                    baseX = 0;
                     break;
                 }
               } else {
-                baseY = isMultiple ? 35 : 50; // Scale diagrams - above scale base
                 // Original scale positioning
                 switch (position) {
                   case "left":
@@ -278,6 +311,43 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
                 }
               }
 
+              // Add spacing between different types of weights (scale diagrams only)
+              if (!isPlatform && objIndex > 0) {
+                currentX += groupSpacing;
+              }
+
+              // Adjust baseX based on alignment within position group
+              if (isPlatform) {
+                // Platform diagram alignment (completely separate logic)
+                switch (obj.layout.alignment) {
+                  case "center":
+                    baseX = baseX - (gridWidth / 2);
+                    break;
+                  case "right":
+                    baseX = baseX - gridWidth;
+                    break;
+                  case "left":
+                  default:
+                    // Left align starting from the base position
+                    break;
+                }
+              } else {
+                // Scale diagram alignment (original logic unchanged)
+                const totalWidth = positionWidths[position];
+                switch (obj.layout.alignment) {
+                  case "center":
+                    baseX = baseX - (totalWidth / 2) + currentX + (objectWidth / 2);
+                    break;
+                  case "right":
+                    baseX = baseX - totalWidth + currentX;
+                    break;
+                  case "left":
+                  default:
+                    baseX = baseX + currentX;
+                    break;
+                }
+              }
+
               // Create grid of shapes with consistent spacing
               for (let i = 0; i < totalShapes; i++) {
                 let row, col;
@@ -291,6 +361,11 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
                 const x = baseX + (col * spacing);
                 const y = baseY + (row * spacing);
                 shapes.push(baseShape.translate(V2(x, y)));
+              }
+
+              // Update currentX for next object in this position group (scale diagrams only)
+              if (!isPlatform) {
+                currentX += objectWidth + (objIndex < objects.length - 1 ? spacing : 0);
               }
 
               return shapes;
