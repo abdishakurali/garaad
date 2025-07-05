@@ -507,6 +507,17 @@ export default function Page() {
   const authError = useSelector(selectAuthError);
   const { toast } = useToast();
 
+  // On mount, check for ?ref= in the URL and pre-fill referral code
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      if (ref) {
+        setUserData((prev) => ({ ...prev, referralCode: ref }));
+      }
+    }
+  }, []);
+
   const handleSelect = (value: number | string) => {
     // Play toggle-on sound when an option is selected
     playSound("toggle-on");
