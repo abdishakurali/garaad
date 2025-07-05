@@ -18,7 +18,14 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+      state.user = {
+        ...action.payload,
+        referral_code: action.payload.referral_code,
+        referral_points: action.payload.referral_points,
+        referral_count: action.payload.referral_count,
+        referred_by: action.payload.referred_by,
+        referred_by_username: action.payload.referred_by_username,
+      };
       state.isAuthenticated = true;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
@@ -83,6 +90,11 @@ export const signUp = createAsyncThunk(
         setUser({
           ...response.user,
           is_premium: response.user.is_premium || false, // Use existing value or default to false
+          referral_code: response.user.referral_code,
+          referral_points: response.user.referral_points,
+          referral_count: response.user.referral_count,
+          referred_by: response.user.referred_by,
+          referred_by_username: response.user.referred_by_username,
           profile: userData.profile || {
             bio: "",
             avatar: "",

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { User } from "@/types/auth";
 
 export interface SignUpData {
   email: string;
@@ -13,43 +14,6 @@ export interface SignUpData {
     topic: string;
     math_level: string;
     minutes_per_day: number;
-  };
-  profile?: {
-    bio?: string;
-    avatar?: string;
-    location?: string;
-    website?: string;
-    socialLinks?: {
-      twitter?: string;
-      linkedin?: string;
-      github?: string;
-    };
-  };
-}
-
-export interface User {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  username: string;
-  date_joined: string;
-  is_active: boolean;
-  is_staff: boolean;
-  is_superuser: boolean;
-  last_login: string;
-  avatar_url?: string;
-  bio?: string;
-  is_premium: boolean;
-  preferences?: {
-    language: string;
-    theme: string;
-    notifications: boolean;
-  };
-  stats?: {
-    rank: number;
-    points: number;
-    completed: number;
   };
   profile?: {
     bio?: string;

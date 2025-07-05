@@ -28,6 +28,11 @@ export interface User {
   profile?: Profile;
   createdAt?: string;
   updatedAt?: string;
+  referral_code?: string;
+  referral_points?: number;
+  referral_count?: number;
+  referred_by?: string | null;
+  referred_by_username?: string | null;
 }
 
 export interface Profile {

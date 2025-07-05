@@ -494,6 +494,7 @@ export default function Page() {
     email: "",
     password: "",
     age: "",
+    referralCode: "",
   });
   const [error, setError] = useState<string>("");
   const { playSound } = useSoundManager();
@@ -579,6 +580,7 @@ export default function Page() {
           math_level: String(selections[3]).trim(),
           minutes_per_day: Number.parseInt(String(selections[4]).split(" ")[0]),
         },
+        ...(userData.referralCode ? { referral_code: userData.referralCode.trim() } : {}),
       };
       //  Redux for signup
       const result = await dispatch(signUp(signUpData));
@@ -939,6 +941,26 @@ export default function Page() {
                     value={userData.password}
                     onChange={(e) =>
                       setUserData({ ...userData, password: e.target.value })
+                    }
+                    className="w-full p-3 rounded-lg border-slate-200 focus:border-primary focus:primary/20 text-base md:text-lg"
+                    disabled={isLoading}
+                  />
+                </div>
+                {/* Referral Code Input */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="referralCode"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Referral Code (optional)
+                  </Label>
+                  <Input
+                    id="referralCode"
+                    type="text"
+                    placeholder="Enter referral code (if any)"
+                    value={userData.referralCode || ""}
+                    onChange={(e) =>
+                      setUserData({ ...userData, referralCode: e.target.value })
                     }
                     className="w-full p-3 rounded-lg border-slate-200 focus:border-primary focus:primary/20 text-base md:text-lg"
                     disabled={isLoading}
