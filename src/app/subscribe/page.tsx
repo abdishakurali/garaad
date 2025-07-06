@@ -161,7 +161,7 @@ export default function SubscribePage() {
                 const orderResponse = await orderService.createSubscriptionOrder(orderRequest);
 
                 if (!orderResponse.success) {
-                    throw new Error(orderResponse.message || "Failed to create order");
+                    throw new Error(orderResponse.message || "Ku guuldaraystay in la sameeyo dalashada");
                 }
 
                 const order = orderResponse.data;
@@ -232,7 +232,7 @@ export default function SubscribePage() {
                         }
                         router.push("/courses?order=" + order.id);
                     } else {
-                        setError(translateError(successData.message || "Failed to update premium status"));
+                        setError(translateError(successData.message || "Ku guuldaraystay in la cusboonaysiiyo xaaladda premium"));
                     }
                 } else {
                     // Handle specific error types

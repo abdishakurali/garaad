@@ -101,7 +101,7 @@ export default function OrderHistoryPage() {
                 setError("Ku guuldaraystay in la soo raro dalbashada");
             }
         } catch (err) {
-            console.error("Error loading orders:", err);
+            console.error("Qalad ayaa dhacay marka la soo raray dalabaadaha:", err);
             setError("Khalad ayaa dhacay. Fadlan mar kale isku day.");
         } finally {
             setLoading(false);
@@ -142,7 +142,7 @@ export default function OrderHistoryPage() {
             setDownloadingReceipt(orderId);
             await orderService.downloadReceipt(orderId);
         } catch (err) {
-            console.error("Error downloading receipt:", err);
+            console.error("Qalad ayaa dhacay marka la soo dejin lahaayeen rasiidhka:", err);
             setError("Ku guuldaraystay in la dajinayo rasiidka. Fadlan mar kale isku day.");
         } finally {
             setDownloadingReceipt(null);

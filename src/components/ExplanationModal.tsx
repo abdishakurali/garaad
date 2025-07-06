@@ -79,7 +79,7 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
 
         {/* Content */}
         <div className="p-4 max-h-[60vh] overflow-y-auto">
-          <Suspense fallback={<p>Loading…</p>}>
+          <Suspense fallback={<p>La soo rarayo...</p>}>
             {content.type === "latex" ? (
               <Latex>{paragraphs[currentIdx]}</Latex>
             ) : (
@@ -107,11 +107,10 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
             <button
               onClick={handlePrev}
               disabled={isFirst}
-              className={`p-1 rounded-full transition-colors ${
-                isFirst
+              className={`p-1 rounded-full transition-colors ${isFirst
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               &#x276E;
             </button>
@@ -121,9 +120,8 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
                 <button
                   key={idx}
                   onClick={() => setCurrentIdx(idx)}
-                  className={`w-2 h-2 rounded-full transition-colors focus:outline-none ${
-                    idx === currentIdx ? "bg-gray-800" : "bg-gray-300"
-                  }`}
+                  className={`w-2 h-2 rounded-full transition-colors focus:outline-none ${idx === currentIdx ? "bg-gray-800" : "bg-gray-300"
+                    }`}
                 />
               ))}
             </div>
@@ -131,11 +129,10 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
             <button
               onClick={handleNext}
               disabled={isLast}
-              className={`p-1 rounded-full transition-colors ${
-                isLast
+              className={`p-1 rounded-full transition-colors ${isLast
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               &#x276F;
             </button>

@@ -119,19 +119,12 @@ export interface LessonContentBlock {
 }
 
 export interface DiagramObject {
-  type: string;
+  type: "cube" | "triangle" | "weight" | "circle" | "trapezoid_weight";
   color: string;
   number: number;
-  position?: "left" | "right" | "center"; // Platform position (which side of the scale)
-  layout: {
-    rows: number;
-    columns: number;
-    position: "top" | "bottom" | "left" | "right" | "center"; // Position within the platform
-    alignment: "center" | "left" | "right";
-  };
+  position: "left" | "right" | "center";
+  orientation: "vertical" | "horizontal" | "none";
   weight_value?: number;
-  text_color?: string;
-  background_color?: string;
 }
 
 export interface DiagramConfig {
@@ -141,135 +134,68 @@ export interface DiagramConfig {
   objects: DiagramObject[];
 }
 
-// Example JSON format expected from the backend for a diagram problem:
+// Example JSON format expected from the backend for a diagram problem (matching diagram.md structure):
 /*
-Single diagram format (existing):
+Single diagram format:
 {
-  "id": 1,
-  "question": "What is the total weight on the scale?",
-  "which": "diagram",
-  "options": ["10", "15", "20", "25"],
-  "correct_answer": [{ "id": "1", "text": "15" }],
-  "explanation": "The total weight is the sum of all objects.",
-  "diagram_config": {
-    "diagram_id": 101,
-    "diagram_type": "scale",
-    "scale_weight": 15,
-    "objects": [
-      {
-        "type": "cube",
-        "color": "#FF5733",
-        "number": 2,
-        "position": "left",
-        "orientation": "vertical",
-        "weight_value": 5
-      },
-      {
-        "type": "circle",
-        "color": "#33FF57",
-        "number": 1,
-        "position": "center",
-        "orientation": "none",
-        "weight_value": 5
-      }
-    ]
-  },
+  "id": 7,
+  "question_text": "Waxa miisaanka ku yaal ayaa muujinaya culayska alaabta. Immisa ayuu le'eg yahay hal laba jibbaaran?",
   "question_type": "diagram",
-  "img": null,
-  "alt": null,
-  "content": {
-    "format": "default",
-    "type": "diagram"
-  }
-}
-
-Multiple diagrams format (new):
-{
-  "id": 2,
-  "question": "Now can you find the weight of 1 circle?",
-  "which": "diagram",
-  "options": ["3", "5", "7", "9"],
-  "correct_answer": [{ "id": "1", "text": "7" }],
-  "explanation": "Analyze both scales to find the circle's weight.",
-  "diagrams": [
+  "options": [
     {
-      "diagram_id": 101,
-      "diagram_type": "scale",
-      "scale_weight": 16,
+      "id": "a",
+      "text": "4"
+    },
+    {
+      "id": "b", 
+      "text": "8"
+    },
+    {
+      "id": "c",
+      "text": "10"
+    },
+    {
+      "id": "d",
+      "text": "16"
+    }
+  ],
+  "correct_answer": [
+    {
+      "id": "c",
+      "text": "10"
+    }
+  ],
+  "explanation": "Since there are 4 squares weighing 40, each square weighs 40 / 4 = 10.",
+  "content": [
+    {}
+  ],
+  "diagram_config": [
+    {
       "objects": [
         {
           "type": "cube",
-          "color": "#4F8EF7",
-          "layout": {
-            "rows": 2,
-            "columns": 1,
-            "position": "left",
-            "alignment": "center"
-          },
-          "number": 2,
-          "text_color": "#FFFFFF",
-          "weight_value": null
+          "color": "blue",
+          "number": 3,
+          "position": "center",
+          "orientation": "vertical",
+          "weight_value": 10
         },
         {
           "type": "triangle",
-          "color": "#9B59B6",
-          "layout": {
-            "rows": 1,
-            "columns": 1,
-            "position": "right",
-            "alignment": "center"
-          },
-          "number": 10,
-          "text_color": "#FFFFFF",
-          "weight_value": null
-        }
-      ]
-    },
-    {
-      "diagram_id": 102,
-      "diagram_type": "scale",
-      "scale_weight": 14,
-      "objects": [
-        {
-          "type": "circle",
-          "color": "#2ECC71",
-          "layout": {
-            "rows": 1,
-            "columns": 1,
-            "position": "left",
-            "alignment": "center"
-          },
+          "color": "gray",
           "number": 1,
-          "text_color": "#FFFFFF",
-          "weight_value": null
-        },
-        {
-          "type": "trapezoid_weight",
-          "color": "#9B59B6",
-          "layout": {
-            "rows": 2,
-            "columns": 2,
-            "position": "right",
-            "alignment": "center"
-          },
-          "number": 4,
-          "text_color": "#FFFFFF",
-          "weight_value": 5
+          "position": "center",
+          "orientation": "none",
+          "weight_value": 10
         }
-      ]
+      ],
+      "diagram_id": 1,
+      "diagram_type": "scale",
+      "scale_weight": 25
     }
   ],
-  "question_type": "diagram",
-  "img": null,
-  "alt": null,
-  "content": {
-    "format": "default",
-    "type": "diagram"
-  },
-  "xp": 10,
-  "created_at": "2025-06-30T09:33:40.194312Z",
-  "updated_at": "2025-06-30T10:38:06.272995Z",
-  "xp_value": 10
+  "created_at": "2025-04-21T09:13:55.103330Z",
+  "updated_at": "2025-04-29T13:50:41.216425Z"
 }
 */
 

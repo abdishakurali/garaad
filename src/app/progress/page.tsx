@@ -159,9 +159,9 @@ export default function ProgressPage() {
       {/* Header and Refresh */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Your Learning Progress</h1>
+          <h1 className="text-3xl font-bold">Horumarka Waxbarashada</h1>
           <p className="text-muted-foreground mt-1">
-            Track your course completion and performance
+            La soco dhammaysashada koorsooyinkaaga iyo waxqabadkaaga
           </p>
         </div>
         <Button
@@ -254,7 +254,7 @@ export default function ProgressPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  In Progress
+                  Waa la socodaa
                 </p>
                 <p className="text-2xl font-bold">
                   {stats.inProgress}{" "}
@@ -276,7 +276,7 @@ export default function ProgressPage() {
         <div className="relative w-full md:w-72">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search lessons..."
+            placeholder="Raadi casharada..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -293,14 +293,14 @@ export default function ProgressPage() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="all" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              <span className="hidden sm:inline">All</span>
+              <span className="hidden sm:inline">Dhammaan</span>
               <Badge variant="outline" className="ml-1">
                 {stats.totalItems}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="completed" className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Completed</span>
+              <span className="hidden sm:inline">Dhammaystiran</span>
               <Badge variant="outline" className="ml-1">
                 {stats.completed}
               </Badge>
@@ -310,7 +310,7 @@ export default function ProgressPage() {
               className="flex items-center gap-2"
             >
               <Clock className="h-4 w-4" />
-              <span className="hidden sm:inline">In Progress</span>
+              <span className="hidden sm:inline">Waa la socodaa</span>
               <Badge variant="outline" className="ml-1">
                 {stats.inProgress}
               </Badge>
@@ -330,7 +330,7 @@ export default function ProgressPage() {
               size="sm"
               className="text-red-600 border-red-200 hover:bg-red-100"
             >
-              Try Again
+              Isku day mar kale
             </Button>
           </CardContent>
         </Card>
@@ -340,11 +340,11 @@ export default function ProgressPage() {
       {filteredItems.length === 0 ? (
         <div className="text-center py-12 bg-muted/30 rounded-lg">
           <BookOpen className="h-12 w-12 mx-auto text-muted-foreground" />
-          <h3 className="mt-4 text-lg font-medium">No lessons found</h3>
+          <h3 className="mt-4 text-lg font-medium">Casharro lama helin</h3>
           <p className="text-muted-foreground mt-1">
             {searchQuery
-              ? "Try a different search term"
-              : "You don't have any lessons in this category yet"}
+              ? "Isku day erayo kale oo raadis ah"
+              : "Wali ma hayso casharro ku saabsan qaybtan"}
           </p>
         </div>
       ) : (
@@ -396,7 +396,7 @@ export default function ProgressPage() {
               <CardContent className="pb-2">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Progress</span>
+                    <span className="text-sm font-medium">Horumar</span>
                     <span className="text-sm text-muted-foreground">
                       {item.score ?? 0}%
                     </span>
@@ -419,7 +419,7 @@ export default function ProgressPage() {
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3.5 w-3.5" />
                   <span>
-                    Last visited:{" "}
+                    Booqasho ugu dambaysay:{" "}
                     {format(new Date(item.last_visited_at), "MMM d, yyyy")}
                   </span>
                 </div>
@@ -427,7 +427,7 @@ export default function ProgressPage() {
                   <div className="flex items-center gap-1.5">
                     <CheckCircle className="h-3.5 w-3.5 text-green-600" />
                     <span>
-                      Completed:{" "}
+                      La dhammaystay:{" "}
                       {format(new Date(item.completed_at), "MMM d, yyyy")}
                     </span>
                   </div>

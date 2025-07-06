@@ -129,7 +129,7 @@ export const PracticeSet: React.FC<PracticeSetProps> = ({
                       )}
                     >
                       <p className="font-medium">
-                        {state.isCorrect ? "Correct!" : "Incorrect"}
+                        {state.isCorrect ? "Sax!" : "Qaldan"}
                       </p>
                       <p className="mt-2">
                         {problem.problem_details.explanation}

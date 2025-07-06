@@ -71,11 +71,22 @@ export async function POST(request: NextRequest) {
     const priceId =
       STRIPE_PRICE_IDS[plan as keyof typeof STRIPE_PRICE_IDS][priceType];
 
+    console.log(`Request details:`, {
+      plan,
+      countryCode,
+      priceType,
+      priceId,
+      envVars: {
+        SOMALIA: process.env.STRIPE_MONTHLY_PRICE_ID_SOMALIA,
+        INTERNATIONAL: process.env.STRIPE_MONTHLY_PRICE_ID_INTERNATIONAL,
+      },
+    });
+
     // Prepare line items - use price ID if available, otherwise use price_data as fallback
     let lineItems;
 
-    if (priceId) {
-      // Use price ID if available
+    if (priceId && priceId.startsWith("price_")) {
+      // Use price ID if available and valid
       lineItems = [
         {
           price: priceId,
@@ -83,7 +94,7 @@ export async function POST(request: NextRequest) {
         },
       ];
       console.log(
-        `Using price ID: ${priceId} for plan: ${plan}, type: ${priceType}`
+        `✅ Using valid Price ID: ${priceId} for plan: ${plan}, type: ${priceType}`
       );
     } else {
       // Use price_data as fallback
@@ -109,10 +120,15 @@ export async function POST(request: NextRequest) {
         },
       ];
       console.log(
-        `Using fallback price_data for plan: ${plan}, type: ${priceType}`
+        `⚠️  Using fallback price_data for plan: ${plan}, type: ${priceType}`
       );
       console.log(
-        `Price: ${fallbackPrice.unit_amount} ${fallbackPrice.currency}`
+        `   Price: ${fallbackPrice.unit_amount} ${fallbackPrice.currency}`
+      );
+      console.log(
+        `   Reason: ${
+          !priceId ? "No Price ID found" : "Invalid Price ID format"
+        }`
       );
     }
 
@@ -137,9 +153,10 @@ export async function POST(request: NextRequest) {
       customer_email: userEmail,
     });
 
+    console.log(`✅ Checkout session created successfully: ${session.id}`);
     return NextResponse.json({ sessionId: session.id });
   } catch (error) {
-    console.error("Error creating checkout session:", error);
+    console.error("❌ Error creating checkout session:", error);
 
     // Log detailed error information for debugging
     if (error instanceof Error) {

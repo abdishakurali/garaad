@@ -17,11 +17,29 @@ export const getStripe = async () => {
   return null;
 };
 
+// Helper function to validate Price ID format
+function validatePriceId(priceId: string | undefined): string | undefined {
+  if (!priceId) return undefined;
+
+  // Stripe Price IDs should start with "price_"
+  if (priceId.startsWith("price_")) {
+    return priceId;
+  }
+
+  // If it's not a valid Price ID format, return undefined to trigger fallback
+  console.warn(
+    `Invalid Price ID format: ${priceId}. Expected format: price_xxxxxxxxxx`
+  );
+  return undefined;
+}
+
 // Price IDs for your subscription plans
 export const STRIPE_PRICE_IDS = {
   monthly: {
-    SOMALIA: process.env.STRIPE_MONTHLY_PRICE_ID_SOMALIA!,
-    INTERNATIONAL: process.env.STRIPE_MONTHLY_PRICE_ID_INTERNATIONAL!,
+    SOMALIA: validatePriceId(process.env.STRIPE_MONTHLY_PRICE_ID_SOMALIA),
+    INTERNATIONAL: validatePriceId(
+      process.env.STRIPE_MONTHLY_PRICE_ID_INTERNATIONAL
+    ),
   },
 };
 

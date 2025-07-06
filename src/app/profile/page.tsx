@@ -140,7 +140,7 @@ function ReferralDashboard({ stats, referrals }: { stats: ReferralStats | null; 
       const token = AuthService.getInstance().getToken();
 
       if (!token) {
-        console.error('No token found for generating referral code');
+        console.error('Token lama helin ee koodka la wareejiyo la sameeyo');
         return;
       }
 
@@ -169,10 +169,10 @@ function ReferralDashboard({ stats, referrals }: { stats: ReferralStats | null; 
           window.dispatchEvent(new CustomEvent('referralCodeGenerated'));
         }
       } else {
-        console.error('Failed to generate referral code:', response.status);
+        console.error('Ku guuldaraystay in la sameeyo koodka la wareejiyo:', response.status);
       }
     } catch (error) {
-      console.error('Error generating referral code:', error);
+      console.error('Qalad ayaa dhacay marka la sameeyay koodka la wareejiyo:', error);
     } finally {
       setIsGenerating(false);
     }
@@ -305,7 +305,7 @@ export default function ProfilePage() {
         setError("Isticmaalaha lama helin");
       }
     } catch (err) {
-      console.error("Error loading user:", err);
+      console.error("Qalad ayaa dhacay marka la soo raray isticmaalaha:", err);
       setError("Ku guuldaraystay in la soo raro xogta profile-ka");
     } finally {
       setIsLoading(false);
@@ -362,7 +362,7 @@ export default function ProfilePage() {
           return;
         }
         if (!res.ok) {
-          throw new Error(`Failed to fetch referrals: ${res.status}`);
+          throw new Error(`Ku guuldaraystay in la soo raro xogta la wareejiyo: ${res.status}`);
         }
         const data = await res.json();
         console.log('[Referral Debug] /referrals/ response:', data);

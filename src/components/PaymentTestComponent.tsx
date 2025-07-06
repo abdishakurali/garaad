@@ -101,7 +101,7 @@ export function PaymentTestComponent({ onSuccess, onError }: PaymentTestProps) {
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || "Payment failed");
+                throw new Error(result.message || "Bixinta waa guuldareysatay");
             }
 
             if (result.success) {
@@ -109,7 +109,7 @@ export function PaymentTestComponent({ onSuccess, onError }: PaymentTestProps) {
                 setSuccess(successMessage);
                 onSuccess?.(result.data);
             } else {
-                throw new Error(result.message || "Payment failed");
+                throw new Error(result.message || "Bixinta waa guuldareysatay");
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Payment failed";
@@ -157,7 +157,7 @@ export function PaymentTestComponent({ onSuccess, onError }: PaymentTestProps) {
                                 name="accountNo"
                                 value={waafiData.accountNo}
                                 onChange={handleWaafiInputChange}
-                                placeholder="2526xxxxxxx"
+                                placeholder="Lambarka Telefoonka"
                                 required
                                 disabled={loading}
                             />
@@ -169,7 +169,7 @@ export function PaymentTestComponent({ onSuccess, onError }: PaymentTestProps) {
                                 type="number"
                                 value={waafiData.amount}
                                 onChange={handleWaafiInputChange}
-                                placeholder="10"
+                                placeholder="Qiimaha (USD)"
                                 required
                                 disabled={loading}
                             />
@@ -180,7 +180,7 @@ export function PaymentTestComponent({ onSuccess, onError }: PaymentTestProps) {
                                 name="description"
                                 value={waafiData.description}
                                 onChange={handleWaafiInputChange}
-                                placeholder="Test Payment"
+                                placeholder="Sharaxaada Bixinta"
                                 required
                                 disabled={loading}
                             />
@@ -209,7 +209,7 @@ export function PaymentTestComponent({ onSuccess, onError }: PaymentTestProps) {
                                 name="cardHolderName"
                                 value={cardData.cardHolderName}
                                 onChange={handleCardInputChange}
-                                placeholder="JOHN DOE"
+                                placeholder="MAGACA HAYAHA KAARKA"
                                 required
                                 disabled={loading}
                             />

@@ -179,7 +179,7 @@ const authFetcher = async <T = unknown>(url: string): Promise<T> => {
 
 const publicFetcher = async (url: string) => {
   const response = await fetch(url);
-  if (!response.ok) throw new Error("Failed to fetch");
+  if (!response.ok) throw new Error("Ku guuldaraystay in la soo raro");
   return response.json();
 };
 
@@ -544,7 +544,7 @@ export default function Home() {
                 </div>
               ) : leaderboardError ? (
                 <div className="text-center py-4 text-destructive">
-                  {leaderboardError.message || "Failed to load leaderboard"}
+                  {leaderboardError.message || "Ku guuldaraystay in la soo raro shaxda horyaalka"}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -788,7 +788,7 @@ export default function Home() {
                   </div>
                 ) : coursesError ? (
                   <div className="text-center py-4 text-destructive">
-                    {coursesError.message || "Failed to load courses"}
+                    {coursesError.message || "Ku guuldaraystay in la soo raro koorsooyinka"}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -961,7 +961,7 @@ export default function Home() {
                 </div>
               ) : achievementsError ? (
                 <div className="text-center py-4 text-destructive">
-                  {achievementsError.message || "Failed to load achievements"}
+                  {achievementsError.message || "Ku guuldaraystay in la soo raro guulaha"}
                   <Button
                     variant="ghost"
                     size="sm"

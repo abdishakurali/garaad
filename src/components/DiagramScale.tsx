@@ -34,7 +34,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               const fill = dg
                 .square(size)
                 .apply(dg.mod.round_corner(8))
-                .fill(obj.background_color || obj.color)
+                .fill(obj.color)
                 .stroke("none");
               const outline = dg
                 .square(size)
@@ -53,7 +53,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             case "circle": {
               shape = dg
                 .circle(size / 2)
-                .fill(obj.background_color || obj.color)
+                .fill(obj.color)
                 .stroke("none");
               break;
             }
@@ -61,7 +61,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               shape = dg
                 .regular_polygon(3, size / 1.35)
                 .apply(dg.mod.round_corner(5))
-                .fill(obj.background_color || obj.color)
+                .fill(obj.color)
                 .stroke("#777")
                 .strokewidth(1);
               break;
@@ -69,7 +69,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             case "weight": {
               shape = dg
                 .regular_polygon(5, size / 2)
-                .fill(obj.background_color || obj.color || "#ccc")
+                .fill(obj.color || "#ccc")
                 .stroke("#333")
                 .strokewidth(2);
               break;
@@ -84,13 +84,13 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               ];
               shape = dg
                 .polygon(points)
-                .fill(obj.background_color || obj.color || "#ccc")
+                .fill(obj.color || "#ccc")
                 .stroke("#333")
                 .strokewidth(2);
               break;
             }
             default: {
-              shape = dg.square(size).fill(obj.background_color || obj.color).stroke("none");
+              shape = dg.square(size).fill(obj.color).stroke("none");
             }
           }
 
@@ -101,7 +101,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             const txt = dg
               .textvar(String(obj.weight_value))
               .move_origin_text("center-center")
-              .textfill(obj.text_color || "black")
+              .textfill("black")
               .fontsize(fontSize);
             shape = dg.diagram_combine(shape, txt);
           }
@@ -227,7 +227,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
           if (isPlatform) {
             // First group by position, then by type
             config.objects.forEach((obj) => {
-              const pos = obj.position || obj.layout.position;
+              const pos = obj.position;
               if (!positionGroups[pos]) positionGroups[pos] = {};
               if (!positionGroups[pos][obj.type]) positionGroups[pos][obj.type] = [];
               positionGroups[pos][obj.type].push(obj);
@@ -235,7 +235,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
           } else {
             // For non-platform, keep original grouping by position only
             positionGroups = config.objects.reduce((acc, obj) => {
-              const pos = obj.layout.position;
+              const pos = obj.position;
               if (!acc[pos]) acc[pos] = { all: [] };
               acc[pos]["all"].push(obj);
               return acc;
@@ -247,7 +247,10 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             let totalWidth = 0;
             Object.values(typeGroups).forEach((objects, idx) => {
               objects.forEach((obj) => {
-                const cols = isPlatform ? obj.layout.columns : Math.ceil(obj.number / obj.layout.rows);
+                // Calculate columns based on orientation
+                const cols = obj.orientation === "vertical" ? 1 :
+                  obj.orientation === "horizontal" ? obj.number :
+                    Math.ceil(Math.sqrt(obj.number));
                 totalWidth += (cols * spacing);
               });
               if (idx < Object.values(typeGroups).length - 1) {
@@ -289,12 +292,17 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
                 const shapes: any[] = [];
                 const totalShapes = obj.number;
                 let actualRows, actualCols;
-                if (isPlatform) {
-                  actualRows = obj.layout.rows;
-                  actualCols = obj.layout.columns;
+                // Calculate rows and columns based on orientation
+                if (obj.orientation === "vertical") {
+                  actualRows = totalShapes;
+                  actualCols = 1;
+                } else if (obj.orientation === "horizontal") {
+                  actualRows = 1;
+                  actualCols = totalShapes;
                 } else {
-                  actualRows = obj.layout.rows;
-                  actualCols = Math.ceil(totalShapes / actualRows);
+                  // For "none" orientation, arrange in a square-like pattern
+                  actualCols = Math.ceil(Math.sqrt(totalShapes));
+                  actualRows = Math.ceil(totalShapes / actualCols);
                 }
                 const objectWidth = (actualCols - 1) * spacing;
                 let baseX = currentTypeX;
@@ -326,18 +334,8 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
                       break;
                   }
                   const totalWidth = positionWidths[position];
-                  switch (obj.layout.alignment) {
-                    case "center":
-                      baseX = baseX - (totalWidth / 2) + currentTypeX + (objectWidth / 2);
-                      break;
-                    case "right":
-                      baseX = baseX - totalWidth + currentTypeX;
-                      break;
-                    case "left":
-                    default:
-                      baseX = baseX + currentTypeX;
-                      break;
-                  }
+                  // Default to center alignment for the simplified structure
+                  baseX = baseX - (totalWidth / 2) + currentTypeX + (objectWidth / 2);
                 }
 
                 // Create grid of shapes with consistent spacing

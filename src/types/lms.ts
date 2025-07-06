@@ -91,15 +91,11 @@ export type Position = "left" | "center" | "right";
 export type Orientation = "vertical" | "horizontal" | "none";
 
 export interface DiagramObject {
-  type: string;
+  type: "cube" | "triangle" | "weight" | "circle" | "trapezoid_weight";
   color: string;
   number: number;
-  layout: {
-    rows: number;
-    columns: number;
-    position: "top" | "bottom" | "left" | "right" | "center";
-    alignment: "center" | "left" | "right";
-  };
+  position: "left" | "right" | "center";
+  orientation: "vertical" | "horizontal" | "none";
   weight_value?: number;
 }
 
@@ -125,8 +121,8 @@ export interface LessonResponse {
     content?: string;
     // For calculator interfaces there may be additional options:
     options?: {
-      view?: any;
-      [key: string]: any;
+      view?: string | Record<string, unknown>;
+      [key: string]: unknown;
     };
   }>;
 }
