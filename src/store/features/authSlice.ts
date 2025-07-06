@@ -64,7 +64,8 @@ const authSlice = createSlice({
       })
       .addCase(signUp.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || "Signup failed";
+        // Use the payload if available, otherwise fallback
+        state.error = (action.payload as string) || "Signup failed";
       });
   },
 });
@@ -83,7 +84,7 @@ export const selectAuthError = (state: RootState) => state.auth.error;
 // Export the signup thunk
 export const signUp = createAsyncThunk(
   "auth/signUp",
-  async (userData: SignUpData, { dispatch }) => {
+  async (userData: SignUpData, { dispatch, rejectWithValue }) => {
     try {
       const response = await AuthService.getInstance().signUp(userData);
       dispatch(
@@ -110,7 +111,12 @@ export const signUp = createAsyncThunk(
       );
       return response;
     } catch (error) {
-      throw error;
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue(
+        "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day."
+      );
     }
   }
 );

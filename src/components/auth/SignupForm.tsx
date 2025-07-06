@@ -110,18 +110,36 @@ export function SignupForm({ onClose }: SignupFormProps) {
 
       // Only redirect if signup was successful and no auth error
       if (result && !authError) {
-        toast({
-          variant: "default",
-          title: "Waad mahadsantahay!",
-          description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
-        });
+        // Check if the user's email is already verified
+        if (result.user?.is_email_verified) {
+          // User is already verified, redirect to appropriate page
+          toast({
+            variant: "default",
+            title: "Waad mahadsantahay!",
+            description: "Emailkaaga horey ayaa la xaqiijiyay. Waxaad hadda isticmaali kartaa adeegga.",
+          });
 
-        // Get the user from the result payload
-        const user = result.user;
-        if (user?.is_premium) {
-          router.push('/courses');
+          // Redirect based on premium status
+          if (result.user?.is_premium) {
+            router.push('/courses');
+          } else {
+            router.push('/subscribe');
+          }
         } else {
-          router.push('/subscribe');
+          // User needs email verification
+          toast({
+            variant: "default",
+            title: "Waad mahadsantahay!",
+            description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
+          });
+
+          // Get the user from the result payload
+          const user = result.user;
+          if (user?.is_premium) {
+            router.push('/courses');
+          } else {
+            router.push('/subscribe');
+          }
         }
         onClose?.();
       }

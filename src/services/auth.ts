@@ -506,9 +506,53 @@ export class AuthService {
       type ErrorResponse = {
         detail?: string;
         errors?: Record<string, string[]>;
+        email?: string[];
+        password?: string[];
+        name?: string[];
+        [key: string]: string | string[] | Record<string, string[]> | undefined;
       };
 
       const response = error.response?.data as ErrorResponse;
+      console.log("Auth service error response:", response);
+
+      // Handle field-specific errors
+      if (response?.email && Array.isArray(response.email)) {
+        const emailError = response.email[0];
+        console.log("Processing email error:", emailError);
+        if (emailError.includes("already exists")) {
+          const errorMessage =
+            "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
+          console.log("Throwing email error:", errorMessage);
+          throw new Error(errorMessage);
+        } else {
+          console.log("Throwing email error:", emailError);
+          throw new Error(emailError);
+        }
+      }
+
+      if (response?.password && Array.isArray(response.password)) {
+        const passwordError = response.password[0];
+        if (passwordError.includes("too short")) {
+          throw new Error(
+            "Furaha sirta ah waa inuu ahaadaa ugu yaraan 6 xaraf"
+          );
+        } else if (passwordError.includes("too common")) {
+          throw new Error(
+            "Furaha sirta ah waa mid aad u fudud. Fadlan isticmaal mid aad u xooggan"
+          );
+        } else {
+          throw new Error(passwordError);
+        }
+      }
+
+      if (response?.name && Array.isArray(response.name)) {
+        const nameError = response.name[0];
+        if (nameError.includes("required")) {
+          throw new Error("Fadlan geli magacaaga");
+        } else {
+          throw new Error(nameError);
+        }
+      }
 
       if (response?.detail) {
         throw new Error(response.detail);
@@ -516,7 +560,17 @@ export class AuthService {
 
       if (response?.errors) {
         const errorMessages = Object.entries(response.errors)
-          .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+          .map(([field, messages]) => {
+            const fieldName =
+              field === "email"
+                ? "Emailka"
+                : field === "password"
+                ? "Furaha sirta ah"
+                : field === "name"
+                ? "Magaca"
+                : field;
+            return `${fieldName}: ${messages.join(", ")}`;
+          })
           .join("\n");
         throw new Error(errorMessages);
       }
@@ -524,7 +578,7 @@ export class AuthService {
 
     throw error instanceof Error
       ? error
-      : new Error("An unknown error occurred");
+      : new Error("Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
   }
 
   public async login(

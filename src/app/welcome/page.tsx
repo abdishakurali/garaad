@@ -9,10 +9,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  signUp,
   selectAuthError,
   selectIsLoading,
+  setError as setAuthError,
+  setUser,
 } from "@/store/features/authSlice";
+import AuthService from "@/services/auth";
 import { useToast } from "@/hooks/use-toast";
 import type { AppDispatch } from "@/store";
 import { Progress } from "@/components/ui/progress";
@@ -38,6 +40,7 @@ import {
   Sunrise,
   Moon,
   SunDim,
+  RotateCcw,
 } from "lucide-react";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 
@@ -496,7 +499,7 @@ export default function Page() {
     age: "",
     referralCode: "",
   });
-  const [error, setError] = useState<string>("");
+  const [actualError, setActualError] = useState<string>("");
   const { playSound } = useSoundManager();
   const steps = [goals, learningApproach, topics, null, learningGoals];
   const progress = (currentStep / (steps.length + 2)) * 100;
@@ -507,16 +510,100 @@ export default function Page() {
   const authError = useSelector(selectAuthError);
   const { toast } = useToast();
 
-  // On mount, check for ?ref= in the URL and pre-fill referral code
+  // Load saved data from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Load saved user data
+      const savedUserData = localStorage.getItem('welcome_user_data');
+      if (savedUserData) {
+        try {
+          const parsedUserData = JSON.parse(savedUserData);
+          setUserData(parsedUserData);
+        } catch (e) {
+          console.error('Failed to parse saved user data:', e);
+        }
+      }
+
+      // Load saved selections
+      const savedSelections = localStorage.getItem('welcome_selections');
+      if (savedSelections) {
+        try {
+          const parsedSelections = JSON.parse(savedSelections);
+          setSelections(parsedSelections);
+        } catch (e) {
+          console.error('Failed to parse saved selections:', e);
+        }
+      }
+
+      // Load saved current step
+      const savedStep = localStorage.getItem('welcome_current_step');
+      if (savedStep) {
+        try {
+          const step = parseInt(savedStep);
+          if (!isNaN(step) && step >= 0 && step <= steps.length + 1) {
+            setCurrentStep(step);
+          }
+        } catch (e) {
+          console.error('Failed to parse saved step:', e);
+        }
+      }
+
+      // Load saved topic levels
+      const savedTopicLevels = localStorage.getItem('welcome_topic_levels');
+      if (savedTopicLevels) {
+        try {
+          const parsedTopicLevels = JSON.parse(savedTopicLevels);
+          setTopicLevels(parsedTopicLevels);
+        } catch (e) {
+          console.error('Failed to parse saved topic levels:', e);
+        }
+      }
+
+      // Load selected topic
+      const savedSelectedTopic = localStorage.getItem('welcome_selected_topic');
+      if (savedSelectedTopic) {
+        setSelectedTopic(savedSelectedTopic);
+      }
+
+      // Check for referral code in URL
       const params = new URLSearchParams(window.location.search);
       const ref = params.get('ref');
       if (ref) {
         setUserData((prev) => ({ ...prev, referralCode: ref }));
       }
     }
-  }, []);
+  }, [steps.length]);
+
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('welcome_user_data', JSON.stringify(userData));
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('welcome_selections', JSON.stringify(selections));
+    }
+  }, [selections]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('welcome_current_step', currentStep.toString());
+    }
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('welcome_topic_levels', JSON.stringify(topicLevels));
+    }
+  }, [topicLevels]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('welcome_selected_topic', selectedTopic);
+    }
+  }, [selectedTopic]);
 
   const handleSelect = (value: number | string) => {
     // Play toggle-on sound when an option is selected
@@ -559,6 +646,11 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Clear any existing errors
+    setActualError("");
+    dispatch(setAuthError(null));
+
     try {
       // Validate all data
       if (
@@ -567,13 +659,13 @@ export default function Page() {
         !userData.password.trim() ||
         !userData.age.trim()
       ) {
-        setError("Fadlan buuxi dhammaan xogta");
+        setActualError("Fadlan buuxi dhammaan xogta");
         return;
       }
 
       // Check if all selections are made
       if (Object.keys(selections).length < 5) {
-        setError("Fadlan buuxi dhammaan su'aalaha");
+        setActualError("Fadlan buuxi dhammaan su'aalaha");
         return;
       }
 
@@ -594,55 +686,110 @@ export default function Page() {
         ...(userData.referralCode ? { referral_code: userData.referralCode.trim() } : {}),
       };
 
-      // Use unwrap() to properly handle errors
-      const result = await dispatch(signUp(signUpData)).unwrap();
+      // Call AuthService directly to avoid Redux error handling interference
+      const result = await AuthService.getInstance().signUp(signUpData);
 
-      // Only redirect if signup was successful and no auth error
-      if (result && !authError) {
-        toast({
-          variant: "default",
-          title: "Waad mahadsantahay!",
-          description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
-        });
-        router.push(`/verify-email?email=${userData.email}`);
+      // Update Redux state with the successful result
+      if (result?.user) {
+        dispatch(setUser({
+          ...result.user,
+          is_premium: result.user.is_premium || false,
+          referral_code: result.user.referral_code,
+          referral_points: result.user.referral_points,
+          referral_count: result.user.referral_count,
+          referred_by: result.user.referred_by,
+          referred_by_username: result.user.referred_by_username,
+        }));
+      }
+
+      // Only redirect if signup was successful
+      if (result) {
+        // Check if the user's email is already verified
+        if (result.user?.is_email_verified) {
+          // User is already verified, redirect to appropriate page
+          toast({
+            variant: "default",
+            title: "Waad mahadsantahay!",
+            description: "Emailkaaga horey ayaa la xaqiijiyay. Waxaad hadda isticmaali kartaa adeegga.",
+          });
+
+          // Clear localStorage data since user is already verified
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('welcome_user_data');
+            localStorage.removeItem('welcome_selections');
+            localStorage.removeItem('welcome_current_step');
+            localStorage.removeItem('welcome_topic_levels');
+            localStorage.removeItem('welcome_selected_topic');
+            localStorage.removeItem('user');
+          }
+
+          // Redirect based on premium status
+          if (result.user?.is_premium) {
+            router.push('/courses');
+          } else {
+            router.push('/subscribe');
+          }
+        } else {
+          // User needs email verification
+          toast({
+            variant: "default",
+            title: "Waad mahadsantahay!",
+            description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
+          });
+
+          // Store user data in localStorage for email verification page
+          localStorage.setItem('user', JSON.stringify({ email: userData.email }));
+
+          router.push(`/verify-email?email=${userData.email}`);
+        }
       }
     } catch (error: unknown) {
       console.log("Submission failed:", error);
-      let errorMessage = "Wax khalad ah ayaa dhacay";
 
-      if (error && typeof error === "object" && "response" in error) {
-        const errorResponse = error.response as {
-          data?: {
-            error?: string;
-            detail?: string;
-          };
-          status?: number;
-        };
-
-        if (
-          errorResponse.status === 400 &&
-          (errorResponse.data?.error === "Email already exists" ||
-            errorResponse.data?.error === "Username already exists")
-        ) {
-          errorMessage =
-            "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
-        } else if (errorResponse.data?.error) {
-          errorMessage = errorResponse.data.error;
-        } else if (errorResponse.data?.detail) {
-          errorMessage = errorResponse.data.detail;
-        }
+      // Use the error message from the thrown error (already processed by auth service)
+      if (error instanceof Error) {
+        setActualError(error.message);
+      } else {
+        setActualError("Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
       }
-
-      setError(errorMessage);
     }
   };
 
-  // Display Redux error if it exists
+  // Clear Redux error when component mounts or when user starts over
   useEffect(() => {
     if (authError) {
-      setError(authError);
+      dispatch(setAuthError(null));
     }
-  }, [authError]);
+  }, [authError, dispatch]);
+
+  const handleStartOver = () => {
+    // Clear all localStorage data and reset the form
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('welcome_user_data');
+      localStorage.removeItem('welcome_selections');
+      localStorage.removeItem('welcome_current_step');
+      localStorage.removeItem('welcome_topic_levels');
+      localStorage.removeItem('welcome_selected_topic');
+      localStorage.removeItem('user');
+    }
+
+    // Reset all state
+    setCurrentStep(0);
+    setSelections({});
+    setSelectedTopic("math");
+    setTopicLevels({
+      math: "beginner",
+      programming: "beginner",
+    });
+    setUserData({
+      name: "",
+      email: "",
+      password: "",
+      age: "",
+      referralCode: "",
+    });
+    setActualError("");
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-slate-50 to-white px-2 py-6">
@@ -652,22 +799,34 @@ export default function Page() {
           <Progress value={progress} className="h-1 rounded-none" />
 
           <div className="p-4 md:p-6">
-            {/* Step Title */}
-            <h2 className="text-2xl font-bold mb-6 text-slate-800">
-              {currentStep <= steps.length
-                ? stepTitles[currentStep]
-                : "Fadlan geli Xogtaada"}
-            </h2>
+            {/* Step Title and Start Over Button */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-800">
+                {currentStep <= steps.length
+                  ? stepTitles[currentStep]
+                  : "Fadlan geli Xogtaada"}
+              </h2>
+              {currentStep > 0 && (
+                <button
+                  onClick={handleStartOver}
+                  className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Bilow cusub
+                </button>
+              )}
+            </div>
 
             {/* Display error if it exists */}
-            {error && (
+            {actualError && (
               <Alert className="mb-6 border-rose-200 bg-rose-50 text-rose-800">
                 <AlertTitle className="text-rose-900 flex items-center gap-2 font-medium">
                   Khalad ayaa dhacay <span className="text-xl">⚠️</span>
                 </AlertTitle>
                 <AlertDescription className="text-rose-800">
-                  {error}
+                  {actualError}
                 </AlertDescription>
+
               </Alert>
             )}
 

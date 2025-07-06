@@ -8,13 +8,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import {
   AlertCircle,
   ArrowLeft,
   Loader2,
   Mail,
-  ShieldCheck,
 } from "lucide-react";
 import {
   Card,
@@ -30,7 +28,6 @@ export default function VerifyEmailPage() {
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(""));
-  const [isVerified, setIsVerified] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [email, setEmail] = useState("");
 
@@ -52,7 +49,30 @@ export default function VerifyEmailPage() {
           );
 
           const data = await response.json();
-          if (!response.ok) throw new Error(data.error || "Failed to send verification code");
+          if (!response.ok) {
+            // Check if the error is "Email is already verified"
+            if (data.error === "Email is already verified" || data.detail === "Email is already verified") {
+              toast({
+                title: "Emailkaaga horey ayaa la xaqiijiyay",
+                description: "Waxaad hadda isticmaali kartaa adeegga.",
+              });
+
+              // Clear localStorage data
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('welcome_user_data');
+                localStorage.removeItem('welcome_selections');
+                localStorage.removeItem('welcome_current_step');
+                localStorage.removeItem('welcome_topic_levels');
+                localStorage.removeItem('welcome_selected_topic');
+                localStorage.removeItem('user');
+              }
+
+              // Redirect to appropriate page
+              router.push("/courses");
+              return;
+            }
+            throw new Error(data.error || data.detail || "Failed to send verification code");
+          }
 
           toast({
             title: "Number sireed ayaa loo diray",
@@ -60,12 +80,14 @@ export default function VerifyEmailPage() {
           });
         } catch (err) {
           console.error("Failed to send initial verification code:", err);
+          const errorMessage = err instanceof Error ? err.message : "Failed to send verification code";
+          setError(errorMessage);
         }
       }
     };
 
     sendInitialVerificationCode();
-  }, [email, toast]);
+  }, [email, toast, router]);
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -156,12 +178,21 @@ export default function VerifyEmailPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Verification failed");
 
-      // Success state
-      setIsVerified(true);
+      // Success state - redirect immediately since we removed isVerified state
+
+      // Clear localStorage data after successful verification
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('welcome_user_data');
+        localStorage.removeItem('welcome_selections');
+        localStorage.removeItem('welcome_current_step');
+        localStorage.removeItem('welcome_topic_levels');
+        localStorage.removeItem('welcome_selected_topic');
+        localStorage.removeItem('user');
+      }
 
       // Redirect after a short delay to show success state
       router.push("/courses");
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";
 
@@ -195,13 +226,36 @@ export default function VerifyEmailPage() {
       );
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to resend code");
+      if (!response.ok) {
+        // Check if the error is "Email is already verified"
+        if (data.error === "Email is already verified" || data.detail === "Email is already verified") {
+          toast({
+            title: "Emailkaaga horey ayaa la xaqiijiyay",
+            description: "Waxaad hadda isticmaali kartaa adeegga.",
+          });
+
+          // Clear localStorage data
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('welcome_user_data');
+            localStorage.removeItem('welcome_selections');
+            localStorage.removeItem('welcome_current_step');
+            localStorage.removeItem('welcome_topic_levels');
+            localStorage.removeItem('welcome_selected_topic');
+            localStorage.removeItem('user');
+          }
+
+          // Redirect to appropriate page
+          router.push("/courses");
+          return;
+        }
+        throw new Error(data.error || data.detail || "Failed to resend code");
+      }
 
       toast({
         title: "Number sireed cusub ayaa loo diray",
         description: "Fadlan hubi email-kaaga koodka cusub",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to send verification code";
 
@@ -210,6 +264,12 @@ export default function VerifyEmailPage() {
     } finally {
       setIsResending(false);
     }
+  };
+
+  const handleGoBackToRegistration = () => {
+    // Navigate back to welcome page - the form data will be automatically restored
+    // from localStorage when the welcome page loads
+    router.push('/welcome');
   };
 
   return (
@@ -291,13 +351,13 @@ export default function VerifyEmailPage() {
           </div>
 
           <div className="text-center">
-            <Link
-              href="/welcome"
+            <button
+              onClick={handleGoBackToRegistration}
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="mr-1 h-3 w-3" />
               Dib ugu noqo diiwaangelinta
-            </Link>
+            </button>
           </div>
         </CardFooter>
       </Card>

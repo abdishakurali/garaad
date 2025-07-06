@@ -12,6 +12,7 @@ export interface User {
   avatar_url?: string;
   bio?: string;
   is_premium: boolean;
+  is_email_verified?: boolean;
   preferences?: {
     language: string;
     theme: string;

@@ -138,10 +138,34 @@ export function AuthDialog() {
             minutes_per_day: 30, // Default minutes per day
           },
         };
-        await dispatch(signUp(signupData));
+
+        const result = await dispatch(signUp(signupData)).unwrap();
+
+        if (result?.user) {
+          // Check if the user's email is already verified
+          if (result.user.is_email_verified) {
+            // User is already verified, redirect to appropriate page
+            setIsOpen(false);
+            if (result.user.is_premium) {
+              router.push('/courses');
+            } else {
+              router.push('/subscribe');
+            }
+          } else {
+            // User needs email verification
+            setIsOpen(false);
+            router.push(`/verify-email?email=${values.email}`);
+          }
+        }
       }
     } catch (error) {
       console.error("Auth error:", error);
+      // The error will be handled by the Redux error handling
+      if (error instanceof Error) {
+        dispatch(setError(error.message));
+      } else {
+        dispatch(setError("Wax khalad ah ayaa dhacay. Fadlan mar kale isku day."));
+      }
     }
   };
 
