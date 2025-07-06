@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { CourseGrid } from "@/components/CourseGrid";
+import HomepageSEO from "@/components/HomepageSEO";
 
 // Dynamically import heavy components with loading states
 const DynamicLearnAnimation = dynamic(
@@ -55,14 +56,7 @@ const DynamicLearningLevelsSection = dynamic(
   }
 );
 
-const DynamicInteractiveLessonsSection = dynamic(
-  () => import("@/components/sections/InteractiveLessonsSection").then((mod) => mod.InteractiveLessonsSection),
-  {
-    loading: () => (
-      <div className="h-[300px] w-full  animate-pulse" />
-    ),
-  }
-);
+
 
 const DynamicDownloadApp = dynamic(
   () => import("@/components/sections/DownloadApp").then((mod) => mod.default),
@@ -147,21 +141,24 @@ function HeroSection() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <Header />
-      <main>
-        <div className="relative">
-          <HeroSection />
-          <DynamicLearnAnimation />
-          <CourseGrid />
-          <DynamicMotivationSection />
-          <DynamicGuidedPathsSection />
-          <DynamicConceptsSection />
-          <DynamicLearningLevelsSection />
-          <DynamicDownloadApp />
-          <FooterSection />
-        </div>
-      </main>
-    </div>
+    <>
+      <HomepageSEO />
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <Header />
+        <main>
+          <div className="relative">
+            <HeroSection />
+            <DynamicLearnAnimation />
+            <CourseGrid />
+            <DynamicMotivationSection />
+            <DynamicGuidedPathsSection />
+            <DynamicConceptsSection />
+            <DynamicLearningLevelsSection />
+            <DynamicDownloadApp />
+            <FooterSection />
+          </div>
+        </main>
+      </div>
+    </>
   );
 }

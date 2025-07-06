@@ -593,10 +593,12 @@ export default function Page() {
         },
         ...(userData.referralCode ? { referral_code: userData.referralCode.trim() } : {}),
       };
-      //  Redux for signup
-      const result = await dispatch(signUp(signUpData));
 
-      if (result) {
+      // Use unwrap() to properly handle errors
+      const result = await dispatch(signUp(signUpData)).unwrap();
+
+      // Only redirect if signup was successful and no auth error
+      if (result && !authError) {
         toast({
           variant: "default",
           title: "Waad mahadsantahay!",

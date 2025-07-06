@@ -359,7 +359,6 @@ const LessonPage = () => {
     const continueRef = useRef<() => void>(() => { });
 
     // In the LessonPage component, add state for lesson navigation
-    const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
     const [courseLessons, setCourseLessons] = useState<Lesson[]>([]);
 
     // Check if lesson is in review mode
@@ -964,10 +963,6 @@ const LessonPage = () => {
         setCurrentBlock(renderCurrentBlock());
     }, [renderCurrentBlock]);
 
-    const totalQuestions = useMemo(() => {
-        return courseLessons.length || 1; // Use number of lessons in course, fallback to 1
-    }, [courseLessons.length]);
-
     // Add this after other useEffect hooks
     useEffect(() => {
         const fetchCourseLessons = async () => {
@@ -982,11 +977,9 @@ const LessonPage = () => {
                 const lessons = await response.json();
                 setCourseLessons(lessons);
 
-                // Find current lesson index
+                // Find current lesson index (for future use if needed)
                 const index = lessons.findIndex((lesson: Lesson) => lesson.id === Number(params.lessonId));
-                if (index !== -1) {
-                    setCurrentLessonIndex(index);
-                }
+                console.log('Current lesson index:', index);
             } catch (error) {
                 console.error('Error fetching course lessons:', error);
             }
@@ -994,30 +987,6 @@ const LessonPage = () => {
 
         fetchCourseLessons();
     }, [courseIdFromSlug, params.lessonId]);
-
-    // Add dot navigation handler
-    const handleDotClick = (index: number) => {
-        if (index < courseLessons.length && courseLessons[index]) {
-            const targetLesson = courseLessons[index];
-            router.push(`/courses/${params.categoryId}/${params.courseSlug}/lessons/${targetLesson.id}`);
-        }
-    };
-
-    // Get completed lessons from localStorage
-    const getCompletedLessons = () => {
-        try {
-            const completed = JSON.parse(localStorage.getItem("completedLessons") || "[]");
-
-            const completedIndices = courseLessons
-                .map((lesson, index) => completed.includes(lesson.id) ? index : -1)
-                .filter(index => index !== -1);
-
-            return completedIndices;
-        } catch (err) {
-            console.error("Error parsing completed lessons:", err);
-            return [];
-        }
-    };
 
     // Loading state
     if (isLoading) {
@@ -1071,11 +1040,11 @@ const LessonPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
             <LessonHeader
-                currentQuestion={currentLessonIndex + 1}
-                totalQuestions={totalQuestions}
+                currentQuestion={currentBlockIndex + 1}
+                totalQuestions={sortedBlocks.length}
                 coursePath={coursePath}
-                onDotClick={handleDotClick}
-                completedLessons={getCompletedLessons()}
+                onDotClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
+                completedLessons={[]}
             />
 
             <main className="pt-20 pb-32 mt-4">

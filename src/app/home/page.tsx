@@ -60,11 +60,7 @@ interface Achievement {
   earned_at?: string;
 }
 
-interface UserLevel {
-  level: number;
-  experience_points: number;
-  experience_to_next_level: number;
-}
+
 
 interface DailyActivity {
   date: string;
@@ -174,11 +170,9 @@ interface GamificationStatus {
   };
 }
 
-const MAX_BAR_HEIGHT = 48;
-const MIN_BAR_HEIGHT = 8;
 const minSwipeDistance = 50;
 
-const authFetcher = async <T = any,>(url: string): Promise<T> => {
+const authFetcher = async <T = unknown>(url: string): Promise<T> => {
   const service = AuthService.getInstance();
   return await service.makeAuthenticatedRequest("get", url);
 };
@@ -194,9 +188,7 @@ export default function Home() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [leaderboardPeriod, setLeaderboardPeriod] = useState("weekly");
-  const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState("");
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+
   const { categories } = useCategories();
   const router = useRouter();
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -218,9 +210,6 @@ export default function Home() {
   // League Status API
   const {
     data: leagueStatus,
-    isLoading: isLoadingLeagueStatus,
-    error: leagueStatusError,
-    mutate: mutateLeagueStatus,
   } = useSWR<LeagueStatus>("/api/league/leagues/status/", authFetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
@@ -277,8 +266,6 @@ export default function Home() {
 
   const {
     data: streak,
-    isLoading: isLoadingStreak,
-    error: streakError,
     mutate,
   } = useSWR<StreakData>("/api/streaks/", authFetcher, {
     revalidateOnFocus: false,
@@ -288,8 +275,6 @@ export default function Home() {
   const {
     data: gamificationStatus,
     isLoading: isLoadingGamification,
-    error: gamificationError,
-    mutate: mutateGamification,
   } = useSWR<GamificationStatus>("/api/gamification/status", authFetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 600000,
@@ -404,9 +389,7 @@ export default function Home() {
     }
   }, []);
 
-  const toggleCardExpansion = useCallback((cardId: string) => {
-    setExpandedCard((prev) => (prev === cardId ? null : cardId));
-  }, []);
+
 
   const streakVisualization = useMemo(() => {
     return (
@@ -436,16 +419,7 @@ export default function Home() {
     );
   }, [streak]);
 
-  // Calculate progress to next league
-  const nextLeagueProgress = useMemo(() => {
-    if (!leagueStatus?.next_league) return 100;
-    const currentPoints = streak?.xp ?? 0;
-    const currentLeagueMin = leagueStatus.current_league.min_xp;
-    const nextLeagueMin = leagueStatus.next_league.min_xp;
-    const totalNeeded = nextLeagueMin - currentLeagueMin;
-    const currentProgress = currentPoints - currentLeagueMin;
-    return Math.min((currentProgress / totalNeeded) * 100, 100);
-  }, [leagueStatus, streak]);
+
 
   return (
     <>
@@ -453,12 +427,7 @@ export default function Home() {
 
 
 
-      {showNotification && (
-        <div className="fixed top-20 right-4 z-50 bg-primary text-primary-foreground px-4 py-3 rounded-lg shadow-md flex items-center gap-2 max-w-xs">
-          <Zap className="h-5 w-5" />
-          <p>{notificationMessage}</p>
-        </div>
-      )}
+
 
       <div className="flex flex-col gap-6 p-4 md:p-6 max-w-7xl mx-auto">
         {/* League Status & User Level Progress Bar */}
@@ -589,7 +558,7 @@ export default function Home() {
                 leagueLeaderboard.standings.length > 0 ? (
                 <ScrollArea className="h-[320px] pr-4">
                   <div className="space-y-3">
-                    {leagueLeaderboard.standings.map((standing, idx) => {
+                    {leagueLeaderboard.standings.map((standing) => {
                       const isCurrent =
                         storedUser?.username === standing.user.name;
                       return (

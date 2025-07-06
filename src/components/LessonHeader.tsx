@@ -9,7 +9,7 @@ interface LessonHeaderProps {
   currentQuestion: number;
   totalQuestions: number;
   coursePath: string;
-  onDotClick?: (index: number) => void;
+  onDotClick?: (lessonIndex: number) => void;
   completedLessons?: number[];
 }
 
@@ -51,10 +51,8 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const activeDotRef = useRef<HTMLButtonElement>(null);
+  const activeDotRef = useRef<HTMLDivElement>(null);
   // const { streak, isLoading, isError } = useUserStreak();
-
-
 
   const fetchStreakData = async () => {
     setLoading(true);
@@ -99,16 +97,6 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
       });
     }
   }, [currentQuestion]);
-
-  const handleDotClick = (index: number) => {
-    if (onDotClick) {
-      onDotClick(index);
-    }
-  };
-
-  const isLessonCompleted = (index: number) => {
-    return completedLessons.includes(index);
-  };
 
   const progress = (currentQuestion / totalQuestions) * 100;
 
@@ -156,36 +144,19 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {Array.from({ length: totalQuestions }).map((_, idx) => {
-              const isActive = idx === currentQuestion - 1;
-              const isCompleted = isLessonCompleted(idx);
-              // Allow clicking on any lesson up to and including the current one, or any completed lesson
-              const isClickable = idx < currentQuestion || isCompleted;
-
+              const isActive = idx === currentQuestion - 1; // Adjust for 0-based index
+              const isCompleted = completedLessons.includes(idx);
               return (
-                <button
+                <div
                   key={idx}
                   ref={isActive ? activeDotRef : null}
-                  onClick={() => handleDotClick(idx)}
-                  disabled={!isClickable}
+                  onClick={() => onDotClick?.(idx)}
                   className={`
-                    flex-shrink-0 w-3 h-3 rounded-full transition-all duration-300 snap-center
-                    ${isCompleted
-                      ? "bg-green-500"
-                      : idx < currentQuestion - 1
-                        ? "bg-primary"
-                        : idx === currentQuestion - 1
-                          ? "bg-blue-500"
-                          : "bg-gray-200"
-                    }
-                    ${isActive ? "scale-150 ring-2 ring-blue-400 ring-offset-2" : "scale-100"}
-                    ${isClickable
-                      ? "cursor-pointer hover:scale-110 hover:ring-2 hover:ring-primary/50"
-                      : "cursor-not-allowed opacity-50"
-                    }
-                    focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-                  `}
-                  aria-label={`Go to lesson ${idx + 1}`}
-                  title={`Lesson ${idx + 1}${isCompleted ? " (Completed)" : ""}`}
+                  flex-shrink-0 w-3 h-3 rounded-full transition-all duration-300 snap-center cursor-pointer
+                  ${isCompleted ? "bg-green-500" : idx < currentQuestion - 1 ? "bg-primary" : "bg-gray-200"}
+                  ${isActive ? "scale-150 ring-2 ring-primary" : "scale-100"}
+                  hover:scale-110 hover:ring-1 hover:ring-primary/50
+                `}
                 />
               );
             })}

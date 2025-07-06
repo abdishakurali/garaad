@@ -241,7 +241,7 @@ export default function ModuleZigzag({
 
       {/* Fixed Bottom Card - Always visible when modules exist */}
       {uniqueModules.length > 0 && (
-        <div className="fixed bottom-0   left-1/2  transform -translate-x-1/2 bg-white rounded-t-3xl p-6 shadow-lg border-t border-gray-100 z-50" style={{ width: 'calc(100% - 2rem)', maxWidth: '28rem' }}>
+        <div className="fixed bottom-0 md:w-96 left-4 right-4 md:left-auto md:right-1/3 md:transform md:translate-x-1/2 bg-white rounded-t-3xl p-6 shadow-lg border-t border-gray-100 z-50" style={{ maxWidth: '40rem' }}>
           <h1 className="text-xl font-bold text-gray-900 text-center mb-4">
             {selectedModule?.title || uniqueModules[0]?.title || 'Select a module'}
           </h1>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ProgressCard } from "@/components/progress/ProgressCard";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { PracticeSet } from "@/components/practice/PracticeSet";
+import ActivityTracker from "@/components/ActivityTracker";
 import { progressService } from "@/services/progress";
 import { practiceService } from "@/services/practice";
 import type {
@@ -70,6 +71,11 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
       <div className="grid gap-8">
+        {/* Activity Tracker */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <ActivityTracker showDetails={true} />
+        </div>
+
         <ProgressCard progress={progress} rewards={rewards} />
         <Leaderboard leaderboard={leaderboard} userRank={userRank} />
 

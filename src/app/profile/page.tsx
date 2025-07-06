@@ -452,11 +452,11 @@ export default function ProfilePage() {
         >
           {/* You can add a canvas or SVG for animated particles here */}
         </motion.div>
-        <div className="container max-w-3xl mx-auto px-4 py-10 relative z-10">
+        <div className="container max-w-4xl mx-auto px-4 py-6 sm:py-10 relative z-10">
           {/* Modern Profile Header with glassmorphism and animated avatar ring */}
-          <div className="relative flex flex-col items-center justify-center mb-10">
-            <GlassCard className="absolute inset-0 h-56 -z-10"> </GlassCard>
-            <div className="flex flex-col items-center gap-4">
+          <div className="relative flex flex-col items-center justify-center mb-8 sm:mb-10">
+            <GlassCard className="absolute inset-0 h-48 sm:h-56 -z-10"> </GlassCard>
+            <div className="flex flex-col items-center gap-3 sm:gap-4">
               <motion.div
                 className="relative group"
                 initial={{ scale: 0.9, boxShadow: "0 0 0 0 rgba(99,102,241,0.4)" }}
@@ -464,40 +464,40 @@ export default function ProfilePage() {
                 transition={{ duration: 1, type: "spring" }}
               >
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500/40 to-purple-500/40 blur-xl animate-pulse" />
-                <Avatar className="h-36 w-36 border-4 border-white/60 dark:border-gray-900/60 shadow-2xl transition-transform group-hover:scale-105 relative z-10">
-                  <AvatarFallback className="text-5xl bg-gradient-to-br from-blue-500 to-purple-500 text-white font-bold">
+                <Avatar className="h-24 w-24 sm:h-32 sm:w-32 md:h-36 md:w-36 border-4 border-white/60 dark:border-gray-900/60 shadow-2xl transition-transform group-hover:scale-105 relative z-10">
+                  <AvatarFallback className="text-2xl sm:text-3xl md:text-5xl bg-gradient-to-br from-blue-500 to-purple-500 text-white font-bold">
                     {user.first_name[0]}
                     {user.last_name[0]}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-lg border-4 border-white/60 dark:border-gray-900/60 animate-pulse" />
+                <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-green-500 rounded-full p-1 sm:p-2 shadow-lg border-2 sm:border-4 border-white/60 dark:border-gray-900/60 animate-pulse" />
               </motion.div>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white text-center drop-shadow-lg">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white text-center drop-shadow-lg px-4">
                 {user.first_name} {user.last_name}
               </h1>
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-300 text-lg">
-                <span className="font-mono bg-white/40 dark:bg-gray-800/40 px-2 py-1 rounded shadow-inner">@{user.username}</span>
-                <span className="hidden md:inline">·</span>
-                <span className="flex items-center gap-1"><Mail className="h-4 w-4" />{user.email}</span>
+              <div className="flex flex-col sm:flex-row items-center gap-2 text-gray-500 dark:text-gray-300 text-sm sm:text-lg px-4">
+                <span className="font-mono bg-white/40 dark:bg-gray-800/40 px-2 py-1 rounded shadow-inner text-center">@{user.username}</span>
+                <span className="hidden sm:inline">·</span>
+                <span className="flex items-center gap-1 text-center"><Mail className="h-3 w-3 sm:h-4 sm:w-4" />{user.email}</span>
               </div>
             </div>
             {/* Quick Stats Card with animated counters and progress ring */}
-            <div className="mt-10 w-full flex flex-col md:flex-row gap-6 justify-center items-center">
-              <GlassCard className="flex-1 flex flex-col items-center p-6">
-                <div className="mb-2"><ProgressRing percent={completedPercentage} /></div>
-                <AnimatedCounter value={completedPercentage} className="text-2xl font-bold text-blue-600" />
-                <span className="text-xs text-gray-500">Horumarinta</span>
+            <div className="mt-6 sm:mt-10 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 justify-center items-center">
+              <GlassCard className="flex flex-col items-center p-4 sm:p-6">
+                <div className="mb-2"><ProgressRing percent={completedPercentage} size={48} stroke={4} /></div>
+                <AnimatedCounter value={completedPercentage} className="text-xl sm:text-2xl font-bold text-blue-600" />
+                <span className="text-xs text-gray-500 text-center">Horumarinta</span>
               </GlassCard>
-              <GlassCard className="flex-1 flex flex-col items-center p-6">
-                <BookOpen className="h-7 w-7 text-blue-500 mb-2" />
-                <AnimatedCounter value={lessonsCompleted} className="text-2xl font-bold text-gray-900" />
-                <span className="text-xs text-gray-500">Casharka</span>
+              <GlassCard className="flex flex-col items-center p-4 sm:p-6">
+                <BookOpen className="h-5 w-5 sm:h-7 sm:w-7 text-blue-500 mb-2" />
+                <AnimatedCounter value={lessonsCompleted} className="text-xl sm:text-2xl font-bold text-gray-900" />
+                <span className="text-xs text-gray-500 text-center">Casharka</span>
               </GlassCard>
               {referralStats && (
-                <GlassCard className="flex-1 flex flex-col items-center p-6">
-                  <UserIcon className="h-7 w-7 text-purple-500 mb-2" />
-                  <AnimatedCounter value={referralStats.referral_points ?? 0} className="text-2xl font-bold text-purple-600" />
-                  <span className="text-xs text-gray-500">Dhibcaha La Wareejiyo</span>
+                <GlassCard className="flex flex-col items-center p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
+                  <UserIcon className="h-5 w-5 sm:h-7 sm:w-7 text-purple-500 mb-2" />
+                  <AnimatedCounter value={referralStats.referral_points ?? 0} className="text-xl sm:text-2xl font-bold text-purple-600" />
+                  <span className="text-xs text-gray-500 text-center">Dhibcaha La Wareejiyo</span>
                 </GlassCard>
               )}
             </div>
@@ -505,57 +505,57 @@ export default function ProfilePage() {
 
           {/* Main Content - Floating Glass Tabs */}
           <Tabs defaultValue="progress" className="w-full">
-            <TabsList className="mb-8 flex justify-center gap-2 bg-white/40 dark:bg-gray-900/40 shadow-lg rounded-full p-1 max-w-lg mx-auto backdrop-blur-md">
+            <TabsList className="mb-6 sm:mb-8 flex justify-center gap-1 sm:gap-2 bg-white/40 dark:bg-gray-900/40 shadow-lg rounded-full p-1 max-w-lg mx-auto backdrop-blur-md">
               <TabsTrigger
                 value="progress"
-                className="flex-1 rounded-full px-6 py-2 text-lg font-semibold transition-all data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-gray-200"
+                className="flex-1 rounded-full px-3 sm:px-6 py-2 text-sm sm:text-lg font-semibold transition-all data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-gray-200"
               >
-                <Trophy className="h-5 w-5 mr-2" /> Horumarinta
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" /> Horumarinta
               </TabsTrigger>
               <TabsTrigger
                 value="settings"
-                className="flex-1 rounded-full px-6 py-2 text-lg font-semibold transition-all data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-gray-200"
+                className="flex-1 rounded-full px-3 sm:px-6 py-2 text-sm sm:text-lg font-semibold transition-all data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-gray-200"
               >
-                <Settings className="h-5 w-5 mr-2" /> Dejinta
+                <Settings className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" /> Dejinta
               </TabsTrigger>
             </TabsList>
 
             {/* Progress Tab */}
-            <TabsContent value="progress" className="space-y-8">
-              <GlassCard className="p-8">
-                <div className="flex flex-col md:flex-row gap-8 items-center justify-between mb-8">
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Horumarintaada</h2>
-                    <Progress value={completedPercentage} className="h-4 rounded-full bg-gray-200 dark:bg-gray-800" />
+            <TabsContent value="progress" className="space-y-6 sm:space-y-8">
+              <GlassCard className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center justify-between mb-6 sm:mb-8">
+                  <div className="flex-1 w-full">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-900 dark:text-white">Horumarintaada</h2>
+                    <Progress value={completedPercentage} className="h-3 sm:h-4 rounded-full bg-gray-200 dark:bg-gray-800" />
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="text-4xl font-extrabold text-blue-600 dark:text-blue-400">{completedPercentage}%</span>
-                    <span className="text-sm text-gray-500">La dhameeyey</span>
+                    <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-blue-600 dark:text-blue-400">{completedPercentage}%</span>
+                    <span className="text-xs sm:text-sm text-gray-500">La dhameeyey</span>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Casharka</h3>
-                  <div className="grid gap-4">
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Casharka</h3>
+                  <div className="grid gap-3 sm:gap-4">
                     {progress && progress.length > 0 ? progress.map((item, index) => (
                       <motion.div
                         key={item.id}
-                        className="flex items-center justify-between bg-white/60 dark:bg-gray-900/60 rounded-xl p-4 shadow-sm hover:shadow-md transition backdrop-blur-md"
+                        className="flex items-center justify-between bg-white/60 dark:bg-gray-900/60 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md transition backdrop-blur-md"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.04 }}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${item.status === "completed" ? "bg-green-500" : "bg-gray-300 dark:bg-gray-700"}`}>
+                        <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base flex-shrink-0 ${item.status === "completed" ? "bg-green-500" : "bg-gray-300 dark:bg-gray-700"}`}>
                             {index + 1}
                           </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900 dark:text-white">{item.lesson_title}</h4>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">{item.lesson_title}</h4>
                             <p className="text-xs text-gray-500">Casharka #{index + 1}</p>
                           </div>
                         </div>
                         <Badge
                           variant={item.status === "completed" ? "default" : "secondary"}
-                          className={`rounded-full px-4 py-1 text-xs font-semibold ${item.status === "completed" ? "bg-green-500 text-white" : "bg-yellow-400 text-gray-900"}`}
+                          className={`rounded-full px-2 sm:px-4 py-1 text-xs font-semibold flex-shrink-0 ${item.status === "completed" ? "bg-green-500 text-white" : "bg-yellow-400 text-gray-900"}`}
                         >
                           {item.status === "completed" ? (
                             <><CheckCircle2 className="h-3 w-3 mr-1" /> La dhameeyey</>
@@ -565,7 +565,7 @@ export default function ProfilePage() {
                         </Badge>
                       </motion.div>
                     )) : (
-                      <div className="text-center text-gray-400 py-8">Wali cashar ma jiro.</div>
+                      <div className="text-center text-gray-400 py-6 sm:py-8">Wali cashar ma jiro.</div>
                     )}
                   </div>
                 </div>

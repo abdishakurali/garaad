@@ -9,7 +9,7 @@ import { signUp, selectAuthLoading, selectAuthError, setError } from "@/store/fe
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { AppDispatch } from "@/store";
-import type { SignUpData, User } from "@/types/auth";
+import type { SignUpData } from "@/types/auth";
 import { cn } from "@/lib/utils";
 
 interface SignupFormProps {
@@ -105,9 +105,11 @@ export function SignupForm({ onClose }: SignupFormProps) {
         },
       };
 
-      const result = await dispatch(signUp(signupData)) as { payload?: { user?: User } };
+      // Use unwrap() to properly handle errors
+      const result = await dispatch(signUp(signupData)).unwrap();
 
-      if (result) {
+      // Only redirect if signup was successful and no auth error
+      if (result && !authError) {
         toast({
           variant: "default",
           title: "Waad mahadsantahay!",
@@ -115,7 +117,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
         });
 
         // Get the user from the result payload
-        const user = result.payload?.user;
+        const user = result.user;
         if (user?.is_premium) {
           router.push('/courses');
         } else {
@@ -125,6 +127,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
       }
     } catch (error) {
       console.error("Signup error:", error);
+      // Error will be handled by the useEffect that watches authError
     }
   };
 
