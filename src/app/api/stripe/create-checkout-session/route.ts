@@ -2,10 +2,69 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe, STRIPE_PRICE_IDS } from "@/lib/stripe";
 import { jwtDecode } from "jwt-decode";
 
+// More flexible JWT payload interface to handle different token structures
 interface JWTPayload {
-  email: string;
-  sub: string;
-  user_id: string;
+  email?: string;
+  sub?: string;
+  user_id?: string;
+  userId?: string;
+  id?: string;
+  username?: string;
+  [key: string]: unknown; // Allow additional fields
+}
+
+// Helper function to extract user information from JWT token and request body
+function getUserInfo(
+  request: NextRequest,
+  requestBody: Record<string, unknown>
+) {
+  const authHeader = request.headers.get("Authorization");
+  let userEmail: string | null = null;
+  let userId: string | null = null;
+
+  // Strategy 1: Try to get from request body (if provided)
+  if (requestBody?.email && typeof requestBody.email === "string") {
+    userEmail = requestBody.email;
+  }
+  if (requestBody?.userId && typeof requestBody.userId === "string") {
+    userId = requestBody.userId;
+  }
+
+  // Strategy 2: Extract from JWT token
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      const decoded = jwtDecode<JWTPayload>(token);
+
+      // Try multiple possible email fields
+      if (!userEmail) {
+        userEmail = decoded.email || decoded.username || null;
+      }
+
+      // Try multiple possible user ID fields
+      if (!userId) {
+        userId =
+          decoded.user_id ||
+          decoded.userId ||
+          decoded.sub ||
+          decoded.id ||
+          null;
+      }
+
+      console.log("JWT payload:", {
+        email: decoded.email,
+        username: decoded.username,
+        user_id: decoded.user_id,
+        userId: decoded.userId,
+        sub: decoded.sub,
+        id: decoded.id,
+      });
+    } catch (error) {
+      console.error("JWT decode error:", error);
+    }
+  }
+
+  return { userEmail, userId };
 }
 
 // Fallback price configuration when price IDs are not available
@@ -24,7 +83,21 @@ const FALLBACK_PRICES = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { plan, successUrl, cancelUrl, countryCode } = await request.json();
+    // Parse request body once
+    const requestBody = await request.json();
+    const {
+      plan,
+      successUrl,
+      cancelUrl,
+      countryCode,
+      email: providedEmail,
+    } = requestBody;
+
+    console.log("📧 Email extraction - Request body:", {
+      providedEmail,
+      plan,
+      countryCode,
+    });
 
     // Validate plan
     if (!plan || !STRIPE_PRICE_IDS[plan as keyof typeof STRIPE_PRICE_IDS]) {
@@ -34,28 +107,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user from auth token
-    const authHeader = request.headers.get("Authorization");
+    // Get user information from JWT token and request body
+    const { userEmail, userId } = getUserInfo(request, requestBody);
 
-    if (!authHeader?.startsWith("Bearer ")) {
+    // Use provided email from request if available, otherwise use extracted email
+    const finalEmail = providedEmail || userEmail;
+
+    console.log("📧 Email extraction results:", {
+      providedEmail,
+      extractedEmail: userEmail,
+      finalEmail,
+      userId,
+    });
+
+    // Validate that we have an email
+    if (!finalEmail) {
       return NextResponse.json(
-        { error: "User not authenticated" },
-        { status: 401 }
+        { error: "User email is required for checkout" },
+        { status: 400 }
       );
     }
 
-    const token = authHeader.split(" ")[1];
-    let userEmail: string;
-    let userId: string;
-
-    try {
-      const decoded = jwtDecode<JWTPayload>(token);
-      userEmail = decoded.email;
-      userId = decoded.user_id;
-    } catch {
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(finalEmail)) {
       return NextResponse.json(
-        { error: "Invalid authentication token" },
-        { status: 401 }
+        { error: "Invalid email format" },
+        { status: 400 }
       );
     }
 
@@ -71,7 +149,7 @@ export async function POST(request: NextRequest) {
     const priceId =
       STRIPE_PRICE_IDS[plan as keyof typeof STRIPE_PRICE_IDS][priceType];
 
-    console.log(`Request details:`, {
+    console.log(`💰 Price configuration:`, {
       plan,
       countryCode,
       priceType,
@@ -145,15 +223,21 @@ export async function POST(request: NextRequest) {
         `${process.env.NEXT_PUBLIC_BASE_URL}/subscribe?canceled=true`,
       metadata: {
         plan,
-        userId,
+        userId: userId || "unknown",
         countryCode,
+        userEmail: finalEmail,
       },
       allow_promotion_codes: true,
       billing_address_collection: "required",
-      customer_email: userEmail,
+      customer_email: finalEmail,
     });
 
-    console.log(`✅ Checkout session created successfully: ${session.id}`);
+    console.log(`✅ Checkout session created successfully:`, {
+      sessionId: session.id,
+      customerEmail: finalEmail,
+      userId: userId || "unknown",
+    });
+
     return NextResponse.json({ sessionId: session.id });
   } catch (error) {
     console.error("❌ Error creating checkout session:", error);

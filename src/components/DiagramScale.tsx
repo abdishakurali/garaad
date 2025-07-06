@@ -114,6 +114,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
           const scale = isMultiple ? 0.7 : 1.0;
           const spacing = (isMultiple ? 35 : 45) * scale; // Base spacing between shapes
           const groupSpacing = (isMultiple ? 15 : 20) * scale; // Spacing between different groups of shapes
+          const sameTypeSpacing = (isMultiple ? 20 : 25) * scale; // Spacing between individual objects of same type
 
           // Check if this is a platform diagram
           const isPlatform = config.diagram_type === "platform";
@@ -124,13 +125,13 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
           if (isPlatform) {
             // Platform layout: two separate platforms connected by a beam
             const platformWidth = isMultiple ? 90 : 120;
-            const platformHeight = isMultiple ? 9 : 12;
+            const platformHeight = isMultiple ? 18 : 24;
             const beamWidth = isMultiple ? 300 : 400;
-            const beamHeight = isMultiple ? 5 : 6;
+            const beamHeight = isMultiple ? 8 : 10;
             const platformOffset = isMultiple ? 110 : 150; // Distance from center to each platform
 
             // Horizontal beam (centered vertically in SVG)
-            const beamY = isMultiple ? 15 : 20;
+            const beamY = isMultiple ? 60 : 80;
             const beam = dg
               .rectangle(beamWidth, beamHeight)
               .fill("#AAAAAA")
@@ -141,25 +142,25 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             // Left platform
             const leftPlatform = dg
               .rectangle(platformWidth, platformHeight)
-              .apply(dg.mod.round_corner(3))
+              .apply(dg.mod.round_corner(4))
               .fill("#CCCCCC")
               .stroke("#999999")
               .strokewidth(2)
-              .position(V2(-platformOffset, beamY));
+              .position(V2(-platformOffset, beamY - platformHeight / 2));
 
             // Right platform  
             const rightPlatform = dg
               .rectangle(platformWidth, platformHeight)
-              .apply(dg.mod.round_corner(3))
+              .apply(dg.mod.round_corner(4))
               .fill("#CCCCCC")
               .stroke("#999999")
               .strokewidth(2)
-              .position(V2(platformOffset, beamY));
+              .position(V2(platformOffset, beamY - platformHeight / 2));
 
             // Central fulcrum (triangle pointing up)
-            const fulcrumY = isMultiple ? 28 : 35;
+            const fulcrumY = beamY + (isMultiple ? 30 : 40);
             const fulcrum = dg
-              .regular_polygon(3, isMultiple ? 10 : 12)
+              .regular_polygon(3, isMultiple ? 18 : 24)
               .fill("#777777")
               .stroke("#555555")
               .strokewidth(2)
@@ -167,20 +168,26 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               .position(V2(0, fulcrumY));
 
             // Support posts for each platform
-            const supportY = isMultiple ? 25 : 32;
-            const supportHeight = isMultiple ? 20 : 25;
+            const supportY = beamY + (isMultiple ? 18 : 24);
+            const supportHeight = isMultiple ? 40 : 50;
             const leftSupport = dg
-              .rectangle(4, supportHeight)
+              .rectangle(6, supportHeight)
               .fill("#999999")
               .position(V2(-platformOffset, supportY));
 
             const rightSupport = dg
-              .rectangle(4, supportHeight)
+              .rectangle(6, supportHeight)
               .fill("#999999")
               .position(V2(platformOffset, supportY));
 
-            // No weight display for platform diagrams
-            baseElements = [beam, leftSupport, rightSupport, leftPlatform, rightPlatform, fulcrum];
+            // Optional: base shadow for depth
+            const baseShadow = dg
+              .rectangle(beamWidth * 0.7, 12)
+              .fill("#bbb")
+              .opacity(0.2)
+              .position(V2(0, fulcrumY + (isMultiple ? 22 : 28)));
+
+            baseElements = [baseShadow, beam, leftSupport, rightSupport, leftPlatform, rightPlatform, fulcrum];
           } else {
             // Original scale layout - adjusted for vertical centering
             const scaleBaseY = isMultiple ? 15 : 20; // Match platform beam position
@@ -223,7 +230,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
           }
 
           // Group objects by their platform position (left/right/center), then by type within each position
-          let positionGroups: Record<string, Record<string, DiagramObject[]>> = {};
+          const positionGroups: Record<string, Record<string, DiagramObject[]>> = {};
           if (isPlatform) {
             // First group by position, then by type
             config.objects.forEach((obj) => {
@@ -233,140 +240,182 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               positionGroups[pos][obj.type].push(obj);
             });
           } else {
-            // For non-platform, keep original grouping by position only
-            positionGroups = config.objects.reduce((acc, obj) => {
+            // For non-platform, group by type regardless of position
+            config.objects.forEach((obj) => {
               const pos = obj.position;
-              if (!acc[pos]) acc[pos] = { all: [] };
-              acc[pos]["all"].push(obj);
-              return acc;
-            }, {} as Record<string, Record<string, DiagramObject[]>>);
-          }
-
-          // Calculate the maximum width needed for each position (sum of type groups)
-          const positionWidths = Object.entries(positionGroups).reduce((acc, [pos, typeGroups]) => {
-            let totalWidth = 0;
-            Object.values(typeGroups).forEach((objects, idx) => {
-              objects.forEach((obj) => {
-                // Calculate columns based on orientation
-                const cols = obj.orientation === "vertical" ? 1 :
-                  obj.orientation === "horizontal" ? obj.number :
-                    Math.ceil(Math.sqrt(obj.number));
-                totalWidth += (cols * spacing);
-              });
-              if (idx < Object.values(typeGroups).length - 1) {
-                totalWidth += groupSpacing; // Add spacing between type groups
-              }
+              if (!positionGroups[pos]) positionGroups[pos] = {};
+              if (!positionGroups[pos][obj.type]) positionGroups[pos][obj.type] = [];
+              positionGroups[pos][obj.type].push(obj);
             });
-            acc[pos] = totalWidth;
-            return acc;
-          }, {} as Record<string, number>);
+          }
 
           // Now layout all shapes, grouped by type within each position
           const allShapes = Object.entries(positionGroups).flatMap(([position, typeGroups]) => {
             const typeGroupEntries = Object.entries(typeGroups);
             let positionStartX = 0;
 
+            // Calculate platform constraints for boundary checking
+            const platformWidth = isMultiple ? 90 : 120;
+            const platformConstraints = {
+              left: { min: -platformWidth / 2, max: platformWidth / 2 },
+              right: { min: -platformWidth / 2, max: platformWidth / 2 },
+              center: { min: -platformWidth, max: platformWidth }
+            };
+
             // Calculate starting position for this position group
             if (isPlatform) {
               const platformOffset = isMultiple ? 110 : 150;
+              // Place left objects on left platform, right objects on right platform
               switch (position) {
                 case "left":
-                  positionStartX = -platformOffset - (positionWidths[position] / 2);
+                  positionStartX = -platformOffset;
                   break;
                 case "right":
-                  positionStartX = platformOffset - (positionWidths[position] / 2);
+                  positionStartX = platformOffset;
                   break;
                 case "center":
                 default:
-                  positionStartX = -(positionWidths[position] / 2);
+                  positionStartX = 0;
                   break;
               }
+            } else {
+              // For non-platform scales, position objects based on their position
+              const scaleWidth = isMultiple ? 176 : 220;
+              switch (position) {
+                case "left":
+                  positionStartX = -scaleWidth / 3;
+                  break;
+                case "right":
+                  positionStartX = scaleWidth / 3;
+                  break;
+                case "center":
+                default:
+                  positionStartX = 0;
+                  break;
+              }
+            }
+
+            // For platforms, calculate total width needed and distribute evenly
+            let totalWidthNeeded = 0;
+            const typeGroupWidths: number[] = [];
+
+            if (isPlatform) {
+              // Calculate width needed for each type group
+              typeGroupEntries.forEach(([, objects]) => {
+                let maxWidthForType = 0;
+                objects.forEach((obj) => {
+                  const totalShapes = obj.number;
+                  let actualCols;
+                  if (obj.orientation === "vertical") {
+                    actualCols = 1;
+                  } else if (obj.orientation === "horizontal") {
+                    actualCols = totalShapes;
+                  } else {
+                    actualCols = Math.ceil(Math.sqrt(totalShapes));
+                  }
+                  // Ensure minimum spacing for multiple objects
+                  const objectWidth = actualCols > 1 ?
+                    (actualCols - 1) * sameTypeSpacing + spacing :
+                    spacing;
+                  maxWidthForType = Math.max(maxWidthForType, objectWidth);
+                });
+                typeGroupWidths.push(maxWidthForType);
+                totalWidthNeeded += maxWidthForType;
+              });
+
+              // Add spacing between type groups - ensure adequate separation
+              if (typeGroupEntries.length > 1) {
+                totalWidthNeeded += (typeGroupEntries.length - 1) * (groupSpacing * 2);
+              }
+
+              // Calculate starting position to center all objects on the platform
+              const platformConstraint = platformConstraints[position as keyof typeof platformConstraints];
+              const availableWidth = platformConstraint.max - platformConstraint.min;
+              const startOffset = Math.max(0, (availableWidth - totalWidthNeeded) / 2);
+              positionStartX = positionStartX + platformConstraint.min + startOffset;
             }
 
             let currentTypeX = positionStartX;
 
             return typeGroupEntries.flatMap(([, objects], typeIdx) => {
-              // For each type group, layout all objects of that type
-              return objects.flatMap((obj, objIndex) => {
+              const typeGroupShapes: any[] = [];
+              const typeGroupWidth = isPlatform ? typeGroupWidths[typeIdx] : 0;
+
+              objects.forEach((obj) => {
                 const baseShape = makeShape(obj, isPlatform);
-                const shapes: any[] = [];
                 const totalShapes = obj.number;
-                let actualRows, actualCols;
-                // Calculate rows and columns based on orientation
+                let actualCols;
+
+                // Calculate columns based on orientation
                 if (obj.orientation === "vertical") {
-                  actualRows = totalShapes;
                   actualCols = 1;
                 } else if (obj.orientation === "horizontal") {
-                  actualRows = 1;
                   actualCols = totalShapes;
                 } else {
                   // For "none" orientation, arrange in a square-like pattern
                   actualCols = Math.ceil(Math.sqrt(totalShapes));
-                  actualRows = Math.ceil(totalShapes / actualCols);
-                }
-                const objectWidth = (actualCols - 1) * spacing;
-                let baseX = currentTypeX;
-                let baseY;
-                if (isPlatform) {
-                  baseY = isMultiple ? 30 : 40;
-                } else {
-                  baseY = isMultiple ? 35 : 50;
                 }
 
-                if (!isPlatform) {
-                  // Non-platform: original logic
-                  switch (position) {
-                    case "left":
-                      baseX = -120;
-                      break;
-                    case "right":
-                      baseX = 120;
-                      break;
-                    case "top":
-                      baseY = -100;
-                      break;
-                    case "bottom":
-                      baseY = 170;
-                      break;
-                    case "center":
-                    default:
-                      baseX = 0;
-                      break;
-                  }
-                  const totalWidth = positionWidths[position];
-                  // Default to center alignment for the simplified structure
-                  baseX = baseX - (totalWidth / 2) + currentTypeX + (objectWidth / 2);
+                // Calculate object width including spacing between same-type objects
+                const objectWidth = actualCols > 1 ?
+                  (actualCols - 1) * sameTypeSpacing + spacing :
+                  spacing;
+
+                let baseX = currentTypeX;
+                let baseY;
+
+                if (isPlatform) {
+                  // Place objects clearly on top of the platform
+                  const platformY = isMultiple ? 60 : 80;
+                  const platformHeight = isMultiple ? 18 : 24;
+                  // Calculate platform top surface
+                  const platformTop = platformY - platformHeight / 2;
+                  // Position objects well above the platform (much higher up)
+                  baseY = platformTop - (isMultiple ? 45 : 60);
+
+                  // Center this object group within the allocated type group width  
+                  baseX = currentTypeX + Math.max(0, (typeGroupWidth - objectWidth) / 2);
+                } else {
+                  baseY = isMultiple ? 35 : 50;
+                  // For non-platform, keep objects within scale bounds
+                  const scaleWidth = isMultiple ? 176 : 220;
+                  const scaleLeftBound = -scaleWidth / 2;
+                  const scaleRightBound = scaleWidth / 2;
+                  baseX = Math.max(scaleLeftBound, Math.min(scaleRightBound - objectWidth, currentTypeX - objectWidth / 2));
                 }
 
                 // Create grid of shapes with consistent spacing
                 for (let i = 0; i < totalShapes; i++) {
                   let row, col;
-                  if (isPlatform) {
+                  if (obj.orientation === "vertical") {
+                    row = i;
+                    col = 0;
+                  } else if (obj.orientation === "horizontal") {
+                    row = 0;
+                    col = i;
+                  } else {
                     row = Math.floor(i / actualCols);
                     col = i % actualCols;
-                  } else {
-                    row = i % actualRows;
-                    col = Math.floor(i / actualRows);
                   }
-                  const x = baseX + (col * spacing);
-                  const y = baseY + (row * spacing);
-                  shapes.push(baseShape.translate(V2(x, y)));
-                }
+                  const x = baseX + (col * sameTypeSpacing);
 
-                // Update currentTypeX for next object in this type group
-                if (objIndex === objects.length - 1) {
-                  // Last object in this type group - move to next type group position
-                  currentTypeX += objectWidth + spacing;
-                  if (typeIdx < typeGroupEntries.length - 1) {
-                    currentTypeX += groupSpacing; // Add extra spacing between type groups
-                  }
-                } else {
-                  // More objects in this type group - just add object width
-                  currentTypeX += objectWidth + spacing;
-                }
+                  // For platforms, stack objects upward from the platform surface
+                  const y = isPlatform ?
+                    baseY - (row * sameTypeSpacing) :
+                    baseY + (row * sameTypeSpacing);
 
-                return shapes;
+                  typeGroupShapes.push(baseShape.translate(V2(x, y)));
+                }
               });
+
+              // Update currentTypeX for next type group
+              if (isPlatform) {
+                currentTypeX += typeGroupWidth + (groupSpacing * 2);
+              } else {
+                currentTypeX += spacing + groupSpacing;
+              }
+
+              return typeGroupShapes;
             });
           });
 

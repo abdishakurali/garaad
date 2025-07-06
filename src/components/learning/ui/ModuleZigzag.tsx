@@ -21,6 +21,7 @@ export default function ModuleZigzag({
   activeModuleId,
 }: ModuleZigzagProps) {
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const authService = AuthService.getInstance();
 
@@ -70,7 +71,20 @@ export default function ModuleZigzag({
     }
 
     if (selectedModule) {
-      onModuleClick(selectedModule.id);
+      setIsLoading(true);
+      try {
+        // Call the synchronous onModuleClick function
+        onModuleClick(selectedModule.id);
+
+        // Keep loading state for a short time to show the loading indicator
+        // This gives users feedback that the action was triggered
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
+      } catch (error) {
+        console.error('Error starting lesson:', error);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -245,47 +259,72 @@ export default function ModuleZigzag({
           <h1 className="text-xl font-bold text-gray-900 text-center mb-4">
             {selectedModule?.title || uniqueModules[0]?.title || 'Select a module'}
           </h1>
-          <button
-            onClick={handleButtonClick}
-            disabled={!selectedModule}
-            className={`w-full font-semibold py-3 px-6 rounded-2xl shadow-lg transition-all duration-200 transform hover:scale-105 text-base ${!selectedModule
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : !canStartLesson
-                ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
-                : selectedModuleCompleted
-                  ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
-                  : selectedModuleProgress
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
-                    : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
-              }`}
-          >
-            {!selectedModule ? (
-              <>
-                <PlayCircle className="inline w-4 h-4 mr-2" />
-                Billow
-              </>
-            ) : !canStartLesson ? (
-              <>
-                <UserPlus className="inline w-4 h-4 mr-2" />
-                Isdiiwaangeli
-              </>
-            ) : selectedModuleCompleted ? (
-              <>
-                <ReplyIcon className="inline w-4 h-4 mr-2" />
-                Muraajacee
-              </>
-            ) : selectedModuleProgress ? (
-              <>
-                <PlayCircle className="inline w-4 h-4 mr-2" />
-                Sii Wado
-              </>
-            ) : (
-              <>
-                <PlayCircle className="inline w-4 h-4 mr-2" />
-                Billow
-              </>
-            )}
-          </button>
+
+          {isLoading ? (
+            // Enhanced Loading State with dynamic colors
+            <div className={`w-full rounded-2xl p-4 shadow-lg ${!canStartLesson
+              ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+              : selectedModuleCompleted
+                ? 'bg-gradient-to-r from-green-500 to-green-600'
+                : selectedModuleProgress
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+                  : 'bg-gradient-to-r from-purple-500 to-purple-600'
+              }`}>
+              <div className="flex items-center justify-center space-x-3">
+                <div className="relative">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 w-5 h-5 border-2 border-transparent border-t-white/60 rounded-full animate-spin" style={{ animationDelay: '0.1s' }}></div>
+                </div>
+                <div className="text-white font-medium">
+                  <div className="text-sm">La soo rarayo...</div>
+                  <div className="text-xs opacity-80">Casharka ayaa la dirayaa</div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Normal Button State
+            <button
+              onClick={handleButtonClick}
+              disabled={!selectedModule}
+              className={`w-full font-semibold py-3 px-6 rounded-2xl shadow-lg transition-all duration-200 transform hover:scale-105 text-base ${!selectedModule
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : !canStartLesson
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                  : selectedModuleCompleted
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
+                    : selectedModuleProgress
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                      : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
+                }`}
+            >
+              {!selectedModule ? (
+                <>
+                  <PlayCircle className="inline w-4 h-4 mr-2" />
+                  Billow
+                </>
+              ) : !canStartLesson ? (
+                <>
+                  <UserPlus className="inline w-4 h-4 mr-2" />
+                  Isdiiwaangeli
+                </>
+              ) : selectedModuleCompleted ? (
+                <>
+                  <ReplyIcon className="inline w-4 h-4 mr-2" />
+                  Muraajacee
+                </>
+              ) : selectedModuleProgress ? (
+                <>
+                  <PlayCircle className="inline w-4 h-4 mr-2" />
+                  Sii Wado
+                </>
+              ) : (
+                <>
+                  <PlayCircle className="inline w-4 h-4 mr-2" />
+                  Billow
+                </>
+              )}
+            </button>
+          )}
         </div>
       )}
     </div>

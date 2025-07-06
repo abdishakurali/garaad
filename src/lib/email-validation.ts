@@ -227,10 +227,9 @@ export class EmailValidator {
 
     if (!localPart) return true;
 
-    // Check for suspicious patterns
+    // Check for suspicious patterns - made more reasonable
     const suspiciousPatterns = [
       /^\d+$/, // Only numbers
-      /^[a-z]+\d+$/, // Only letters followed by numbers
       /^test\d+$/i, // Starts with "test" followed by numbers
       /^fake\d*$/i, // Starts with "fake" with optional numbers
       /^temp\d*$/i, // Starts with "temp" with optional numbers
@@ -241,10 +240,11 @@ export class EmailValidator {
       /^support\d*$/i, // Starts with "support" with optional numbers
       /^info\d*$/i, // Starts with "info" with optional numbers
       /^webmaster$/i, // Exact "webmaster"
-      /^[a-z]{1,3}$/i, // Too short (1-3 characters)
-      /^[a-z]{30,}$/i, // Too long (30+ characters)
-      /^[a-z]+[0-9]{8,}$/i, // Letters followed by 8+ numbers
-      /^[0-9]{8,}[a-z]+$/i, // 8+ numbers followed by letters
+      /^[a-z]{1,2}$/i, // Too short (1-2 characters)
+      /^[a-z]{35,}$/i, // Too long (35+ characters)
+      /^[a-z]+[0-9]{10,}$/i, // Letters followed by 10+ numbers (very long numbers are suspicious)
+      /^[0-9]{10,}[a-z]*$/i, // 10+ numbers followed by letters (very long numbers are suspicious)
+      /^(test|fake|temp|spam|admin|support|info|webmaster|noreply|no-reply)\d*$/i, // Common suspicious words
     ];
 
     return suspiciousPatterns.some((pattern) => pattern.test(localPart));
@@ -309,23 +309,49 @@ export class EmailValidator {
       };
     }
 
-    // Check for suspicious patterns
-    if (this.isSuspiciousPattern(cleanEmail)) {
-      return {
-        isValid: false,
-        error:
-          "Emailkan wuxuu u eegayaa mid been ah. Fadlan isticmaal email dhabta ah",
-        reason: "Suspicious email pattern detected",
-      };
-    }
-
-    // Check if it looks realistic
+    // Check if it looks realistic first
     if (!this.looksRealistic(cleanEmail)) {
       return {
         isValid: false,
         error: "Fadlan geli email sax ah",
         reason: "Email does not look realistic",
       };
+    }
+
+    // If it's from a trusted domain, be more lenient with pattern checks
+    if (this.isTrustedDomain(cleanEmail)) {
+      // Only check for very obvious suspicious patterns for trusted domains
+      const cleanEmailLC = cleanEmail.trim().toLowerCase();
+      const [localPart] = cleanEmailLC.split("@");
+
+      if (localPart) {
+        // Only block very obvious suspicious patterns from trusted domains
+        const veryObviousPatterns = [
+          /^(test|fake|temp|spam|noreply|no-reply|webmaster)\d*$/i,
+          /^[a-z]{1}$/i, // Single character
+          /^[a-z]{40,}$/i, // Extremely long (40+ characters)
+          /^\d+$/i, // Only numbers
+        ];
+
+        if (veryObviousPatterns.some((pattern) => pattern.test(localPart))) {
+          return {
+            isValid: false,
+            error:
+              "Emailkan wuxuu u eegayaa mid been ah. Fadlan isticmaal email dhabta ah",
+            reason: "Suspicious email pattern detected",
+          };
+        }
+      }
+    } else {
+      // For non-trusted domains, apply full suspicious pattern checks
+      if (this.isSuspiciousPattern(cleanEmail)) {
+        return {
+          isValid: false,
+          error:
+            "Emailkan wuxuu u eegayaa mid been ah. Fadlan isticmaal email dhabta ah",
+          reason: "Suspicious email pattern detected",
+        };
+      }
     }
 
     return {

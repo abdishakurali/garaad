@@ -128,6 +128,7 @@ export default function TestDotsPage() {
     // Test email validation
     const testEmailValidation = () => {
         const testEmails = [
+            "maanc143@gmail.com", // User reported issue - should be valid now
             "test@gmail.com", // Valid
             "user@tempmail.org", // Fake domain
             "fake@example.com", // Suspicious
@@ -140,6 +141,8 @@ export default function TestDotsPage() {
             "throwaway@mailinator.com", // Disposable
             "abc@xyz.com", // Too short
             "realuser@icloud.com", // Valid
+            "ahmed789@gmail.com", // Similar pattern to user report - should be valid
+            "sara456@hotmail.com", // Similar pattern - should be valid
         ];
 
         console.log('Testing email validation:');

@@ -30,10 +30,33 @@ export class StripeService {
     try {
       const authService = AuthService.getInstance();
       const token = authService.getToken();
+      const currentUser = authService.getCurrentUser();
 
       if (!token) {
         throw new Error("User not authenticated");
       }
+
+      // Get user email from AuthService
+      const userEmail = currentUser?.email;
+      const userId = currentUser?.id;
+
+      console.log("📧 StripeService - User info:", {
+        userEmail,
+        userId,
+        hasToken: !!token,
+        hasUser: !!currentUser,
+      });
+
+      const requestBody = {
+        plan,
+        countryCode,
+        email: userEmail, // Pass user email explicitly
+        userId: userId, // Pass user ID explicitly
+        successUrl: `${window.location.origin}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/subscribe?canceled=true`,
+      };
+
+      console.log("📧 StripeService - Request body:", requestBody);
 
       const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
@@ -41,12 +64,7 @@ export class StripeService {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          plan,
-          countryCode,
-          successUrl: `${window.location.origin}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/subscribe?canceled=true`,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
