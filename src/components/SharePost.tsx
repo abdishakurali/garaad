@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 
 interface SharePostProps {
   title: string;
@@ -43,8 +42,8 @@ export function SharePost({ title, slug }: SharePostProps) {
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-
+    } catch {
+      // Ignore clipboard errors
     }
   };
 
@@ -77,7 +76,7 @@ export function SharePost({ title, slug }: SharePostProps) {
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0 rounded-full"
-          aria-label="Share this post"
+          aria-label="La wadaag qoraalkan"
         >
           <Share2 className="h-4 w-4" />
         </Button>
@@ -120,12 +119,12 @@ export function SharePost({ title, slug }: SharePostProps) {
           {copied ? (
             <>
               <Check className="mr-2 h-4 w-4 text-green-500" />
-              <span>Copied!</span>
+              <span>La koobiyey!</span>
             </>
           ) : (
             <>
               <LinkIcon className="mr-2 h-4 w-4" />
-              <span>Copy link</span>
+              <span>Koobi linkiga</span>
             </>
           )}
         </DropdownMenuItem>

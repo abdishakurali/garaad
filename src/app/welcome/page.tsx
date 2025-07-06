@@ -1132,12 +1132,12 @@ export default function Page() {
                     htmlFor="referralCode"
                     className="text-sm font-medium text-slate-700"
                   >
-                    Referral Code (optional)
+                    Koodka La Wareejiyo (ikhtiyaari)
                   </Label>
                   <Input
                     id="referralCode"
                     type="text"
-                    placeholder="Enter referral code (if any)"
+                    placeholder="Geli koodka la wareejiyo (haddii aad hayso)"
                     value={userData.referralCode || ""}
                     onChange={(e) =>
                       setUserData({ ...userData, referralCode: e.target.value })
