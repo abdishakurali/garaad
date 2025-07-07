@@ -677,6 +677,47 @@ export default function Page() {
         return;
       }
 
+      // Check if user already exists
+      const userExists = await AuthService.getInstance().checkUserExists(userData.email);
+
+      if (userExists.exists) {
+        // User already exists, handle different scenarios
+        if (!userExists.is_email_verified) {
+          // User exists but email is not verified
+          toast({
+            variant: "destructive",
+            title: "Isticmaalaha ayaa horey u jira",
+            description: "Emailkaagu horey ayuu u jiraa laakiin ma xaqiijin. Fadlan xaqiiji emailkaaga.",
+          });
+
+          // Redirect to email verification page
+          router.push(`/verify-email?email=${userData.email}`);
+          return;
+        } else {
+          // User exists and email is verified, suggest login
+          toast({
+            variant: "destructive",
+            title: "Isticmaalaha ayaa horey u jira",
+            description: "Emailkaagu horey ayuu u diiwaangelisan yahay. Fadlan soo gal.",
+          });
+
+          // Clear local storage and redirect to login
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('welcome_user_data');
+            localStorage.removeItem('welcome_selections');
+            localStorage.removeItem('welcome_current_step');
+            localStorage.removeItem('welcome_topic_levels');
+            localStorage.removeItem('welcome_selected_topic');
+            localStorage.removeItem('user');
+          }
+
+          // Redirect to home page where user can log in
+          router.push('/');
+          return;
+        }
+      }
+
+      // User doesn't exist, proceed with normal signup
       // Format the request body
       const signUpData = {
         email: userData.email.trim(),

@@ -28,7 +28,7 @@ const VideoBlock: React.FC<{
               controls={content.controls}
               className="w-full h-full object-cover"
             >
-              Your browser does not support the video tag.
+              Browser-kaagu ma taageerayo video-ga.
             </video>
           </div>
           {content.description && (

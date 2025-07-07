@@ -67,7 +67,7 @@ export const PracticeSet: React.FC<PracticeSetProps> = ({
       <div className="space-y-2">
         <h2 className="text-2xl font-bold">{practiceSet.title}</h2>
         <p className="text-muted-foreground">
-          Difficulty: {practiceSet.difficulty_level}
+          Adkaan: {practiceSet.difficulty_level}
         </p>
       </div>
 
@@ -115,7 +115,7 @@ export const PracticeSet: React.FC<PracticeSetProps> = ({
                       onClick={() => handleSubmit(problem)}
                       className="w-full"
                     >
-                      Submit Answer
+                      Gudbi Jawaabta
                     </Button>
                   )}
 

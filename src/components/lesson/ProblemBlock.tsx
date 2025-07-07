@@ -196,7 +196,7 @@ const ProblemBlock: React.FC<{
                       onError={() => setImgLoading(false)}
                       style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.2s" }}
                     >
-                      Your browser does not support the video tag.
+                      Browser-kaagu ma taageerayo video-ga.
                     </video>
                   ) : (
                     <Image

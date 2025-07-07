@@ -77,7 +77,7 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
       console.log(response.data.username);
     } catch (err) {
       console.error("Error fetching streak data:", err);
-      setError("Failed to load streak data. Please try again.");
+      setError("Lagu guuldaraaystay in la soo raro xogta streak-ga. Fadlan mar kale isku day.");
     } finally {
       setLoading(false);
     }

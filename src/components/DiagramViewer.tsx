@@ -23,7 +23,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({ problems }) => {
         return (
           <div key={problem.id} className="p-4 border rounded-lg">
             <p className="mb-4 font-medium">{problem.question}</p>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
+            <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-8 justify-center items-center">
               {problem.diagrams ? (
                 // Handle new diagrams array format
                 problem.diagrams.map((cfg) => (

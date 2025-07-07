@@ -55,6 +55,12 @@ export interface SignInResponse {
   };
 }
 
+export interface UserExistenceResponse {
+  exists: boolean;
+  is_email_verified?: boolean;
+  message?: string;
+}
+
 interface JWTPayload {
   exp: number;
   iat: number;
@@ -204,6 +210,35 @@ export class AuthService {
       return response.data;
     } catch (error) {
       this.handleError(error);
+    }
+  }
+
+  public async checkUserExists(email: string): Promise<UserExistenceResponse> {
+    try {
+      console.log("Checking if user exists with email:", email);
+
+      // Validate email before sending to server
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        throw new Error(emailValidation.error || "Fadlan geli email sax ah");
+      }
+
+      const response = await axios.post<UserExistenceResponse>(
+        `${this.baseURL}/api/auth/check-user-exists/`,
+        { email }
+      );
+
+      console.log("User existence check response:", response.data);
+      return response.data;
+    } catch (error) {
+      // If the endpoint doesn't exist or returns 404, assume user doesn't exist
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return { exists: false };
+      }
+
+      console.error("Error checking user existence:", error);
+      // If there's an error, assume user doesn't exist to not block signup
+      return { exists: false };
     }
   }
 

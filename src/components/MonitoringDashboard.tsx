@@ -67,9 +67,9 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
                     <div className="flex items-center justify-center">
                         <div className="text-center">
                             <Activity className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <p className="text-gray-500">No metrics available</p>
+                            <p className="text-gray-500">Qiyaasyo la heli karo ma jiraan</p>
                             <Button onClick={refreshMetrics} variant="outline" className="mt-2">
-                                Refresh Metrics
+                                Cusbonaynta Qiyaasyada
                             </Button>
                         </div>
                     </div>
@@ -93,8 +93,8 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold">Activity Monitoring</h2>
-                    <p className="text-gray-600">Real-time performance and engagement metrics</p>
+                    <h2 className="text-2xl font-bold">La-socodka Dhaqdhaqaaqa</h2>
+                    <p className="text-gray-600">Qiyaasyo waqti-dhabta ah ee waxqabadka iyo isdhexgalka</p>
                 </div>
                 <div className="flex gap-2">
                     <Button
@@ -104,14 +104,14 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
                         size="sm"
                     >
                         <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-                        Refresh
+                        Cusbonaynta
                     </Button>
                     <Button onClick={exportMetrics} variant="outline" size="sm">
                         <Download className="w-4 h-4 mr-2" />
-                        Export
+                        Soo saarka
                     </Button>
                     <Button onClick={resetMetrics} variant="outline" size="sm">
-                        Reset
+                        Dib u dejinta
                     </Button>
                 </div>
             </div>
@@ -122,25 +122,25 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <TrendingUp className="w-5 h-5" />
-                            Performance
+                            Waxqabadka
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-3">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">API Response Time</span>
+                                <span className="text-sm text-gray-600">Waqtiga Jawaabta API</span>
                                 <span className="font-mono text-sm">{metrics.performance.apiResponseTime}ms</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Memory Usage</span>
+                                <span className="text-sm text-gray-600">Isticmaalka Xusuusta</span>
                                 <span className="font-mono text-sm">{formatFileSize(metrics.performance.memoryUsage)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Event Listeners</span>
+                                <span className="text-sm text-gray-600">Dhegeystayaasha Dhacdada</span>
                                 <span className="font-mono text-sm">{metrics.performance.eventListeners}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Error Rate</span>
+                                <span className="text-sm text-gray-600">Heerka Khaladka</span>
                                 <span className="font-mono text-sm">{metrics.performance.errorRate.toFixed(1)}%</span>
                             </div>
                         </div>
@@ -148,7 +148,7 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
                         {/* Error Rate Progress */}
                         <div className="space-y-1">
                             <div className="flex justify-between text-xs">
-                                <span>Error Rate</span>
+                                <span>Heerka Khaladka</span>
                                 <span>{metrics.performance.errorRate.toFixed(1)}%</span>
                             </div>
                             <Progress
@@ -168,27 +168,27 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Activity className="w-5 h-5" />
-                            User Engagement
+                            Isdhexgalka Isticmaalaha
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-3">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Session Duration</span>
+                                <span className="text-sm text-gray-600">Muddada Fadhiga</span>
                                 <span className="font-mono text-sm">{formatDuration(metrics.engagement.sessionDuration)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Interactions/min</span>
+                                <span className="text-sm text-gray-600">Isdhexgalka/daqiiqo</span>
                                 <span className="font-mono text-sm">{metrics.engagement.interactionsPerMinute}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Activity Updates</span>
+                                <span className="text-sm text-gray-600">Cusboonaysiinta Dhaqdhaqaaqa</span>
                                 <span className="font-mono text-sm">{metrics.engagement.activityUpdatesToday}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Streak Maintained</span>
+                                <span className="text-sm text-gray-600">Streak-ga la Ilaaliyay</span>
                                 <Badge variant={metrics.engagement.streakMaintained ? "default" : "secondary"}>
-                                    {metrics.engagement.streakMaintained ? "Yes" : "No"}
+                                    {metrics.engagement.streakMaintained ? "Haa" : "Maya"}
                                 </Badge>
                             </div>
                         </div>
@@ -200,29 +200,29 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Zap className="w-5 h-5" />
-                            System Status
+                            Xaalada Nidaamka
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-3">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Last Update</span>
+                                <span className="text-sm text-gray-600">Cusboonaysiinta Dambe</span>
                                 <span className="font-mono text-sm">
                                     {new Date(metrics.performance.lastUpdate).toLocaleTimeString()}
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Update Interval</span>
-                                <span className="font-mono text-sm">5 min</span>
+                                <span className="text-sm text-gray-600">Muddo dhexdhexaad ah</span>
+                                <span className="font-mono text-sm">5 daqiiqo</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Daily Goal</span>
+                                <span className="text-sm text-gray-600">Hadafka Maalinlaha</span>
                                 <Badge variant={metrics.engagement.dailyGoalCompleted ? "default" : "secondary"}>
-                                    {metrics.engagement.dailyGoalCompleted ? "Completed" : "In Progress"}
+                                    {metrics.engagement.dailyGoalCompleted ? "Dhammaaday" : "Waa la socodaa"}
                                 </Badge>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Last Activity</span>
+                                <span className="text-sm text-gray-600">Dhaqdhaqaaqa Dambe</span>
                                 <span className="font-mono text-sm">
                                     {new Date(metrics.engagement.lastActivity).toLocaleTimeString()}
                                 </span>
@@ -235,15 +235,15 @@ export default function MonitoringDashboard({ className = "" }: MonitoringDashbo
             {/* Metrics History */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Metrics History</CardTitle>
+                    <CardTitle>Taariikhda Qiyaasyada</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm font-medium">
-                            <span>Timestamp</span>
-                            <span>Response Time</span>
-                            <span>Error Rate</span>
-                            <span>Interactions</span>
+                            <span>Waqtiga</span>
+                            <span>Waqtiga Jawaabta</span>
+                            <span>Heerka Khaladka</span>
+                            <span>Isdhexgalka</span>
                         </div>
                         {MonitoringService.getInstance().getMetricsHistory().slice(-5).reverse().map((metric, index) => (
                             <div key={index} className="flex justify-between text-sm border-b pb-2">

@@ -38,6 +38,7 @@ import { EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { validateEmail } from "@/lib/email-validation";
+import AuthService from "@/services/auth";
 
 // Define the form schema with enhanced email validation
 const formSchema = z.object({
@@ -224,7 +225,7 @@ export function AuthDialog() {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="email@example.com"
+                        placeholder="tusaale@example.com"
                         {...field}
                         disabled={isLoading}
                         className="h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/50 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white"

@@ -114,7 +114,7 @@ export function Header() {
 
   // Convert SWR error to string for StreakDisplay component
   const errorMessage = error
-    ? "Failed to load streak data. Please try again."
+    ? "Lagu guuldaraaystay in la soo raro xogta streak-ga. Fadlan mar kale isku day."
     : null;
 
   console.log("user:", user);

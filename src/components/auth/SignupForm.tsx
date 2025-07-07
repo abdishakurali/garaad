@@ -12,6 +12,7 @@ import type { AppDispatch } from "@/store";
 import type { SignUpData } from "@/types/auth";
 import { cn } from "@/lib/utils";
 import { validateEmail } from "@/lib/email-validation";
+import AuthService from "@/services/auth";
 
 interface SignupFormProps {
   onClose?: () => void;
@@ -106,7 +107,39 @@ export function SignupForm({ onClose }: SignupFormProps) {
         },
       };
 
-      // Use unwrap() to properly handle errors
+      // Check if user already exists
+      const userExists = await AuthService.getInstance().checkUserExists(formData.email);
+
+      if (userExists.exists) {
+        // User already exists, handle different scenarios
+        if (!userExists.is_email_verified) {
+          // User exists but email is not verified
+          toast({
+            variant: "destructive",
+            title: "Isticmaalaha ayaa horey u jira",
+            description: "Emailkaagu horey ayuu u jiraa laakiin ma xaqiijin. Fadlan xaqiiji emailkaaga.",
+          });
+
+          // Redirect to email verification page
+          router.push(`/verify-email?email=${formData.email}`);
+          onClose?.();
+          return;
+        } else {
+          // User exists and email is verified, suggest login
+          toast({
+            variant: "destructive",
+            title: "Isticmaalaha ayaa horey u jira",
+            description: "Emailkaagu horey ayuu u diiwaangelisan yahay. Fadlan soo gal.",
+          });
+
+          // Could redirect to login or show login form
+          // For now just close and user can click login
+          onClose?.();
+          return;
+        }
+      }
+
+      // User doesn't exist, proceed with normal signup
       const result = await dispatch(signUp(signupData)).unwrap();
 
       // Only redirect if signup was successful and no auth error
@@ -186,7 +219,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Emailkaaga
+                  Email-kaaga
                 </Label>
                 <Input
                   id="email"

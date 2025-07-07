@@ -927,7 +927,7 @@ const LessonPage = () => {
                         <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
                             <CardContent className="p-8 text-center">
                                 <p className="text-gray-600 text-lg">
-                                    This content type is not yet supported.
+                                    Nooca waxyaabahan weli lama taageerayo.
                                 </p>
                             </CardContent>
                             <CardFooter className="flex justify-center pb-8">

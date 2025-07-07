@@ -6,23 +6,23 @@ import { cn } from '@/lib/utils';
 
 const navigationItems = [
     {
-        name: 'Dashboard',
+        name: 'Bandhiga',
         href: '/dashboard',
     },
     {
-        name: 'Courses',
+        name: 'Koorsooyinka',
         href: '/courses',
     },
     {
-        name: 'Progress',
+        name: 'Horumarinta',
         href: '/progress',
     },
     {
-        name: 'Leaderboard',
+        name: 'Kuwa Horreysa',
         href: '/leaderboard',
     },
     {
-        name: 'Rewards',
+        name: 'Abaalmarinta',
         href: '/rewards',
     },
 ];

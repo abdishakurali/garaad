@@ -12,7 +12,7 @@ export function CookieConsent() {
         <p className="text-sm text-gray-600">
           Waxaan isticmaalnaa cookies si aan u hagaajino waayo aragnimadaada Garaad{" "}
           <a href="#" className="text-blue-600 hover:underline">
-            Learn more about our cookie policy and settings
+            Wax badan ka baro siyaasadda cookies-ka iyo dejinta
           </a>
           .
         </p>
@@ -21,7 +21,7 @@ export function CookieConsent() {
           onClick={() => setIsVisible(false)}
           className="whitespace-nowrap"
         >
-          Accept
+          Aqbal
         </Button>
       </div>
     </div>
