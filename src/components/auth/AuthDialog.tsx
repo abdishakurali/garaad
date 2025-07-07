@@ -136,7 +136,7 @@ export function AuthDialog() {
             return;
           }
 
-          // Email is verified, proceed with normal login flow
+          // Email is verified, check premium status
           setIsOpen(false);
           if (response.user.is_premium) {
             router.push('/courses');

@@ -113,15 +113,19 @@ export function SignupForm({ onClose }: SignupFormProps) {
       if (result && !authError) {
         // Check if the user's email is already verified
         if (result.user?.is_email_verified) {
-          // User is already verified, but must still subscribe to access courses
+          // User is already verified, check premium status
           toast({
             variant: "default",
             title: "Waad mahadsantahay!",
-            description: "Emailkaaga la xaqiijiyay. Hadda ku biir adeegga Premium-ka si aad u hesho dhammaan casharrada.",
+            description: "Emailkaaga la xaqiijiyay. Hadda waxaan hubin doonaa heerka adeeggaaga.",
           });
 
-          // All users must subscribe before accessing courses
-          router.push('/subscribe');
+          // Check premium status and redirect accordingly
+          if (result.user.is_premium) {
+            router.push('/courses');
+          } else {
+            router.push('/subscribe');
+          }
         } else {
           // User needs email verification first
           toast({
@@ -130,7 +134,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
             description: "Si aad u bilowdo, fadlan xaqiiji emailkaaga.",
           });
 
-          // After email verification, user will be redirected to subscribe page
+          // After email verification, user will be redirected based on premium status
           router.push(`/verify-email?email=${result.user?.email || formData.email}`);
         }
         onClose?.();

@@ -67,8 +67,40 @@ export default function VerifyEmailPage() {
                 localStorage.removeItem('user');
               }
 
-              // Redirect to subscribe page - all users must subscribe before accessing courses
-              router.push("/subscribe");
+              // Check user's premium status since email is already verified
+              try {
+                const userResponse = await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
+                  {
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json",
+                      // Try to get token from localStorage or cookies
+                      "Authorization": `Bearer ${localStorage.getItem('accessToken') || ''}`,
+                    },
+                  }
+                );
+
+                if (userResponse.ok) {
+                  const userData = await userResponse.json();
+
+                  // Check if user is premium
+                  if (userData.is_premium) {
+                    // User is premium, redirect to courses
+                    router.push("/courses");
+                  } else {
+                    // User is not premium, redirect to subscribe
+                    router.push("/subscribe");
+                  }
+                } else {
+                  // If we can't get user data, default to subscribe page
+                  router.push("/subscribe");
+                }
+              } catch (userError) {
+                console.error("Error fetching user data:", userError);
+                // Default to subscribe page if there's an error
+                router.push("/subscribe");
+              }
               return;
             }
             throw new Error(data.error || data.detail || "Failed to send verification code");
@@ -178,7 +210,11 @@ export default function VerifyEmailPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Verification failed");
 
-      // Success state - redirect immediately since we removed isVerified state
+      // Success state - check user's premium status after verification
+      toast({
+        title: "Emailkaaga waa la xaqiijiyay!",
+        description: "Waad mahadsantahay. Hadda waxaan hubin doonaa heerka adeeggaaga.",
+      });
 
       // Clear localStorage data after successful verification
       if (typeof window !== 'undefined') {
@@ -190,8 +226,39 @@ export default function VerifyEmailPage() {
         localStorage.removeItem('user');
       }
 
-      // Redirect to subscribe page - all users must subscribe before accessing courses
-      router.push("/subscribe");
+      // Check user's premium status after email verification
+      try {
+        const userResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${data.access || data.token}`,
+            },
+          }
+        );
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+
+          // Check if user is premium
+          if (userData.is_premium) {
+            // User is premium, redirect to courses
+            router.push("/courses");
+          } else {
+            // User is not premium, redirect to subscribe
+            router.push("/subscribe");
+          }
+        } else {
+          // If we can't get user data, default to subscribe page
+          router.push("/subscribe");
+        }
+      } catch (userError) {
+        console.error("Error fetching user data:", userError);
+        // Default to subscribe page if there's an error
+        router.push("/subscribe");
+      }
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";
@@ -244,8 +311,40 @@ export default function VerifyEmailPage() {
             localStorage.removeItem('user');
           }
 
-          // Redirect to subscribe page - all users must subscribe before accessing courses
-          router.push("/subscribe");
+          // Check user's premium status since email is already verified
+          try {
+            const userResponse = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  // Try to get token from localStorage or cookies
+                  "Authorization": `Bearer ${localStorage.getItem('accessToken') || ''}`,
+                },
+              }
+            );
+
+            if (userResponse.ok) {
+              const userData = await userResponse.json();
+
+              // Check if user is premium
+              if (userData.is_premium) {
+                // User is premium, redirect to courses
+                router.push("/courses");
+              } else {
+                // User is not premium, redirect to subscribe
+                router.push("/subscribe");
+              }
+            } else {
+              // If we can't get user data, default to subscribe page
+              router.push("/subscribe");
+            }
+          } catch (userError) {
+            console.error("Error fetching user data:", userError);
+            // Default to subscribe page if there's an error
+            router.push("/subscribe");
+          }
           return;
         }
         throw new Error(data.error || data.detail || "Failed to resend code");
