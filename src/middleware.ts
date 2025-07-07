@@ -42,6 +42,15 @@ export async function middleware(request: NextRequest) {
     const user = JSON.parse(userCookie.value);
     console.log("Parsed user:", user);
     console.log("Is premium:", user.is_premium);
+    console.log("Is email verified:", user.is_email_verified);
+
+    // Check if user's email is verified
+    if (!user.is_email_verified && !pathname.startsWith("/verify-email")) {
+      console.log("User email not verified, redirecting to email verification");
+      const verifyUrl = new URL("/verify-email", request.url);
+      verifyUrl.searchParams.set("email", user.email || "");
+      return NextResponse.redirect(verifyUrl);
+    }
 
     // If user is premium, allow access to all pages
     if (user.is_premium) {

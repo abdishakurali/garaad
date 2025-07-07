@@ -36,92 +36,6 @@ export default function VerifyEmailPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const sendInitialVerificationCode = async () => {
-      if (email) {
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email }),
-            }
-          );
-
-          const data = await response.json();
-          if (!response.ok) {
-            // Check if the error is "Email is already verified"
-            if (data.error === "Email is already verified" || data.detail === "Email is already verified") {
-              toast({
-                title: "Emailkaaga horey ayaa la xaqiijiyay",
-                description: "Waxaad hadda isticmaali kartaa adeegga.",
-              });
-
-              // Clear localStorage data
-              if (typeof window !== 'undefined') {
-                localStorage.removeItem('welcome_user_data');
-                localStorage.removeItem('welcome_selections');
-                localStorage.removeItem('welcome_current_step');
-                localStorage.removeItem('welcome_topic_levels');
-                localStorage.removeItem('welcome_selected_topic');
-                localStorage.removeItem('user');
-              }
-
-              // Check user's premium status since email is already verified
-              try {
-                const userResponse = await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
-                  {
-                    method: "GET",
-                    headers: {
-                      "Content-Type": "application/json",
-                      // Try to get token from localStorage or cookies
-                      "Authorization": `Bearer ${localStorage.getItem('accessToken') || ''}`,
-                    },
-                  }
-                );
-
-                if (userResponse.ok) {
-                  const userData = await userResponse.json();
-
-                  // Check if user is premium
-                  if (userData.is_premium) {
-                    // User is premium, redirect to courses
-                    router.push("/courses");
-                  } else {
-                    // User is not premium, redirect to subscribe
-                    router.push("/subscribe");
-                  }
-                } else {
-                  // If we can't get user data, default to subscribe page
-                  router.push("/subscribe");
-                }
-              } catch (userError) {
-                console.error("Error fetching user data:", userError);
-                // Default to subscribe page if there's an error
-                router.push("/subscribe");
-              }
-              return;
-            }
-            throw new Error(data.error || data.detail || "Failed to send verification code");
-          }
-
-          toast({
-            title: "Number sireed ayaa loo diray",
-            description: "Fadlan hubi email-kaaga koodka",
-          });
-        } catch (err) {
-          console.error("Failed to send initial verification code:", err);
-          const errorMessage = err instanceof Error ? err.message : "Failed to send verification code";
-          setError(errorMessage);
-        }
-      }
-    };
-
-    sendInitialVerificationCode();
-  }, [email, toast, router]);
-
-  useEffect(() => {
     const emailParam = searchParams.get("email");
     if (emailParam) {
       setEmail(emailParam);
@@ -382,6 +296,9 @@ export default function VerifyEmailPage() {
           <CardDescription>
             Geli koodka 6-xarafka ah ee ku soo dirnay {email || "email-kaaga"}
           </CardDescription>
+          <p className="text-sm text-gray-600 mt-2">
+            Koodka wuxuu ku soo dirnay emailkaaga markii aad isdiiwaangelisay. Haddii aadan helin, fadlan riix &quot;Dib u dir koodka&quot;.
+          </p>
         </CardHeader>
 
         <CardContent>
