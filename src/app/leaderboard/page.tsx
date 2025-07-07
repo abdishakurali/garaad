@@ -219,7 +219,7 @@ export default function Page() {
         <h1 className="text-2xl font-bold text-black">Welcome to Leagues!</h1>
 
         <p className="text-gray-700">
-          You just qualified for{" "}
+          Adiga just qualified for{" "}
           <span className="font-semibold">Hydrogen League</span>! Keep
           <br />
           earning XP to rise the ranks.

@@ -53,14 +53,14 @@ export default function CourseDetailPage() {
 
     const {
         data: enrollments,
-    } = useSWR<EnrollmentProgress[]>("/api/lms/enrollments/", authFetcher, {
+    } = useSWR<EnrollmentProgress[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/lms/enrollments/`, authFetcher, {
         revalidateOnFocus: false,
         dedupingInterval: 600000,
     });
 
     const {
         data: progress,
-    } = useSWR<UserProgress[]>("/api/lms/user-progress/", authFetcher, {
+    } = useSWR<UserProgress[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/lms/user-progress/`, authFetcher, {
         revalidateOnFocus: false,
         dedupingInterval: 600000,
     });
@@ -173,16 +173,7 @@ export default function CourseDetailPage() {
                                 </div>
                             </div>
 
-                            {enrollmentProgress === 0 && (
-                                <div className="mt-6">
-                                    <Button
-                                        onClick={handleEnrollClick}
-                                        className="w-full bg-primary hover:bg-primary/90 text-white"
-                                    >
-                                        Isdiiwaangeli
-                                    </Button>
-                                </div>
-                            )}
+
                         </aside>
 
                         {/* Learning Path */}

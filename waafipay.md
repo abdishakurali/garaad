@@ -11,10 +11,10 @@ By integrating with WaafiPay, merchants gain a competitive edge with the ability
 Whether you are integrating WaafiPay into a mobile app, a web store, or a custom-built e-commerce solution, our documentation will guide you through the necessary steps and technical details. It includes detailed descriptions of our API endpoints, data formats, and operational procedures, along with code examples in multiple programming languages to assist you in a smooth integration process. Whether you're a small business, a large enterprise, or a freelance developer, Waafipay provides the flexibility and functionality you need to manage payments efficiently and securely.
 
 Setup
-API Access: You must have a valid Waafipay account. If you do not have one, please visit WAAFI HQ Offices (Telesom, Zaad, Golis, WAAFI SAB) to register in person. Once registered, you will receive your API credentials, including an API key and a client ID, which are necessary for authentication.
+API Access: Adiga must have a valid Waafipay account. If you do not have one, please visit WAAFI HQ Offices (Telesom, Zaad, Golis, WAAFI SAB) to register in person. Once registered, you will receive your API credentials, including an API key and a client ID, which are necessary for authentication.
 Secure Environment: Ensure that your development and production environments comply with our security standards, which include using HTTPS to encrypt all API requests to safeguard sensitive data.
-Compatibility Check: Your system should be compatible with our API specifications. We support JSON for request and response bodies, and our API can be accessed from any platform that supports HTTPS requests.
-Development Tools: You should have the necessary development tools installed, including a REST client for testing API requests, and an environment for writing and testing your integration code.
+Compatibility Check: Adigar system should be compatible with our API specifications. We support JSON for request and response bodies, and our API can be accessed from any platform that supports HTTPS requests.
+Development Tools: Adiga should have the necessary development tools installed, including a REST client for testing API requests, and an environment for writing and testing your integration code.
 By meeting these requirements, you will be ready to proceed with integrating the WaafiPay API and start processing payments securely and efficiently through Mobile Wallets and Bank Accounts.
 Introduction
 Our API (Application Programming Interface) enables client applications to securely communicate with WaafiPay servers using a predefined message format. The structure of our API responses includes key fields that facilitate this communication:
@@ -676,7 +676,7 @@ Merchants can register their webhook endpoints via our API, receiving real-time 
 If you need any help with integration or have further questions, feel free to reach out. We're here to help!
 
 1. Register a Webhook
-You can only register one webhook URL to receive payment notifications. The provided URL should be publicly accessible.
+Adiga can only register one webhook URL to receive payment notifications. The provided URL should be publicly accessible.
 
 In all API requests, you must include the HPP credentials: merchantUid, storeId, hppKey.
 
@@ -757,7 +757,7 @@ Response
     }
 }
 3. Update Webhook
-You can update the url and description properties of an existing webhook.
+Adiga can update the url and description properties of an existing webhook.
 
 POST Request
 
@@ -798,7 +798,7 @@ POST /asm
         "webhookId": 10,
     }
 }
-Receiving a Webhook on Your Server
+Receiving a Webhook on Adigar Server
 Once registered, your webhook URL will receive transaction notifications in the following format:
 
 Webhook Sample Payload

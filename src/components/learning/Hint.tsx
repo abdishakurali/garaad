@@ -17,7 +17,7 @@ export function Hint({ hint, cost = 1 }: HintProps) {
     const handleRevealHint = () => {
         if (!usedHint) {
             setUsedHint(true);
-            // You could dispatch an action here to update the user's hint points
+            // Adiga could dispatch an action here to update the user's hint points
         }
         setIsRevealed(!isRevealed);
     };

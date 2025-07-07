@@ -418,7 +418,7 @@ const LessonPage = () => {
     const continueRef = useRef<() => void>(() => { });
 
     // In the LessonPage component, add state for lesson navigation
-    const [courseLessons, setCourseLessons] = useState<Lesson[]>([]);
+    const [, setCourseLessons] = useState<Lesson[]>([]);
 
     // Check if lesson is in review mode
     const isReviewMode = useMemo(() => {
@@ -763,7 +763,7 @@ const LessonPage = () => {
                     .map((b) => b.problem);
 
                 await authFetcher(
-                    `/api/lms/lessons/${currentLesson.id}/complete/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${currentLesson.id}/complete/`,
                     "post",
                     {
                         completed_problems: completedProblemIds,

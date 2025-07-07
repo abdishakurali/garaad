@@ -237,7 +237,7 @@ export default function Home() {
     isLoading: isLoadingAchievements,
     error: achievementsError,
   } = useSWR<Achievement[]>(
-    "/api/lms/achievements/user_achievements/",
+    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/achievements/user_achievements/`,
     authFetcher,
     {
       revalidateOnFocus: false,
@@ -611,7 +611,7 @@ export default function Home() {
                               )}
                             >
                               {standing.user.name}
-                              {isCurrent ? " (You)" : ""}
+                              {isCurrent ? " (Adiga)" : ""}
                             </span>
                             {standing.streak > 0 && (
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">

@@ -130,7 +130,8 @@ export const coursesService = {
                 "The courses endpoint could not be found. Please check the API configuration.";
               break;
             case 403:
-              errorMessage = "You don't have permission to access the courses.";
+              errorMessage =
+                "Adiga don't have permission to access the courses.";
               break;
             case 401:
               errorMessage = "Authentication required. Please log in again.";

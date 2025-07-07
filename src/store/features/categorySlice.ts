@@ -13,7 +13,9 @@ export const fetchCategories = createAsyncThunk(
   "categories/fetchCategories",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("/api/lms/categories/");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/`
+      );
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -28,7 +30,9 @@ export const fetchCategoryById = createAsyncThunk(
   "categories/fetchCategoryById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/api/lms/categories/${id}/`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${id}/`
+      );
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {

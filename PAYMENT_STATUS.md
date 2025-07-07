@@ -28,9 +28,9 @@ WAAFI_TEST_MODE=true
 ## Error Handling
 
 ### Card Payment Errors
-- **"You are not authorized to access the requested service"**: HPP service not enabled
-- **"Your request is missing (hppKey) parameter"**: HPP key not configured
-- **"Your request is missing (storeId) parameter"**: Store ID not configured
+- **"Adiga are not authorized to access the requested service"**: HPP service not enabled
+- **"Adigar request is missing (hppKey) parameter"**: HPP key not configured
+- **"Adigar request is missing (storeId) parameter"**: Store ID not configured
 
 ### User Experience
 - Users attempting card payments see a clear message: "Kaarka bixinta ma suurtagelin karto hadda. Fadlan isticmaal WaafiPay mobile wallet."

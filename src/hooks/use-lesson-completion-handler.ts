@@ -77,9 +77,13 @@ export const useLessonCompletionHandler = ({
             const completionResult =
               await AuthService.getInstance().makeAuthenticatedRequest<{
                 reward?: { value: number };
-              }>("post", `/api/lms/lessons/${currentLesson.id}/complete/`, {
-                score: isCorrect ? 100 : 0,
-              });
+              }>(
+                "post",
+                `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${currentLesson.id}/complete/`,
+                {
+                  score: isCorrect ? 100 : 0,
+                }
+              );
 
             // 2. Get updated course progress
             const courseProgress =
@@ -88,7 +92,10 @@ export const useLessonCompletionHandler = ({
                 user_progress: {
                   progress_percent: number;
                 };
-              }>("get", `/api/lms/courses/${courseId}/`);
+              }>(
+                "get",
+                `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/${courseId}/`
+              );
 
             // // 3. Show reward if any
             // if (completionResult.reward) {
@@ -109,13 +116,19 @@ export const useLessonCompletionHandler = ({
               await Promise.all([
                 AuthService.getInstance().makeAuthenticatedRequest<
                   UserReward[]
-                >("get", "/api/lms/rewards/"),
+                >("get", `${process.env.NEXT_PUBLIC_API_URL}/api/lms/rewards/`),
                 AuthService.getInstance().makeAuthenticatedRequest<
                   LeaderboardEntry[]
-                >("get", "/api/lms/leaderboard/?time_period=all_time&limit=10"),
+                >(
+                  "get",
+                  `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/?time_period=all_time&limit=10`
+                ),
                 AuthService.getInstance().makeAuthenticatedRequest<
                   Partial<UserRank>
-                >("get", "/api/lms/leaderboard/my_rank/"),
+                >(
+                  "get",
+                  `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/my_rank/`
+                ),
               ]);
 
             setRewards(rewardsData);

@@ -99,7 +99,7 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({ progress, rewards })
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Your Progress</CardTitle>
+                <CardTitle>Adigar Progress</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Overall Stats */}

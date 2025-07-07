@@ -10,9 +10,14 @@ import { Loader } from "lucide-react";
 interface ProtectedRouteProps {
     children: React.ReactNode;
     requirePremium?: boolean;
+    requireEmailVerification?: boolean;
 }
 
-export function ProtectedRoute({ children, requirePremium = false }: ProtectedRouteProps) {
+export function ProtectedRoute({
+    children,
+    requirePremium = false,
+    requireEmailVerification = true
+}: ProtectedRouteProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -38,6 +43,13 @@ export function ProtectedRoute({ children, requirePremium = false }: ProtectedRo
                 return;
             }
 
+            // Check email verification if required
+            if (requireEmailVerification && !currentUser.is_email_verified) {
+                console.log('User email not verified, redirecting to verification page');
+                router.push(`/verify-email?email=${encodeURIComponent(currentUser.email)}`);
+                return;
+            }
+
             // If premium is required, check premium status
             if (requirePremium && !currentUser.is_premium) {
                 router.push('/subscribe');
@@ -53,7 +65,7 @@ export function ProtectedRoute({ children, requirePremium = false }: ProtectedRo
         const timer = setTimeout(checkAuth, 100);
 
         return () => clearTimeout(timer);
-    }, [isAuthenticated, user, requirePremium, router]);
+    }, [isAuthenticated, user, requirePremium, requireEmailVerification, router]);
 
     // Show loading while checking authentication
     if (isLoading) {

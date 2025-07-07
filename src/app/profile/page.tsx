@@ -450,7 +450,7 @@ export default function ProfilePage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          {/* You can add a canvas or SVG for animated particles here */}
+          {/* Adiga can add a canvas or SVG for animated particles here */}
         </motion.div>
         <div className="container max-w-4xl mx-auto px-4 py-6 sm:py-10 relative z-10">
           {/* Modern Profile Header with glassmorphism and animated avatar ring */}

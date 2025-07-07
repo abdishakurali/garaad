@@ -76,7 +76,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   // const userId = subscription.metadata.userId;
   // await updateUserPremiumStatus(userId, true, subscription.id);
 
-  // You can also send a welcome email here
+  // Adiga can also send a welcome email here
   console.log("User premium status should be updated to true");
 }
 

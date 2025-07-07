@@ -155,7 +155,7 @@
 - ✅ Twitter optimization (@garaad_so)
 - ✅ Facebook page optimization
 - ✅ Instagram presence
-- ✅ YouTube channel for video content
+- ✅ AdigaTube channel for video content
 - ✅ LinkedIn company page
 
 ## 🎯 Content Calendar
@@ -206,7 +206,7 @@
 
 ### 3. Video SEO
 - Create educational videos in Somali
-- Optimize YouTube channel for Somali STEM
+- Optimize AdigaTube channel for Somali STEM
 - Use video schema markup
 
 ### 4. E-A-T Optimization

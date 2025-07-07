@@ -11,24 +11,33 @@ const fetcher = async (
 };
 
 export const useCourseProgress = (courseId?: string) => {
-  return useSWR(courseId ? `/api/lms/courses/${courseId}/` : null, (url) =>
-    fetcher(url, "get")
+  return useSWR(
+    courseId
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/${courseId}/`
+      : null,
+    (url) => fetcher(url, "get")
   );
 };
 
 export const useRewards = (lessonId?: string) => {
   return useSWR(
-    lessonId ? `/api/lms/rewards?lesson_id=${lessonId}` : null,
+    lessonId
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/rewards?lesson_id=${lessonId}`
+      : null,
     (url) => fetcher(url, "get")
   );
 };
 
 export const useLeaderboard = () => {
-  return useSWR(`/api/lms/leaderboard/?time_period=all_time&limit=10`, (url) =>
-    fetcher(url, "get")
+  return useSWR(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/?time_period=all_time&limit=10`,
+    (url) => fetcher(url, "get")
   );
 };
 
 export const useUserRank = () => {
-  return useSWR(`/api/lms/leaderboard/my_rank/`, (url) => fetcher(url, "get"));
+  return useSWR(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/my_rank/`,
+    (url) => fetcher(url, "get")
+  );
 };

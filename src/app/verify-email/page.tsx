@@ -88,24 +88,17 @@ export default function VerifyEmailPage() {
               localStorage.removeItem('user');
             }
 
-            // Check user's premium status since email is already verified
+            // Update user verification status and check premium status since email is already verified
             try {
-              const userResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
-                {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem('accessToken') || ''}`,
-                  },
-                }
-              );
+              const { default: AuthService } = await import('@/services/auth');
+              const authService = AuthService.getInstance();
 
-              if (userResponse.ok) {
-                const userData = await userResponse.json();
+              const accessToken = localStorage.getItem('accessToken') || '';
+              const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
+              if (updatedUserData) {
                 // Check if user is premium
-                if (userData.is_premium) {
+                if (updatedUserData.is_premium) {
                   // User is premium, redirect to courses
                   router.push("/courses");
                 } else {
@@ -113,12 +106,16 @@ export default function VerifyEmailPage() {
                   router.push("/subscribe");
                 }
               } else {
-                // If we can't get user data, default to subscribe page
+                // Fallback: manually update email verification and redirect to subscribe
+                authService.updateEmailVerificationStatus(true);
                 router.push("/subscribe");
               }
             } catch (userError) {
               console.error("Error fetching user data:", userError);
-              // Default to subscribe page if there's an error
+              // Fallback: manually update email verification and redirect to subscribe
+              const { default: AuthService } = await import('@/services/auth');
+              const authService = AuthService.getInstance();
+              authService.updateEmailVerificationStatus(true);
               router.push("/subscribe");
             }
             return;
@@ -216,7 +213,7 @@ export default function VerifyEmailPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Verification failed");
 
-      // Success state - check user's premium status after verification
+      // Success state - update user's email verification status and check premium status
       toast({
         title: "Emailkaaga waa la xaqiijiyay!",
         description: "Waad mahadsantahay. Hadda waxaan hubin doonaa heerka adeeggaaga.",
@@ -232,24 +229,17 @@ export default function VerifyEmailPage() {
         localStorage.removeItem('user');
       }
 
-      // Check user's premium status after email verification
+      // Import AuthService and update user data
+      const { default: AuthService } = await import('@/services/auth');
+      const authService = AuthService.getInstance();
+
+      // Fetch and update user data from backend
       try {
-        const userResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${data.access || data.token}`,
-            },
-          }
-        );
+        const updatedUserData = await authService.fetchAndUpdateUserData(data.access || data.token);
 
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-
+        if (updatedUserData) {
           // Check if user is premium
-          if (userData.is_premium) {
+          if (updatedUserData.is_premium) {
             // User is premium, redirect to courses
             router.push("/courses");
           } else {
@@ -257,12 +247,14 @@ export default function VerifyEmailPage() {
             router.push("/subscribe");
           }
         } else {
-          // If we can't get user data, default to subscribe page
+          // Fallback: manually update email verification and redirect to subscribe
+          authService.updateEmailVerificationStatus(true);
           router.push("/subscribe");
         }
       } catch (userError) {
         console.error("Error fetching user data:", userError);
-        // Default to subscribe page if there's an error
+        // Fallback: manually update email verification and redirect to subscribe
+        authService.updateEmailVerificationStatus(true);
         router.push("/subscribe");
       }
     } catch (err: unknown) {
@@ -317,25 +309,17 @@ export default function VerifyEmailPage() {
             localStorage.removeItem('user');
           }
 
-          // Check user's premium status since email is already verified
+          // Update user verification status and check premium status since email is already verified
           try {
-            const userResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  // Try to get token from localStorage or cookies
-                  "Authorization": `Bearer ${localStorage.getItem('accessToken') || ''}`,
-                },
-              }
-            );
+            const { default: AuthService } = await import('@/services/auth');
+            const authService = AuthService.getInstance();
 
-            if (userResponse.ok) {
-              const userData = await userResponse.json();
+            const accessToken = localStorage.getItem('accessToken') || '';
+            const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
+            if (updatedUserData) {
               // Check if user is premium
-              if (userData.is_premium) {
+              if (updatedUserData.is_premium) {
                 // User is premium, redirect to courses
                 router.push("/courses");
               } else {
@@ -343,12 +327,16 @@ export default function VerifyEmailPage() {
                 router.push("/subscribe");
               }
             } else {
-              // If we can't get user data, default to subscribe page
+              // Fallback: manually update email verification and redirect to subscribe
+              authService.updateEmailVerificationStatus(true);
               router.push("/subscribe");
             }
           } catch (userError) {
             console.error("Error fetching user data:", userError);
-            // Default to subscribe page if there's an error
+            // Fallback: manually update email verification and redirect to subscribe
+            const { default: AuthService } = await import('@/services/auth');
+            const authService = AuthService.getInstance();
+            authService.updateEmailVerificationStatus(true);
             router.push("/subscribe");
           }
           return;

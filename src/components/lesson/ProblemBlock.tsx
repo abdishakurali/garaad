@@ -219,8 +219,8 @@ const ProblemBlock: React.FC<{
             )}
 
             {content.question_type === "diagram" && (content.diagram_config || content.diagrams) && (
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
+              <CardContent className="p-6 max-w-full overflow-hidden">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center w-full max-w-full overflow-hidden">
                   {(() => {
                     // Determine if there are multiple diagrams
                     const diagramCount = content.diagrams?.length ||
@@ -230,21 +230,21 @@ const ProblemBlock: React.FC<{
                     if (content.diagrams) {
                       // Handle new diagrams array format
                       return content.diagrams.map((cfg, i) => (
-                        <div key={cfg.diagram_id || i} className="flex-shrink-0">
+                        <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
                           <DiagramScale config={cfg} isMultiple={isMultiple} />
                         </div>
                       ));
                     } else if (Array.isArray(content.diagram_config)) {
                       // Handle existing diagram_config array format
                       return content.diagram_config.map((cfg, i) => (
-                        <div key={cfg.diagram_id || i} className="flex-shrink-0">
+                        <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
                           <DiagramScale config={cfg} isMultiple={isMultiple} />
                         </div>
                       ));
                     } else if (content.diagram_config) {
                       // Handle existing single diagram_config format
                       return (
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink min-w-0 w-full max-w-full">
                           <DiagramScale config={content.diagram_config} isMultiple={isMultiple} />
                         </div>
                       );

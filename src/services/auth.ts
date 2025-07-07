@@ -3,6 +3,10 @@ import { jwtDecode } from "jwt-decode";
 import { User } from "@/types/auth";
 import { validateEmail } from "@/lib/email-validation";
 
+// Import Redux store and actions
+import { store } from "@/store";
+import { setUser } from "@/store/features/authSlice";
+
 export interface SignUpData {
   email: string;
   password: string;
@@ -312,6 +316,53 @@ export class AuthService {
   public setCurrentUser(user: User): void {
     this.user = user;
     this.setCookie("user", JSON.stringify(user), 7);
+
+    // Update Redux store
+    store.dispatch(setUser(user));
+  }
+
+  // Add method to update email verification status
+  public updateEmailVerificationStatus(isVerified: boolean): void {
+    if (this.user) {
+      const updatedUser = {
+        ...this.user,
+        is_email_verified: isVerified,
+      };
+      this.setCurrentUser(updatedUser);
+      console.log("Email verification status updated:", isVerified);
+    }
+  }
+
+  // Add method to fetch and update user data from backend
+  public async fetchAndUpdateUserData(token?: string): Promise<User | null> {
+    try {
+      const authToken = token || (await this.ensureValidToken());
+      if (!authToken) {
+        console.error("No valid token available for user data fetch");
+        return null;
+      }
+
+      const response = await fetch(`${this.baseURL}/api/auth/user/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch user data:", response.status);
+        return null;
+      }
+
+      const userData = await response.json();
+      this.setCurrentUser(userData);
+      console.log("User data updated from backend:", userData);
+      return userData;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null;
+    }
   }
 
   private setTokens(accessToken: string, refreshToken: string) {

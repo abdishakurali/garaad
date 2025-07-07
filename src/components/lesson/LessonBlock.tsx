@@ -56,7 +56,7 @@ export function LessonBlock({ block, className }: LessonBlockProps) {
             );
 
         case "interactive":
-            // You can implement custom interactive components here
+            // Adiga can implement custom interactive components here
             return (
                 <div className={cn("p-4 border rounded-lg", className)}>
                     {typeof block.content === 'string' ? block.content : JSON.stringify(block.content)}

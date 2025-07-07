@@ -443,7 +443,7 @@ https://cdn.jsdelivr.net/npm/diagramatics@1.5/css/diagramatics.css
 *you can change "1.x.x" into the version you want to use, or use "latest" to always use the latest version.
 *css is only required to style the interactive controls.
 
-The default font used in Diagramatics is Latin Modern Math. You can link it from CDN, download it, or any other way you want.
+The default font used in Diagramatics is Latin Modern Math. Adiga can link it from CDN, download it, or any other way you want.
 font
  :
 https://fonts.cdnfonts.com/css/latin-modern-math
@@ -466,7 +466,7 @@ index.html
 </html>
         
 Package Manager
-You can also download it from npm using the package manager of your choice.
+Adiga can also download it from npm using the package manager of your choice.
 
 $ npm install diagramatics
     
@@ -579,7 +579,7 @@ int.draw();
 
         
 Importing
-You can use the import statement to import the necessary functions from the library one by one.
+Adiga can use the import statement to import the necessary functions from the library one by one.
 index.js
 
 import {square, circle, V2} from 'diagramatics'
@@ -588,7 +588,7 @@ let sq   = square(10).fill();
 let circ = circle(2).fill('red').translate(V2(5,0));
 
         
-You can also import everything from the library using the * wildcard and give it an alias.
+Adiga can also import everything from the library using the * wildcard and give it an alias.
 index.js
 
 import * as dg from 'diagramatics'
@@ -608,7 +608,7 @@ let circ = circle(2).fill('red').translate(V2(5,0));
 
         
 Downloading the Diagram
-You can download the diagram as an svg or png file using the download_svg_as_svg() and download_svg_as_png() functions respectively.
+Adiga can download the diagram as an svg or png file using the download_svg_as_svg() and download_svg_as_png() functions respectively.
 
 The size of the image will follow the size of the svg element in the html file.
 download_svg_as_svg ( outer_svgelement  :  SVGSVGElement )
@@ -727,7 +727,7 @@ let sq  = diagram_combine(sq1, sq2);
 
 let sqs = sq.fill('lightblue').translate(V2(0,12));
 draw(sq, sqs);
-You can also use Diagram.combine method which does the same thing
+Adiga can also use Diagram.combine method which does the same thing
 Diagram.combine ( ...diagrams  :  Diagram[] )  :  Diagram
 // `d0.combine(d1,d2,d3)` is equivalent to
 // `diagram_combine(d0,d1,d2,d3)`
@@ -738,7 +738,7 @@ let sq2 = square(10).translate(V2(12,0));
 let sq  = sq1.combine(sq2);
 let sqs = sq.fill('lightblue').translate(V2(0,12));
 draw(sq, sqs);
-You can access the list of diagrams in a Diagram object using Diagram.children
+Adiga can access the list of diagrams in a Diagram object using Diagram.children
 Diagram.children : Diagram[]
 // `d0.combine(d1,d2,d3)` is equivalent to
 // `diagram_combine(d0,d1,d2,d3)`
@@ -1147,7 +1147,7 @@ let sq = square(10).stroke('lightgrey');
 let tx = text('hello').text_tovar().text_totext();
 draw(sq, tx);
 Applying the same style multiple time
-Let's say you want to draw multiple objects with the same style. You can try to apply the style to each object, but that's tedious. And if you want to change the style, you have to manually change it for each object.
+Let's say you want to draw multiple objects with the same style. Adiga can try to apply the style to each object, but that's tedious. And if you want to change the style, you have to manually change it for each object.
 let p3 = regular_polygon(3,10).position(V2(-10,10))
     .fill('lightblue').stroke('blue').strokewidth(2).strokedasharray([5]);
 let p4 = regular_polygon(4,10).position(V2(-10,-10))
@@ -1168,7 +1168,7 @@ let p5 = regular_polygon(5,10).position(V2( 10, 10)).apply(style);
 let p6 = regular_polygon(6,10).position(V2( 10,-10)).apply(style);
 
 draw(p3,p4,p5,p6);
-You can also combine the diagram first, and style the parent Diagram. This will apply the styles to all the children.
+Adiga can also combine the diagram first, and style the parent Diagram. This will apply the styles to all the children.
 diagram_combine ( ...diagrams  :  Diagram[] )  :  Diagram
 let p3 = regular_polygon(3,10).position(V2(-10, 10));
 let p4 = regular_polygon(4,10).position(V2(-10,-10));
@@ -1344,7 +1344,7 @@ let ci = circle(5).position(V2(7,0))
     
 let result = boolean.xor(sq, ci);
 draw(sq, ci, result.fill('lightblue'));
- diagram have an origin and a bounding box. You can see this using Diagram.debug
+ diagram have an origin and a bounding box. Adiga can see this using Diagram.debug
 Points
 +
 0
@@ -1365,7 +1365,7 @@ Diagram.debug ( show_index  :  boolean = true )  :  Diagram
 
 let pentagon = regular_polygon(5,10);
 draw(pentagon.debug());
-You can access the special points of the bounding box using Diagram.get_anchor
+Adiga can access the special points of the bounding box using Diagram.get_anchor
 Diagram.get_anchor ( anchor  :  string )  :  Diagram
 // anchors can be :
 // 'top-left', 'top-center', 'top-right',
@@ -1378,7 +1378,7 @@ let anchor_bottom = pentagon.get_anchor('bottom-center');
 let ctop = circle(0.5).fill('blue').position(anchor_top);
 let cbot = circle(0.5).fill('blue').position(anchor_bottom);
 draw(pentagon, ctop, cbot);
-You can get the bounding box directly using Diagram.bounding_box
+Adiga can get the bounding box directly using Diagram.bounding_box
 Diagram.bounding_box ( )  :  [Vector2, Vector2]
 let pentagon = regular_polygon(5,10);
 let bbox = pentagon.bounding_box(); // bbox = [v2_bottomleft, v2_topright]
@@ -1387,7 +1387,7 @@ let p1 = circle(0.5).position(bbox[0]).fill('red');
 let p2 = circle(0.5).position(bbox[1]).fill('blue');
 
 draw(pentagon, p1, p2);
-You can move the origin of the diagram using Diagram.move_origin
+Adiga can move the origin of the diagram using Diagram.move_origin
 Diagram.move_origin ( pos  :  Vector2 | string )  :  Diagram
 // anchors can be :
 // 'top-left', 'top-center', 'top-right',
@@ -1401,7 +1401,7 @@ let sq_blue = square(10).fill('blue').move_origin(V2(5,5)      ).position(V2(0,0
 // but they have different origins
 
 draw(sq_red, sq_blue);
-You can retrieve origin of the diagram using Diagram.origin property
+Adiga can retrieve origin of the diagram using Diagram.origin property
 Diagram.origin : Vector2
 let sq_red  = square(10).fill('blue' ).move_origin('bottom-left').position(V2(2,2));
 let p       = sq_red.origin;
@@ -1426,7 +1426,7 @@ let c2 = circle(0.5).fill('blue').position(p2);
 let c3 = circle(0.5).fill('blue').position(p3);
 
 draw(pentagon, c0, c1, c2, c3);
-// You can also give it a `segment_index`
+// Adiga can also give it a `segment_index`
 // Let's say you want to get the point between the 3rd and 4th point i.e. (3rd segment)
 // *you can see the index of each point using `Diagram.debug()`
 
@@ -1595,7 +1595,7 @@ index.html
     <script src="index.js" type="module"></script>
 </html>
         
-In the javascript, you need to create the interactive object, let's call it int. You need to pass in the control div and the svg element.
+In the javascript, you need to create the interactive object, let's call it int. Adiga need to pass in the control div and the svg element.
 index.js
 
 // import the necessary functions from the library
@@ -1655,7 +1655,7 @@ int.slider('x', -20, 20, 0);
 int.draw();
 Locator
 Locator allows you to select a position in a 2D space.
-You can have a free locator, or a locator that is constrained to a track.
+Adiga can have a free locator, or a locator that is constrained to a track.
 
 If you don't define the track_diagram parameter, then the locator will be free.
 Interactive.locator
@@ -1719,7 +1719,7 @@ int.locator('p', V2(0, 0), 2, 'blue', pent);
 int.draw();
 int.locator_initial_draw();
 Label
-Label allows you to display a value. You can set the value of the label using int.set(varname : string, value : any).
+Label allows you to display a value. Adiga can set the value of the label using int.set(varname : string, value : any).
 𝐴 = 0.28274
 Interactive.label ( variable_name  :  string , value  :  any , display_format_func?  :  formatFunction )
 int.draw_function = (inp) => {
@@ -1742,7 +1742,7 @@ int.locator('p', Vdir(to_radian(30)).scale(0.3), 0.1, 'blue');
 int.draw();
 int.locator_draw();
 Custom external interaction
-You can also create your own interactive object and interact with Diagramatics using int.set() and int.get().
+Adiga can also create your own interactive object and interact with Diagramatics using int.set() and int.get().
 For example, you can create a custom button.
 - +
 𝑥 = 0
@@ -1893,7 +1893,7 @@ int.dnd_container('t2', target2)
 int.dnd_draggable('a', sourcea, sourcea.fill('lightgrey'))
 int.dnd_draggable('b', sourceb, sourceb.fill('lightgrey'))
 int.drag_and_drop_initial_draw();
-You can access the draggable position by using it's name inside int.draw_function.
+Adiga can access the draggable position by using it's name inside int.draw_function.
 
 NOTE: it's not possible to int.set() the draggable position.
 let sq = square(40);
@@ -1921,7 +1921,7 @@ Interactive.get_dnd_data ( )  :  {container:string, content:string[]}[]
 
 // TODO: write example for this
 Display Format
-By default, the label and slider will display the value as `italic_name` = `value`. You can change the display format by passing in a function to the display_format_func parameter.
+By default, the label and slider will display the value as `italic_name` = `value`. Adiga can change the display format by passing in a function to the display_format_func parameter.
 The formatFunction have the following signature: (name : string, value : any, prec? : number) => string
 
 
@@ -2510,7 +2510,7 @@ All the bar function can be configured by passing in bar_options, which is an ob
     ticksize : number,
     
 Plotting
-You can prepare the data in the form of datavalues : number[] and datanames : string[].
+Adiga can prepare the data in the form of datavalues : number[] and datanames : string[].
 bar.plot ( datavalues  :  number[] , bar_options?  :  Partial<bar_options> )  :  Diagram
 let data = [10, 8, 12, 15, 7];
 let b    = bar.plot(data);
@@ -2629,7 +2629,7 @@ Because of that, Diagramatics also provide a way to make the Diagram object muta
 
 *Techincally, since we're using javascript, the object is not really immutable. But methods and functions provided by Diagramatics by default will act as if the object is immutable to the user.
 
-You can set the mutability of a Diagram object by using Diagram.mut
+Adiga can set the mutability of a Diagram object by using Diagram.mut
 Diagram.mut ( )  :  Diagram
 // here, sq, sq0, sq1 is the same object
 let sq = square(10).mut();
@@ -2646,7 +2646,7 @@ let sq = square(10).mut();
 sq.stroke('grey').strokedasharray([5]);
 sq.fill('lightblue');
 draw(sq);
-You can turn back the diagram to immutable by using Diagram.immut()
+Adiga can turn back the diagram to immutable by using Diagram.immut()
 Diagram.immut ( )  :  Diagram
 // here, sq, sq0, sq1 is the same object
 let sq = square(10).mut();
@@ -2665,14 +2665,14 @@ Rendering TeX expression
 (JSitor example).
 To make the system more flexible and to make Diagramatics not dependent on any specific TeX rendering library, Diagramatics provides a way to render TeX expressions using whatever library the user wants.
 
-You just need to provide a function that takes a TeX string and returns the rendered SVG string.
+Adiga just need to provide a function that takes a TeX string and returns the rendered SVG string.
 
 handle_tex_in_svg ( svg  :  SVGElement , texhandler  :  (texstr : string, config : any) => string )
 // `svg` is the SVG element where the TeX expressions are to be rendered.
 // `texhandler` is a function that takes a TeX string and returns the rendered SVG string.
 One example of texhandler is using MathJax.
 
-You can call the handle_tex_in_svg function separately, or you can call it inside the draw function.
+Adiga can call the handle_tex_in_svg function separately, or you can call it inside the draw function.
 
 draw_tex
 // you can load MathJax from CDN

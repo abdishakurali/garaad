@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { CourseGrid } from "@/components/CourseGrid";
 import HomepageSEO from "@/components/HomepageSEO";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
 // Dynamically import heavy components with loading states
 const DynamicLearnAnimation = dynamic(
@@ -69,6 +71,7 @@ const DynamicDownloadApp = dynamic(
 
 function HeroSection() {
   const router = useRouter();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   return (
     <div className="relative bg-gradient-to-b from-primary/5 to-background overflow-hidden">
@@ -127,9 +130,10 @@ function HeroSection() {
                 <Button
                   size="lg"
                   className="text-lg px-8 py-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold"
-                  onClick={() => router.push("/welcome")}
+                  onClick={() => router.push(isAuthenticated ? "/courses" : "/welcome")}
                 >
-                  Is diiwaangeli      </Button>
+                  {isAuthenticated ? "Koorsooyinka" : "Is diiwaangeli"}
+                </Button>
               </div>
             </div>
           </div>

@@ -21,26 +21,26 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({ problems }) => {
         const isMultiple = diagramCount > 1;
 
         return (
-          <div key={problem.id} className="p-4 border rounded-lg">
+          <div key={problem.id} className="p-4 border rounded-lg max-w-full overflow-hidden">
             <p className="mb-4 font-medium">{problem.question}</p>
-            <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-8 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center w-full max-w-full overflow-hidden">
               {problem.diagrams ? (
                 // Handle new diagrams array format
                 problem.diagrams.map((cfg) => (
-                  <div key={cfg.diagram_id} className="flex-shrink-0">
+                  <div key={cfg.diagram_id} className="flex-shrink min-w-0 w-full max-w-full">
                     {renderDiagram(cfg, isMultiple)}
                   </div>
                 ))
               ) : Array.isArray(problem.diagram_config) ? (
                 // Handle existing diagram_config array format
                 problem.diagram_config.map((cfg) => (
-                  <div key={cfg.diagram_id} className="flex-shrink-0">
+                  <div key={cfg.diagram_id} className="flex-shrink min-w-0 w-full max-w-full">
                     {renderDiagram(cfg, isMultiple)}
                   </div>
                 ))
               ) : problem.diagram_config ? (
                 // Handle existing single diagram_config format
-                <div className="flex-shrink-0">
+                <div className="flex-shrink min-w-0 w-full max-w-full">
                   {renderDiagram(problem.diagram_config, isMultiple)}
                 </div>
               ) : null}

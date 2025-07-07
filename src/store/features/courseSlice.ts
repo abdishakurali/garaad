@@ -14,8 +14,8 @@ export const fetchCourses = createAsyncThunk(
   async (categoryId: string | undefined, { rejectWithValue }) => {
     try {
       const url = categoryId
-        ? `/api/lms/categories/${categoryId}/courses/`
-        : "/api/lms/courses/";
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/`;
       const response = await axios.get(url);
       return response.data;
     } catch (error) {
@@ -35,7 +35,7 @@ export const fetchCourseById = createAsyncThunk(
   ) => {
     try {
       const response = await axios.get(
-        `/api/lms/categories/${categoryId}/courses/${courseId}/`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/${courseId}/`
       );
       return response.data;
     } catch (error) {
@@ -59,7 +59,7 @@ export const updateCourseProgress = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post(
-        `/api/lms/categories/${categoryId}/courses/${courseId}/progress/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/${courseId}/progress/`,
         {
           progress,
         }

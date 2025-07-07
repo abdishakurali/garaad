@@ -70,7 +70,7 @@ export const fetchCategories = createAsyncThunk(
       const authService = AuthService.getInstance();
       const response = await authService.makeAuthenticatedRequest<Category[]>(
         "get",
-        "/api/lms/categories/"
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/`
       );
       return response;
     } catch (error) {

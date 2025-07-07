@@ -61,7 +61,7 @@ class OrderService {
           errorMessage = "Authentication required. Please log in again.";
           break;
         case 403:
-          errorMessage = "You don't have permission to access this resource.";
+          errorMessage = "Adiga don't have permission to access this resource.";
           break;
         case 404:
           errorMessage = "Resource not found.";
