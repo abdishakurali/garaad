@@ -58,6 +58,26 @@ const streakFetcher = async (url: string): Promise<StreakData> => {
   });
 
   if (!response.ok) {
+    // Handle 401 Unauthorized error
+    if (response.status === 401) {
+      console.log("401 Unauthorized - clearing session and redirecting to home");
+
+      // Clear all cookies and localStorage
+      authService.logout();
+
+      // Clear localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+      }
+
+      // Redirect to home page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
+
+      throw new Error("Session expired. Please log in again.");
+    }
+
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
@@ -82,6 +102,10 @@ export function Header() {
       dedupingInterval: 300000, // 5 minutes
       errorRetryCount: 3,
       errorRetryInterval: 5000,
+      shouldRetryOnError: (error) => {
+        // Don't retry on 401 errors since we're handling the redirect
+        return !error.message.includes("Session expired");
+      },
       onSuccess: (data) => {
         console.log("Streak data loaded:", data);
         console.log("Username:", data.username);

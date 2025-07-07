@@ -12,6 +12,7 @@ const publicPaths = [
   "/register",
   "/subscribe",
   "/verify-email",
+  "/loading",
   "/api/payment",
   "/api/payment/success",
   "/api/auth",
@@ -28,21 +29,33 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Get user from cookie
+  // Get access token and user data from cookies
+  const accessToken = request.cookies.get("accessToken");
   const userCookie = request.cookies.get("user");
-  console.log("User cookie:", userCookie?.value);
+
+  console.log("Access token exists:", !!accessToken?.value);
+  console.log("User cookie exists:", !!userCookie?.value);
+
+  // If no access token, redirect to welcome page
+  if (!accessToken?.value) {
+    console.log("No access token found, redirecting to welcome");
+    return NextResponse.redirect(new URL("/welcome", request.url));
+  }
 
   // If no user cookie, redirect to welcome page
-  if (!userCookie) {
+  if (!userCookie?.value) {
     console.log("No user cookie found, redirecting to welcome");
     return NextResponse.redirect(new URL("/welcome", request.url));
   }
 
   try {
+    // Parse user data from cookie
     const user = JSON.parse(userCookie.value);
-    console.log("Parsed user:", user);
-    console.log("Is premium:", user.is_premium);
-    console.log("Is email verified:", user.is_email_verified);
+    console.log("Current user status from cookie:", {
+      email: user.email,
+      is_email_verified: user.is_email_verified,
+      is_premium: user.is_premium,
+    });
 
     // Check if user's email is verified
     if (!user.is_email_verified && !pathname.startsWith("/verify-email")) {

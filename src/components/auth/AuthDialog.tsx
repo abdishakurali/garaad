@@ -35,7 +35,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import type { SignUpData } from "@/types/auth";
 import { EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { validateEmail } from "@/lib/email-validation";
 
@@ -57,10 +56,8 @@ export function AuthDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const isLoading = useSelector(selectAuthLoading);
   const authState = useSelector((state: RootState) => state.auth);
-  const { error, user } = authState;
-  const isAuthenticated = !!user;
+  const { error } = authState;
   const [showPassword, setIsShowPassword] = useState(false);
-  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,18 +74,6 @@ export function AuthDialog() {
       dispatch(setError(null));
     }
   }, [isOpen, form, dispatch]);
-
-  // Handle successful authentication
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      setIsOpen(false);
-      if (user.is_premium) {
-        router.push('/courses');
-      } else {
-        router.push('/subscribe');
-      }
-    }
-  }, [isAuthenticated, user, router]);
 
   // Auto-hide error after 5 seconds
   useEffect(() => {
@@ -121,28 +106,18 @@ export function AuthDialog() {
         ).unwrap();
 
         if (response?.user) {
-          // Check if the user's email is verified
-          if (!response.user.is_email_verified) {
-            // User logged in but email is not verified
-            toast({
-              variant: "destructive",
-              title: "Emailkaaga ma xaqiijin",
-              description: "Si aad u isticmaasho adeegga, fadlan xaqiiji emailkaaga marka hore.",
-            });
-
-            // Redirect to email verification page
-            setIsOpen(false);
-            router.push(`/verify-email?email=${values.email}`);
-            return;
-          }
-
-          // Email is verified, check premium status
+          // Successfully logged in - close dialog and let middleware handle routing
           setIsOpen(false);
-          if (response.user.is_premium) {
-            router.push('/courses');
-          } else {
-            router.push('/subscribe');
-          }
+
+          // Show success message
+          toast({
+            title: "Waad mahadsantahay!",
+            description: "Si guul leh ayaad u soo gashay.",
+          });
+
+          // Let the middleware handle routing based on verification and premium status
+          // No manual redirects here - middleware will do it correctly
+          window.location.href = '/courses'; // This will be intercepted by middleware
         }
       } else {
         const signupData: SignUpData = {
@@ -162,16 +137,17 @@ export function AuthDialog() {
         const result = await dispatch(signUp(signupData)).unwrap();
 
         if (result?.user) {
-          // Check if the user's email is already verified
-          if (result.user.is_email_verified) {
-            // User is already verified, but must still subscribe to access courses
-            setIsOpen(false);
-            router.push('/subscribe');
-          } else {
-            // User needs email verification first
-            setIsOpen(false);
-            router.push(`/verify-email?email=${values.email}`);
-          }
+          // Successfully signed up - close dialog and let middleware handle routing
+          setIsOpen(false);
+
+          // Show success message
+          toast({
+            title: "Waad mahadsantahay!",
+            description: "Si guul leh ayaad u isdiiwaangelisay.",
+          });
+
+          // Let the middleware handle routing based on verification status
+          window.location.href = '/courses'; // This will be intercepted by middleware
         }
       }
     } catch (error) {

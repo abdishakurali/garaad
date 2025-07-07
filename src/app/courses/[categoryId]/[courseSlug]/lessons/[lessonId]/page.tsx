@@ -120,8 +120,47 @@ const authFetcher = async <T = unknown>(
     method: "get" | "post" = "get",
     body?: Record<string, unknown>
 ): Promise<T> => {
-    const service = AuthService.getInstance();
-    return service.makeAuthenticatedRequest(method, url, body);
+    const authService = AuthService.getInstance();
+    const token = authService.getToken();
+
+    if (!token) {
+        throw new Error("No authentication token available");
+    }
+
+    const response = await fetch(url, {
+        method: method.toUpperCase(),
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+        // Handle 401 Unauthorized error
+        if (response.status === 401) {
+            console.log("401 Unauthorized - clearing session and redirecting to home");
+
+            // Clear all cookies and localStorage
+            authService.logout();
+
+            // Clear localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.clear();
+            }
+
+            // Redirect to home page
+            if (typeof window !== 'undefined') {
+                window.location.href = '/';
+            }
+
+            throw new Error("Session expired. Please log in again.");
+        }
+
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
 };
 
 const streakFetcher = async <T = unknown>(url: string): Promise<T> => {
@@ -140,6 +179,26 @@ const streakFetcher = async <T = unknown>(url: string): Promise<T> => {
     });
 
     if (!response.ok) {
+        // Handle 401 Unauthorized error
+        if (response.status === 401) {
+            console.log("401 Unauthorized - clearing session and redirecting to home");
+
+            // Clear all cookies and localStorage
+            authService.logout();
+
+            // Clear localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.clear();
+            }
+
+            // Redirect to home page
+            if (typeof window !== 'undefined') {
+                window.location.href = '/';
+            }
+
+            throw new Error("Session expired. Please log in again.");
+        }
+
         throw new Error(`HTTP error! status: ${response.status}`);
     }
 

@@ -70,7 +70,28 @@ export default function ProgressPage() {
       setProgress(response.data || []);
 
 
-    } catch (error) {
+    } catch (error: unknown) {
+      // Handle 401 Unauthorized error
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 401) {
+        console.log("401 Unauthorized - clearing session and redirecting to home");
+
+        // Clear all cookies
+        Cookies.remove("accessToken");
+        Cookies.remove("refreshToken");
+
+        // Clear localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.clear();
+        }
+
+        // Redirect to home page
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
+
+        return;
+      }
+
       if (error instanceof Error) {
         setError(error.message || "Error fetching progress");
       } else {

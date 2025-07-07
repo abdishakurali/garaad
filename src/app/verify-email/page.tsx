@@ -52,6 +52,98 @@ export default function VerifyEmailPage() {
     }
   }, [searchParams]);
 
+  // Auto-send verification email when page loads and email is available
+  useEffect(() => {
+    const sendInitialVerificationEmail = async () => {
+      if (!email) return;
+
+      try {
+        console.log("Sending initial verification email to:", email);
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          }
+        );
+
+        const data = await response.json();
+        if (!response.ok) {
+          // Check if the error is "Email is already verified"
+          if (data.error === "Email is already verified" || data.detail === "Email is already verified") {
+            toast({
+              title: "Emailkaaga horey ayaa la xaqiijiyay",
+              description: "Waxaad hadda isticmaali kartaa adeegga.",
+            });
+
+            // Clear localStorage data
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('welcome_user_data');
+              localStorage.removeItem('welcome_selections');
+              localStorage.removeItem('welcome_current_step');
+              localStorage.removeItem('welcome_topic_levels');
+              localStorage.removeItem('welcome_selected_topic');
+              localStorage.removeItem('user');
+            }
+
+            // Check user's premium status since email is already verified
+            try {
+              const userResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user/`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem('accessToken') || ''}`,
+                  },
+                }
+              );
+
+              if (userResponse.ok) {
+                const userData = await userResponse.json();
+
+                // Check if user is premium
+                if (userData.is_premium) {
+                  // User is premium, redirect to courses
+                  router.push("/courses");
+                } else {
+                  // User is not premium, redirect to subscribe
+                  router.push("/subscribe");
+                }
+              } else {
+                // If we can't get user data, default to subscribe page
+                router.push("/subscribe");
+              }
+            } catch (userError) {
+              console.error("Error fetching user data:", userError);
+              // Default to subscribe page if there's an error
+              router.push("/subscribe");
+            }
+            return;
+          }
+          console.error("Failed to send initial verification email:", data.error || data.detail);
+          return;
+        }
+
+        toast({
+          title: "Number sireed ayaa loo diray",
+          description: "Fadlan hubi email-kaaga koodka xaqiijinta",
+        });
+      } catch (err) {
+        console.error("Error sending initial verification email:", err);
+      }
+    };
+
+    // Send email after a short delay to ensure email is set
+    const timer = setTimeout(() => {
+      sendInitialVerificationEmail();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [email, router, toast]);
+
   const handleInputChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
 
