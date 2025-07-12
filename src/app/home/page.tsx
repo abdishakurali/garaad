@@ -9,9 +9,6 @@ import {
   ChevronRight,
   User,
   Flame,
-  Star,
-  Target,
-  Medal,
   Sparkles,
   BookOpen,
   BarChart3,
@@ -25,12 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AuthService from "@/services/auth";
@@ -52,13 +44,7 @@ interface Course {
   estimatedHours?: number;
 }
 
-interface Achievement {
-  id: number;
-  name: string;
-  description: string;
-  icon: string;
-  earned_at?: string;
-}
+
 
 
 
@@ -232,18 +218,7 @@ export default function Home() {
     }
   );
 
-  const {
-    data: achievements = [],
-    isLoading: isLoadingAchievements,
-    error: achievementsError,
-  } = useSWR<Achievement[]>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/achievements/user_achievements/`,
-    authFetcher,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 600000,
-    }
-  );
+
 
   // const {
   //   data: dailyChallenges = [],
@@ -275,7 +250,7 @@ export default function Home() {
   const {
     data: gamificationStatus,
     isLoading: isLoadingGamification,
-  } = useSWR<GamificationStatus>("/api/gamification/status", authFetcher, {
+  } = useSWR<GamificationStatus>("/api/gamification/status/", authFetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 600000,
   });
@@ -370,24 +345,7 @@ export default function Home() {
     return gamificationStatus?.rank?.weekly || null;
   }, [gamificationStatus?.rank?.weekly]);
 
-  const getAchievementIcon = useCallback((iconName: string) => {
-    switch (iconName) {
-      case "lesson-1":
-        return <BookOpen className="h-5 w-5" />;
-      case "streak":
-        return <Flame className="h-5 w-5" />;
-      case "challenge":
-        return <Target className="h-5 w-5" />;
-      case "level":
-        return <BarChart3 className="h-5 w-5" />;
-      case "perfect":
-        return <Star className="h-5 w-5" />;
-      case "early":
-        return <Sparkles className="h-5 w-5" />;
-      default:
-        return <Medal className="h-5 w-5" />;
-    }
-  }, []);
+
 
 
 
@@ -431,7 +389,30 @@ export default function Home() {
 
       <div className="flex flex-col gap-6 p-4 md:p-6 max-w-7xl mx-auto">
         {/* League Status & User Level Progress Bar */}
-        {!isLoadingGamification && gamificationStatus && (
+        {isLoadingGamification ? (
+          <Card className="p-4 md:p-6 rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 shadow-sm border-primary/20">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+              <div className="flex items-center gap-4">
+                <Skeleton className="w-16 h-16 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-40" />
+              </div>
+            </div>
+            <div className="mt-4 p-4 bg-background/50 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-3 w-full" />
+            </div>
+          </Card>
+        ) : gamificationStatus ? (
           <Card className="p-4 md:p-6 rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 shadow-sm border-primary/20">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
               <div className="flex items-center gap-4">
@@ -501,7 +482,7 @@ export default function Home() {
               </div>
             )}
           </Card>
-        )}
+        ) : null}
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -538,6 +519,8 @@ export default function Home() {
 
               {isLoadingLeaderboard ? (
                 <div className="space-y-3">
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
                   <Skeleton className="h-16 w-full" />
                   <Skeleton className="h-16 w-full" />
                   <Skeleton className="h-16 w-full" />
@@ -643,14 +626,27 @@ export default function Home() {
                     })}
                   </div>
                 </ScrollArea>
-              ) : (
+              ) : !isLoadingLeaderboard && leagueLeaderboard ? (
                 <div className="text-center py-4 text-muted-foreground">
                   wax liiga ah kuma jirtid
                 </div>
-              )}
+              ) : null}
 
               {/* My Standing */}
-              {leagueLeaderboard?.my_standing && (
+              {isLoadingLeaderboard ? (
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-6 w-20" />
+                      <Skeleton className="h-4 w-12" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-6 w-12" />
+                    </div>
+                  </div>
+                </div>
+              ) : leagueLeaderboard?.my_standing ? (
                 <div className="mt-4 pt-4 border-t">
                   <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -669,73 +665,102 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              )}
+              ) : null}
             </Card>
 
             {/* Streak visualization */}
             <Card className="p-6 rounded-lg bg-card shadow-sm">
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                  <Flame className="h-10 w-10 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">Maalmaha isu xigxiga</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-3xl font-bold">
-                      {gamificationStatus?.streak?.current || 0}
-                    </span>
-                    <span className="text-muted-foreground">maalmood</span>
+              {isLoadingGamification ? (
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <Skeleton className="w-20 h-20 rounded-full" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-6 w-32" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-8 w-12" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    <Skeleton className="h-4 w-24" />
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    ugu fiicnaa: {gamificationStatus?.streak?.max || 0} maalmood
-                  </p>
+                  <div className="flex items-center gap-2 mt-2 justify-end ml-auto mb-auto">
+                    <Skeleton className="h-4 w-4" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 mt-2 justify-end ml-auto mb-auto">
-                  <Zap className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm">
-                    Tamarta: {gamificationStatus?.streak?.energy || 0}
-                  </span>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+                    <Flame className="h-10 w-10 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Maalmaha isu xigxiga</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-3xl font-bold">
+                        {gamificationStatus?.streak?.current || 0}
+                      </span>
+                      <span className="text-muted-foreground">maalmood</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      ugu fiicnaa: {gamificationStatus?.streak?.max || 0} maalmood
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 justify-end ml-auto mb-auto">
+                    <Zap className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm">
+                      Tamarta: {gamificationStatus?.streak?.energy || 0}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="mt-4 pt-4 border-t">
-                <div className="grid grid-cols-4 gap-4 text-center">
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-lg font-bold">
-                      {gamificationStatus?.xp?.daily || 0}
+                {isLoadingGamification ? (
+                  <div className="grid grid-cols-4 gap-4 text-center">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="p-3 bg-muted/50 rounded-lg">
+                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                        <Skeleton className="h-3 w-16 mx-auto" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-4 text-center">
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold">
+                        {gamificationStatus?.xp?.daily || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Dhibcaha Maanta
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Dhibcaha Maanta
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold">
+                        {gamificationStatus?.xp?.weekly || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Dhibcaha asbuucaan
+                      </div>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold">
+                        {gamificationStatus?.xp?.monthly || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Dhibcaha bishaan
+                      </div>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold">
+                        #{gamificationStatus?.rank?.weekly || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Booskaada asbuucaan
+                      </div>
                     </div>
                   </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-lg font-bold">
-                      {gamificationStatus?.xp?.weekly || 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Dhibcaha asbuucaan
-                    </div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-lg font-bold">
-                      {gamificationStatus?.xp?.monthly || 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Dhibcaha bishaan
-                    </div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-lg font-bold">
-                      #{gamificationStatus?.rank?.weekly || 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Booskaada asbuucaan
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
 
-              {streak?.dailyActivity && (
+              {streak?.dailyActivity && !isLoadingGamification && (
                 <div className="mt-4 pt-4 border-t">
                   <div className="flex justify-between items-center">
                     <p className="text-sm font-medium">7 berri ugu danbeysay</p>
@@ -749,7 +774,7 @@ export default function Home() {
             </Card>
           </div>
 
-          {/* Right Column: Courses & Achievements */}
+          {/* Right Column: Courses */}
           <div className="space-y-6">
             {/* Courses Carousel */}
             <Card className="p-6 rounded-lg bg-card shadow-sm">
@@ -931,86 +956,7 @@ export default function Home() {
               </div>
             )}
 
-            {/* Achievements */}
-            <Card className="p-6 rounded-lg bg-card shadow-sm">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                    <Medal className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Abaalmarinadaada</h3>
-                    <p className="text-sm text-muted-foreground">
-                      koobabka aad ku guulaysatay
-                    </p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm">
-                  Kulli arag
-                </Button>
-              </div>
 
-              {isLoadingAchievements ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  <Skeleton className="h-24 w-full" />
-                  <Skeleton className="h-24 w-full" />
-                  <Skeleton className="h-24 w-full" />
-                  <Skeleton className="h-24 w-full" />
-                  <Skeleton className="h-24 w-full" />
-                  <Skeleton className="h-24 w-full" />
-                </div>
-              ) : achievementsError ? (
-                <div className="text-center py-4 text-destructive">
-                  {achievementsError.message || "Ku guuldaraystay in la soo raro guulaha"}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => mutate()}
-                    className="ml-2"
-                  >
-                    Retry
-                  </Button>
-                </div>
-              ) : achievements && achievements.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {achievements.map((achievement) => (
-                    <TooltipProvider key={achievement.id}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex flex-col items-center p-4 rounded-md bg-background border hover:border-primary transition-all cursor-help">
-                            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-primary mb-2">
-                              {getAchievementIcon(achievement.icon)}
-                            </div>
-                            <span className="font-medium text-center text-sm">
-                              {achievement.name}
-                            </span>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-card text-foreground border p-3 max-w-[200px]">
-                          <p>{achievement.description}</p>
-                          {achievement.earned_at && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Ku guulaystey{" "}
-                              {new Date(
-                                achievement.earned_at
-                              ).toLocaleDateString()}
-                            </p>
-                          )}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Medal className="h-12 w-12 mx-auto mb-2 text-muted" />
-                  <p>Wax abaal marin ah maadan helin</p>
-                  <p className="text-sm">
-                    Dhamee koorso si aad u hesho abaal marino!
-                  </p>
-                </div>
-              )}
-            </Card>
           </div>
         </div>
       </div>

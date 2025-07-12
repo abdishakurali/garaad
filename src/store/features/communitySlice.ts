@@ -114,7 +114,10 @@ export const fetchCampusDetails = createAsyncThunk(
 export const fetchPosts = createAsyncThunk(
   "community/fetchPosts",
   async (
-    { filters, reset = false }: { filters?: SearchFilters; reset?: boolean },
+    {
+      filters = {},
+      reset = false,
+    }: { filters?: SearchFilters; reset?: boolean },
     { rejectWithValue }
   ) => {
     try {
@@ -263,24 +266,12 @@ export const markAllNotificationsRead = createAsyncThunk(
   }
 );
 
-export const fetchUnreadNotificationCount = createAsyncThunk(
-  "community/fetchUnreadNotificationCount",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await communityService.notification.getUnreadCount();
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error));
-    }
-  }
-);
-
 // Async thunks for search and trending
 export const fetchTrendingTags = createAsyncThunk(
   "community/fetchTrendingTags",
   async (period: "day" | "week" | "month" = "week", { rejectWithValue }) => {
     try {
-      const response = await communityService.search.getTrendingTags(period);
+      const response = await communityService.trending.getTrendingTags(period);
       return response;
     } catch (error) {
       return rejectWithValue(handleApiError(error));
@@ -585,10 +576,6 @@ const communitySlice = createSlice({
           is_read: true,
         }));
         state.unreadNotifications = 0;
-      })
-
-      .addCase(fetchUnreadNotificationCount.fulfilled, (state, action) => {
-        state.unreadNotifications = action.payload.count || 0;
       });
 
     // Trending Tags

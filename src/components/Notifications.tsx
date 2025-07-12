@@ -1,6 +1,6 @@
 "use client";
 
-import { useNotifcation } from "@/services/gamification";
+import { useNotification } from "@/services/gamification";
 import {
   Popover,
   PopoverContent,
@@ -108,7 +108,7 @@ const formatTimeAgo = (dateString: string) => {
 };
 
 export default function NotificationPanel() {
-  const { notification, mutate } = useNotifcation();
+  const { notification, mutate } = useNotification();
   const [dismissed, setDismissed] = useState<number[]>([]);
 
   const visibleNotifications: Notification[] =

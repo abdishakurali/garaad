@@ -113,6 +113,12 @@ export default function ProfilePage() {
     try {
       const storedUser = AuthService.getInstance().getCurrentUser();
       if (storedUser) {
+        console.log('Profile page: Loaded user from storage:', {
+          id: storedUser.id,
+          profile_picture: storedUser.profile_picture,
+          first_name: storedUser.first_name,
+          last_name: storedUser.last_name
+        });
         setUserState(storedUser as ExtendedUser);
         setEditForm({
           first_name: storedUser.first_name,
@@ -130,6 +136,18 @@ export default function ProfilePage() {
       setIsLoading(false);
     }
   }, []);
+
+  // Debug: Log user changes
+  useEffect(() => {
+    if (user) {
+      console.log('Profile page: User state updated:', {
+        id: user.id,
+        profile_picture: user.profile_picture,
+        first_name: user.first_name,
+        last_name: user.last_name
+      });
+    }
+  }, [user]);
 
   // Fetch progress once user is loaded
   useEffect(() => {
@@ -226,6 +244,8 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append('profile_picture', file);
 
+      console.log('Profile picture update: Starting upload...');
+
       const response = await fetch('https://api.garaad.org/api/auth/upload-profile-picture/', {
         method: 'POST',
         headers: {
@@ -243,17 +263,25 @@ export default function ProfilePage() {
       const data = await response.json();
       console.log('Profile picture update response:', data);
 
-      // Update the user profile in Redux store
+      // Update the user profile in Redux store and local state
       if (data.user) {
+        console.log('Profile picture update: Updating with full user data');
+        // Update Redux store
         dispatch(setUser(data.user));
-        // Also update local state
+        // Update local state
         setUserState(data.user as ExtendedUser);
+        // Update AuthService user data
+        AuthService.getInstance().setCurrentUser(data.user);
       } else if (data.profile_picture && user) {
+        console.log('Profile picture update: Updating with profile_picture only');
         // If the response only contains the profile picture URL, update the user object
         const updatedUser = { ...user, profile_picture: data.profile_picture };
         dispatch(setUser(updatedUser));
         setUserState(updatedUser);
+        AuthService.getInstance().setCurrentUser(updatedUser);
       }
+
+      console.log('Profile picture update: Successfully updated user data');
 
       // Show success message
       toast({
@@ -272,23 +300,7 @@ export default function ProfilePage() {
     }
   };
 
-  // Profile picture delete handler  
-  const handleDeleteProfilePicture = async () => {
-    if (!confirm('Ma hubtaa inaad tirtirto sawirka profile-ka?')) return;
 
-    setIsUploadingPicture(true);
-    setError(null);
-
-    try {
-      const authService = AuthService.getInstance();
-      const updatedUser = await authService.deleteProfilePicture();
-      setUserState(updatedUser as ExtendedUser);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Sawirka lama tirtiri karin');
-    } finally {
-      setIsUploadingPicture(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -364,6 +376,7 @@ export default function ProfilePage() {
                     transition={{ duration: 0.5 }}
                   >
                     <AuthenticatedAvatar
+                      key={user.profile_picture || 'default'}
                       src={getMediaUrl(user.profile_picture, 'profile_pics')}
                       alt={`${user.first_name} ${user.last_name}`}
                       fallback={`${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`}

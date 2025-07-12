@@ -331,9 +331,10 @@ export class AuthService {
 
   public setCurrentUser(user: User): void {
     this.user = user;
-    this.setCookie("user", JSON.stringify(user), 7);
-
-    // Update Redux store with dynamic import to avoid circular dependency
+    if (typeof window !== "undefined") {
+      this.setCookie("user", JSON.stringify(user), 7);
+    }
+    // Also update Redux store if available
     this.updateReduxStore(user);
   }
 

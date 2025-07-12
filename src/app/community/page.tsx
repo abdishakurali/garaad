@@ -1,35 +1,33 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
-import AuthenticatedImage from '@/components/ui/authenticated-image';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import {
-    Heart,
-    MessageCircle,
-    Share2,
-    TrendingUp,
-    Hash,
-    Clock,
-    Send,
-    BookOpen,
-    Trophy,
-    Search,
-    Plus,
-    Bell,
-    MoreHorizontal,
-    Eye,
     AlertCircle,
-    RefreshCw
+    Users,
+    MessageSquare,
+    Heart,
+    Share2,
+    Plus,
+    TrendingUp,
+    Trophy,
+    Bell,
+    Home,
+    Search,
+    Bookmark,
+    User,
+    Settings,
+    MoreHorizontal
 } from 'lucide-react';
 import { RootState, AppDispatch } from '@/store/store';
 import {
@@ -39,30 +37,15 @@ import {
     fetchNotifications,
     fetchTrendingTags,
     fetchLeaderboard,
-    joinCampus,
-    leaveCampus,
     createPost,
     togglePostLike,
-    setFilters,
-    handleNewPost,
-    handleNewComment,
-    handleLikeUpdate,
-    handleNewNotification,
-    clearErrors,
-    markNotificationRead
+    joinCampus,
+    leaveCampus
 } from '@/store/features/communitySlice';
-import { setUser } from '@/store/features/authSlice';
-import { Campus, CreatePostData, BADGE_LEVELS, SOMALI_UI_TEXT } from '@/types/community';
+import { SOMALI_UI_TEXT } from '@/types/community';
 import { CommunityWebSocket } from '@/services/community';
 import { getMediaUrl } from '@/lib/utils';
-import { AuthService } from '@/services/auth';
-
-// Define Room interface
-interface Room {
-    id: number;
-    name_somali: string;
-    campus_slug: string;
-}
+import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 
 export default function CommunityPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -70,37 +53,34 @@ export default function CommunityPage() {
         campuses,
         posts,
         userProfile,
-        notifications,
-        trendingTags,
         leaderboard,
-        loading,
-        errors,
-        filters,
-        pagination,
-        unreadNotifications
+        loading
     } = useSelector((state: RootState) => state.community);
 
+    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
     // Local state
-    const [activeTab, setActiveTab] = useState('all');
+    const [wsConnection, setWsConnection] = useState<CommunityWebSocket | null>(null);
     const [showCreatePost, setShowCreatePost] = useState(false);
-    const [postForm, setPostForm] = useState<Partial<CreatePostData>>({
+    const [postForm, setPostForm] = useState({
         title: '',
         content: '',
-        room_id: undefined,
-        language: 'so',
-        post_type: 'discussion'
+        room_id: 1,
+        language: 'so' as 'so' | 'en',
+        post_type: 'discussion' as 'question' | 'discussion' | 'announcement' | 'poll'
     });
-    const [postFormErrors, setPostFormErrors] = useState<Record<string, string>>({});
-    const [searchQuery, setSearchQuery] = useState('');
-    const [rooms, setRooms] = useState<Room[]>([]);
-    const [wsConnection, setWsConnection] = useState<CommunityWebSocket | null>(null);
 
     // Initialize data and WebSocket connection
     useEffect(() => {
+        if (!isAuthenticated) {
+            return;
+        }
+
         const initializeData = async () => {
             try {
-                // Fetch initial data in parallel
-                await Promise.all([
+                console.log('Starting to fetch community data...');
+
+                const results = await Promise.all([
                     dispatch(fetchCampuses({})),
                     dispatch(fetchPosts({ reset: true })),
                     dispatch(fetchUserProfile()),
@@ -109,23 +89,11 @@ export default function CommunityPage() {
                     dispatch(fetchLeaderboard())
                 ]);
 
-                // Initialize WebSocket connection
+                console.log('Community data fetched successfully:', results);
+
                 const ws = new CommunityWebSocket();
                 ws.connect((data) => {
-                    switch (data.type) {
-                        case 'new_post':
-                            dispatch(handleNewPost(data.data));
-                            break;
-                        case 'new_comment':
-                            dispatch(handleNewComment(data.data));
-                            break;
-                        case 'like_update':
-                            dispatch(handleLikeUpdate(data.data));
-                            break;
-                        case 'notification':
-                            dispatch(handleNewNotification(data.data));
-                            break;
-                    }
+                    console.log('WebSocket message received:', data);
                 });
                 setWsConnection(ws);
             } catch (error) {
@@ -135,166 +103,48 @@ export default function CommunityPage() {
 
         initializeData();
 
-        // Cleanup WebSocket on unmount
         return () => {
             if (wsConnection) {
                 wsConnection.disconnect();
             }
         };
-    }, [dispatch, wsConnection]);
+    }, [dispatch, isAuthenticated]);
 
-    // Handle campus selection
-    const handleCampusSelect = useCallback(async (campus: Campus) => {
-        dispatch(setFilters({ campus: campus.slug }));
-        dispatch(fetchPosts({ filters: { campus: campus.slug }, reset: true }));
-
-        // Fetch campus rooms
+    const handleCreatePost = async () => {
         try {
-            const response = await fetch(`https://api.garaad.org/api/community/campuses/${campus.slug}/rooms/`);
-            const roomsData = await response.json();
-            setRooms(roomsData);
-        } catch (error) {
-            console.error('Failed to fetch campus rooms:', error);
-        }
-    }, [dispatch]);
-
-    // Handle campus join/leave
-    const handleCampusJoinLeave = useCallback(async (campus: Campus) => {
-        try {
-            if (campus.user_is_member) {
-                await dispatch(leaveCampus(campus.slug)).unwrap();
-            } else {
-                await dispatch(joinCampus(campus.slug)).unwrap();
-            }
-        } catch (error) {
-            console.error('Failed to join/leave campus:', error);
-        }
-    }, [dispatch]);
-
-    // Handle post creation
-    const handleCreatePost = useCallback(async () => {
-        if (!postForm.title || !postForm.content || !postForm.room_id) {
-            setPostFormErrors({
-                title: !postForm.title ? 'Ciwaanka waa lagama maarmaan' : '',
-                content: !postForm.content ? 'Qoraalka waa lagama maarmaan' : '',
-                room_id: !postForm.room_id ? 'Qolka waa lagama maarmaan' : ''
-            });
-            return;
-        }
-
-        try {
-            await dispatch(createPost(postForm as CreatePostData)).unwrap();
+            await dispatch(createPost(postForm));
+            setShowCreatePost(false);
             setPostForm({
                 title: '',
                 content: '',
-                room_id: undefined,
+                room_id: 1,
                 language: 'so',
                 post_type: 'discussion'
             });
-            setPostFormErrors({});
-            setShowCreatePost(false);
-        } catch (error: unknown) {
-            const errorObj = error as { type?: string; errors?: Record<string, string> };
-            if (errorObj.type === 'validation') {
-                setPostFormErrors(errorObj.errors || {});
-            }
-        }
-    }, [dispatch, postForm]);
-
-    // Handle post like
-    const handlePostLike = useCallback(async (postId: string) => {
-        try {
-            await dispatch(togglePostLike(postId)).unwrap();
         } catch (error) {
-            console.error('Failed to toggle post like:', error);
+            console.error('Failed to create post:', error);
         }
-    }, [dispatch]);
-
-    // Handle search
-    const handleSearch = useCallback((query: string) => {
-        setSearchQuery(query);
-        if (query.trim()) {
-            dispatch(setFilters({ search: query }));
-            dispatch(fetchPosts({ filters: { search: query }, reset: true }));
-        } else {
-            dispatch(setFilters({ search: undefined }));
-            dispatch(fetchPosts({ reset: true }));
-        }
-    }, [dispatch]);
-
-    // Handle load more posts
-    const handleLoadMore = useCallback(() => {
-        if (pagination.posts.hasMore && !loading.posts) {
-            dispatch(fetchPosts({ filters }));
-        }
-    }, [dispatch, pagination.posts.hasMore, loading.posts, filters]);
-
-    // Format time ago
-    const formatTimeAgo = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-        if (diffInMinutes < 1) return 'hadda';
-        if (diffInMinutes < 60) return `${diffInMinutes} daqiiqad kahor`;
-
-        const diffInHours = Math.floor(diffInMinutes / 60);
-        if (diffInHours < 24) return `${diffInHours} saacadood kahor`;
-
-        const diffInDays = Math.floor(diffInHours / 24);
-        if (diffInDays < 30) return `${diffInDays} maalin kahor`;
-
-        const diffInMonths = Math.floor(diffInDays / 30);
-        return `${diffInMonths} bilood kahor`;
     };
 
-    // Get badge info
-    const getBadgeInfo = (level: string) => {
-        return BADGE_LEVELS[level] || BADGE_LEVELS.dhalinyaro;
-    };
-
-    // Handle profile picture update
-    const handleProfilePictureUpdate = async (file: File) => {
+    const handleCampusAction = async (slug: string, action: 'join' | 'leave') => {
         try {
-            const formData = new FormData();
-            formData.append('profile_picture', file);
-
-            const response = await fetch('https://api.garaad.org/api/auth/upload-profile-picture/', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${AuthService.getInstance().getToken()}`,
-                },
-                body: formData,
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Profile picture update failed:', response.status, errorText);
-                throw new Error(`Failed to update profile picture: ${response.status}`);
+            if (action === 'join') {
+                await dispatch(joinCampus(slug));
+            } else {
+                await dispatch(leaveCampus(slug));
             }
-
-            const data = await response.json();
-            console.log('Profile picture update response:', data);
-
-            // Update the user profile in Redux store
-            if (data.user) {
-                dispatch(setUser(data.user));
-            }
-
-            // Show success message
-            console.log('Profile picture updated successfully');
         } catch (error) {
-            console.error('Failed to update profile picture:', error);
+            console.error(`Failed to ${action} campus:`, error);
         }
     };
 
-    if (loading.campuses || loading.posts || loading.profile) {
+    if (isAuthenticated && (loading.campuses || loading.posts || loading.profile)) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="min-h-screen bg-white dark:bg-black">
                 <Header />
                 <div className="flex items-center justify-center pt-20">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                         <p className="text-gray-600 dark:text-gray-400">{SOMALI_UI_TEXT.loading}</p>
                     </div>
                 </div>
@@ -302,528 +152,288 @@ export default function CommunityPage() {
         );
     }
 
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-white dark:bg-black">
+                <Header />
+                <div className="flex items-center justify-center pt-20">
+                    <div className="text-center">
+                        <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                        <p className="text-gray-600 dark:text-gray-400">Waa inaad galato si aad u isticmaasho adeeggan</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-white dark:bg-black">
             <Header />
 
-            <div className="pt-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    {/* Error Display */}
-                    {(errors.campuses || errors.posts || errors.profile) && (
-                        <Alert className="mb-6">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>
-                                {errors.campuses || errors.posts || errors.profile}
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="ml-2"
-                                    onClick={() => dispatch(clearErrors())}
-                                >
-                                    <RefreshCw className="h-4 w-4 mr-2" />
-                                    Dib u day
+            <div className="max-w-7xl mx-auto">
+                <div className="grid grid-cols-12 gap-0">
+                    {/* Left Sidebar - Navigation */}
+                    <div className="col-span-3 border-r border-gray-200 dark:border-gray-800 min-h-screen">
+                        <div className="sticky top-0 p-4">
+                            {/* Navigation Menu */}
+                            <nav className="space-y-2 mb-8">
+                                <Button variant="ghost" className="w-full justify-start text-lg font-semibold">
+                                    <Home className="h-6 w-6 mr-3" />
+                                    Guriga
                                 </Button>
-                            </AlertDescription>
-                        </Alert>
-                    )}
+                                <Button variant="ghost" className="w-full justify-start">
+                                    <Search className="h-5 w-5 mr-3" />
+                                    Raadi
+                                </Button>
+                                <Button variant="ghost" className="w-full justify-start">
+                                    <Bell className="h-5 w-5 mr-3" />
+                                    Ogeysiisyada
+                                </Button>
+                                <Button variant="ghost" className="w-full justify-start">
+                                    <Bookmark className="h-5 w-5 mr-3" />
+                                    Kaydinta
+                                </Button>
+                                <Button variant="ghost" className="w-full justify-start">
+                                    <User className="h-5 w-5 mr-3" />
+                                    Profile-ka
+                                </Button>
+                                <Button variant="ghost" className="w-full justify-start">
+                                    <Settings className="h-5 w-5 mr-3" />
+                                    Habaynta
+                                </Button>
+                            </nav>
 
-                    {/* Search and Filter Bar */}
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6 border border-gray-200 dark:border-gray-700">
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="flex-1 relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                    placeholder="Raadi posts, campuses, ama users..."
-                                    value={searchQuery}
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                    className="pl-10"
-                                />
-                            </div>
-                            <div className="flex gap-2">
-                                <Select value={activeTab} onValueChange={setActiveTab}>
-                                    <SelectTrigger className="w-40">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">Dhammaan</SelectItem>
-                                        <SelectItem value="questions">Su&apos;aalaha</SelectItem>
-                                        <SelectItem value="discussions">Doodaha</SelectItem>
-                                        <SelectItem value="announcements">Ogeysiisyada</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Button
-                                    onClick={() => setShowCreatePost(true)}
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                >
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Samee Post
-                                </Button>
-                            </div>
+                            {/* Create Post Button */}
+                            <Button
+                                onClick={() => setShowCreatePost(true)}
+                                className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3 text-lg font-semibold mb-6"
+                            >
+                                <Plus className="h-5 w-5 mr-2" />
+                                Qoraal cusub
+                            </Button>
+
+                            {/* User Profile */}
+                            {userProfile && (
+                                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <AuthenticatedAvatar
+                                            src={getMediaUrl(userProfile.user.profile_picture, 'profile_pics')}
+                                            alt={`${userProfile.user.first_name} ${userProfile.user.last_name}`}
+                                            fallback={`${userProfile.user.first_name?.[0] || ''}${userProfile.user.last_name?.[0] || ''}`}
+                                            size="lg"
+                                        />
+                                        <div>
+                                            <h3 className="font-semibold">{userProfile.user.first_name} {userProfile.user.last_name}</h3>
+                                            <p className="text-sm text-gray-500">{userProfile.badge_level_display}</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-gray-500">Xisaabta</p>
+                                            <p className="font-semibold">{userProfile.community_points}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Qoraallada</p>
+                                            <p className="font-semibold">{userProfile.total_posts}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        {/* Left Sidebar */}
-                        <div className="lg:col-span-3">
-                            {/* User Profile Summary */}
-                            {userProfile && (
-                                <Card className="mb-6">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center space-x-3 mb-4">
-                                            <AuthenticatedAvatar
-                                                src={getMediaUrl(userProfile.user.profile_picture, 'profile_pics')}
-                                                alt={userProfile.user.username}
-                                                fallback={userProfile.user.username[0].toUpperCase()}
-                                                size="xl"
-                                                editable={true}
-                                                onImageUpdate={handleProfilePictureUpdate}
-                                            />
-                                            <div>
-                                                <h3 className="font-semibold text-gray-900 dark:text-white">
-                                                    {userProfile.user.username}
-                                                </h3>
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="text-lg">
-                                                        {getBadgeInfo(userProfile.badge_level).emoji}
-                                                    </span>
-                                                    <span className="text-sm text-gray-500">
-                                                        {userProfile.badge_level_display}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2 text-sm">
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600 dark:text-gray-400">Dhibcaha:</span>
-                                                <span className="font-semibold">{userProfile.community_points}</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600 dark:text-gray-400">Posts:</span>
-                                                <span className="font-semibold">{userProfile.total_posts}</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600 dark:text-gray-400">Comments:</span>
-                                                <span className="font-semibold">{userProfile.total_comments}</span>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
-
-                            {/* Trending Tags */}
-                            <Card className="mb-6">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm flex items-center">
-                                        <TrendingUp className="h-4 w-4 mr-2 text-blue-600" />
-                                        Tags Trending
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6 pt-0">
-                                    <div className="space-y-2">
-                                        {trendingTags.slice(0, 5).map((tag, index) => (
-                                            <div key={tag.tag} className="flex items-center justify-between">
-                                                <div className="flex items-center">
-                                                    <span className="text-sm font-medium text-gray-500 mr-3">
-                                                        {index + 1}
-                                                    </span>
-                                                    <Hash className="h-3 w-3 text-gray-400 mr-1" />
-                                                    <span className="text-sm">{tag.tag}</span>
-                                                </div>
-                                                <span className="text-sm font-semibold text-gray-600">
-                                                    {tag.count}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Popular Campuses */}
-                            <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm flex items-center">
-                                        <BookOpen className="h-4 w-4 mr-2 text-blue-600" />
-                                        Campusyada Caanka ah
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6 pt-0">
-                                    <div className="space-y-3">
-                                        {campuses.slice(0, 5).map((campus) => (
-                                            <div key={campus.id} className="flex items-center justify-between">
-                                                <div
-                                                    className="flex items-center cursor-pointer flex-1"
-                                                    onClick={() => handleCampusSelect(campus)}
-                                                >
-                                                    <span className="text-lg mr-3">{campus.icon}</span>
-                                                    <div>
-                                                        <h4 className="font-medium text-sm">{campus.name_somali}</h4>
-                                                        <p className="text-xs text-gray-500">
-                                                            {campus.member_count} xubnood
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    size="sm"
-                                                    variant={campus.user_is_member ? "outline" : "default"}
-                                                    onClick={() => handleCampusJoinLeave(campus)}
-                                                    className="text-xs"
-                                                >
-                                                    {campus.user_is_member ? 'Ka bax' : 'Ku biir'}
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
+                    {/* Main Content - Feed */}
+                    <div className="col-span-6 border-r border-gray-200 dark:border-gray-800">
+                        {/* Feed Header */}
+                        <div className="sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 p-4">
+                            <h1 className="text-xl font-bold">Bulshada Garaad</h1>
+                            <p className="text-sm text-gray-500">Ku biir kooxaha waxbarashada</p>
                         </div>
 
-                        {/* Main Content */}
-                        <div className="lg:col-span-6">
-                            {/* Create Post Modal/Form */}
-                            {showCreatePost && (
-                                <Card className="mb-6">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">Samee Post Cusub</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <Input
-                                                placeholder="Ciwaanka post-ka..."
-                                                value={postForm.title || ''}
-                                                onChange={(e) => setPostForm(prev => ({ ...prev, title: e.target.value }))}
-                                            />
-                                            {postFormErrors.title && (
-                                                <p className="text-red-500 text-sm mt-1">{postFormErrors.title}</p>
-                                            )}
-                                        </div>
+                        {/* Posts Feed */}
+                        <div className="divide-y divide-gray-200 dark:divide-gray-800">
+                            {posts && posts.length > 0 ? posts.map((post) => (
+                                <div key={post.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                                    <div className="flex space-x-3">
+                                        <AuthenticatedAvatar
+                                            src={getMediaUrl(post.user.profile_picture, 'profile_pics')}
+                                            alt={`${post.user.first_name} ${post.user.last_name}`}
+                                            fallback={`${post.user.first_name?.[0] || ''}${post.user.last_name?.[0] || ''}`}
+                                            size="md"
+                                        />
 
-                                        <div>
-                                            <Textarea
-                                                placeholder="Qor macluumaadka post-ka..."
-                                                value={postForm.content || ''}
-                                                onChange={(e) => setPostForm(prev => ({ ...prev, content: e.target.value }))}
-                                                rows={4}
-                                            />
-                                            {postFormErrors.content && (
-                                                <p className="text-red-500 text-sm mt-1">{postFormErrors.content}</p>
-                                            )}
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <Select
-                                                    value={postForm.room_id?.toString() || ''}
-                                                    onValueChange={(value) => setPostForm(prev => ({ ...prev, room_id: parseInt(value) }))}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Dooro qolka" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {rooms.map((room) => (
-                                                            <SelectItem key={room.id} value={room.id.toString()}>
-                                                                {room.name_somali}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                {postFormErrors.room_id && (
-                                                    <p className="text-red-500 text-sm mt-1">{postFormErrors.room_id}</p>
-                                                )}
-                                            </div>
-
-                                            <Select
-                                                value={postForm.post_type || 'discussion'}
-                                                onValueChange={(value) => setPostForm(prev => ({ ...prev, post_type: value as 'discussion' | 'question' | 'announcement' | 'poll' }))}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="discussion">Dood</SelectItem>
-                                                    <SelectItem value="question">Su&apos;aal</SelectItem>
-                                                    <SelectItem value="announcement">Ogeysiis</SelectItem>
-                                                    <SelectItem value="poll">Codbixin</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-
-                                        <div className="flex justify-end space-x-2">
-                                            <Button
-                                                variant="outline"
-                                                onClick={() => setShowCreatePost(false)}
-                                            >
-                                                Jooji
-                                            </Button>
-                                            <Button onClick={handleCreatePost}>
-                                                <Send className="h-4 w-4 mr-2" />
-                                                Soo Geli
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
-
-                            {/* Posts Feed */}
-                            <div className="space-y-6">
-                                {posts.map((post) => (
-                                    <Card key={post.id} className="overflow-hidden">
-                                        <CardContent className="p-6">
+                                        <div className="flex-1 min-w-0">
                                             {/* Post Header */}
-                                            <div className="flex items-start space-x-3 mb-4">
-                                                <AuthenticatedAvatar
-                                                    src={getMediaUrl(post.user.profile_picture, 'profile_pics')}
-                                                    alt={post.user.username}
-                                                    fallback={post.user.username[0].toUpperCase()}
-                                                    size="lg"
-                                                />
-
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center space-x-2">
-                                                        <h4 className="font-semibold">{post.user.username}</h4>
-                                                        {post.is_featured && (
-                                                            <Badge variant="secondary" className="text-xs">
-                                                                ⭐ Xuul
-                                                            </Badge>
-                                                        )}
-                                                        {post.is_pinned && (
-                                                            <Badge variant="secondary" className="text-xs">
-                                                                📌 Ku dheg
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
-                                                        <Clock className="h-3 w-3" />
-                                                        <span>{formatTimeAgo(post.created_at)}</span>
-                                                    </div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="font-semibold">{post.user.first_name} {post.user.last_name}</span>
+                                                    <span className="text-gray-500">•</span>
+                                                    <span className="text-gray-500 text-sm">2h</span>
+                                                    <Badge variant="outline" className="text-xs">
+                                                        {post.post_type_display}
+                                                    </Badge>
                                                 </div>
-
                                                 <Button variant="ghost" size="sm">
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
                                             </div>
 
                                             {/* Post Content */}
-                                            <div className="mb-4">
-                                                <h3 className="text-lg font-medium mb-2">{post.title}</h3>
+                                            <div className="mb-3">
+                                                <h3 className="font-semibold mb-2">{post.title}</h3>
                                                 <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
-
-                                                {/* Campus/Room Info */}
-                                                <div className="flex items-center space-x-4 mt-3">
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="text-xs"
-                                                        style={{
-                                                            borderColor: post.room.campus.color_code,
-                                                            color: post.room.campus.color_code
-                                                        }}
-                                                    >
-                                                        {post.room.campus.name_somali}
-                                                    </Badge>
-                                                    <span className="text-xs text-gray-500">
-                                                        {post.room.name_somali}
-                                                    </span>
-                                                    <Badge variant="secondary" className="text-xs">
-                                                        {post.post_type_display}
-                                                    </Badge>
-                                                </div>
                                             </div>
 
-                                            {/* Post Image */}
+                                            {/* Post Media */}
                                             {post.image && (
-                                                <div className="mb-4">
-                                                    <AuthenticatedImage
-                                                        src={getMediaUrl(post.image, 'community_posts')}
+                                                <div className="mb-3">
+                                                    <img
+                                                        src={post.image}
                                                         alt="Post image"
-                                                        width={800}
-                                                        height={600}
-                                                        className="w-full rounded-lg object-cover max-h-96"
+                                                        className="w-full rounded-xl object-cover max-h-96"
                                                     />
                                                 </div>
                                             )}
 
                                             {/* Post Actions */}
-                                            <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                                                <div className="flex items-center space-x-6">
+                                            <div className="flex items-center justify-between text-gray-500">
+                                                <div className="flex items-center space-x-8">
+                                                    <button className="flex items-center space-x-2 hover:text-blue-500 transition-colors">
+                                                        <MessageSquare className="h-5 w-5" />
+                                                        <span className="text-sm">{post.comments_count}</span>
+                                                    </button>
                                                     <button
-                                                        onClick={() => handlePostLike(post.id)}
-                                                        className={`flex items-center space-x-2 text-sm ${post.user_has_liked
-                                                            ? 'text-red-600'
-                                                            : 'text-gray-500 hover:text-red-600'
-                                                            } transition-colors`}
+                                                        className="flex items-center space-x-2 hover:text-green-500 transition-colors"
+                                                        onClick={() => dispatch(togglePostLike(post.id))}
                                                     >
-                                                        <Heart className={`h-5 w-5 ${post.user_has_liked ? 'fill-current' : ''}`} />
-                                                        <span>{post.likes_count}</span>
+                                                        <Heart className={`h-5 w-5 ${post.user_has_liked ? 'fill-red-500 text-red-500' : ''}`} />
+                                                        <span className="text-sm">{post.likes_count}</span>
                                                     </button>
-
-                                                    <button className="flex items-center space-x-2 text-sm text-gray-500 hover:text-blue-600 transition-colors">
-                                                        <MessageCircle className="h-5 w-5" />
-                                                        <span>{post.comments_count}</span>
-                                                    </button>
-
-                                                    <button className="flex items-center space-x-2 text-sm text-gray-500 hover:text-green-600 transition-colors">
+                                                    <button className="flex items-center space-x-2 hover:text-blue-500 transition-colors">
                                                         <Share2 className="h-5 w-5" />
-                                                        <span>Wadaag</span>
+                                                        <span className="text-sm">La wadaag</span>
                                                     </button>
-
-                                                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                                        <Eye className="h-4 w-4" />
-                                                        <span>{post.views_count}</span>
-                                                    </div>
                                                 </div>
-
-                                                <Button variant="outline" size="sm">
-                                                    Arag Faahfaahin
-                                                </Button>
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-
-                                {/* Load More Button */}
-                                {pagination.posts.hasMore && (
-                                    <div className="text-center">
-                                        <Button
-                                            onClick={handleLoadMore}
-                                            variant="outline"
-                                            disabled={loading.posts}
-                                        >
-                                            {loading.posts ? (
-                                                <>
-                                                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                                                    Waa la soo raraya...
-                                                </>
-                                            ) : (
-                                                'Soo raray posts dheeraad ah'
-                                            )}
-                                        </Button>
-                                    </div>
-                                )}
-
-                                {posts.length === 0 && !loading.posts && (
-                                    <div className="text-center py-12">
-                                        <div className="text-gray-400 mb-4">
-                                            <MessageCircle className="h-12 w-12 mx-auto" />
                                         </div>
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                            Ma jiraan posts
-                                        </h3>
-                                        <p className="text-gray-500 mb-4">
-                                            Weli ma jiraan posts halkan. Noqo kan ugu horeya oo sameeya!
-                                        </p>
-                                        <Button onClick={() => setShowCreatePost(true)}>
-                                            <Plus className="h-4 w-4 mr-2" />
-                                            Samee Post
-                                        </Button>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )) : (
+                                <div className="p-8 text-center">
+                                    <p className="text-gray-500 dark:text-gray-400">Wali ma jiraan qoraallo</p>
+                                </div>
+                            )}
                         </div>
+                    </div>
 
-                        {/* Right Sidebar */}
-                        <div className="lg:col-span-3">
-                            {/* Notifications */}
-                            <Card className="mb-6">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm flex items-center">
-                                        <Bell className="h-4 w-4 mr-2 text-blue-600" />
-                                        Ogeysiisyada
-                                        {unreadNotifications > 0 && (
-                                            <Badge className="ml-2 bg-red-500">
-                                                {unreadNotifications}
-                                            </Badge>
-                                        )}
+                    {/* Right Sidebar - Trending & Communities */}
+                    <div className="col-span-3 p-4">
+                        <div className="sticky top-0 space-y-6">
+                            {/* Search */}
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Input
+                                    placeholder="Raadi bulshada..."
+                                    className="pl-10 bg-gray-100 dark:bg-gray-800 border-0 rounded-full"
+                                />
+                            </div>
+
+                            {/* Trending Topics */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <TrendingUp className="h-5 w-5" />
+                                        Waxyaabaha caanka ah
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-6 pt-0">
-                                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                                        {notifications.slice(0, 5).map((notification) => (
-                                            <div
-                                                key={notification.id}
-                                                className={`p-3 rounded-lg cursor-pointer transition-colors ${notification.is_read
-                                                    ? 'bg-gray-50 dark:bg-gray-700'
-                                                    : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-                                                    }`}
-                                                onClick={() => {
-                                                    if (!notification.is_read) {
-                                                        dispatch(markNotificationRead(notification.id));
-                                                    }
-                                                }}
-                                            >
-                                                <div className="flex items-start space-x-2">
-                                                    <span className="text-sm">
-                                                        {notification.notification_type === 'post_like' && '👍'}
-                                                        {notification.notification_type === 'comment_like' && '💬'}
-                                                        {notification.notification_type === 'post_comment' && '💭'}
-                                                        {notification.notification_type === 'comment_reply' && '↩️'}
-                                                        {notification.notification_type === 'mention' && '@'}
-                                                        {notification.notification_type === 'new_campus_member' && '👋'}
-                                                    </span>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                            {notification.title}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 truncate">
-                                                            {notification.message}
-                                                        </p>
-                                                        <p className="text-xs text-gray-400 mt-1">
-                                                            {formatTimeAgo(notification.created_at)}
-                                                        </p>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-gray-500">#Xisaabta</p>
+                                            <p className="font-semibold">1,234 qoraal</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-gray-500">#Joometri</p>
+                                            <p className="font-semibold">567 qoraal</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-gray-500">#Programming</p>
+                                            <p className="font-semibold">890 qoraal</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Communities */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Users className="h-5 w-5" />
+                                        Kooxaha
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3">
+                                        {campuses && campuses.length > 0 ? campuses.slice(0, 5).map((campus) => (
+                                            <div key={campus.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                <div className="flex items-center gap-3">
+                                                    <div
+                                                        className="w-3 h-3 rounded-full"
+                                                        style={{ backgroundColor: campus.color_code }}
+                                                    />
+                                                    <div>
+                                                        <h3 className="font-medium text-sm">{campus.name_somali}</h3>
+                                                        <p className="text-xs text-gray-500">{campus.member_count} xubno</p>
                                                     </div>
                                                 </div>
+                                                <Button
+                                                    size="sm"
+                                                    variant={campus.user_is_member ? "outline" : "default"}
+                                                    onClick={() => handleCampusAction(campus.slug, campus.user_is_member ? 'leave' : 'join')}
+                                                >
+                                                    {campus.user_is_member ? "Ka bax" : "Ku biir"}
+                                                </Button>
                                             </div>
-                                        ))}
+                                        )) : (
+                                            <div className="p-4 text-center">
+                                                <p className="text-gray-500 dark:text-gray-400">Wali ma jiraan kooxo</p>
+                                            </div>
+                                        )}
                                     </div>
-                                    {notifications.length > 5 && (
-                                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                            <Button variant="outline" size="sm" className="w-full">
-                                                Arag dhammaantood
-                                            </Button>
-                                        </div>
-                                    )}
                                 </CardContent>
                             </Card>
 
                             {/* Leaderboard */}
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm flex items-center">
-                                        <Trophy className="h-4 w-4 mr-2 text-yellow-500" />
-                                        Tartanka
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Trophy className="h-5 w-5" />
+                                        Horyaal
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-6 pt-0">
+                                <CardContent>
                                     <div className="space-y-3">
-                                        {leaderboard.slice(0, 5).map((entry, index) => (
-                                            <div key={entry.user.id} className="flex items-center space-x-3">
-                                                <div className="flex-shrink-0">
-                                                    {index === 0 && <span className="text-lg">🥇</span>}
-                                                    {index === 1 && <span className="text-lg">🥈</span>}
-                                                    {index === 2 && <span className="text-lg">🥉</span>}
-                                                    {index > 2 && (
-                                                        <span className="text-sm font-medium text-gray-500 w-6 text-center">
-                                                            {index + 1}
-                                                        </span>
-                                                    )}
+                                        {leaderboard && leaderboard.length > 0 ? leaderboard.slice(0, 5).map((entry, index) => (
+                                            <div key={entry.user.id} className="flex items-center gap-3">
+                                                <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-medium">
+                                                    {index + 1}
                                                 </div>
                                                 <AuthenticatedAvatar
                                                     src={getMediaUrl(entry.user.profile_picture, 'profile_pics')}
-                                                    alt={entry.user.username}
-                                                    fallback={entry.user.username[0].toUpperCase()}
+                                                    alt={`${entry.user.first_name} ${entry.user.last_name}`}
+                                                    fallback={`${entry.user.first_name?.[0] || ''}${entry.user.last_name?.[0] || ''}`}
                                                     size="sm"
                                                 />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium truncate">
-                                                        {entry.user.username}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {entry.community_points} dhibco
-                                                    </p>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">{entry.user.first_name} {entry.user.last_name}</p>
+                                                    <p className="text-xs text-gray-500">{entry.community_points} xisaabta</p>
                                                 </div>
-                                                <span className="text-sm">
-                                                    {getBadgeInfo(entry.badge_level).emoji}
-                                                </span>
                                             </div>
-                                        ))}
+                                        )) : (
+                                            <div className="p-4 text-center">
+                                                <p className="text-gray-500 dark:text-gray-400">Wali ma jiraan horyaal</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -831,6 +441,78 @@ export default function CommunityPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Create Post Dialog */}
+            <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
+                <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                        <DialogTitle>Qoraal cusub</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="title">Cinwaanka</Label>
+                            <Input
+                                id="title"
+                                value={postForm.title}
+                                onChange={(e) => setPostForm({ ...postForm, title: e.target.value })}
+                                placeholder="Geli cinwaanka qoraalka"
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="content">Qoraalka</Label>
+                            <Textarea
+                                id="content"
+                                value={postForm.content}
+                                onChange={(e) => setPostForm({ ...postForm, content: e.target.value })}
+                                placeholder="Maxaad ka fikireysaa?"
+                                rows={4}
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="language">Luuqadda</Label>
+                                <Select
+                                    value={postForm.language}
+                                    onValueChange={(value: 'so' | 'en') => setPostForm({ ...postForm, language: value })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="so">Soomaali</SelectItem>
+                                        <SelectItem value="en">English</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label htmlFor="post_type">Nooca qoraalka</Label>
+                                <Select
+                                    value={postForm.post_type}
+                                    onValueChange={(value: 'question' | 'discussion' | 'announcement' | 'poll') => setPostForm({ ...postForm, post_type: value })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="question">Su'aal</SelectItem>
+                                        <SelectItem value="discussion">Dood</SelectItem>
+                                        <SelectItem value="announcement">Ogeysiis</SelectItem>
+                                        <SelectItem value="poll">Codbixin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setShowCreatePost(false)}>
+                                Jooji
+                            </Button>
+                            <Button onClick={handleCreatePost}>
+                                Samee qoraal
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 } 

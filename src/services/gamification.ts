@@ -1,8 +1,6 @@
 import useSWR from "swr";
 import AuthService from "./auth";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 const swrConfig = {
   revalidateOnFocus: false,
   revalidateOnReconnect: true,
@@ -33,7 +31,7 @@ const fetcher = async (url: string) => {
 export function useProblem(problemId?: string) {
   const shouldFetch = !!problemId;
   const { data, error, isLoading, mutate } = useSWR(
-    shouldFetch ? `${API_URL}/api/problems/${problemId}/` : null,
+    shouldFetch ? `/api/problems/${problemId}/` : null,
     fetcher,
     swrConfig
   );
@@ -46,9 +44,24 @@ export function useProblem(problemId?: string) {
   };
 }
 
-export function useNotifcation() {
+export function useGamificationStatus() {
   const { data, error, isLoading, mutate } = useSWR(
-    `${API_URL}/api/lms/notifications/`,
+    `/api/gamification/status/`,
+    fetcher,
+    swrConfig
+  );
+
+  return {
+    gamificationStatus: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useNotification() {
+  const { data, error, isLoading, mutate } = useSWR(
+    `/api/notifications/`,
     fetcher,
     swrConfig
   );
@@ -63,7 +76,7 @@ export function useNotifcation() {
 
 export function useStreak() {
   const { data, error, isLoading, mutate } = useSWR(
-    `${API_URL}/api/streaks/`,
+    `/api/streaks/`,
     fetcher,
     swrConfig
   );
@@ -78,7 +91,7 @@ export function useStreak() {
 
 export function useProgress() {
   const { data, error, isLoading, mutate } = useSWR(
-    `${API_URL}/api/progress/`,
+    `/api/progress/`,
     fetcher,
     swrConfig
   );
@@ -93,7 +106,7 @@ export function useProgress() {
 
 export function useLeague() {
   const { data, error, isLoading, mutate } = useSWR(
-    `${API_URL}/api/league/leagues/status/`,
+    `/api/league/leagues/status/`,
     fetcher,
     swrConfig
   );
@@ -117,7 +130,7 @@ export function useLeagueLeaderboard(
     ...(limit ? { limit: limit.toString() } : {}),
   });
 
-  const url = `${API_URL}/api/league/leagues/leaderboard/?${query.toString()}`;
+  const url = `/api/league/leagues/leaderboard/?${query.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR(url, fetcher, swrConfig);
 
@@ -138,7 +151,7 @@ export async function solveProblem(
 ) {
   const token = await AuthService.getInstance().ensureValidToken();
 
-  const response = await fetch(`${API_URL}/api/problems/${problemId}/solve/`, {
+  const response = await fetch(`/api/problems/${problemId}/solve/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -160,7 +173,7 @@ export async function solveProblem(
 export async function useEnergy() {
   const token = await AuthService.getInstance().ensureValidToken();
 
-  const response = await fetch(`${API_URL}/api/gamification/use_energy/`, {
+  const response = await fetch(`/api/gamification/use_energy/`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

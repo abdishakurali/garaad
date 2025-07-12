@@ -36,14 +36,26 @@ export function getMediaUrl(
   }
 
   // Otherwise, add the media type directory
+  let finalUrl: string;
   switch (type) {
     case "profile_pics":
-      return `${baseUrl}/profile_pics/${cleanFilename}`;
+      finalUrl = `${baseUrl}/profile_pics/${cleanFilename}`;
+      break;
     case "community_posts":
-      return `${baseUrl}/community/posts/${cleanFilename}`;
+      finalUrl = `${baseUrl}/community/posts/${cleanFilename}`;
+      break;
     case "courses":
-      return `${baseUrl}/courses/${cleanFilename}`;
+      finalUrl = `${baseUrl}/courses/${cleanFilename}`;
+      break;
     default:
-      return `${baseUrl}/${cleanFilename}`;
+      finalUrl = `${baseUrl}/${cleanFilename}`;
   }
+
+  // Add cache-busting parameter for profile pictures to ensure fresh images
+  if (type === "profile_pics") {
+    const timestamp = Date.now();
+    finalUrl += `?t=${timestamp}`;
+  }
+
+  return finalUrl;
 }

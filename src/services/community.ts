@@ -1,14 +1,20 @@
-const BASE_URL = "https://api.garaad.org/api/community/api/";
+import AuthService from "@/services/auth";
+
+const BASE_URL = "/api/community/";
 
 // Helper function for making authenticated API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const authService = AuthService.getInstance();
+  const token = authService.getToken();
+
+  if (!token) {
+    throw new Error("Authentication required");
+  }
 
   const config: RequestInit = {
     ...options,
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
       ...options.headers,
     },
@@ -71,6 +77,21 @@ export const campusService = {
   },
 };
 
+// Room Management APIs
+export const roomService = {
+  // List rooms with campus filter
+  getRooms: async (campusSlug?: string) => {
+    const params = campusSlug ? `?campus=${campusSlug}` : "";
+    return apiCall(`rooms/${params}`);
+  },
+
+  // Get room posts
+  getRoomPosts: async (roomId: number, page?: number) => {
+    const params = page ? `?page=${page}` : "";
+    return apiCall(`rooms/${roomId}/posts/${params}`);
+  },
+};
+
 // Post Management APIs
 export const postService = {
   // List posts with filters
@@ -118,11 +139,12 @@ export const postService = {
         method: "POST",
         headers: {
           // Remove Content-Type to let browser set it for FormData
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${AuthService.getInstance().getToken()}`,
         },
         body: formData,
       });
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { image, ...jsonData } = postData;
       return apiCall("posts/", {
         method: "POST",
@@ -169,7 +191,12 @@ export const postService = {
 
 // Comment Management APIs
 export const commentService = {
-  // Create a comment
+  // List comments for a post
+  getComments: async (postId: string) => {
+    return apiCall(`comments/?post=${postId}`);
+  },
+
+  // Create a comment or reply
   createComment: async (commentData: {
     content: string;
     post_id: string;
@@ -239,9 +266,9 @@ export const profileService = {
   },
 };
 
-// Notification APIs
+// Notification Management APIs
 export const notificationService = {
-  // Get notifications
+  // List notifications
   getNotifications: async (page?: number) => {
     const params = page ? `?page=${page}` : "";
     return apiCall(`notifications/${params}`);
@@ -260,56 +287,22 @@ export const notificationService = {
       method: "POST",
     });
   },
-
-  // Get unread notification count
-  getUnreadCount: async () => {
-    return apiCall("notifications/unread_count/");
-  },
 };
 
-// Search APIs
-export const searchService = {
-  // Global search across posts and campuses
-  globalSearch: async (
-    query: string,
-    filters: {
-      content_type?: "posts" | "campuses" | "users";
-      campus?: string;
-      language?: "so" | "en";
-    } = {}
-  ) => {
-    const params = new URLSearchParams({ q: query });
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.append(key, value);
-    });
-
-    return apiCall(`search/?${params}`);
-  },
-
+// Trending Tags API
+export const trendingService = {
   // Get trending tags
   getTrendingTags: async (period: "day" | "week" | "month" = "week") => {
-    return apiCall(`search/trending/?period=${period}`);
-  },
-};
-
-// Analytics APIs (for moderators/admins)
-export const analyticsService = {
-  // Get campus analytics
-  getCampusAnalytics: async (
-    campusSlug: string,
-    period: "day" | "week" | "month" = "week"
-  ) => {
-    return apiCall(`analytics/campus/${campusSlug}/?period=${period}`);
-  },
-
-  // Get user engagement metrics
-  getUserEngagement: async (period: "day" | "week" | "month" = "week") => {
-    return apiCall(`analytics/engagement/?period=${period}`);
+    return apiCall(`trending/tags/?period=${period}`);
   },
 };
 
 // Error handling helper
-export const handleApiError = (error: any) => {
+export const handleApiError = (error: {
+  status: number;
+  data?: unknown;
+  message?: string;
+}) => {
   console.error("API Error:", error);
 
   switch (error.status) {
@@ -355,10 +348,11 @@ export class CommunityWebSocket {
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
 
-  connect(onMessage: (data: any) => void) {
+  connect(onMessage: (data: unknown) => void) {
     if (typeof window === "undefined") return;
 
-    const token = localStorage.getItem("access_token");
+    const authService = AuthService.getInstance();
+    const token = authService.getToken();
     if (!token) return;
 
     try {
@@ -393,7 +387,7 @@ export class CommunityWebSocket {
     }
   }
 
-  private attemptReconnect(onMessage: (data: any) => void) {
+  private attemptReconnect(onMessage: (data: unknown) => void) {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       setTimeout(() => {
@@ -412,22 +406,24 @@ export class CommunityWebSocket {
     }
   }
 
-  send(data: any) {
+  send(data: unknown) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(data));
     }
   }
 }
 
-// Default export with all services
-export default {
+// Export the main service object
+const communityService = {
   campus: campusService,
+  room: roomService,
   post: postService,
   comment: commentService,
   profile: profileService,
   notification: notificationService,
-  search: searchService,
-  analytics: analyticsService,
+  trending: trendingService,
   handleApiError,
   CommunityWebSocket,
 };
+
+export default communityService;

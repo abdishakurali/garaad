@@ -31,10 +31,13 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
     const [error, setError] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const currentBlobUrl = useRef<string | null>(null);
 
     useEffect(() => {
         if (!src) {
             setIsLoading(false);
+            setImageUrl(null);
+            setError(false);
             return;
         }
 
@@ -42,10 +45,17 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
         const authService = AuthService.getInstance();
         const token = authService.getToken();
 
+        // Cleanup previous blob URL if it exists
+        if (currentBlobUrl.current) {
+            URL.revokeObjectURL(currentBlobUrl.current);
+            currentBlobUrl.current = null;
+        }
+
         // If it's already a full URL and doesn't need authentication, use it directly
         if (src.startsWith('http') && !src.includes('api.garaad.org/api/media')) {
             setImageUrl(src);
             setIsLoading(false);
+            setError(false);
             return;
         }
 
@@ -107,10 +117,14 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
                 .then(blob => {
                     if (isMounted) {
                         const url = URL.createObjectURL(blob);
+                        currentBlobUrl.current = url;
                         console.log('AuthenticatedAvatar: Created blob URL', url);
                         setImageUrl(url);
                         setError(false);
                         setIsLoading(false);
+                    } else {
+                        // Cleanup if component unmounted during fetch
+                        URL.revokeObjectURL(url);
                     }
                 })
                 .catch(err => {
@@ -118,6 +132,7 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
                     if (isMounted) {
                         setError(true);
                         setIsLoading(false);
+                        setImageUrl(null);
                     }
                 });
         } else {
@@ -129,6 +144,7 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
             // For non-authenticated URLs, use directly
             setImageUrl(src);
             setIsLoading(false);
+            setError(false);
         }
 
         return () => {
@@ -136,14 +152,15 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
         };
     }, [src]);
 
-    // Cleanup blob URL when component unmounts or imageUrl changes
+    // Cleanup blob URL when component unmounts
     useEffect(() => {
         return () => {
-            if (imageUrl && imageUrl.startsWith('blob:')) {
-                URL.revokeObjectURL(imageUrl);
+            if (currentBlobUrl.current) {
+                URL.revokeObjectURL(currentBlobUrl.current);
+                currentBlobUrl.current = null;
             }
         };
-    }, [imageUrl]);
+    }, []);
 
     // Handle file selection
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -176,6 +193,11 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
                         src={imageUrl}
                         alt={alt}
                         className={`w-full h-full object-cover rounded-full ${className || ''}`}
+                        onError={() => {
+                            console.error('AuthenticatedAvatar: Image failed to load');
+                            setError(true);
+                            setImageUrl(null);
+                        }}
                     />
                 ) : (
                     <AvatarFallback className="bg-blue-600 text-white text-xs">
