@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getServerStripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import type { Stripe } from "stripe";
 
@@ -7,7 +7,16 @@ export async function GET() {
   console.log("🔍 GET request to Stripe webhook endpoint");
   console.log("📅 Timestamp:", new Date().toISOString());
   console.log("🌍 Environment:", process.env.NODE_ENV);
-  console.log("🔑 Stripe configured:", !!stripe);
+
+  let stripeConfigured = false;
+  try {
+    getServerStripe();
+    stripeConfigured = true;
+  } catch {
+    stripeConfigured = false;
+  }
+
+  console.log("🔑 Stripe configured:", stripeConfigured);
   console.log(
     "🔐 Webhook secret configured:",
     !!process.env.STRIPE_WEBHOOK_SECRET
@@ -19,7 +28,7 @@ export async function GET() {
         status: "Webhook endpoint is accessible",
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
-        stripe_configured: !!stripe,
+        stripe_configured: stripeConfigured,
         webhook_secret_configured: !!process.env.STRIPE_WEBHOOK_SECRET,
         message: "Stripe webhook endpoint is working correctly",
       },
@@ -64,8 +73,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!stripe) {
-      console.error("❌ Stripe not configured");
+    let stripeInstance;
+    try {
+      stripeInstance = getServerStripe();
+    } catch (error) {
+      console.error("❌ Stripe not configured:", error);
       return NextResponse.json(
         { error: "Stripe not configured" },
         { status: 500 }
@@ -75,7 +87,7 @@ export async function POST(request: NextRequest) {
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(
+      event = stripeInstance.webhooks.constructEvent(
         body,
         signature,
         process.env.STRIPE_WEBHOOK_SECRET

@@ -1,12 +1,28 @@
 import Stripe from "stripe";
 
-// Server-side Stripe instance (only available on server)
-export const stripe =
-  typeof window === "undefined"
-    ? new Stripe(process.env.STRIPE_SECRET_KEY!, {
-        apiVersion: "2025-05-28.basil",
-      })
-    : null;
+// Server-side Stripe instance (lazily created only on server)
+let _stripe: Stripe | null = null;
+
+export const getServerStripe = (): Stripe => {
+  if (typeof window !== "undefined") {
+    throw new Error("Stripe server instance cannot be used on the client");
+  }
+
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+    }
+
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2025-05-28.basil",
+    });
+  }
+
+  return _stripe;
+};
+
+// Legacy export for backward compatibility (lazy-loaded)
+export const stripe = typeof window === "undefined" ? getServerStripe : null;
 
 // Client-side Stripe configuration
 export const getStripe = async () => {

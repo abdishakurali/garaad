@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, STRIPE_PRICE_IDS } from "@/lib/stripe";
+import { getServerStripe, STRIPE_PRICE_IDS } from "@/lib/stripe";
 import { jwtDecode } from "jwt-decode";
 
 // More flexible JWT payload interface to handle different token structures
@@ -137,9 +137,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!stripe) {
+    let stripeInstance;
+    try {
+      stripeInstance = getServerStripe();
+    } catch (error) {
+      console.error("Stripe initialization error:", error);
       return NextResponse.json(
-        { error: "Stripe not configured" },
+        { error: "Stripe not configured properly" },
         { status: 500 }
       );
     }
@@ -211,7 +215,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeInstance.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "subscription",

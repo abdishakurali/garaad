@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getServerStripe } from "@/lib/stripe";
 import UserService from "@/services/user";
 
 export async function GET(request: NextRequest) {
@@ -13,8 +13,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Get Stripe instance
+    const stripeInstance = getServerStripe();
+
     // Retrieve the checkout session from Stripe
-    const session = await stripe?.checkout.sessions.retrieve(sessionId);
+    const session = await stripeInstance.checkout.sessions.retrieve(sessionId);
 
     if (!session) {
       return NextResponse.redirect(
