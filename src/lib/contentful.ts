@@ -65,7 +65,9 @@ export async function getBlogPages(): Promise<BlogPage[]> {
  */
 export async function getBlogPageById(id: string): Promise<BlogPage | null> {
   try {
-    const entry = await getClient().getEntry<BlogPageSkeleton>(id, { include: 2 });
+    const entry = await getClient().getEntry<BlogPageSkeleton>(id, {
+      include: 2,
+    });
     return entry as BlogPage;
   } catch (error) {
     console.error(`Error fetching blog page with ID "${id}":`, error);
