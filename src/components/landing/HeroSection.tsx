@@ -5,11 +5,23 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/store/features/authSlice";
 import { Sparkles, Zap, Trophy, Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function HeroSection() {
     const router = useRouter();
     const user = useSelector(selectCurrentUser);
     const isAuthenticated = !!user;
+
+    const [activeIndex, setActiveIndex] = useState(0);
+    const cycleTexts = ["Xisaab", "AI", "Fiisikis", "Tiknoolajiyad"];
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveIndex((current) => (current + 1) % cycleTexts.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <section className="relative min-h-[90vh] flex items-center justify-center bg-white dark:bg-slate-950 px-4 overflow-hidden">
@@ -21,36 +33,48 @@ export function HeroSection() {
             </div>
 
             <div className="relative z-10 max-w-4xl mx-auto py-20 text-center space-y-12">
-                {/* Floating Icons for "Advanced" feel */}
-                <div className="absolute inset-0 pointer-events-none select-none">
-                    <div className="absolute top-20 left-10 animate-bounce transition-all duration-1000 opacity-20">
-                        <Zap size={48} className="text-primary" />
-                    </div>
-                    <div className="absolute bottom-40 right-10 animate-pulse transition-all duration-1000 opacity-20 delay-300">
-                        <Trophy size={56} className="text-blue-500" />
-                    </div>
-                    <div className="absolute top-40 right-20 animate-bounce transition-all duration-1000 opacity-20 delay-700">
-                        <Star size={40} className="text-primary" />
-                    </div>
-                    <div className="absolute bottom-20 left-20 animate-pulse transition-all duration-1000 opacity-20 delay-500">
-                        <Sparkles size={44} className="text-blue-400" />
-                    </div>
-                </div>
-
                 {/* Main Content */}
                 <div className="space-y-8">
-                    {/* Badge */}
+                    {/* Premium Badge */}
                     <div className="flex justify-center">
-                        <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 backdrop-blur-sm">
-                            <Sparkles size={14} className="animate-spin-slow" />
-                            Mustaqbalkaaga Bilow Maanta
-                        </span>
+                        <motion.a
+                            href="https://saas.garaad.org"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="group relative inline-flex items-center gap-3 px-1 py-1 pr-6 rounded-full bg-slate-900 text-white border border-white/10 hover:border-primary/50 transition-all shadow-xl"
+                        >
+                            <span className="flex items-center justify-center p-2 bg-primary rounded-full group-hover:bg-primary/90 transition-colors">
+                                <Sparkles size={14} className="text-white animate-pulse" />
+                            </span>
+                            <div className="flex flex-col items-start leading-tight">
+                                <span className="text-[10px] uppercase tracking-widest text-primary font-black">SaaS Challenge</span>
+                                <span className="text-xs font-bold">Ku biir 5 toddobaadka SaaS challenge-ka</span>
+                            </div>
+                            <div className="ml-2 pl-4 border-l border-white/10 text-[10px] font-mono text-slate-400 group-hover:text-primary transition-colors">
+                                saas.garaad.org
+                            </div>
+                        </motion.a>
                     </div>
 
                     {/* Headline */}
                     <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-foreground leading-[1.1] tracking-tight">
                         Noqo Garaadka <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-indigo-500">STEM-ka</span>
+                        <span className="inline-block relative min-w-[280px]">
+                            <AnimatePresence mode="wait">
+                                <motion.span
+                                    key={cycleTexts[activeIndex]}
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -20, opacity: 0 }}
+                                    transition={{ duration: 0.5, ease: "easeOut" }}
+                                    className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-indigo-500"
+                                >
+                                    {cycleTexts[activeIndex]}
+                                </motion.span>
+                            </AnimatePresence>
+                        </span>
                     </h1>
 
                     {/* Description */}
@@ -60,43 +84,26 @@ export function HeroSection() {
                 </div>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <div className="flex justify-center">
                     <Button
                         size="lg"
-                        className="w-full sm:w-auto text-xl px-12 py-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] transition-all transform hover:-translate-y-1"
+                        className="w-full sm:w-auto text-xl px-16 py-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] transition-all transform hover:-translate-y-1"
                         onClick={() => router.push(isAuthenticated ? "/courses" : "/welcome")}
                     >
                         {isAuthenticated ? "Koorsooyinka" : "Bilow Hadda"}
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="lg"
-                        className="w-full sm:w-auto text-xl px-12 py-8 rounded-full border-2 border-primary/20 font-extrabold hover:bg-primary/5 transition-all transform hover:-translate-y-1"
-                        onClick={() => router.push("/courses")}
-                    >
-                        Eeg Koorsooyinka
                     </Button>
                 </div>
 
                 {/* Iconic Visual Element (Instead of photo) */}
                 <div className="pt-16 flex justify-center gap-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-                    <div className="flex flex-col items-center gap-2 group cursor-help">
-                        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 group-hover:bg-primary/10 transition-colors">
-                            <Zap size={32} className="text-primary" />
-                        </div>
-                        <span className="text-xs font-bold uppercase tracking-widest">Fiisikiska</span>
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 hover:bg-primary/10 transition-colors cursor-help">
+                        <Zap size={32} className="text-primary" />
                     </div>
-                    <div className="flex flex-col items-center gap-2 group cursor-help">
-                        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 group-hover:bg-primary/10 transition-colors">
-                            <Trophy size={32} className="text-primary" />
-                        </div>
-                        <span className="text-xs font-bold uppercase tracking-widest">Tartanka</span>
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 hover:bg-primary/10 transition-colors cursor-help">
+                        <Trophy size={32} className="text-primary" />
                     </div>
-                    <div className="flex flex-col items-center gap-2 group cursor-help">
-                        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 group-hover:bg-primary/10 transition-colors">
-                            <Star size={32} className="text-primary" />
-                        </div>
-                        <span className="text-xs font-bold uppercase tracking-widest">Xiddigaha</span>
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 hover:bg-primary/10 transition-colors cursor-help">
+                        <Star size={32} className="text-primary" />
                     </div>
                 </div>
             </div>
