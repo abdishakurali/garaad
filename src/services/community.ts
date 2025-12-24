@@ -72,8 +72,9 @@ export const campusService = {
   },
 
   // Get campus rooms
-  getCampusRooms: async (slug: string) => {
-    return apiCall(`campuses/${slug}/rooms/`);
+  getCampusRooms: async (slug: string, groupByMetadata: boolean = false) => {
+    const params = groupByMetadata ? "?group_by_category=true" : "";
+    return apiCall(`campuses/${slug}/rooms/${params}`);
   },
 };
 
@@ -97,6 +98,14 @@ export const messageService = {
   // Fetch messages for a specific room
   getMessages: async (roomUuid: string) => {
     return apiCall(`messages/?room=${roomUuid}`);
+  },
+
+  // Toggle reaction on a message
+  toggleReaction: async (messageId: string, emoji: string) => {
+    return apiCall(`messages/${messageId}/react/`, {
+      method: "POST",
+      body: JSON.stringify({ emoji }),
+    });
   },
 
   // Send a new message

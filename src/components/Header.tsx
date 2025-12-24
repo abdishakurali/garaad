@@ -1,20 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { AuthDialog } from "@/components/auth/AuthDialog";
+import dynamic from "next/dynamic";
+// Removed static import for AuthDialog
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/store/features/authSlice";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
 import { usePathname } from "next/navigation";
-import { FolderDot, Home, ExternalLink, X } from "lucide-react";
+import { FolderDot, Home, ExternalLink, X, Loader2 } from "lucide-react";
 import clsx from "clsx";
 import StreakDisplay from "./StreakDisplay";
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import AuthService from "@/services/auth";
 import useSWR from "swr";
 import NotificationPanel from "./Notifications";
 import Logo from "./ui/Logo";
+
+const AuthDialog = dynamic(() => import("@/components/auth/AuthDialog").then(mod => mod.AuthDialog), {
+  loading: () => <div className="h-10 w-24 bg-gray-100 animate-pulse rounded-md" />,
+  ssr: false
+});
 
 interface DailyActivity {
   date: string;
@@ -122,7 +128,7 @@ export function Header() {
   );
 
   // Add scroll listener
-  useMemo(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const handleScroll = () => {
         setIsScrolled(window.scrollY > 10);

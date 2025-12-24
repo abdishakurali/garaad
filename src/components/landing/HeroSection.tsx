@@ -32,36 +32,13 @@ export function HeroSection() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.03)_0%,transparent_70%)]" />
             </div>
 
-            <div className="relative z-10 max-w-4xl mx-auto py-20 text-center space-y-12">
+            <div className="relative z-10 max-w-4xl mx-auto py-10 text-center space-y-12">
                 {/* Main Content */}
                 <div className="space-y-8">
-                    {/* Premium Badge */}
-                    <div className="flex justify-center">
-                        <motion.a
-                            href="https://saas.garaad.org"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="group relative inline-flex items-center gap-3 px-1 py-1 pr-6 rounded-full bg-slate-900 text-white border border-white/10 hover:border-primary/50 transition-all shadow-xl"
-                        >
-                            <span className="flex items-center justify-center p-2 bg-primary rounded-full group-hover:bg-primary/90 transition-colors">
-                                <Sparkles size={14} className="text-white animate-pulse" />
-                            </span>
-                            <div className="flex flex-col items-start leading-tight">
-                                <span className="text-[10px] uppercase tracking-widest text-primary font-black">SaaS Challenge</span>
-                                <span className="text-xs font-bold">Ku biir 5 toddobaadka SaaS challenge-ka</span>
-                            </div>
-                            <div className="ml-2 pl-4 border-l border-white/10 text-[10px] font-mono text-slate-400 group-hover:text-primary transition-colors">
-                                saas.garaad.org
-                            </div>
-                        </motion.a>
-                    </div>
-
                     {/* Headline */}
-                    <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-foreground leading-[1.1] tracking-tight">
-                        Noqo Garaadka <br />
-                        <span className="inline-block relative min-w-[280px]">
+                    <h1 className="text-6xl sm:text-8xl lg:text-6xl font-black text-foreground leading-[1.1] tracking-tight flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-8">
+                        <span className="whitespace-nowrap">Ku baro Sameyn</span>
+                        <span className="inline-block relative  ">
                             <AnimatePresence mode="wait">
                                 <motion.span
                                     key={cycleTexts[activeIndex]}
@@ -69,7 +46,7 @@ export function HeroSection() {
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: -20, opacity: 0 }}
                                     transition={{ duration: 0.5, ease: "easeOut" }}
-                                    className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-indigo-500"
+                                    className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-indigo-500 inline-block"
                                 >
                                     {cycleTexts[activeIndex]}
                                 </motion.span>
@@ -94,18 +71,7 @@ export function HeroSection() {
                     </Button>
                 </div>
 
-                {/* Iconic Visual Element (Instead of photo) */}
-                <div className="pt-16 flex justify-center gap-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 hover:bg-primary/10 transition-colors cursor-help">
-                        <Zap size={32} className="text-primary" />
-                    </div>
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 hover:bg-primary/10 transition-colors cursor-help">
-                        <Trophy size={32} className="text-primary" />
-                    </div>
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 hover:bg-primary/10 transition-colors cursor-help">
-                        <Star size={32} className="text-primary" />
-                    </div>
-                </div>
+
             </div>
         </section>
     );

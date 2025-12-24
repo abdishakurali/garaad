@@ -49,12 +49,15 @@ export interface CampusRoom {
   member_count: number;
   post_count: number;
   is_private: boolean;
+  category: string | null; // UUID of the category
   campus: {
     id: number;
     name_somali: string;
     slug: string;
   };
 }
+
+export type GroupedRooms = Record<string, CampusRoom[]>;
 
 // Post-related types
 export interface PostSummary {
@@ -97,6 +100,13 @@ export interface Post {
   updated_at: string;
   user_has_liked: boolean;
   tags?: string[];
+  reactions?: MessageReaction[];
+}
+
+export interface MessageReaction {
+  emoji: string;
+  count: number;
+  user_has_reacted?: boolean;
 }
 
 export interface PostDetails extends Post {
@@ -128,6 +138,7 @@ export interface Comment {
   user_has_liked: boolean;
   replies_count: number;
   replies?: Comment[];
+  reactions?: MessageReaction[];
 }
 
 export interface CreateCommentData {
@@ -175,6 +186,9 @@ export interface UserProfile {
   mention_notifications: boolean;
   joined_campuses_count: number;
   streak_days: number;
+  level: number;
+  xp_to_next_level: number;
+  level_progress_percentage: number;
   last_activity: string;
 }
 
@@ -185,6 +199,8 @@ export interface LeaderboardEntry {
   badge_level_display: string;
   total_posts: number;
   total_comments: number;
+  level: number;
+  rank: number;
   position?: number;
 }
 
@@ -351,6 +367,7 @@ export interface CommunityState {
   campuses: Campus[];
   posts: Post[];
   rooms: CampusRoom[];
+  groupedRooms: GroupedRooms | null;
   messages: Post[];
   selectedCampus: Campus | null;
   selectedRoom: CampusRoom | null;
@@ -485,12 +502,12 @@ export const BADGE_LEVELS: Record<string, Badge> = {
 };
 
 export const NOTIFICATION_ICONS: Record<string, string> = {
-  post_like: "👍",
-  comment_like: "💬",
-  post_comment: "💭",
-  comment_reply: "↩️",
-  mention: "@",
-  new_campus_member: "👋",
+  post_like: "Jeclasho Qoraal",
+  comment_like: "Jeclasho Faallo",
+  post_comment: "Faallo Cusub",
+  comment_reply: "Jawaab Faallo",
+  mention: "Lagugu xusay",
+  new_campus_member: "Xubin Cusub",
 };
 
 export const SOMALI_UI_TEXT = {
@@ -498,8 +515,11 @@ export const SOMALI_UI_TEXT = {
   campuses: "Campusyada",
   posts: "Qoraallada",
   notifications: "Ogeysiisyada",
-  profile: "Waybaha",
+  profile: "Profile-ka",
   leaderboard: "Tartanka",
+  unreads: "Aan la akhrin",
+  history: "Taariikhda",
+  search: "Raadi...",
 
   // Actions
   join: "Ku biir",
@@ -510,13 +530,16 @@ export const SOMALI_UI_TEXT = {
   create: "Samee",
   edit: "Wax ka beddel",
   delete: "Tirtir",
+  reply: "U jawaab",
 
   // Status
   member: "Xubin",
   moderator: "Maamule",
-  online: "Online",
-  offline: "Offline",
-  loading: "Waa la soo raraya...",
+  online: "Jooga",
+  offline: "Ma joogo",
+  loading: "Waa la soo rarayaa...",
+  noPosts: "Ma jiraan qoraallo",
+  firstPost: "Noqo qofka ugu horreeya ee halkan wax ku qora!",
 
   // Time
   now: "hadda",
@@ -525,6 +548,8 @@ export const SOMALI_UI_TEXT = {
   day: "maalin",
   week: "usbuuc",
   month: "bilood",
+  today: "Maanta",
+  yesterday: "Shalay",
 
   // Content types
   question: "Su'aal",

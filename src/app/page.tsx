@@ -12,6 +12,10 @@ const DynamicGuidedPathsSection = dynamic(
   () => import("@/components/sections/GuidedPathsSection").then((mod) => mod.GuidedPathsSection)
 );
 
+const DynamicStayMotivatedSection = dynamic(
+  () => import("@/components/sections/StayMotivatedSection").then((mod) => mod.StayMotivatedSection)
+);
+
 const DynamicLearningLevelsSection = dynamic(
   () => import("@/components/sections/LearningLevelsSection").then((mod) => mod.LearningLevelsSection)
 );
@@ -30,6 +34,10 @@ export default function Home() {
           <HeroSection />
 
           <CourseGrid />
+
+          <Suspense fallback={<SectionSkeleton />}>
+            <DynamicStayMotivatedSection />
+          </Suspense>
 
           <Suspense fallback={<SectionSkeleton />}>
             <DynamicGuidedPathsSection />

@@ -8,6 +8,7 @@ import { Providers } from "./providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Suspense } from "react";
 import { Loader } from "lucide-react";
+import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
   title: {
@@ -268,6 +269,15 @@ export const metadata: Metadata = {
       me: ["your-email@example.com", "https://garaad.so"],
     },
   },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Garaad",
+  },
+  icons: {
+    apple: "/icons/icon-192x192.png",
+  },
   themeColor: "#ffffff",
   viewport: {
     width: "device-width",
@@ -502,6 +512,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             <ClientLayout>
+              <PWARegister />
               <Suspense fallback={<Loader className="spin " />}>
                 {children}
               </Suspense>

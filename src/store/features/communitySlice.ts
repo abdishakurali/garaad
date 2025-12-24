@@ -22,6 +22,7 @@ const initialState: CommunityState = {
   // Data
   campuses: [],
   rooms: [],
+  groupedRooms: null,
   posts: [],
   messages: [],
   selectedCampus: null,
@@ -123,7 +124,7 @@ export const fetchCampusRooms = createAsyncThunk(
   "community/fetchCampusRooms",
   async (slug: string, { rejectWithValue }) => {
     try {
-      const response = await communityService.campus.getCampusRooms(slug);
+      const response = await communityService.campus.getCampusRooms(slug, true);
       return response;
     } catch (error) {
       return rejectWithValue(handleApiError(error as any));
@@ -500,7 +501,8 @@ const communitySlice = createSlice({
       })
       .addCase(fetchCampusRooms.fulfilled, (state, action) => {
         state.loading.rooms = false;
-        state.rooms = action.payload;
+        state.groupedRooms = action.payload as any;
+        state.rooms = Object.values(action.payload as any).flat() as CampusRoom[];
       })
       .addCase(fetchCampusRooms.rejected, (state, action) => {
         state.loading.rooms = false;
