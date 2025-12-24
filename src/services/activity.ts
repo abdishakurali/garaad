@@ -29,7 +29,7 @@ export class ActivityService {
   private readonly MIN_UPDATE_INTERVAL = 60000; // 1 minute
   private readonly PERIODIC_UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): ActivityService {
     if (!ActivityService.instance) {
@@ -102,7 +102,7 @@ export class ActivityService {
       try {
         await this.updateActivity();
       } catch (error) {
-        console.error("Periodic activity update failed:", error);
+        console.warn("Periodic activity update failed:", error);
       }
     }, this.PERIODIC_UPDATE_INTERVAL);
   }
@@ -127,7 +127,8 @@ export class ActivityService {
         await this.updateActivity();
         this.lastUpdateTime = now;
       } catch (error) {
-        console.error("Interaction activity update failed:", error);
+        // Use warn instead of error to avoid cluttering console with background update failures
+        console.warn("Interaction activity update failed:", error);
       }
     }
   }

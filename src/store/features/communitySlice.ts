@@ -164,6 +164,24 @@ export const sendRoomMessage = createAsyncThunk(
   }
 );
 
+export const toggleRoomMessageReaction = createAsyncThunk(
+  "community/toggleRoomMessageReaction",
+  async (
+    { messageId, emoji }: { messageId: string; emoji: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await communityService.message.toggleReaction(
+        messageId,
+        emoji
+      );
+      return { messageId, emoji, ...response };
+    } catch (error) {
+      return rejectWithValue(handleApiError(error as any));
+    }
+  }
+);
+
 // Async thunks for posts
 export const fetchPosts = createAsyncThunk(
   "community/fetchPosts",
@@ -501,8 +519,8 @@ const communitySlice = createSlice({
       })
       .addCase(fetchCampusRooms.fulfilled, (state, action) => {
         state.loading.rooms = false;
-        state.groupedRooms = action.payload as any;
-        state.rooms = Object.values(action.payload as any).flat() as CampusRoom[];
+        state.rooms = action.payload as unknown as CampusRoom[];
+        state.groupedRooms = null;
       })
       .addCase(fetchCampusRooms.rejected, (state, action) => {
         state.loading.rooms = false;
@@ -525,6 +543,16 @@ const communitySlice = createSlice({
 
       .addCase(sendRoomMessage.fulfilled, (state, action) => {
         state.messages.push(action.payload);
+      })
+
+      .addCase(toggleRoomMessageReaction.fulfilled, (state, action) => {
+        const { messageId, reactions } = action.payload;
+        const msgIndex = state.messages.findIndex(
+          (m) => m.id === messageId || (m as any).uuid === messageId
+        );
+        if (msgIndex !== -1) {
+          state.messages[msgIndex].reactions = reactions;
+        }
       });
 
     // Posts

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import AuthService from "@/services/auth";
 import { useRef } from "react";
@@ -110,11 +109,8 @@ const Certificate: React.FC<{
       >
         <X className="w-6 h-6" />
       </button>
-      <motion.div
+      <div
         ref={certRef}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
         className="w-full max-w-3xl mx-auto p-8 md:p-16 border-4 border-primary rounded-3xl shadow-2xl print:shadow-none print:border-black print:rounded-none print:p-0 relative bg-white/90"
         style={{
           background:
@@ -209,7 +205,7 @@ const Certificate: React.FC<{
         <div className="absolute bottom-4 left-0 w-full text-center text-primary font-semibold text-lg tracking-wide z-20">
           Aqoon la&apos;aan, waa iftiin la&apos;aan.
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

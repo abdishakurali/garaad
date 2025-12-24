@@ -3,42 +3,64 @@ import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { getMediaUrl, cn } from "@/lib/utils";
 import { useState } from "react";
 import { Progress } from "@/components/ui/progress";
+import {
+    MessageSquare,
+    MoreHorizontal,
+    TrendingUp,
+    Trophy,
+    Settings,
+    Lock
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LockedRoomDialog } from "./LockedRoomDialog";
 
 interface ChannelSidebarProps {
     selectedCampus: Campus | null;
     rooms: CampusRoom[];
-    groupedRooms: GroupedRooms | null;
+    groupedRooms: GroupedRooms | null; // Kept for type compatibility but ignored
     selectedRoomId?: number;
     userProfile: UserProfile | null;
     onSelectRoom: (room: CampusRoom) => void;
 }
 
 export function ChannelSidebar({ selectedCampus, rooms, groupedRooms, selectedRoomId, userProfile, onSelectRoom }: ChannelSidebarProps) {
-    const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+    const [lockedRoomTarget, setLockedRoomTarget] = useState<CampusRoom | null>(null);
 
-    const toggleCategory = (category: string) => {
-        setCollapsedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+    const handleRoomClick = (room: CampusRoom) => {
+        if (room.is_locked) {
+            setLockedRoomTarget(room);
+        } else {
+            onSelectRoom(room);
+        }
     };
 
     const renderRoomButton = (room: CampusRoom) => {
-        const unreadCount = Math.floor(Math.random() * 5); // Mocked for UI demo
+        const isLocked = room.is_locked;
+        const isSelected = selectedRoomId === room.id;
+
         return (
             <Button
                 key={room.id}
                 variant="ghost"
-                className={`w-full justify-start h-8 px-2 font-bold text-sm tracking-tight rounded-md border-none transition-all group mb-0.5 relative ${selectedRoomId === room.id
-                    ? 'bg-[#D9DADD] dark:bg-[#404249] text-gray-900 dark:text-white'
-                    : 'text-gray-500 dark:text-[#949BA4] hover:bg-[#D9DADD] dark:hover:bg-[#35373C] hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                onClick={() => onSelectRoom(room)}
-            >
-                <MessageSquare className={`h-4 w-4 mr-1.5 transition-colors ${selectedRoomId === room.id ? 'text-gray-900 dark:text-white' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
-                <span className="truncate flex-1 text-left">{room.name_somali}</span>
-                {unreadCount > 0 && selectedRoomId !== room.id && (
-                    <span className="ml-auto bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                        {unreadCount}
-                    </span>
+                className={cn(
+                    "w-full justify-start h-8 px-2 font-bold text-sm tracking-tight rounded-md border-none transition-all group mb-0.5 relative",
+                    isSelected
+                        ? 'bg-[#D9DADD] dark:bg-[#404249] text-gray-900 dark:text-white'
+                        : 'text-gray-500 dark:text-[#949BA4] hover:bg-[#D9DADD] dark:hover:bg-[#35373C] hover:text-gray-900 dark:hover:text-white',
+                    isLocked && "opacity-75 hover:opacity-100"
                 )}
+                onClick={() => handleRoomClick(room)}
+            >
+                {isLocked ? (
+                    <Lock className="h-4 w-4 mr-1.5 text-red-400" />
+                ) : (
+                    <MessageSquare className={cn(
+                        "h-4 w-4 mr-1.5 transition-colors",
+                        isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'
+                    )} />
+                )}
+                <span className="truncate flex-1 text-left">{room.name_somali}</span>
             </Button>
         );
     };
@@ -58,48 +80,15 @@ export function ChannelSidebar({ selectedCampus, rooms, groupedRooms, selectedRo
                 <div className="p-2">
                     {selectedCampus ? (
                         <div className="space-y-4">
-                            {groupedRooms ? (
-                                Object.entries(groupedRooms).map(([category, categoryRooms]) => (
-                                    <div key={category} className="space-y-0.5">
-                                        <div
-                                            className="px-2 py-1 flex items-center group cursor-pointer hover:text-gray-700 dark:hover:text-gray-200"
-                                            onClick={() => toggleCategory(category)}
-                                        >
-                                            {collapsedCategories[category] ? (
-                                                <ChevronRight className="h-3 w-3 mr-1 text-gray-400" />
-                                            ) : (
-                                                <ChevronDown className="h-3 w-3 mr-1 text-gray-400" />
-                                            )}
-                                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest truncate">
-                                                {category}
-                                            </span>
-                                            <Plus className="ml-auto h-3 w-3 text-gray-500 hover:text-gray-900 dark:hover:text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        </div>
-                                        {!collapsedCategories[category] && categoryRooms.map(renderRoomButton)}
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="space-y-0.5">
-                                    <div className="px-2 py-1 flex items-center justify-between group cursor-default">
-                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Wadahadalada</span>
-                                        <Plus className="h-3 w-3 text-gray-500 hover:text-gray-900 cursor-pointer" />
-                                    </div>
-                                    {rooms.map(renderRoomButton)}
+                            {/* Flat list of rooms (Grouped logic removed as per new API) */}
+                            <div className="space-y-0.5">
+                                <div className="px-2 py-1 flex items-center justify-between group cursor-default">
+                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Wadahadalada</span>
                                 </div>
-                            )}
+                                {rooms.map(renderRoomButton)}
+                            </div>
                         </div>
-                    ) : (
-                        <div className="space-y-1">
-                            <Button variant="ghost" className="w-full justify-start font-black text-sm text-gray-600 dark:text-[#949BA4] hover:bg-[#D9DADD] dark:hover:bg-[#35373C] border-none py-4 px-3">
-                                <TrendingUp className="h-5 w-5 mr-3 text-primary" />
-                                {SOMALI_UI_TEXT.unreads}
-                            </Button>
-                            <Button variant="ghost" className="w-full justify-start font-black text-sm text-gray-600 dark:text-[#949BA4] hover:bg-[#D9DADD] dark:hover:bg-[#35373C] border-none py-4 px-3">
-                                <Trophy className="h-5 w-5 mr-3 text-secondary" />
-                                {SOMALI_UI_TEXT.leaderboard}
-                            </Button>
-                        </div>
-                    )}
+                    ) : null}
                 </div>
             </ScrollArea>
 
@@ -138,15 +127,22 @@ export function ChannelSidebar({ selectedCampus, rooms, groupedRooms, selectedRo
                     <div className="px-1.5 space-y-1">
                         <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-tighter text-gray-500 dark:text-[#949BA4]">
                             <span>Horumarka</span>
-                            <span>{userProfile.level_progress_percentage}%</span>
+                            <span>{userProfile.level_progress_percentage || 0}%</span>
                         </div>
-                        <Progress value={userProfile.level_progress_percentage} className="h-1 bg-black/10 dark:bg-white/10" indicatorClassName="bg-gradient-to-r from-primary to-blue-500" />
+                        <Progress value={userProfile.level_progress_percentage || 0} className="h-1 bg-black/10 dark:bg-white/10" />
                         <p className="text-[8px] italic text-center text-gray-400 dark:text-[#80848E] mt-0.5">
-                            {userProfile.xp_to_next_level} XP dhiman heerka {userProfile.level + 1}
+                            {userProfile.xp_to_next_level || 0} XP dhiman heerka {(userProfile.level || 1) + 1}
                         </p>
                     </div>
                 )}
             </div>
+
+            <LockedRoomDialog
+                isOpen={!!lockedRoomTarget}
+                onClose={() => setLockedRoomTarget(null)}
+                room={lockedRoomTarget}
+                userProfile={userProfile}
+            />
         </div>
     );
 }

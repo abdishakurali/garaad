@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { FollowChart } from "./FollowChart";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const FollowChart = dynamic(() => import("./FollowChart").then(mod => mod.FollowChart), {
+    loading: () => <Skeleton className="w-[300px] h-[300px] rounded-full" />,
+    ssr: false
+});
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

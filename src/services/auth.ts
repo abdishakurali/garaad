@@ -83,7 +83,7 @@ export class AuthService {
   private refreshToken: string | null = null;
   private user: User | null = null;
   private baseURL: string =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org";
   private refreshTimeout: NodeJS.Timeout | null = null;
   private isRefreshing = false;
   private refreshSubscribers: ((token: string) => void)[] = [];
@@ -650,10 +650,10 @@ export class AuthService {
               field === "email"
                 ? "Emailka"
                 : field === "password"
-                ? "Furaha sirta ah"
-                : field === "name"
-                ? "Magaca"
-                : field;
+                  ? "Furaha sirta ah"
+                  : field === "name"
+                    ? "Magaca"
+                    : field;
             return `${fieldName}: ${messages.join(", ")}`;
           })
           .join("\n");

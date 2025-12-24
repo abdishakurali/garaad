@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -175,184 +174,174 @@ export function SignupForm({ onClose }: SignupFormProps) {
   }, [authError, toast, dispatch]);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 20 }}
-        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200"
+    >
+      <div
+        className="bg-white rounded-xl p-10 max-w-2xl w-full mx-6 shadow-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-          className="bg-white rounded-xl p-10 max-w-2xl w-full mx-6 shadow-2xl max-h-[90vh] overflow-y-auto"
-        >
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Waxbarashadaada waa diyaar!</h2>
-              <p className="text-gray-600">Samee akoon bilaash ah si aad u bilowdo.</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              ✕
-            </button>
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Waxbarashadaada waa diyaar!</h2>
+            <p className="text-gray-600">Samee akoon bilaash ah si aad u bilowdo.</p>
           </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Email-kaaga
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="Iimaylka"
-                  className={cn(
-                    "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
-                    errors.email && "border-red-500 focus:ring-red-500/20"
-                  )}
-                  style={{ fontSize: '16px' }}
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                Email-kaaga
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Iimaylka"
+                className={cn(
+                  "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
+                  errors.email && "border-red-500 focus:ring-red-500/20"
                 )}
-              </div>
+                style={{ fontSize: '16px' }}
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
+            </div>
 
-              {showAdditionalFields && (
-                <div className="space-y-4">
+            {showAdditionalFields && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                    Furaha sirta ah
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Furaha sirta ah"
+                      className={cn(
+                        "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg pr-12",
+                        errors.password && "border-red-500 focus:ring-red-500/20"
+                      )}
+                      style={{ fontSize: '16px' }}
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                      Furaha sirta ah
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                      Magaca koowaad
                     </Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Furaha sirta ah"
-                        className={cn(
-                          "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg pr-12",
-                          errors.password && "border-red-500 focus:ring-red-500/20"
-                        )}
-                        style={{ fontSize: '16px' }}
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                        disabled={isLoading}
-                      >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
-                    </div>
-                    {errors.password && (
-                      <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                    <Input
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      placeholder="Magaca koowaad"
+                      className={cn(
+                        "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
+                        errors.firstName && "border-red-500 focus:ring-red-500/20"
+                      )}
+                      style={{ fontSize: '16px' }}
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                    />
+                    {errors.firstName && (
+                      <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                        Magaca koowaad
-                      </Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        type="text"
-                        placeholder="Magaca koowaad"
-                        className={cn(
-                          "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
-                          errors.firstName && "border-red-500 focus:ring-red-500/20"
-                        )}
-                        style={{ fontSize: '16px' }}
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      />
-                      {errors.firstName && (
-                        <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+                  <div>
+                    <Label htmlFor="age" className="text-sm font-medium text-gray-700">
+                      Da&apos;da
+                    </Label>
+                    <Input
+                      id="age"
+                      name="age"
+                      type="number"
+                      min="5"
+                      max="100"
+                      placeholder="Da&apos;da"
+                      className={cn(
+                        "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
+                        errors.age && "border-red-500 focus:ring-red-500/20"
                       )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="age" className="text-sm font-medium text-gray-700">
-                        Da&apos;da
-                      </Label>
-                      <Input
-                        id="age"
-                        name="age"
-                        type="number"
-                        min="5"
-                        max="100"
-                        placeholder="Da&apos;da"
-                        className={cn(
-                          "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
-                          errors.age && "border-red-500 focus:ring-red-500/20"
-                        )}
-                        style={{ fontSize: '16px' }}
-                        value={formData.age}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      />
-                      {errors.age && (
-                        <p className="text-red-500 text-sm mt-1">{errors.age}</p>
-                      )}
-                    </div>
+                      style={{ fontSize: '16px' }}
+                      value={formData.age}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                    />
+                    {errors.age && (
+                      <p className="text-red-500 text-sm mt-1">{errors.age}</p>
+                    )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className={cn(
+                "w-full bg-black text-white rounded-xl p-4 hover:bg-black/90 transition-colors relative",
+                isLoading && "opacity-70 cursor-not-allowed"
               )}
+              disabled={isLoading || !showAdditionalFields}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                  <span>Waa la socodaa...</span>
+                </div>
+              ) : (
+                "Is diiwaan geli"
+              )}
+            </Button>
+          </div>
 
-              <Button
-                type="submit"
-                className={cn(
-                  "w-full bg-black text-white rounded-xl p-4 hover:bg-black/90 transition-colors relative",
-                  isLoading && "opacity-70 cursor-not-allowed"
-                )}
-                disabled={isLoading || !showAdditionalFields}
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                    <span>Waa la socodaa...</span>
-                  </div>
-                ) : (
-                  "Is diiwaan geli"
-                )}
-              </Button>
-            </div>
+          <p className="text-xs text-center text-gray-500">
+            Marka aad guujiso Is diiwaan geli, waxaad ogoshahay{" "}
+            <a href="#" className="underline">Shuruudaha</a> iyo{" "}
+            <a href="#" className="underline">Xogta gaarka ah</a>
+          </p>
 
-            <p className="text-xs text-center text-gray-500">
-              Marka aad guujiso Is diiwaan geli, waxaad ogoshahay{" "}
-              <a href="#" className="underline">Shuruudaha</a> iyo{" "}
-              <a href="#" className="underline">Xogta gaarka ah</a>
-            </p>
-
-            <div className="text-center">
-              <span className="text-sm text-gray-600">Horay ma u diiwaan gashay? </span>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                Soo gal
-              </button>
-            </div>
-          </form>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+          <div className="text-center">
+            <span className="text-sm text-gray-600">Horay ma u diiwaan gashay? </span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Soo gal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

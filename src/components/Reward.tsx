@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
 import StreakCelebration from "./StreakCelebaration";
 import LeaderboardLeague from "./LeaderboardLeague";
 import Certificate from "./ShareLesson";
@@ -78,23 +77,21 @@ const RewardSequence = ({
 
   return (
     <div className="flex justify-center items-center h-screen px-4 gap-5">
-      <AnimatePresence mode="wait">
-        {current === "streak" && (
-          <StreakCelebration userData={streak} onContinue={handleContinue} />
-        )}
+      {current === "streak" && (
+        <StreakCelebration userData={streak} onContinue={handleContinue} />
+      )}
 
-        {current === "leaderboard" && (
-          <LeaderboardLeague
-            data={leaderboard}
-            xp={streak.xp}
-            onContinue={handleContinue}
-          />
-        )}
+      {current === "leaderboard" && (
+        <LeaderboardLeague
+          data={leaderboard}
+          xp={streak.xp}
+          onContinue={handleContinue}
+        />
+      )}
 
-        {current === "certificate" && (
-          <Certificate lessonTitle={completedLesson} onContinue={onContinue} />
-        )}
-      </AnimatePresence>
+      {current === "certificate" && (
+        <Certificate lessonTitle={completedLesson} onContinue={onContinue} />
+      )}
     </div>
   );
 };

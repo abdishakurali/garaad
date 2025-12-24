@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { playfair } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import { ChevronRight, MousePointer2 } from 'lucide-react';
@@ -27,25 +26,25 @@ export function StayMotivatedSection() {
     const [activeTab, setActiveTab] = useState('math');
 
     return (
-        <section className="py-24 bg-[#0A0A0A] overflow-hidden text-white">
+        <section className="py-24 bg-white overflow-hidden text-slate-900 border-t border-slate-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Heading */}
-                <div className="text-center mb-12">
-                    <h2 className={cn("text-4xl md:text-6xl font-medium leading-tight mb-12 max-w-3xl mx-auto tracking-tight", playfair.className)}>
+                <div className="text-center mb-16">
+                    <h2 className={cn("text-4xl md:text-6xl font-medium leading-tight mb-8 max-w-3xl mx-auto tracking-tight text-slate-900", playfair.className)}>
                         Ku guulayso yoolalka waxbarasho ee waaweyn
                     </h2>
 
                     {/* Tabs */}
-                    <div className="flex flex-wrap justify-center gap-3 mb-16">
+                    <div className="flex flex-wrap justify-center gap-3 mb-12">
                         {TABS.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={cn(
-                                    "px-6 py-2.5 rounded-full text-sm font-black transition-all duration-300 border border-white/5",
+                                    "px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 border",
                                     activeTab === tab.id
-                                        ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                                        : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+                                        ? "bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-900/10"
+                                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-900 hover:bg-slate-50"
                                 )}
                             >
                                 {tab.label}
@@ -55,28 +54,25 @@ export function StayMotivatedSection() {
                 </div>
 
                 {/* Main Card */}
-                <motion.div
-                    initial={{ y: 40, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    className="grid grid-cols-1 lg:grid-cols-12 bg-[#1A1A1A] rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl"
+                <div
+                    className="grid grid-cols-1 lg:grid-cols-12 bg-white rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)]"
                 >
                     {/* Left: Course List */}
-                    <div className="lg:col-span-4 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-white/5">
+                    <div className="lg:col-span-4 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-slate-100 bg-slate-50/50">
                         <div className="space-y-8">
                             <div>
-                                <h3 className="text-xl font-black mb-6 dark:text-white">Koorsooyinka Xisaabta</h3>
+                                <h3 className="text-xl font-black mb-6 text-slate-900">Koorsooyinka Xisaabta</h3>
                                 <ul className="space-y-4">
                                     {MATH_COURSES.map((course, idx) => (
                                         <li key={idx} className="flex items-center group cursor-pointer">
-                                            <span className="text-gray-400 font-medium group-hover:text-white transition-colors">{course}</span>
+                                            <span className="text-slate-500 font-medium group-hover:text-blue-600 transition-colors">{course}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
 
                             <div className="pt-4">
-                                <button className="text-gray-500 text-xs font-bold border-b border-dashed border-gray-700 hover:text-white hover:border-white transition-all">
+                                <button className="text-slate-400 text-xs font-bold border-b border-dashed border-slate-300 hover:text-blue-600 hover:border-blue-600 transition-all">
                                     17 koorso oo dheeraad ah
                                 </button>
                             </div>
@@ -85,45 +81,49 @@ export function StayMotivatedSection() {
 
                     {/* Right: Visual Interactive Area */}
                     <div className="lg:col-span-8 bg-white p-6 md:p-12 flex items-center justify-center min-h-[400px] relative">
-                        <div className="w-full max-w-lg aspect-[1.5/1] bg-white rounded-2xl flex flex-col items-center justify-center relative select-none">
+                        {/* Background pattern */}
+                        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-30"></div>
+
+                        <div className="w-full max-w-lg aspect-[1.5/1] bg-white rounded-2xl flex flex-col items-center justify-center relative select-none border border-slate-100 shadow-sm z-10">
                             {/* Interactive Simulation Placeholder */}
-                            <div className="relative mb-12">
-                                <motion.div
-                                    animate={{ scale: [1, 1.05, 1], rotate: [0, 5, 0] }}
-                                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                    className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center shadow-xl shadow-blue-500/30"
+                            <div className="relative mb-12 transform hover:scale-105 transition-transform duration-500">
+                                <div
+                                    className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center shadow-xl shadow-blue-600/20"
                                 >
-                                    <span className="text-white text-[10px] absolute -top-4 font-mono">360°</span>
-                                    <div className="w-full h-full border-2 border-dashed border-black/10 rounded-full scale-125" />
-                                </motion.div>
+                                    <span className="text-white text-[10px] absolute -top-10 font-mono bg-slate-900 px-2 py-1 rounded">360°</span>
+                                    <div className="w-full h-full border-2 border-dashed border-white/30 rounded-full scale-125 animate-[spin_10s_linear_infinite]" />
+                                    <div className="absolute inset-0 border border-white/20 rounded-full scale-75" />
+                                </div>
                             </div>
 
                             {/* Slider UI */}
                             <div className="w-full max-w-xs space-y-8">
-                                <div className="h-1.5 w-full bg-gray-200 rounded-full relative">
-                                    <div className="absolute top-1/2 left-0 w-1/4 h-full bg-blue-500 rounded-full -translate-y-1/2" />
-                                    <div className="absolute top-1/2 left-3/4 w-3.5 h-3.5 bg-white border-2 border-gray-800 rounded-full -translate-y-1/2 -translate-x-1/2 shadow-md cursor-grab active:cursor-grabbing hover:scale-125 transition-transform" />
+                                <div className="h-2 w-full bg-slate-100 rounded-full relative">
+                                    <div className="absolute top-1/2 left-0 w-1/4 h-full bg-blue-600 rounded-full -translate-y-1/2" />
+                                    <div className="absolute top-1/2 left-3/4 w-5 h-5 bg-white border-4 border-slate-900 rounded-full -translate-y-1/2 -translate-x-1/2 shadow-lg cursor-grab hover:scale-110 transition-transform" />
 
                                     {/* Tick marks */}
-                                    <div className="absolute top-1/2 left-0 w-0.5 h-2 bg-gray-300 -translate-y-1/2" />
-                                    <div className="absolute top-1/2 left-1/4 w-0.5 h-2 bg-gray-300 -translate-y-1/2" />
-                                    <div className="absolute top-1/2 left-1/2 w-0.5 h-2 bg-gray-300 -translate-y-1/2" />
-                                    <div className="absolute top-1/2 left-3/4 w-0.5 h-2 bg-gray-300 -translate-y-1/2" />
-                                    <div className="absolute top-1/2 left-full w-0.5 h-2 bg-gray-300 -translate-y-1/2" />
+                                    {[0, 25, 50, 75, 100].map((pos) => (
+                                        <div
+                                            key={pos}
+                                            className="absolute top-1/2 w-1 h-1 bg-slate-300 rounded-full -translate-y-1/2"
+                                            style={{ left: `${pos}%` }}
+                                        />
+                                    ))}
                                 </div>
 
                                 <div className="text-center">
-                                    <span className="text-sm font-black text-gray-900 uppercase tracking-widest italic">Xaglaha Dibadda</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Xaglaha Dibadda</span>
                                 </div>
                             </div>
 
                             {/* Cursor Decoration */}
-                            <div className="absolute bottom-12 right-12 text-gray-400">
-                                <MousePointer2 className="h-6 w-6 rotate-[-15deg] fill-gray-100" />
+                            <div className="absolute bottom-12 right-12 text-slate-900 animate-bounce">
+                                <MousePointer2 className="h-6 w-6 rotate-[-15deg] fill-slate-900 text-white" />
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             </div>
         </section>
     );

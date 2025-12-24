@@ -13,7 +13,6 @@ const Progress = React.forwardRef<
       "relative h-4 w-full overflow-hidden rounded-full bg-gray-200",
       className
     )}
-    {...props}
   >
     <ProgressPrimitive.Indicator
       className="h-full w-full flex-1 bg-green-400 transition-all"

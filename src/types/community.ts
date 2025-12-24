@@ -50,6 +50,8 @@ export interface CampusRoom {
   post_count: number;
   is_private: boolean;
   category: string | null; // UUID of the category
+  min_badge_level?: "dhalinyaro" | "dhexe" | "sare" | "weyne" | "hogaamiye";
+  is_locked: boolean;
   campus: {
     id: number;
     name_somali: string;

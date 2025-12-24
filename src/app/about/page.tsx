@@ -6,7 +6,6 @@ import { Facebook, Linkedin, Twitter, ArrowRight, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion } from "framer-motion";
 
 const EarthAndSatellite = () => (
   <svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -44,20 +43,6 @@ export default function AboutPage() {
     setIsVisible(true);
   }, []);
 
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  const staggerChildren = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -65,11 +50,7 @@ export default function AboutPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-16">
         {/* Hero Section */}
-        <motion.div
-          initial="hidden"
-          animate={isVisible ? "visible" : "hidden"}
-          variants={fadeIn}
-          transition={{ duration: 0.6 }}
+        <div
           className="relative mb-24"
         >
           <div className="flex flex-col lg:flex-row items-center gap-12 mb-12 md:mb-20">
@@ -96,31 +77,18 @@ export default function AboutPage() {
                 </Button>
               </Link>
             </div>
-            <motion.div
+            <div
               className="lg:w-1/2 flex items-center justify-center"
-              animate={{
-                y: [0, 10, 0],
-                rotate: [0, 1, 0],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "reverse",
-              }}
             >
               <div className="w-[400px] h-[400px]">
                 <EarthAndSatellite />
               </div>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Core Values Section */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerChildren}
+        <section
           className="mb-24"
         >
           <div className="text-center mb-12">
@@ -171,7 +139,7 @@ export default function AboutPage() {
                   "Waxaan ku dadaalnaa inaan soo bandhigno xalal cusub oo wax ku ool ah.",
               },
             ].map((value, index) => (
-              <motion.div key={index} variants={fadeIn} className="h-full">
+              <div key={index} className="h-full">
                 <Card className="h-full border-none shadow-md hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm">
                   <CardHeader>
                     <div className="text-3xl mb-2">{value.icon}</div>
@@ -183,17 +151,13 @@ export default function AboutPage() {
                     <p className="text-gray-600">{value.description}</p>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.section>
+        </section>
 
         {/* What Makes Us Special Section */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerChildren}
+        <section
           className="mb-24"
         >
           <div className="text-center mb-12">
@@ -236,7 +200,7 @@ export default function AboutPage() {
                 borderColor: "border-l-rose-400",
               },
             ].map((feature, index) => (
-              <motion.div key={index} variants={fadeIn}>
+              <div key={index}>
                 <div
                   className={`rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ${feature.color} p-8 border-l-4 ${feature.borderColor}`}
                 >
@@ -245,17 +209,13 @@ export default function AboutPage() {
                   </h3>
                   <p className="text-gray-700">{feature.description}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.section>
+        </section>
 
         {/* Vision and Mission */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerChildren}
+        <section
           className="mb-24"
         >
           <div className="text-center mb-12">
@@ -272,7 +232,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <motion.div variants={fadeIn}>
+            <div>
               <Card className="h-full border-none shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
                 <CardHeader>
                   <CardTitle className="text-2xl text-primary">
@@ -287,9 +247,9 @@ export default function AboutPage() {
                   </p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div variants={fadeIn}>
+            <div>
               <Card className="h-full border-none shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
                 <CardHeader>
                   <CardTitle className="text-2xl text-primary">
@@ -304,16 +264,12 @@ export default function AboutPage() {
                   </p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
-        </motion.section>
+        </section>
 
         {/* Contact Section */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeIn}
+        <section
           className="rounded-2xl bg-gradient-to-br from-gray-50 to-slate-100 p-8 md:p-12"
         >
           <div className="text-center mb-8">
@@ -389,7 +345,7 @@ export default function AboutPage() {
               </a>
             </div>
           </div>
-        </motion.section>
+        </section>
       </main>
     </div>
   );

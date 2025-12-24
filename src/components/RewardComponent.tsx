@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, memo } from "react";
-import { motion } from "framer-motion";
 import {
   CheckCircle,
   ChevronRight,
@@ -101,11 +100,7 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
       <div className="relative">
         <div className="relative flex flex-col items-center text-center p-8 pt-12">
           {/* Achievement Icon */}
-          <motion.div
-            key={`icon-${currentReward.id}`}
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, type: "spring" }}
+          <div
             className="relative mb-8"
           >
             <div
@@ -116,31 +111,20 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
             >
               {config.defaultIcon}
             </div>
-            <motion.div
-              initial={{ opacity: 0, x: -10, y: -10 }}
-              animate={{ opacity: 1, x: -20, y: -20 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
+            <div
               className={config.accentColor}
             >
               <Sparkles className="h-4 w-4" />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 10, y: -10 }}
-              animate={{ opacity: 1, x: 20, y: -20 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
+            </div>
+            <div
               className={config.accentColor}
             >
               <Sparkles className="h-4 w-4" />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Achievement Text */}
-          <motion.div
-            key={`text-${currentReward.id}`}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
+          <div>
             <h2 className="text-2xl font-bold mb-2">
               Dhameystirka Casharkan
             </h2>
@@ -151,14 +135,10 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
                   ? "Waxaad ilaashatay streak-gaaga!"
                   : "Waxaad heshay points-ka! dhamaystirka casharkan"}
             </p>
-          </motion.div>
+          </div>
 
           {/* Points/Badge/Streak Value */}
-          <motion.div
-            key={`value-${currentReward.id}`}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+          <div
             className="mb-8"
           >
             <div className="text-xs uppercase text-gray-400 tracking-wider mb-1">
@@ -166,23 +146,14 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
             </div>
             <div className="flex items-center justify-center">
               <span className="text-4xl font-bold">{currentReward.value}</span>
-              <motion.span
-                initial={{ rotate: -30, scale: 0.5, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-                className={`${config.accentColor} ml-1`}
-              >
+              <span className={`${config.accentColor} ml-1`}>
                 {config.valueIcon}
-              </motion.span>
+              </span>
             </div>
-          </motion.div>
+          </div>
 
           {/* Continue Button */}
-          <motion.div
-            key={`button-${currentReward.id}`}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
+          <div
             className="w-full"
           >
             <Button
@@ -192,26 +163,23 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
               {currentRewardIndex < rewards.length - 1 ? "Sii wado" : "Dhammee"}
               <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
-          </motion.div>
+          </div>
 
           {/* Reward counter indicator */}
           {hasMoreRewards && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
+            <div
               className="mt-4 flex gap-1.5 justify-center"
             >
               {rewards.map((_, index) => (
                 <div
                   key={index}
                   className={`w-2 h-2 rounded-full ${index === currentRewardIndex
-                      ? `bg-${config.accentColor.split("-")[1]}`
-                      : "bg-gray-300"
+                    ? `bg-${config.accentColor.split("-")[1]}`
+                    : "bg-gray-300"
                     }`}
                 />
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

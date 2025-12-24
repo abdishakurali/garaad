@@ -3,6 +3,7 @@
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import type { User } from "@/types/auth";
+import Link from "next/link";
 import AuthService from "@/services/auth";
 import { progressService, type UserProgress } from "@/services/progress";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Header } from "@/components/Header";
-import { motion, AnimatePresence } from "framer-motion";
 import { getMediaUrl } from "@/lib/utils";
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import { useDispatch } from "react-redux";
@@ -369,11 +369,8 @@ export default function ProfilePage() {
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
                 {/* Profile Picture */}
                 <div className="relative pt-12 pb-6 px-6 text-center">
-                  <motion.div
+                  <div
                     className="relative inline-block"
-                    initial={{ scale: 0.9 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.5 }}
                   >
                     <AuthenticatedAvatar
                       key={user.profile_picture || 'default'}
@@ -399,7 +396,7 @@ export default function ProfilePage() {
                     </h1>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">@{user.username}</p>
                     <p className="text-blue-600 dark:text-blue-400 font-medium mt-1">Arday Garaad</p>
-                  </motion.div>
+                  </div>
                 </div>
 
                 {/* Contact Info */}
@@ -433,7 +430,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="p-6 border-t border-gray-100 dark:border-gray-700">
+                <div className="p-6 border-t border-gray-100 dark:border-gray-700 space-y-3">
                   <Button
                     onClick={() => setShowEditModal(true)}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
@@ -441,6 +438,13 @@ export default function ProfilePage() {
                     <Settings className="h-4 w-4 mr-2" />
                     Cusboonaysii Profile-ka
                   </Button>
+
+                  <Link href="/community" className="block w-full">
+                    <Button variant="outline" className="w-full rounded-xl border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20">
+                      <Users className="h-4 w-4 mr-2" />
+                      Ku Biir Bulshada
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -510,12 +514,9 @@ export default function ProfilePage() {
 
                 <div className="space-y-3">
                   {progress && progress.length > 0 ? progress.map((item, index) => (
-                    <motion.div
+                    <div
                       key={item.id}
                       className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${item.status === "completed" ? "bg-green-500" : "bg-gray-400"
@@ -540,7 +541,7 @@ export default function ProfilePage() {
                       >
                         {item.status === "completed" ? "La dhameeyey" : "Socda"}
                       </Badge>
-                    </motion.div>
+                    </div>
                   )) : (
                     <div className="text-center text-gray-400 py-8">
                       <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-30" />
@@ -787,41 +788,39 @@ export default function ProfilePage() {
         </div>
 
         {/* Edit Modal - keeping the existing modal */}
-        <AnimatePresence>
-          {showEditModal && (
-            <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-              <DialogContent className="sm:max-w-md rounded-2xl bg-white dark:bg-gray-900 shadow-2xl">
-                <DialogHeader>
-                  <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">Cusboonaysii Profile-ka</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit}>
-                  <div className="grid gap-6 py-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Koowaad</Label>
-                      <Input id="first_name" name="first_name" value={editForm.first_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magacaaga koowaad" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Dambe</Label>
-                      <Input id="last_name" name="last_name" value={editForm.last_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magacaaga dambe" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="username" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Isticmaalaha</Label>
-                      <Input id="username" name="username" value={editForm.username || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magaca isticmaalaha" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-200">Iimaylka</Label>
-                      <Input id="email" name="email" type="email" value={editForm.email || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli iimaylkaaga" />
-                    </div>
+        {showEditModal && (
+          <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+            <DialogContent className="sm:max-w-md rounded-2xl bg-white dark:bg-gray-900 shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">Cusboonaysii Profile-ka</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-6 py-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Koowaad</Label>
+                    <Input id="first_name" name="first_name" value={editForm.first_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magacaaga koowaad" />
                   </div>
-                  <DialogFooter className="gap-3">
-                    <Button type="button" variant="outline" onClick={() => setShowEditModal(false)} className="rounded-full">Jooji</Button>
-                    <Button type="submit" className="rounded-full bg-blue-600 text-white hover:bg-blue-700">Kaydi Isbedelada</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          )}
-        </AnimatePresence>
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Dambe</Label>
+                    <Input id="last_name" name="last_name" value={editForm.last_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magacaaga dambe" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="username" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Isticmaalaha</Label>
+                    <Input id="username" name="username" value={editForm.username || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magaca isticmaalaha" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-200">Iimaylka</Label>
+                    <Input id="email" name="email" type="email" value={editForm.email || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli iimaylkaaga" />
+                  </div>
+                </div>
+                <DialogFooter className="gap-3">
+                  <Button type="button" variant="outline" onClick={() => setShowEditModal(false)} className="rounded-full">Jooji</Button>
+                  <Button type="submit" className="rounded-full bg-blue-600 text-white hover:bg-blue-700">Kaydi Isbedelada</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </>
   );

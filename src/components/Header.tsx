@@ -7,11 +7,10 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/store/features/authSlice";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
 import { usePathname } from "next/navigation";
-import { FolderDot, Home, ExternalLink, X, Loader2 } from "lucide-react";
+import { FolderDot, Home, ExternalLink, X, Loader2, Users } from "lucide-react";
 import clsx from "clsx";
 import StreakDisplay from "./StreakDisplay";
 import { useMemo, useCallback, useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import AuthService from "@/services/auth";
 import useSWR from "swr";
 import NotificationPanel from "./Notifications";
@@ -105,7 +104,7 @@ export function Header() {
     error,
     isLoading: loading,
   } = useSWR<StreakData>(
-    user ? `${process.env.NEXT_PUBLIC_API_URL}/api/streaks/` : null,
+    user ? `${process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org"}/api/streaks/` : null,
     streakFetcher,
     {
       revalidateOnFocus: false,
@@ -145,6 +144,7 @@ export function Header() {
         ? [
           { name: "Guriga", href: "/home", icon: Home },
           { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
+          { name: "Bulshada", href: "/community", icon: Users },
         ]
         : [{ name: "Guriga", href: "/", icon: Home }],
     [user]
@@ -219,11 +219,11 @@ export function Header() {
                     key={href}
                     href={href}
                     className={clsx(
-                      "group relative flex items-center gap-2 text-sm font-black uppercase tracking-widest transition-colors",
+                      "group relative flex items-center gap-2 text-xs font-bold transition-colors",
                       active ? "text-primary" : "text-gray-500 hover:text-black"
                     )}
                   >
-                    {Icon && <Icon className={clsx("w-4 h-4 transition-transform group-hover:scale-110", active && "animate-pulse")} />}
+                    {Icon && <Icon className={clsx("w-3.5 h-3.5 transition-transform group-hover:scale-110", active && "animate-pulse")} />}
                     <span>{name}</span>
                     {active && (
                       <div

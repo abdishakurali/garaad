@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { SUBSCRIPTION_TYPE_OPTIONS } from "@/types/order";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org";
 
 // Helper function to get auth token
 async function getAuthToken(): Promise<string | null> {

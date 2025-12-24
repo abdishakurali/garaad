@@ -15,6 +15,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward the request to the backend
+    if (!API_URL) {
+      console.error("API_URL is not defined");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
     const response = await fetch(`${API_URL}/api/activity/update/`, {
       method: "POST",
       headers: {
@@ -24,7 +32,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
+      // Safely parse error JSON
       const errorData = await response.json().catch(() => ({}));
+      console.warn(`Upstream activity update failed: ${response.status}`, errorData);
       return NextResponse.json(
         { error: errorData.message || "Activity update failed" },
         { status: response.status }

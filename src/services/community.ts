@@ -351,7 +351,10 @@ export const handleApiError = (error: {
   data?: unknown;
   message?: string;
 }) => {
-  console.error("API Error:", error);
+  // Demote to warn to avoid cluttering console with expected API errors (404s etc)
+  if (error.status !== 404 && error.status !== 401) {
+    console.warn("API Error:", error);
+  }
 
   switch (error.status) {
     case 400:
@@ -404,9 +407,9 @@ export class CommunityWebSocket {
     if (!token) return;
 
     try {
-      this.ws = new WebSocket(
-        `wss://api.garaad.org/ws/community/?token=${token}`
-      );
+      // Use environment variable for WS URL or fallback to default
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "wss://api.garaad.org/ws/community/";
+      this.ws = new WebSocket(`${wsUrl}?token=${token}`);
 
       this.ws.onopen = () => {
         console.log("Community WebSocket connected");
@@ -418,7 +421,7 @@ export class CommunityWebSocket {
           const data = JSON.parse(event.data);
           onMessage(data);
         } catch (error) {
-          console.error("Error parsing WebSocket message:", error);
+          console.warn("Error parsing WebSocket message:", error);
         }
       };
 
@@ -428,10 +431,11 @@ export class CommunityWebSocket {
       };
 
       this.ws.onerror = (error) => {
-        console.error("Community WebSocket error:", error);
+        // WebSocket errors are often uninformative (empty object), so we warn instead of error
+        console.warn("Community WebSocket connection issue (check network/backend):", error);
       };
     } catch (error) {
-      console.error("Failed to connect to Community WebSocket:", error);
+      console.warn("Failed to connect to Community WebSocket:", error);
     }
   }
 

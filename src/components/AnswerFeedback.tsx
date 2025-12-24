@@ -6,7 +6,6 @@ import { ExplanationText, Lesson } from "@/types/learning";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Award, Check, ChevronRight, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion"; // Import motion and AnimatePresence
 
 // Lazy‑load heavy components
 const ExplanationModal = React.lazy(() => import("./ExplanationModal"));
@@ -80,9 +79,8 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
     }, [isCorrect, isLastQuestion, handleContinueClick, onResetAnswer]);
 
     return (
-      <AnimatePresence>
-        {" "}
-        {/* Wrap the conditional rendering with AnimatePresence */}
+      <>
+        {/* Feedback Banner - Only render if not reporting a bug */}
         {/* Explanation Modal */}
         {showExplanation && (
           <Suspense fallback={null}>
@@ -97,14 +95,9 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
             />
           </Suspense>
         )}
-        {/* Feedback Banner - Only render if not reporting a bug */}
         {!isReportingBug && (
-          <motion.div
-            key="answer-feedback-banner" // Crucial for AnimatePresence to track mount/unmount
-            initial={{ y: 100, opacity: 0 }} // Starts 100px below and invisible
-            animate={{ y: 0, opacity: 1 }} // Slides to its position and fades in
-            exit={{ y: 100, opacity: 0 }} // Slides down and fades out when unmounted
-            transition={{ type: "spring", stiffness: 120, damping: 15 }} // A gentle spring animation
+          <div
+            key="answer-feedback-banner"
             className={cn(
               "fixed inset-x-0 bottom-0 z-40 flex justify-center p-2 sm:p-4"
             )}
@@ -133,9 +126,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     ) : (
                       <X className="h-5 w-5 text-white" />
                     )}
-
                   </div>
-
                   <div className="flex flex-col gap-1 text-left">
                     <p className="font-semibold text-sm sm:text-base">
                       {title}
@@ -148,9 +139,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     </div>
                   )}
                 </div>
-
-
-
                 {/* Buttons */}
                 <div className="flex gap-2">
                   {isCorrect && (
@@ -163,7 +151,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                       Sharaxaad
                     </Button>
                   )}
-
                   <Button
                     size="lg"
                     variant={isCorrect ? "default" : "secondary"}
@@ -178,7 +165,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     {buttonText}
                     <ChevronRight className="h-5 w-5" />
                   </Button>
-
                   {/* Bug Report */}
                   <Suspense fallback={null}>
                     <BugReportButton setIsReportingBug={setIsReportingBug} />
@@ -186,9 +172,9 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
     );
   }
 );

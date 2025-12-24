@@ -25,8 +25,11 @@ import { CommunitySidebar } from '@/components/community/CommunitySidebar';
 import { ChannelSidebar } from '@/components/community/ChannelSidebar';
 import { ChatArea } from '@/components/community/ChatArea';
 import { MemberListSidebar } from '@/components/community/MemberListSidebar';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { SOMALI_UI_TEXT } from '@/types/community';
+import { toggleRoomMessageReaction } from '@/store/features/communitySlice';
 
 export default function CommunityPage() {
     const dispatch = useDispatch<AppDispatch>();

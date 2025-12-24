@@ -194,7 +194,7 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
                         alt={alt}
                         className={`w-full h-full object-cover rounded-full ${className || ''}`}
                         onError={() => {
-                            console.error('AuthenticatedAvatar: Image failed to load');
+                            // Suppress annoying console error for broken images, just set fallback
                             setError(true);
                             setImageUrl(null);
                         }}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WaafiWebhookData } from "@/types/order";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org";
 
 // Helper function to validate webhook signature (if needed)
 function validateWebhookSignature(payload: string, signature: string): boolean {

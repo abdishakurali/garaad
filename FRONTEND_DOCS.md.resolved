@@ -1,0 +1,130 @@
+# Garaad Community API Reference
+
+This document serves as the complete reference for integrating the Garaad Community features. It is designed to help the frontend team verify relationships and implement features correctly.
+
+## 1. Entity Relationships
+
+The following diagram illustrates how the core community entities relate to one another.
+
+```mermaid
+erDiagram
+    User ||--o{ CampusMembership : "joins"
+    User ||--o{ Post : "creates"
+    User ||--o{ Comment : "writes"
+    User ||--o{ Message : "sends"
+    User ||--o{ Reaction : "reacts"
+    User ||--|| UserCommunityProfile : "has"
+    
+    Campus ||--o{ Room : "contains"
+    Campus ||--o{ Category : "groups"
+    
+    Category ||--o{ Room : "groups"
+    
+    Room ||--o{ Post : "contains (threads)"
+    Room ||--o{ Message : "contains (chat)"
+    
+    Post ||--o{ Comment : "has"
+    Post ||--o{ Like : "has"
+    
+    Comment ||--o{ Comment : "replies to"
+    Comment ||--o{ Like : "has"
+    Comment ||--o{ Reaction : "has"
+    
+    Message ||--o{ Reaction : "has"
+```
+
+## 2. API Endpoints
+
+### Campuses (`/api/community/campuses/`)
+The top-level communities (e.g., Physics, Math, Crypto).
+
+| Method | Endpoint | Description | Query Params |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | List all active campuses | `search`, `subject_tag` |
+| `GET` | `/{slug}/` | Get campus details | - |
+| `POST` | `/{slug}/join/` | Join a campus | - |
+| `POST` | `/{slug}/leave/` | Leave a campus | - |
+| `GET` | `/{slug}/members/` | Get list of members | - |
+| `GET` | `/{slug}/rooms/` | Get rooms in the campus | `group_by_category=true` |
+
+> [!TIP]
+> Use `group_by_category=true` when fetching rooms to get them pre-grouped by their Category ID (or "Uncategorized").
+
+### Rooms (`/api/community/rooms/`)
+Specific discussion areas within a campus.
+
+| Method | Endpoint | Description | Query Params |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | List rooms | [campus](file:///Users/rooble/Documents/garaad_backend/community/serializers.py#406-418) (slug), `room_type` |
+| `GET` | `/{id}/` | Get room details | - |
+| `GET` | `/{id}/posts/` | Get posts in this room | `page` (pagination) |
+
+### Posts (`/api/community/posts/`)
+Threaded discussions (questions, articles, polls).
+
+| Method | Endpoint | Description | Query Params |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | List posts | [room](file:///Users/rooble/Documents/garaad_backend/community/views.py#136-158), [campus](file:///Users/rooble/Documents/garaad_backend/community/serializers.py#406-418), `post_type`, `search` |
+| `POST` | `/` | Create a new post | - |
+| `GET` | `/{id}/` | Get post details | - |
+| `POST` | `/{id}/like/` | Toggle Like on a post | - |
+
+### Comments (`/api/community/comments/`)
+Replies to posts.
+
+| Method | Endpoint | Description | Query Params |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | List comments for a post | [post](file:///Users/rooble/Documents/garaad_backend/community/views.py#195-215) (id) |
+| `POST` | `/` | Post a comment | - |
+| `POST` | `/{id}/like/` | Toggle Like on a comment | - |
+
+### Messages (`/api/community/messages/`)
+Real-time chat messages (Discord-style).
+
+| Method | Endpoint | Description | Query Params |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | List chat messages | [room](file:///Users/rooble/Documents/garaad_backend/community/views.py#136-158) (id) |
+| `POST` | `/` | Send a message | - |
+| `POST` | `/{id}/react/` | **[NEW]** React with emoji | Body: `{"emoji": "🔥"}` |
+
+### Profiles & Leaderboard (`/api/community/profiles/`)
+User stats, levels, and rankings.
+
+| Method | Endpoint | Description | Query Params |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/me/` | Get current user's stats | - |
+| `GET` | `/leaderboard/` | Get ranked user list | [campus](file:///Users/rooble/Documents/garaad_backend/community/serializers.py#406-418) (slug) |
+
+### Notifications (`/api/community/notifications/`)
+User alerts for interactions.
+
+| Method | Endpoint | Description | Query Params |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | List notifications | - |
+| `POST` | `/{id}/mark_read/`| Mark specific as read | - |
+| `POST` | `/mark_all_read/` | Mark all as read | - |
+
+## 3. Implementation Details
+
+### Grouping Rooms by Category
+When you call `/campuses/{slug}/rooms/?group_by_category=true`, the response structure changes:
+```json
+{
+  "category_uuid_1": [ { "id": "room_1", "name": "General" }, ... ],
+  "category_uuid_2": [ { "id": "room_3", "name": "Resources" }, ... ],
+  "Uncategorized": [ { "id": "room_5", "name": "Help" } ]
+}
+```
+You should first fetch Categories (if an endpoint exists, or infer from room data) to display headers. *Note: Currently Categories are embedded in Room responses.*
+
+### Leveling System Formula
+Display the user's level and progress bar using these fields from `/profiles/me/`:
+- **Current Level**: [level](file:///Users/rooble/Documents/garaad_backend/community/models.py#403-410)
+- **Progress %**: [level_progress_percentage](file:///Users/rooble/Documents/garaad_backend/community/models.py#418-431)
+- **XP**: `community_points`
+
+### Reactions
+The [react](file:///Users/rooble/Documents/garaad_backend/community/views.py#571-591) endpoint is a **toggle**. Sending the same emoji twice removes the reaction.
+- **Request**: `POST /messages/{id}/react/` -> `{"emoji": "👍"}`
+- **Response 1 (Added)**: `{"message": "Reaction added", "active": true}`
+- **Response 2 (Removed)**: `{"message": "Reaction removed", "active": false}`

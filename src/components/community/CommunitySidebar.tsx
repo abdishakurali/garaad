@@ -59,14 +59,7 @@ export function CommunitySidebar({ campuses, selectedCampusId, onSelectCampus, o
                                 </Tooltip>
                             ))}
 
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button className="w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all bg-white dark:bg-[#313338] hover:bg-green-500 hover:text-white p-0 text-green-500 border-none">
-                                        <Plus className="h-6 w-6" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side="right">Mid cusub ku biir</TooltipContent>
-                            </Tooltip>
+                            {/* Plus button removed (static) */}
                         </div>
                     </ScrollArea>
                 </div>

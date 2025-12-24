@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { inter } from "@/lib/fonts";
@@ -278,12 +278,13 @@ export const metadata: Metadata = {
   icons: {
     apple: "/icons/icon-192x192.png",
   },
+};
+
+export const viewport: Viewport = {
   themeColor: "#ffffff",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({

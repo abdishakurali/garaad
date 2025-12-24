@@ -8,10 +8,6 @@ import { Suspense } from "react";
 import { Reveal } from "@/components/landing/Reveal";
 
 // Dynamically import only necessary heavy sections
-const DynamicGuidedPathsSection = dynamic(
-  () => import("@/components/sections/GuidedPathsSection").then((mod) => mod.GuidedPathsSection)
-);
-
 const DynamicStayMotivatedSection = dynamic(
   () => import("@/components/sections/StayMotivatedSection").then((mod) => mod.StayMotivatedSection)
 );
@@ -37,10 +33,6 @@ export default function Home() {
 
           <Suspense fallback={<SectionSkeleton />}>
             <DynamicStayMotivatedSection />
-          </Suspense>
-
-          <Suspense fallback={<SectionSkeleton />}>
-            <DynamicGuidedPathsSection />
           </Suspense>
 
           <Suspense fallback={<SectionSkeleton />}>

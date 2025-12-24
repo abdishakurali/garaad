@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/store/features/authSlice";
 import { Sparkles, Zap, Trophy, Star } from "lucide-react";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export function HeroSection() {
     const router = useRouter();
@@ -39,18 +38,12 @@ export function HeroSection() {
                     <h1 className="text-6xl sm:text-8xl lg:text-6xl font-black text-foreground leading-[1.1] tracking-tight flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-8">
                         <span className="whitespace-nowrap">Ku baro Sameyn</span>
                         <span className="inline-block relative  ">
-                            <AnimatePresence mode="wait">
-                                <motion.span
-                                    key={cycleTexts[activeIndex]}
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: -20, opacity: 0 }}
-                                    transition={{ duration: 0.5, ease: "easeOut" }}
-                                    className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-indigo-500 inline-block"
-                                >
-                                    {cycleTexts[activeIndex]}
-                                </motion.span>
-                            </AnimatePresence>
+                            <span
+                                key={cycleTexts[activeIndex]}
+                                className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-indigo-500 inline-block"
+                            >
+                                {cycleTexts[activeIndex]}
+                            </span>
                         </span>
                     </h1>
 

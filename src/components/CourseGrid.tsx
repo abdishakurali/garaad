@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Calculator, BarChart3, Binary, Brain, Wrench, ChevronRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -61,15 +60,12 @@ export function CourseGrid() {
         <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-[#f0ff00]/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 mb-20 space-y-6 text-center lg:text-left">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#d18ffd]/10 border border-[#d18ffd]/20 text-[#d18ffd] text-xs font-black uppercase tracking-widest mb-4"
           >
             <Sparkles size={12} className="animate-pulse" />
             <span>Koorsooyinka Tayada Leh</span>
-          </motion.div>
+          </div>
 
           <div className="max-w-3xl">
             <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black text-foreground tracking-tight leading-[1.05]">
@@ -84,13 +80,8 @@ export function CourseGrid() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
           {courses.map((course, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -8 }}
               className={cn(
                 "group relative p-8 sm:p-10 rounded-[3rem] border transition-all duration-500",
                 "bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800",
@@ -133,15 +124,11 @@ export function CourseGrid() {
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
 
           {/* Call to action card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
+          <div
             className="group relative p-10 rounded-[3rem] border border-dashed border-[#d18ffd]/30 bg-[#d18ffd]/5 flex flex-col items-center justify-center text-center gap-6"
           >
             <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-[#d18ffd] shadow-md group-hover:scale-110 transition-transform">
@@ -156,7 +143,7 @@ export function CourseGrid() {
             <button className="px-8 py-3 rounded-full bg-[#d18ffd] text-white text-sm font-black uppercase tracking-widest hover:bg-[#b870f0] transition-colors shadow-lg shadow-[#d18ffd]/20 active:scale-95 transform">
               Nala hadal
             </button>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
