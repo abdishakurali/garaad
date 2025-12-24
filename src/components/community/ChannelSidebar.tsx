@@ -9,22 +9,26 @@ import {
     TrendingUp,
     Trophy,
     Settings,
-    Lock
+    Lock,
+    Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LockedRoomDialog } from "./LockedRoomDialog";
 
 interface ChannelSidebarProps {
+    campuses: Campus[];
     selectedCampus: Campus | null;
     rooms: CampusRoom[];
     groupedRooms: GroupedRooms | null; // Kept for type compatibility but ignored
     selectedRoomId?: number;
     userProfile: UserProfile | null;
     onSelectRoom: (room: CampusRoom) => void;
+    onSelectCampus: (campus: Campus) => void;
+    onClearCampus: () => void;
 }
 
-export function ChannelSidebar({ selectedCampus, rooms, groupedRooms, selectedRoomId, userProfile, onSelectRoom }: ChannelSidebarProps) {
+export function ChannelSidebar({ campuses, selectedCampus, rooms, groupedRooms, selectedRoomId, userProfile, onSelectRoom, onSelectCampus, onClearCampus }: ChannelSidebarProps) {
     const [lockedRoomTarget, setLockedRoomTarget] = useState<CampusRoom | null>(null);
 
     const handleRoomClick = (room: CampusRoom) => {
@@ -68,19 +72,48 @@ export function ChannelSidebar({ selectedCampus, rooms, groupedRooms, selectedRo
     return (
         <div className="w-60 flex flex-col bg-[#F2F3F5] dark:bg-[#2B2D31] select-none h-full border-r border-[#E3E5E8] dark:border-[#1E1F22]">
             {/* Header */}
-            <div className="h-12 px-4 flex items-center shadow-sm border-b border-black/10 font-black dark:text-white dark:hover:bg-[#35373C] cursor-pointer transition-colors relative">
-                <span className="truncate pr-4 uppercase tracking-tighter text-sm">
-                    {selectedCampus?.name_somali || "Bulshada Garaad"}
-                </span>
-                <MoreHorizontal className="absolute right-4 h-4 w-4 text-gray-400" />
+            <div
+                className="h-12 px-4 flex items-center shadow-sm border-b border-black/10 font-black dark:text-white hover:bg-black/5 dark:hover:bg-[#35373C] cursor-pointer transition-colors relative"
+                onClick={onClearCampus}
+            >
+                <div className="flex items-center gap-2 overflow-hidden">
+                    {selectedCampus && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6 -ml-2" onClick={(e) => { e.stopPropagation(); onClearCampus(); }}>
+                            <Home className="h-4 w-4" />
+                        </Button>
+                    )}
+                    <span className="truncate uppercase tracking-tighter text-sm">
+                        {selectedCampus?.name_somali || "Bulshada Garaad"}
+                    </span>
+                </div>
             </div>
 
             {/* Content */}
             <ScrollArea className="flex-1">
                 <div className="p-2">
-                    {selectedCampus ? (
+                    {/* If no campus is selected, show list of campuses */}
+                    {!selectedCampus ? (
+                        <div className="space-y-1">
+                            <div className="px-2 py-1 flex items-center justify-between group cursor-default">
+                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Campusyada</span>
+                            </div>
+                            {campuses.map(campus => (
+                                <Button
+                                    key={campus.id}
+                                    variant="ghost"
+                                    className="w-full justify-start h-10 px-2 font-bold text-sm tracking-tight rounded-md border-none transition-all group mb-1"
+                                    onClick={() => onSelectCampus(campus)}
+                                >
+                                    <div className={`w-6 h-6 rounded-full mr-2 flex items-center justify-center text-[10px] bg-white dark:bg-black/20`}>
+                                        {campus.name_somali.substring(0, 2).toUpperCase()}
+                                    </div>
+                                    <span className="truncate flex-1 text-left">{campus.name_somali}</span>
+                                </Button>
+                            ))}
+                        </div>
+                    ) : (
                         <div className="space-y-4">
-                            {/* Flat list of rooms (Grouped logic removed as per new API) */}
+                            {/* Flat list of rooms */}
                             <div className="space-y-0.5">
                                 <div className="px-2 py-1 flex items-center justify-between group cursor-default">
                                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Wadahadalada</span>
@@ -88,7 +121,7 @@ export function ChannelSidebar({ selectedCampus, rooms, groupedRooms, selectedRo
                                 {rooms.map(renderRoomButton)}
                             </div>
                         </div>
-                    ) : null}
+                    )}
                 </div>
             </ScrollArea>
 

@@ -110,12 +110,10 @@ export async function POST(request: Request) {
       const amountNum = parseFloat(amount.toString());
       const currency = "USD";
       const descriptionStr = description;
-      const successUrl = `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      }/api/payment/success`;
-      const failureUrl = `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      }/api/payment/failure`;
+      const successUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "https://api.garaad.org"
+        }/api/payment/success`;
+      const failureUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "https://api.garaad.org"
+        }/api/payment/failure`;
       try {
         const hpp = await waafipayService.hppPurchase({
           amount: amountNum,

@@ -1,651 +1,479 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import {
-  Campus,
-  CampusRoom,
-  Post,
-  PostDetails,
-  Comment,
+import type {
+  CommunityCategory,
+  CommunityPost,
+  CommunityReply,
   Notification,
   UserProfile,
-  LeaderboardEntry,
-  TrendingTag,
   CommunityState,
-  SearchFilters,
-  PaginatedResponse,
   CreatePostData,
-  CreateCommentData,
+  CreateReplyData,
+  ReactionType,
 } from "@/types/community";
 import communityService, { handleApiError } from "@/services/community";
 
 // Initial state
 const initialState: CommunityState = {
   // Data
-  campuses: [],
-  rooms: [],
-  groupedRooms: null,
+  categories: [],
   posts: [],
-  messages: [],
-  selectedCampus: null,
-  selectedRoom: null,
-  selectedPost: null,
+  selectedCategory: null,
   userProfile: null,
   notifications: [],
-  leaderboard: [],
-  trendingTags: [],
 
   // UI State
   loading: {
-    campuses: false,
-    rooms: false,
+    categories: false,
     posts: false,
-    messages: false,
     profile: false,
     notifications: false,
   },
 
   errors: {
-    campuses: null,
-    rooms: null,
+    categories: null,
     posts: null,
-    messages: null,
     profile: null,
     notifications: null,
   },
 
-  // Filters and pagination
-  filters: {},
+  // Pagination
   pagination: {
     posts: {
       page: 1,
-      hasMore: true,
+      hasMore: false,
     },
     notifications: {
       page: 1,
-      hasMore: true,
+      hasMore: false,
     },
   },
-
-  // Real-time updates
-  unreadNotifications: 0,
-  onlineUsers: [],
 };
 
-// Async thunks for campuses
-export const fetchCampuses = createAsyncThunk(
-  "community/fetchCampuses",
-  async (filters: SearchFilters = {}, { rejectWithValue }) => {
+// Async Thunks
+
+// Fetch categories (filter community-enabled)
+export const fetchCategories = createAsyncThunk(
+  "community/fetchCategories",
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await communityService.campus.getCampuses(filters);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      const data = await communityService.category.getCategories();
+      // Filter only community-enabled categories
+      return data.filter((cat: any) => cat.is_community_enabled);
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
     }
   }
 );
 
-export const joinCampus = createAsyncThunk(
-  "community/joinCampus",
-  async (slug: string, { rejectWithValue }) => {
-    try {
-      const response = await communityService.campus.joinCampus(slug);
-      return { slug, ...response };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-export const leaveCampus = createAsyncThunk(
-  "community/leaveCampus",
-  async (slug: string, { rejectWithValue }) => {
-    try {
-      const response = await communityService.campus.leaveCampus(slug);
-      return { slug, ...response };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-export const fetchCampusDetails = createAsyncThunk(
-  "community/fetchCampusDetails",
-  async (slug: string, { rejectWithValue }) => {
-    try {
-      const response = await communityService.campus.getCampusDetails(slug);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-// Async thunks for rooms
-export const fetchCampusRooms = createAsyncThunk(
-  "community/fetchCampusRooms",
-  async (slug: string, { rejectWithValue }) => {
-    try {
-      const response = await communityService.campus.getCampusRooms(slug, true);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-// Async thunks for messages
-export const fetchRoomMessages = createAsyncThunk(
-  "community/fetchRoomMessages",
-  async (roomUuid: string, { rejectWithValue }) => {
-    try {
-      const response = await communityService.message.getMessages(roomUuid);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-export const sendRoomMessage = createAsyncThunk(
-  "community/sendRoomMessage",
+// Fetch posts for a category (ONLY on initial load)
+export const fetchCategoryPosts = createAsyncThunk(
+  "community/fetchCategoryPosts",
   async (
-    messageData: {
-      room: string;
-      content: string;
-      reply_to?: string;
-      image?: File | null;
-    },
+    { categoryId, page }: { categoryId: string; page?: number },
     { rejectWithValue }
   ) => {
     try {
-      const response = await communityService.message.sendMessage(messageData);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      return await communityService.post.getPosts(categoryId, page);
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
     }
   }
 );
 
-export const toggleRoomMessageReaction = createAsyncThunk(
-  "community/toggleRoomMessageReaction",
-  async (
-    { messageId, emoji }: { messageId: string; emoji: string },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await communityService.message.toggleReaction(
-        messageId,
-        emoji
-      );
-      return { messageId, emoji, ...response };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-// Async thunks for posts
-export const fetchPosts = createAsyncThunk(
-  "community/fetchPosts",
-  async (
-    {
-      filters = {},
-      reset = false,
-    }: { filters?: SearchFilters; reset?: boolean },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response: PaginatedResponse<Post> =
-        await communityService.post.getPosts(filters);
-      return { ...response, reset };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
+// Create a new post (optimistic)
 export const createPost = createAsyncThunk(
   "community/createPost",
-  async (postData: CreatePostData, { rejectWithValue }) => {
+  async (
+    { categoryId, postData, tempId }: { categoryId: string; postData: CreatePostData; tempId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await communityService.post.createPost(postData);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      const result = await communityService.post.createPost(categoryId, postData);
+      return { ...result, tempId };
+    } catch (error: any) {
+      return rejectWithValue({ error: handleApiError(error), tempId });
     }
   }
 );
 
-export const fetchPostDetails = createAsyncThunk(
-  "community/fetchPostDetails",
-  async (postId: string, { rejectWithValue }) => {
+// Update a post
+export const updatePost = createAsyncThunk(
+  "community/updatePost",
+  async (
+    { postId, content }: { postId: number; content: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await communityService.post.getPostDetails(postId);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      return await communityService.post.updatePost(postId, content);
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
     }
   }
 );
 
-export const togglePostLike = createAsyncThunk(
-  "community/togglePostLike",
-  async (postId: string, { rejectWithValue }) => {
+// Delete a post
+export const deletePost = createAsyncThunk(
+  "community/deletePost",
+  async (postId: number, { rejectWithValue }) => {
     try {
-      const response = await communityService.post.togglePostLike(postId);
-      return { postId, ...response };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      await communityService.post.deletePost(postId);
+      return postId;
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
     }
   }
 );
 
-// Async thunks for comments
-export const createComment = createAsyncThunk(
-  "community/createComment",
-  async (commentData: CreateCommentData, { rejectWithValue }) => {
+// React to a post (optimistic handled in reducer)
+export const reactToPost = createAsyncThunk(
+  "community/reactToPost",
+  async (
+    { postId, type }: { postId: number; type: ReactionType },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await communityService.comment.createComment(
-        commentData
-      );
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      return await communityService.post.reactToPost(postId, type);
+    } catch (error: any) {
+      return rejectWithValue({ error: handleApiError(error), postId, type });
     }
   }
 );
 
-export const toggleCommentLike = createAsyncThunk(
-  "community/toggleCommentLike",
-  async (commentId: string, { rejectWithValue }) => {
+// Create a reply (optimistic)
+export const createReply = createAsyncThunk(
+  "community/createReply",
+  async (
+    { postId, replyData, tempId }: { postId: number; replyData: CreateReplyData; tempId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await communityService.comment.toggleCommentLike(
-        commentId
-      );
-      return { commentId, ...response };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      const reply = await communityService.reply.createReply(postId, replyData);
+      return { postId, reply, tempId };
+    } catch (error: any) {
+      return rejectWithValue({ error: handleApiError(error), postId, tempId });
     }
   }
 );
 
-// Async thunks for user profile
+// Update a reply
+export const updateReply = createAsyncThunk(
+  "community/updateReply",
+  async (
+    { replyId, content }: { replyId: number; content: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      return await communityService.reply.updateReply(replyId, content);
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
+
+// Delete a reply
+export const deleteReply = createAsyncThunk(
+  "community/deleteReply",
+  async (
+    { postId, replyId }: { postId: number; replyId: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      await communityService.reply.deleteReply(replyId);
+      return { postId, replyId };
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
+
+// Fetch user profile
 export const fetchUserProfile = createAsyncThunk(
   "community/fetchUserProfile",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await communityService.profile.getUserProfile();
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      return await communityService.profile.getUserProfile();
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
     }
   }
 );
 
-export const fetchLeaderboard = createAsyncThunk(
-  "community/fetchLeaderboard",
-  async (campusSlug: string | undefined, { rejectWithValue }) => {
-    try {
-      const response = await communityService.profile.getLeaderboard(
-        campusSlug
-      );
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-// Async thunks for notifications
+// Fetch notifications
 export const fetchNotifications = createAsyncThunk(
   "community/fetchNotifications",
   async (
-    { page, reset = false }: { page?: number; reset?: boolean } = {},
+    { page, reset }: { page?: number; reset?: boolean },
     { rejectWithValue }
   ) => {
     try {
-      const response: PaginatedResponse<Notification> =
-        await communityService.notification.getNotifications(page);
-      return { ...response, reset };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      const data = await communityService.notification.getNotifications(page);
+      return { data, reset };
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
     }
   }
 );
 
+// Mark notification as read
 export const markNotificationRead = createAsyncThunk(
   "community/markNotificationRead",
   async (notificationId: number, { rejectWithValue }) => {
     try {
-      const response = await communityService.notification.markNotificationRead(
-        notificationId
-      );
-      return { notificationId, ...response };
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
+      await communityService.notification.markNotificationRead(notificationId);
+      return notificationId;
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
     }
   }
 );
 
-export const markAllNotificationsRead = createAsyncThunk(
-  "community/markAllNotificationsRead",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response =
-        await communityService.notification.markAllNotificationsRead();
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-// Async thunks for search and trending
-export const fetchTrendingTags = createAsyncThunk(
-  "community/fetchTrendingTags",
-  async (period: "day" | "week" | "month" = "week", { rejectWithValue }) => {
-    try {
-      const response = await communityService.trending.getTrendingTags(period);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleApiError(error as any));
-    }
-  }
-);
-
-// Community slice
+// Community Slice
 const communitySlice = createSlice({
   name: "community",
   initialState,
   reducers: {
-    // Filter actions
-    setFilters: (state, action: PayloadAction<SearchFilters>) => {
-      state.filters = { ...state.filters, ...action.payload };
-    },
-    clearFilters: (state) => {
-      state.filters = {};
+    setSelectedCategory: (state, action: PayloadAction<CommunityCategory | null>) => {
+      state.selectedCategory = action.payload;
+      // Clear posts when changing category
+      if (action.payload?.id !== state.selectedCategory?.id) {
+        state.posts = [];
+        state.pagination.posts = { page: 1, hasMore: false };
+      }
     },
 
-    // UI state actions
+    // OPTIMISTIC: Add post immediately
+    addOptimisticPost: (state, action: PayloadAction<CommunityPost>) => {
+      state.posts.unshift(action.payload);
+    },
+
+    // OPTIMISTIC: Remove failed post
+    removeOptimisticPost: (state, action: PayloadAction<string>) => {
+      state.posts = state.posts.filter(p => p.id.toString() !== action.payload);
+    },
+
+    // OPTIMISTIC: Toggle reaction immediately
+    toggleReactionOptimistic: (state, action: PayloadAction<{ postId: number; type: ReactionType; isAdding: boolean }>) => {
+      const post = state.posts.find(p => p.id === action.payload.postId);
+      if (post) {
+        const { type, isAdding } = action.payload;
+
+        if (isAdding) {
+          post.reactions_count[type] += 1;
+          if (!post.user_reactions.includes(type)) {
+            post.user_reactions.push(type);
+          }
+        } else {
+          post.reactions_count[type] = Math.max(0, post.reactions_count[type] - 1);
+          post.user_reactions = post.user_reactions.filter(r => r !== type);
+        }
+      }
+    },
+
+    // OPTIMISTIC: Add reply immediately
+    addOptimisticReply: (state, action: PayloadAction<{ postId: number; reply: CommunityReply }>) => {
+      const post = state.posts.find(p => p.id === action.payload.postId);
+      if (post) {
+        post.replies.push(action.payload.reply);
+        post.replies_count += 1;
+      }
+    },
+
+    // OPTIMISTIC: Remove failed reply
+    removeOptimisticReply: (state, action: PayloadAction<{ postId: number; tempId: string }>) => {
+      const post = state.posts.find(p => p.id === action.payload.postId);
+      if (post) {
+        post.replies = post.replies.filter(r => r.id.toString() !== action.payload.tempId);
+        post.replies_count = Math.max(0, post.replies_count - 1);
+      }
+    },
+
+    // WEBSOCKET: Handle incoming post
+    handleWebSocketPost: (state, action: PayloadAction<CommunityPost>) => {
+      // Only add if not already in list (avoid duplicates)
+      const exists = state.posts.find(p => p.id === action.payload.id);
+      if (!exists) {
+        state.posts.unshift(action.payload);
+      }
+    },
+
+    // WEBSOCKET: Handle post deletion
+    handleWebSocketPostDeleted: (state, action: PayloadAction<number>) => {
+      state.posts = state.posts.filter(p => p.id !== action.payload);
+    },
+
+    // WEBSOCKET: Handle reaction update
+    handleWebSocketReactionUpdate: (state, action: PayloadAction<{ post_id: number; reactions_count: any; user_reactions?: ReactionType[] }>) => {
+      const post = state.posts.find(p => p.id === action.payload.post_id);
+      if (post) {
+        post.reactions_count = action.payload.reactions_count;
+        if (action.payload.user_reactions) {
+          post.user_reactions = action.payload.user_reactions;
+        }
+      }
+    },
+
+    // WEBSOCKET: Handle new reply
+    handleWebSocketReply: (state, action: PayloadAction<{ postId: number; reply: CommunityReply }>) => {
+      const post = state.posts.find(p => p.id === action.payload.postId);
+      if (post) {
+        // Only add if not already in list
+        const exists = post.replies.find(r => r.id === action.payload.reply.id);
+        if (!exists) {
+          post.replies.push(action.payload.reply);
+          post.replies_count += 1;
+        }
+      }
+    },
+
+    clearPosts: (state) => {
+      state.posts = [];
+      state.pagination.posts = { page: 1, hasMore: false };
+    },
+
     clearErrors: (state) => {
       state.errors = {
-        campuses: null,
-        rooms: null,
+        categories: null,
         posts: null,
-        messages: null,
         profile: null,
         notifications: null,
       };
     },
-
-    clearSelectedPost: (state) => {
-      state.selectedPost = null;
-    },
-
-    clearSelectedCampus: (state) => {
-      state.selectedCampus = null;
-    },
-
-    setSelectedCampus: (state, action: PayloadAction<Campus>) => {
-      state.selectedCampus = action.payload;
-    },
-
-    setSelectedRoom: (state, action: PayloadAction<CampusRoom>) => {
-      state.selectedRoom = action.payload;
-    },
-
-    // Real-time updates
-    updateOnlineUsers: (state, action: PayloadAction<string[]>) => {
-      state.onlineUsers = action.payload;
-    },
-
-    addOnlineUser: (state, action: PayloadAction<string>) => {
-      if (!state.onlineUsers.includes(action.payload)) {
-        state.onlineUsers.push(action.payload);
-      }
-    },
-
-    removeOnlineUser: (state, action: PayloadAction<string>) => {
-      state.onlineUsers = state.onlineUsers.filter(
-        (user) => user !== action.payload
-      );
-    },
-
-    // WebSocket updates
-    handleNewPost: (state, action: PayloadAction<Post>) => {
-      state.posts.unshift(action.payload);
-    },
-
-    handleNewComment: (
-      state,
-      action: PayloadAction<{ postId: string; comment: Comment }>
-    ) => {
-      if (
-        state.selectedPost &&
-        state.selectedPost.id === action.payload.postId
-      ) {
-        state.selectedPost.comments.push(action.payload.comment);
-        state.selectedPost.comments_count += 1;
-      }
-
-      // Update post in posts array
-      const postIndex = state.posts.findIndex(
-        (p) => p.id === action.payload.postId
-      );
-      if (postIndex !== -1) {
-        state.posts[postIndex].comments_count += 1;
-      }
-    },
-
-    handleLikeUpdate: (
-      state,
-      action: PayloadAction<{
-        postId: string;
-        liked: boolean;
-        likesCount: number;
-      }>
-    ) => {
-      const { postId, liked, likesCount } = action.payload;
-
-      // Update in posts array
-      const postIndex = state.posts.findIndex((p) => p.id === postId);
-      if (postIndex !== -1) {
-        state.posts[postIndex].user_has_liked = liked;
-        state.posts[postIndex].likes_count = likesCount;
-      }
-
-      // Update selected post
-      if (state.selectedPost && state.selectedPost.id === postId) {
-        state.selectedPost.user_has_liked = liked;
-        state.selectedPost.likes_count = likesCount;
-      }
-    },
-
-    handleNewNotification: (state, action: PayloadAction<Notification>) => {
-      state.notifications.unshift(action.payload);
-      state.unreadNotifications += 1;
-    },
-
-    handleNewMessage: (state, action: PayloadAction<any>) => {
-      // If the message is for the currently selected room, add it to the messages array
-      if (state.selectedRoom && (action.payload.room === state.selectedRoom.uuid || action.payload.room_id === state.selectedRoom.id)) {
-        state.messages.push(action.payload);
-      }
-    },
   },
   extraReducers: (builder) => {
-    // Campuses
+    // Fetch Categories
     builder
-      .addCase(fetchCampuses.pending, (state) => {
-        state.loading.campuses = true;
-        state.errors.campuses = null;
+      .addCase(fetchCategories.pending, (state) => {
+        state.loading.categories = true;
+        state.errors.categories = null;
       })
-      .addCase(fetchCampuses.fulfilled, (state, action) => {
-        state.loading.campuses = false;
-        state.campuses = action.payload.results || action.payload;
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.loading.categories = false;
+        state.categories = action.payload;
       })
-      .addCase(fetchCampuses.rejected, (state, action) => {
-        state.loading.campuses = false;
-        state.errors.campuses =
-          (action.payload as any)?.message || "Cillad ayaa dhacday";
-      })
-
-      .addCase(joinCampus.fulfilled, (state, action) => {
-        const campusIndex = state.campuses.findIndex(
-          (c) => c.slug === action.payload.slug
-        );
-        if (campusIndex !== -1) {
-          state.campuses[campusIndex].user_is_member = true;
-          state.campuses[campusIndex].member_count += 1;
-        }
-      })
-
-      .addCase(leaveCampus.fulfilled, (state, action) => {
-        const campusIndex = state.campuses.findIndex(
-          (c) => c.slug === action.payload.slug
-        );
-        if (campusIndex !== -1) {
-          state.campuses[campusIndex].user_is_member = false;
-          state.campuses[campusIndex].member_count -= 1;
-        }
-      })
-
-      .addCase(fetchCampusDetails.fulfilled, (state, action) => {
-        state.selectedCampus = action.payload;
-      })
-
-      // Rooms
-      .addCase(fetchCampusRooms.pending, (state) => {
-        state.loading.rooms = true;
-        state.errors.rooms = null;
-      })
-      .addCase(fetchCampusRooms.fulfilled, (state, action) => {
-        state.loading.rooms = false;
-        state.rooms = action.payload as unknown as CampusRoom[];
-        state.groupedRooms = null;
-      })
-      .addCase(fetchCampusRooms.rejected, (state, action) => {
-        state.loading.rooms = false;
-        state.errors.rooms = (action.payload as any)?.message || "Cillad ayaa dhacday";
-      })
-
-      // Messages
-      .addCase(fetchRoomMessages.pending, (state) => {
-        state.loading.messages = true;
-        state.errors.messages = null;
-      })
-      .addCase(fetchRoomMessages.fulfilled, (state, action) => {
-        state.loading.messages = false;
-        state.messages = action.payload.results || action.payload;
-      })
-      .addCase(fetchRoomMessages.rejected, (state, action) => {
-        state.loading.messages = false;
-        state.errors.messages = (action.payload as any)?.message || "Cillad ayaa dhacday";
-      })
-
-      .addCase(sendRoomMessage.fulfilled, (state, action) => {
-        state.messages.push(action.payload);
-      })
-
-      .addCase(toggleRoomMessageReaction.fulfilled, (state, action) => {
-        const { messageId, reactions } = action.payload;
-        const msgIndex = state.messages.findIndex(
-          (m) => m.id === messageId || (m as any).uuid === messageId
-        );
-        if (msgIndex !== -1) {
-          state.messages[msgIndex].reactions = reactions;
-        }
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.loading.categories = false;
+        state.errors.categories = (action.payload as any)?.message || "Failed to fetch categories";
       });
 
-    // Posts
+    // Fetch Category Posts (ONLY on initial load)
     builder
-      .addCase(fetchPosts.pending, (state) => {
+      .addCase(fetchCategoryPosts.pending, (state) => {
         state.loading.posts = true;
         state.errors.posts = null;
       })
-      .addCase(fetchPosts.fulfilled, (state, action) => {
+      .addCase(fetchCategoryPosts.fulfilled, (state, action) => {
         state.loading.posts = false;
-        if (action.payload.reset) {
-          state.posts = action.payload.results;
-          state.pagination.posts.page = 1;
-        } else {
-          state.posts.push(...action.payload.results);
-          state.pagination.posts.page += 1;
-        }
-        state.pagination.posts.hasMore = !!action.payload.next;
+        state.posts = action.payload;
       })
-      .addCase(fetchPosts.rejected, (state, action) => {
+      .addCase(fetchCategoryPosts.rejected, (state, action) => {
         state.loading.posts = false;
-        state.errors.posts = (action.payload as any)?.message || "Cillad ayaa dhacday";
-      })
-
-      .addCase(createPost.fulfilled, (state, action) => {
-        state.posts.unshift(action.payload);
-      })
-
-      .addCase(fetchPostDetails.fulfilled, (state, action) => {
-        state.selectedPost = action.payload;
-      })
-
-      .addCase(togglePostLike.fulfilled, (state, action) => {
-        const { postId, liked, likes_count } = action.payload;
-
-        // Update in posts array
-        const postIndex = state.posts.findIndex((p) => p.id === postId);
-        if (postIndex !== -1) {
-          state.posts[postIndex].user_has_liked = liked;
-          state.posts[postIndex].likes_count = likes_count;
-        }
-
-        // Update selected post
-        if (state.selectedPost && state.selectedPost.id === postId) {
-          state.selectedPost.user_has_liked = liked;
-          state.selectedPost.likes_count = likes_count;
-        }
+        state.errors.posts = (action.payload as any)?.message || "Failed to fetch posts";
       });
 
-    // Comments
+    // Create Post - Replace temp with real
     builder
-      .addCase(createComment.fulfilled, (state, action) => {
-        if (state.selectedPost) {
-          state.selectedPost.comments.push(action.payload);
-          state.selectedPost.comments_count += 1;
-        }
-
-        // Update post comments count in posts array
-        const postIndex = state.posts.findIndex(
-          (p) => p.id === action.payload.post_id
-        );
-        if (postIndex !== -1) {
-          state.posts[postIndex].comments_count += 1;
+      .addCase(createPost.fulfilled, (state, action) => {
+        const index = state.posts.findIndex(p => p.id.toString() === action.payload.tempId);
+        if (index !== -1) {
+          state.posts[index] = action.payload;
         }
       })
-
-      .addCase(toggleCommentLike.fulfilled, (state, action) => {
-        const { commentId, liked, likes_count } = action.payload;
-
-        if (state.selectedPost) {
-          const updateCommentLike = (comments: Comment[]): Comment[] => {
-            return comments.map((comment) => {
-              if (comment.id === commentId) {
-                return { ...comment, user_has_liked: liked, likes_count };
-              }
-              if (comment.replies) {
-                return {
-                  ...comment,
-                  replies: updateCommentLike(comment.replies),
-                };
-              }
-              return comment;
-            });
-          };
-
-          state.selectedPost.comments = updateCommentLike(
-            state.selectedPost.comments
-          );
+      .addCase(createPost.rejected, (state, action) => {
+        // Remove optimistic post on failure
+        const tempId = (action.payload as any)?.tempId;
+        if (tempId) {
+          state.posts = state.posts.filter(p => p.id.toString() !== tempId);
         }
       });
 
-    // User Profile
+    // Update Post
+    builder
+      .addCase(updatePost.fulfilled, (state, action) => {
+        const index = state.posts.findIndex(p => p.id === action.payload.id);
+        if (index !== -1) {
+          state.posts[index] = action.payload;
+        }
+      });
+
+    // Delete Post
+    builder
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.posts = state.posts.filter(p => p.id !== action.payload);
+      });
+
+    // React to Post - Sync with server response
+    builder
+      .addCase(reactToPost.fulfilled, (state, action) => {
+        const post = state.posts.find(p => p.id === action.meta.arg.postId);
+        if (post && action.payload) {
+          // Sync with server truth
+          post.reactions_count = action.payload.reactions_count || post.reactions_count;
+          post.user_reactions = action.payload.user_reactions || post.user_reactions;
+        }
+      })
+      .addCase(reactToPost.rejected, (state, action) => {
+        // Rollback optimistic update
+        const { postId, type } = action.meta.arg;
+        const post = state.posts.find(p => p.id === postId);
+        if (post) {
+          // Reverse the optimistic change
+          const wasAdding = post.user_reactions.includes(type);
+          if (wasAdding) {
+            post.reactions_count[type] = Math.max(0, post.reactions_count[type] - 1);
+            post.user_reactions = post.user_reactions.filter(r => r !== type);
+          } else {
+            post.reactions_count[type] += 1;
+            post.user_reactions.push(type);
+          }
+        }
+      });
+
+    // Create Reply - Replace temp with real
+    builder
+      .addCase(createReply.fulfilled, (state, action) => {
+        const post = state.posts.find(p => p.id === action.payload.postId);
+        if (post) {
+          const index = post.replies.findIndex(r => r.id.toString() === action.payload.tempId);
+          if (index !== -1) {
+            post.replies[index] = action.payload.reply;
+          }
+        }
+      })
+      .addCase(createReply.rejected, (state, action) => {
+        // Remove optimistic reply on failure
+        const { postId, tempId } = action.payload as any;
+        const post = state.posts.find(p => p.id === postId);
+        if (post && tempId) {
+          post.replies = post.replies.filter(r => r.id.toString() !== tempId);
+          post.replies_count = Math.max(0, post.replies_count - 1);
+        }
+      });
+
+    // Update Reply
+    builder
+      .addCase(updateReply.fulfilled, (state, action) => {
+        const post = state.posts.find(p =>
+          p.replies.some(r => r.id === action.payload.id)
+        );
+        if (post) {
+          const replyIndex = post.replies.findIndex(r => r.id === action.payload.id);
+          if (replyIndex !== -1) {
+            post.replies[replyIndex] = action.payload;
+          }
+        }
+      });
+
+    // Delete Reply
+    builder
+      .addCase(deleteReply.fulfilled, (state, action) => {
+        const post = state.posts.find(p => p.id === action.payload.postId);
+        if (post) {
+          post.replies = post.replies.filter(r => r.id !== action.payload.replyId);
+          post.replies_count = Math.max(0, post.replies_count - 1);
+        }
+      });
+
+    // Fetch User Profile
     builder
       .addCase(fetchUserProfile.pending, (state) => {
         state.loading.profile = true;
@@ -657,14 +485,10 @@ const communitySlice = createSlice({
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.loading.profile = false;
-        state.errors.profile = (action.payload as any)?.message || "Cillad ayaa dhacday";
-      })
-
-      .addCase(fetchLeaderboard.fulfilled, (state, action) => {
-        state.leaderboard = action.payload;
+        state.errors.profile = (action.payload as any)?.message || "Failed to fetch profile";
       });
 
-    // Notifications
+    // Fetch Notifications
     builder
       .addCase(fetchNotifications.pending, (state) => {
         state.loading.notifications = true;
@@ -673,69 +497,41 @@ const communitySlice = createSlice({
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading.notifications = false;
         if (action.payload.reset) {
-          state.notifications = action.payload.results;
-          state.pagination.notifications.page = 1;
+          state.notifications = action.payload.data.results || action.payload.data;
         } else {
-          state.notifications.push(...action.payload.results);
-          state.pagination.notifications.page += 1;
+          state.notifications.push(...(action.payload.data.results || action.payload.data));
         }
-        state.pagination.notifications.hasMore = !!action.payload.next;
+        state.pagination.notifications.hasMore = !!action.payload.data.next;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading.notifications = false;
-        state.errors.notifications =
-          (action.payload as any)?.message || "Cillad ayaa dhacday";
-      })
-
-      .addCase(markNotificationRead.fulfilled, (state, action) => {
-        const notificationIndex = state.notifications.findIndex(
-          (n) => n.id === action.payload.notificationId
-        );
-        if (
-          notificationIndex !== -1 &&
-          !state.notifications[notificationIndex].is_read
-        ) {
-          state.notifications[notificationIndex].is_read = true;
-          state.unreadNotifications = Math.max(
-            0,
-            state.unreadNotifications - 1
-          );
-        }
-      })
-
-      .addCase(markAllNotificationsRead.fulfilled, (state) => {
-        state.notifications = state.notifications.map((n) => ({
-          ...n,
-          is_read: true,
-        }));
-        state.unreadNotifications = 0;
+        state.errors.notifications = (action.payload as any)?.message || "Failed to fetch notifications";
       });
 
-    // Trending Tags
-    builder.addCase(fetchTrendingTags.fulfilled, (state, action) => {
-      state.trendingTags = action.payload;
-    });
+    // Mark Notification Read
+    builder
+      .addCase(markNotificationRead.fulfilled, (state, action) => {
+        const notification = state.notifications.find(n => n.id === action.payload);
+        if (notification) {
+          notification.is_read = true;
+        }
+      });
   },
 });
 
-// Export actions
 export const {
-  setFilters,
-  clearFilters,
+  setSelectedCategory,
+  addOptimisticPost,
+  removeOptimisticPost,
+  toggleReactionOptimistic,
+  addOptimisticReply,
+  removeOptimisticReply,
+  handleWebSocketPost,
+  handleWebSocketPostDeleted,
+  handleWebSocketReactionUpdate,
+  handleWebSocketReply,
+  clearPosts,
   clearErrors,
-  clearSelectedPost,
-  clearSelectedCampus,
-  setSelectedCampus,
-  setSelectedRoom,
-  updateOnlineUsers,
-  addOnlineUser,
-  removeOnlineUser,
-  handleNewPost,
-  handleNewComment,
-  handleLikeUpdate,
-  handleNewNotification,
-  handleNewMessage,
 } = communitySlice.actions;
 
-// Export reducer
 export default communitySlice.reducer;

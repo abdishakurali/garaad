@@ -1,6 +1,7 @@
 import AuthService from "@/services/auth";
+import type { CreatePostData, CreateReplyData, ReactionType } from "@/types/community";
 
-const BASE_URL = "/api/community/";
+const BASE_URL = "/api/";
 
 // Helper function for making authenticated API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
@@ -37,283 +38,107 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   return response.json();
 };
 
-// Campus Management APIs
-export const campusService = {
-  // List all campuses with optional filters
-  getCampuses: async (
-    filters: {
-      subject_tag?: string;
-      search?: string;
-      page?: number;
-    } = {}
-  ) => {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.append(key, value.toString());
-    });
-
-    return apiCall(`campuses/?${params}`);
+// Category Management APIs
+export const categoryService = {
+  // Get all categories (filter community-enabled on frontend)
+  getCategories: async () => {
+    return apiCall("lms/categories/");
   },
 
-  // Get campus details by slug
-  getCampusDetails: async (slug: string) => {
-    return apiCall(`campuses/${slug}/`);
-  },
-
-  // Join a campus
-  joinCampus: async (slug: string) => {
-    return apiCall(`campuses/${slug}/join/`, {
-      method: "POST",
-    });
-  },
-
-  // Leave a campus
-  leaveCampus: async (slug: string) => {
-    return apiCall(`campuses/${slug}/leave/`, {
-      method: "POST",
-    });
-  },
-
-  // Get campus rooms
-  getCampusRooms: async (slug: string, groupByMetadata: boolean = false) => {
-    const params = groupByMetadata ? "?group_by_category=true" : "";
-    return apiCall(`campuses/${slug}/rooms/${params}`);
-  },
-};
-
-// Room Management APIs
-export const roomService = {
-  // List rooms with campus filter
-  getRooms: async (campusSlug?: string) => {
-    const params = campusSlug ? `?campus=${campusSlug}` : "";
-    return apiCall(`rooms/${params}`);
-  },
-
-  // Get room posts (v1 - legacy)
-  getRoomPosts: async (roomId: number, page?: number) => {
-    const params = page ? `?page=${page}` : "";
-    return apiCall(`rooms/${roomId}/posts/${params}`);
-  },
-};
-
-// Messaging Management APIs
-export const messageService = {
-  // Fetch messages for a specific room
-  getMessages: async (roomUuid: string) => {
-    return apiCall(`messages/?room=${roomUuid}`);
-  },
-
-  // Toggle reaction on a message
-  toggleReaction: async (messageId: string, emoji: string) => {
-    return apiCall(`messages/${messageId}/react/`, {
-      method: "POST",
-      body: JSON.stringify({ emoji }),
-    });
-  },
-
-  // Send a new message
-  sendMessage: async (messageData: {
-    room: string; // UUID
-    content: string;
-    reply_to?: string; // Optional UUID
-    image?: File | null;
-  }) => {
-    if (messageData.image) {
-      const formData = new FormData();
-      formData.append("room", messageData.room);
-      formData.append("content", messageData.content);
-      if (messageData.reply_to) {
-        formData.append("reply_to", messageData.reply_to);
-      }
-      formData.append("image", messageData.image);
-
-      return apiCall("messages/", {
-        method: "POST",
-        headers: {
-          // Remove Content-Type to let browser set it for FormData
-          Authorization: `Bearer ${AuthService.getInstance().getToken()}`,
-        },
-        body: formData,
-      });
-    } else {
-      return apiCall("messages/", {
-        method: "POST",
-        body: JSON.stringify(messageData),
-      });
-    }
-  },
-};
-
-// Presence Management APIs
-export const presenceService = {
-  // Get current user's presence
-  getPresence: async () => {
-    return apiCall("presence/");
-  },
-
-  // Update presence status
-  setStatus: async (presenceData: {
-    status: "online" | "idle" | "dnd" | "offline";
-    custom_status?: string;
-  }) => {
-    return apiCall("presence/set_status/", {
-      method: "POST",
-      body: JSON.stringify(presenceData),
-    });
+  // Get category details
+  getCategoryDetails: async (categoryId: string) => {
+    return apiCall(`lms/categories/${categoryId}/`);
   },
 };
 
 // Post Management APIs
 export const postService = {
-  // List posts with filters
-  getPosts: async (
-    filters: {
-      room?: number;
-      campus?: string;
-      post_type?: string;
-      search?: string;
-      page?: number;
-    } = {}
-  ) => {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.append(key, value.toString());
-    });
-
-    return apiCall(`posts/?${params}`);
+  // List posts in category
+  getPosts: async (categoryId: string, page?: number) => {
+    const params = page ? `?page=${page}` : "";
+    return apiCall(`community/categories/${categoryId}/posts/${params}`);
   },
 
-  // Create a new post
-  createPost: async (postData: {
-    title: string;
-    content: string;
-    room_id: number;
-    language: "so" | "en";
-    post_type: "question" | "discussion" | "announcement" | "poll";
-    image?: File | null;
-    video_url?: string;
-  }) => {
-    // Handle file upload if image is provided
-    if (postData.image) {
+  // Create post
+  createPost: async (categoryId: string, postData: CreatePostData) => {
+    // Handle image uploads if present
+    if (postData.images && postData.images.length > 0) {
       const formData = new FormData();
-      Object.entries(postData).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          if (value instanceof File) {
-            formData.append(key, value);
-          } else {
-            formData.append(key, String(value));
-          }
-        }
+      formData.append("category", postData.category);
+      formData.append("content", postData.content);
+
+      postData.images.forEach((image, index) => {
+        formData.append(`images`, image);
       });
 
-      return apiCall("posts/", {
+      return apiCall(`community/categories/${categoryId}/posts/`, {
         method: "POST",
-        headers: {
-          // Remove Content-Type to let browser set it for FormData
-          Authorization: `Bearer ${AuthService.getInstance().getToken()}`,
-        },
         body: formData,
       });
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { image, ...jsonData } = postData;
-      return apiCall("posts/", {
+      const { images, ...jsonData } = postData;
+      return apiCall(`community/categories/${categoryId}/posts/`, {
         method: "POST",
         body: JSON.stringify(jsonData),
       });
     }
   },
 
-  // Get post details
-  getPostDetails: async (postId: string) => {
-    return apiCall(`posts/${postId}/`);
-  },
-
-  // Like/unlike a post
-  togglePostLike: async (postId: string) => {
-    return apiCall(`posts/${postId}/like/`, {
-      method: "POST",
-    });
-  },
-
-  // Delete a post
-  deletePost: async (postId: string) => {
-    return apiCall(`posts/${postId}/`, {
-      method: "DELETE",
-    });
-  },
-
-  // Update a post
-  updatePost: async (
-    postId: string,
-    postData: Partial<{
-      title: string;
-      content: string;
-      language: "so" | "en";
-      post_type: string;
-    }>
-  ) => {
-    return apiCall(`posts/${postId}/`, {
-      method: "PATCH",
-      body: JSON.stringify(postData),
-    });
-  },
-};
-
-// Comment Management APIs
-export const commentService = {
-  // List comments for a post
-  getComments: async (postId: string) => {
-    return apiCall(`comments/?post=${postId}`);
-  },
-
-  // Create a comment or reply
-  createComment: async (commentData: {
-    content: string;
-    post_id: string;
-    parent_comment_id?: string;
-    language: "so" | "en";
-  }) => {
-    return apiCall("comments/", {
-      method: "POST",
-      body: JSON.stringify(commentData),
-    });
-  },
-
-  // Like/unlike a comment
-  toggleCommentLike: async (commentId: string) => {
-    return apiCall(`comments/${commentId}/like/`, {
-      method: "POST",
-    });
-  },
-
-  // Delete a comment
-  deleteComment: async (commentId: string) => {
-    return apiCall(`comments/${commentId}/`, {
-      method: "DELETE",
-    });
-  },
-
-  // Update a comment
-  updateComment: async (commentId: string, content: string) => {
-    return apiCall(`comments/${commentId}/`, {
+  // Update post
+  updatePost: async (postId: number, content: string) => {
+    return apiCall(`community/posts/${postId}/`, {
       method: "PATCH",
       body: JSON.stringify({ content }),
     });
   },
+
+  // Delete post
+  deletePost: async (postId: number) => {
+    return apiCall(`community/posts/${postId}/`, {
+      method: "DELETE",
+    });
+  },
+
+  // React to post (toggle)
+  reactToPost: async (postId: number, type: ReactionType) => {
+    return apiCall(`community/posts/${postId}/react/`, {
+      method: "POST",
+      body: JSON.stringify({ type }),
+    });
+  },
 };
 
-// User Profile & Gamification APIs
+// Reply Management APIs
+export const replyService = {
+  // Reply to post
+  createReply: async (postId: number, replyData: CreateReplyData) => {
+    return apiCall(`community/posts/${postId}/reply/`, {
+      method: "POST",
+      body: JSON.stringify(replyData),
+    });
+  },
+
+  // Update reply
+  updateReply: async (replyId: number, content: string) => {
+    return apiCall(`community/replies/${replyId}/`, {
+      method: "PATCH",
+      body: JSON.stringify({ content }),
+    });
+  },
+
+  // Delete reply
+  deleteReply: async (replyId: number) => {
+    return apiCall(`community/replies/${replyId}/`, {
+      method: "DELETE",
+    });
+  },
+};
+
+// User Profile APIs
 export const profileService = {
   // Get current user profile
   getUserProfile: async () => {
-    return apiCall("profiles/me/");
-  },
-
-  // Get leaderboard
-  getLeaderboard: async (campusSlug?: string) => {
-    const params = campusSlug ? `?campus=${campusSlug}` : "";
-    return apiCall(`profiles/leaderboard/${params}`);
+    return apiCall("community/profiles/me/");
   },
 
   // Update profile settings
@@ -322,18 +147,10 @@ export const profileService = {
     email_notifications?: boolean;
     mention_notifications?: boolean;
   }) => {
-    return apiCall("profiles/me/", {
+    return apiCall("community/profiles/me/", {
       method: "PATCH",
       body: JSON.stringify(profileData),
     });
-  },
-
-  // Get user's activity stats
-  getUserStats: async (userId?: number) => {
-    const endpoint = userId
-      ? `profiles/${userId}/stats/`
-      : "profiles/me/stats/";
-    return apiCall(endpoint);
   },
 };
 
@@ -342,29 +159,21 @@ export const notificationService = {
   // List notifications
   getNotifications: async (page?: number) => {
     const params = page ? `?page=${page}` : "";
-    return apiCall(`notifications/${params}`);
+    return apiCall(`community/notifications/${params}`);
   },
 
   // Mark notification as read
   markNotificationRead: async (notificationId: number) => {
-    return apiCall(`notifications/${notificationId}/mark_read/`, {
+    return apiCall(`community/notifications/${notificationId}/mark_read/`, {
       method: "POST",
     });
   },
 
   // Mark all notifications as read
   markAllNotificationsRead: async () => {
-    return apiCall("notifications/mark_all_read/", {
+    return apiCall("community/notifications/mark_all_read/", {
       method: "POST",
     });
-  },
-};
-
-// Trending Tags API
-export const trendingService = {
-  // Get trending tags
-  getTrendingTags: async (period: "day" | "week" | "month" = "week") => {
-    return apiCall(`trending/tags/?period=${period}`);
   },
 };
 
@@ -415,96 +224,14 @@ export const handleApiError = (error: {
   }
 };
 
-// WebSocket connection for real-time updates (future implementation)
-export class CommunityWebSocket {
-  private ws: WebSocket | null = null;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
-
-  connect(onMessage: (data: unknown) => void) {
-    if (typeof window === "undefined") return;
-
-    const authService = AuthService.getInstance();
-    const token = authService.getToken();
-    if (!token) return;
-
-    try {
-      // Use environment variable for WS URL or fallback to default
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "wss://api.garaad.org/ws/community/";
-      this.ws = new WebSocket(`${wsUrl}?token=${token}`);
-
-      this.ws.onopen = () => {
-        console.log("Community WebSocket connected");
-        this.reconnectAttempts = 0;
-      };
-
-      this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          // If the backend broadcasts the exact message back, it might look like { type: 'chat_message', content: ..., ... }
-          // The current frontend expects { type: 'new_message', message: ... }
-          // We might need an adapter here if the backend changed the format strictly to what was sent.
-          // For now, let's assume the backend wraps it or we handle variations.
-          onMessage(data);
-        } catch (error) {
-          console.warn("Error parsing WebSocket message:", error);
-        }
-      };
-
-      this.ws.onclose = () => {
-        console.log("Community WebSocket disconnected");
-        this.attemptReconnect(onMessage);
-      };
-
-      this.ws.onerror = (error) => {
-        // WebSocket errors are often uninformative (empty object), so we warn instead of error
-        console.warn("Community WebSocket connection issue (check network/backend):", error);
-      };
-    } catch (error) {
-      console.warn("Failed to connect to Community WebSocket:", error);
-    }
-  }
-
-  private attemptReconnect(onMessage: (data: unknown) => void) {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      setTimeout(() => {
-        console.log(
-          `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
-        );
-        this.connect(onMessage);
-      }, this.reconnectDelay * this.reconnectAttempts);
-    }
-  }
-
-  disconnect() {
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
-  }
-
-  send(data: unknown) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(data));
-    }
-  }
-}
-
 // Export the main service object
 const communityService = {
-  campus: campusService,
-  room: roomService,
-  message: messageService,
-  presence: presenceService,
+  category: categoryService,
   post: postService,
-  comment: commentService,
+  reply: replyService,
   profile: profileService,
   notification: notificationService,
-  trending: trendingService,
   handleApiError,
-  CommunityWebSocket,
 };
 
 export default communityService;
