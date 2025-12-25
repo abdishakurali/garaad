@@ -4,12 +4,7 @@ export interface GamificationStatus {
     identity: UserIdentity;
     xp: number;
     level: number;
-    streak: {
-        current: number;
-        status: "Stable" | "Unstable" | "At Risk";
-        days_left_in_cycle?: number;
-        last_activity_date: string;
-    };
+    streak: { count: number };
     energy: {
         current: number;
         max: number;
@@ -20,8 +15,10 @@ export interface GamificationStatus {
 
 export interface ActivityUpdatePayload {
     action_type: string;
-    request_id: string; // UUID enforced
-    payload?: Record<string, any>;
+    problems_solved?: number;
+    energy_spent?: number;
+    lesson_ids?: string[];
+    request_id: string; // Keep for idempotency
 }
 
 export interface ActivityUpdateResponse {

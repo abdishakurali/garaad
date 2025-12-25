@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, PlayCircle } from "lucide-react";
 import { NextAction } from "@/types/auth";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface DailyFocusProps {
     nextAction?: NextAction;
@@ -37,12 +38,17 @@ export function DailyFocus({ nextAction }: DailyFocusProps) {
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Waxbarashada Maanta</span>
                     </div>
                     <h2 className="text-3xl font-black dark:text-white leading-tight tracking-tight">{nextAction.title}</h2>
-                    <p className="text-base font-medium text-gray-500 dark:text-gray-400 max-w-xl line-clamp-2">
-                        {nextAction.description}
-                    </p>
+                    <div className="flex items-center gap-2">
+                        <span className={cn(
+                            "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded",
+                            nextAction.priority === 'high' ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
+                        )}>
+                            {nextAction.priority} priority
+                        </span>
+                    </div>
                 </div>
 
-                <Link href={nextAction.action_url} className="w-full md:w-auto">
+                <Link href={nextAction.action_type === 'solve' ? '/practice' : '/courses'} className="w-full md:w-auto">
                     <Button size="lg" className="w-full h-16 px-10 rounded-[2rem] font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:-translate-y-1 active:scale-95">
                         <PlayCircle className="w-6 h-6 mr-3" />
                         Hadda Bilaw

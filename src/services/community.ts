@@ -41,14 +41,14 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
 
 // Category Management APIs
 export const categoryService = {
-  // Get all categories (filter community-enabled on frontend)
+  // Get all categories (Campuses)
   getCategories: async () => {
-    return apiCall("lms/categories/");
+    return apiCall("community/categories/");
   },
 
-  // Get category details
+  // Get category details (Optional, but keeping for completeness)
   getCategoryDetails: async (categoryId: string) => {
-    return apiCall(`lms/categories/${categoryId}/`);
+    return apiCall(`community/categories/${categoryId}/`);
   },
 };
 
@@ -71,13 +71,13 @@ export const postService = {
         formData.append(`images`, image);
       });
 
-      return apiCall(`community/categories/${categoryId}/posts/`, {
+      return apiCall(`community/posts/`, {
         method: "POST",
         body: formData,
       });
     } else {
       const { images, ...jsonData } = postData;
-      return apiCall(`community/categories/${categoryId}/posts/`, {
+      return apiCall(`community/posts/`, {
         method: "POST",
         body: JSON.stringify(jsonData),
       });
@@ -85,7 +85,7 @@ export const postService = {
   },
 
   // Update post
-  updatePost: async (postId: number, content: string) => {
+  updatePost: async (postId: string, content: string) => {
     return apiCall(`community/posts/${postId}/`, {
       method: "PATCH",
       body: JSON.stringify({ content }),
@@ -93,14 +93,14 @@ export const postService = {
   },
 
   // Delete post
-  deletePost: async (postId: number) => {
+  deletePost: async (postId: string) => {
     return apiCall(`community/posts/${postId}/`, {
       method: "DELETE",
     });
   },
 
   // React to post (toggle)
-  reactToPost: async (postId: number, type: ReactionType) => {
+  reactToPost: async (postId: string, type: ReactionType) => {
     return apiCall(`community/posts/${postId}/react/`, {
       method: "POST",
       body: JSON.stringify({ type }),
@@ -111,7 +111,7 @@ export const postService = {
 // Reply Management APIs
 export const replyService = {
   // Reply to post
-  createReply: async (postId: number, replyData: CreateReplyData) => {
+  createReply: async (postId: string, replyData: CreateReplyData) => {
     return apiCall(`community/posts/${postId}/reply/`, {
       method: "POST",
       body: JSON.stringify(replyData),
@@ -119,7 +119,7 @@ export const replyService = {
   },
 
   // Update reply
-  updateReply: async (replyId: number, content: string) => {
+  updateReply: async (replyId: string, content: string) => {
     return apiCall(`community/replies/${replyId}/`, {
       method: "PATCH",
       body: JSON.stringify({ content }),
@@ -127,7 +127,7 @@ export const replyService = {
   },
 
   // Delete reply
-  deleteReply: async (replyId: number) => {
+  deleteReply: async (replyId: string) => {
     return apiCall(`community/replies/${replyId}/`, {
       method: "DELETE",
     });
@@ -141,7 +141,7 @@ export const profileService = {
   },
 
   // Get other user profile for community interactions
-  getOtherUserProfile: async (userId: number) => {
+  getOtherUserProfile: async (userId: string) => {
     return apiCall(`community/profiles/${userId}/`);
   },
 
@@ -168,7 +168,7 @@ export const notificationService = {
   },
 
   // Mark notification as read
-  markNotificationRead: async (notificationId: number) => {
+  markNotificationRead: async (notificationId: string) => {
     return apiCall(`community/notifications/${notificationId}/mark_read/`, {
       method: "POST",
     });

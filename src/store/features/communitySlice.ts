@@ -105,7 +105,7 @@ export const createPost = createAsyncThunk(
 export const updatePost = createAsyncThunk(
   "community/updatePost",
   async (
-    { postId, content }: { postId: number; content: string },
+    { postId, content }: { postId: string; content: string },
     { rejectWithValue }
   ) => {
     try {
@@ -119,7 +119,7 @@ export const updatePost = createAsyncThunk(
 // Delete a post
 export const deletePost = createAsyncThunk(
   "community/deletePost",
-  async (postId: number, { rejectWithValue }) => {
+  async (postId: string, { rejectWithValue }) => {
     try {
       await communityService.post.deletePost(postId);
       return postId;
@@ -133,7 +133,7 @@ export const deletePost = createAsyncThunk(
 export const reactToPost = createAsyncThunk(
   "community/reactToPost",
   async (
-    { postId, type }: { postId: number; type: ReactionType },
+    { postId, type }: { postId: string; type: ReactionType },
     { rejectWithValue }
   ) => {
     try {
@@ -148,7 +148,7 @@ export const reactToPost = createAsyncThunk(
 export const createReply = createAsyncThunk(
   "community/createReply",
   async (
-    { postId, replyData, tempId }: { postId: number; replyData: CreateReplyData; tempId: string },
+    { postId, replyData, tempId }: { postId: string; replyData: CreateReplyData; tempId: string },
     { rejectWithValue }
   ) => {
     try {
@@ -164,7 +164,7 @@ export const createReply = createAsyncThunk(
 export const updateReply = createAsyncThunk(
   "community/updateReply",
   async (
-    { replyId, content }: { replyId: number; content: string },
+    { replyId, content }: { replyId: string; content: string },
     { rejectWithValue }
   ) => {
     try {
@@ -179,7 +179,7 @@ export const updateReply = createAsyncThunk(
 export const deleteReply = createAsyncThunk(
   "community/deleteReply",
   async (
-    { postId, replyId }: { postId: number; replyId: number },
+    { postId, replyId }: { postId: string; replyId: string },
     { rejectWithValue }
   ) => {
     try {
@@ -222,7 +222,7 @@ export const fetchNotifications = createAsyncThunk(
 // Mark notification as read
 export const markNotificationRead = createAsyncThunk(
   "community/markNotificationRead",
-  async (notificationId: number, { rejectWithValue }) => {
+  async (notificationId: string, { rejectWithValue }) => {
     try {
       await communityService.notification.markNotificationRead(notificationId);
       return notificationId;
@@ -257,7 +257,7 @@ const communitySlice = createSlice({
     },
 
     // OPTIMISTIC: Toggle reaction immediately
-    toggleReactionOptimistic: (state, action: PayloadAction<{ postId: number; type: ReactionType; isAdding: boolean }>) => {
+    toggleReactionOptimistic: (state, action: PayloadAction<{ postId: string; type: ReactionType; isAdding: boolean }>) => {
       const post = state.posts.find(p => p.id === action.payload.postId);
       if (post) {
         const { type, isAdding } = action.payload;
@@ -275,7 +275,7 @@ const communitySlice = createSlice({
     },
 
     // OPTIMISTIC: Add reply immediately
-    addOptimisticReply: (state, action: PayloadAction<{ postId: number; reply: CommunityReply }>) => {
+    addOptimisticReply: (state, action: PayloadAction<{ postId: string; reply: CommunityReply }>) => {
       const post = state.posts.find(p => p.id === action.payload.postId);
       if (post) {
         post.replies.push(action.payload.reply);
@@ -284,7 +284,7 @@ const communitySlice = createSlice({
     },
 
     // OPTIMISTIC: Remove failed reply
-    removeOptimisticReply: (state, action: PayloadAction<{ postId: number; tempId: string }>) => {
+    removeOptimisticReply: (state, action: PayloadAction<{ postId: string; tempId: string }>) => {
       const post = state.posts.find(p => p.id === action.payload.postId);
       if (post) {
         post.replies = post.replies.filter(r => r.id.toString() !== action.payload.tempId);
@@ -302,12 +302,12 @@ const communitySlice = createSlice({
     },
 
     // WEBSOCKET: Handle post deletion
-    handleWebSocketPostDeleted: (state, action: PayloadAction<number>) => {
+    handleWebSocketPostDeleted: (state, action: PayloadAction<string>) => {
       state.posts = state.posts.filter(p => p.id !== action.payload);
     },
 
     // WEBSOCKET: Handle reaction update
-    handleWebSocketReactionUpdate: (state, action: PayloadAction<{ post_id: number; reactions_count: any; user_reactions?: ReactionType[] }>) => {
+    handleWebSocketReactionUpdate: (state, action: PayloadAction<{ post_id: string; reactions_count: any; user_reactions?: ReactionType[] }>) => {
       const post = state.posts.find(p => p.id === action.payload.post_id);
       if (post) {
         post.reactions_count = action.payload.reactions_count;
@@ -318,7 +318,7 @@ const communitySlice = createSlice({
     },
 
     // WEBSOCKET: Handle new reply
-    handleWebSocketReply: (state, action: PayloadAction<{ postId: number; reply: CommunityReply }>) => {
+    handleWebSocketReply: (state, action: PayloadAction<{ postId: string; reply: CommunityReply }>) => {
       const post = state.posts.find(p => p.id === action.payload.postId);
       if (post) {
         // Only add if not already in list

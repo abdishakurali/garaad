@@ -40,10 +40,10 @@ export function PostCard({ post, userProfile }: PostCardProps) {
         const isAdding = !post.user_reactions.includes(type);
 
         // 1. Immediately update UI
-        dispatch(toggleReactionOptimistic({ postId: post.id as number, type, isAdding }));
+        dispatch(toggleReactionOptimistic({ postId: post.id, type, isAdding }));
 
         // 2. Send to server (will sync via WebSocket)
-        dispatch(reactToPost({ postId: post.id as number, type }));
+        dispatch(reactToPost({ postId: post.id, type }));
     };
 
     const handleDelete = async () => {
@@ -51,7 +51,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
 
         setIsDeleting(true);
         try {
-            await dispatch(deletePost(post.id as number)).unwrap();
+            await dispatch(deletePost(post.id)).unwrap();
         } catch (error) {
             console.error("Failed to delete post:", error);
             setIsDeleting(false);
@@ -171,7 +171,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
             {/* Replies */}
             {showReplies && (
                 <ReplyList
-                    postId={post.id as number}
+                    postId={post.id}
                     replies={post.replies}
                     userProfile={userProfile}
                 />

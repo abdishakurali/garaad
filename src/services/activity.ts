@@ -36,7 +36,9 @@ export class ActivityService {
       const body: ActivityUpdatePayload = {
         action_type: actionType,
         request_id: requestId,
-        payload
+        problems_solved: payload?.problems_solved,
+        energy_spent: payload?.energy_spent,
+        lesson_ids: payload?.lesson_ids,
       };
 
       const response = await fetch(`/api/activity/update/`, {

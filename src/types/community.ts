@@ -1,6 +1,6 @@
 // User-related types
 export interface User {
-  id: number;
+  id: string;
   username: string;
   profile_picture?: string;
   first_name?: string;
@@ -26,7 +26,7 @@ export type ReactionType = 'like' | 'fire' | 'insight';
 
 // Reply (one-level response to post)
 export interface CommunityReply {
-  id: number;
+  id: string;
   author: User;
   content: string;
   created_at: string;
@@ -35,7 +35,7 @@ export interface CommunityReply {
 
 // Post (main discussion item)
 export interface CommunityPost {
-  id: number;
+  id: string;
   category: string;
   author: User;
   content: string;
@@ -88,7 +88,7 @@ export interface UserProfile {
 
 // Notification-related types
 export interface Notification {
-  id: number;
+  id: string;
   sender?: User;
   notification_type:
   | "post_like"
@@ -230,6 +230,15 @@ export const REACTION_ICONS: Record<ReactionType, string> = {
   like: "👍",
   fire: "🔥",
   insight: "💡",
+};
+
+export const NOTIFICATION_ICONS: Record<string, string> = {
+  post_like: "❤️",
+  comment_like: "❤️",
+  post_comment: "💬",
+  comment_reply: "💬",
+  mention: "@",
+  new_campus_member: "👥",
 };
 
 export const SOMALI_UI_TEXT = {

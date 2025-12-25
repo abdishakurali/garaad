@@ -30,18 +30,6 @@ export function StatusScreen({ status, loading }: StatusScreenProps) {
         );
     }
 
-    const statusColors = {
-        "Stable": "bg-green-500",
-        "Unstable": "bg-yellow-500",
-        "At Risk": "bg-red-500"
-    };
-
-    const statusLabels = {
-        "Stable": "Xaaladaadu waa hubaal",
-        "Unstable": "Dadaal dheeraad ah",
-        "At Risk": "Khatar ayay ku jirtaa"
-    };
-
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -51,15 +39,12 @@ export function StatusScreen({ status, loading }: StatusScreenProps) {
                         <div className="p-3 rounded-2xl bg-orange-100 dark:bg-orange-900/30 text-orange-600">
                             <Flame className="w-6 h-6" />
                         </div>
-                        <div className={cn(
-                            "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-sm",
-                            statusColors[status.streak.status]
-                        )}>
-                            {status.streak.status}
+                        <div className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-sm bg-orange-500">
+                            Active
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <div className="text-3xl font-black dark:text-white">{status.streak.current}</div>
+                        <div className="text-3xl font-black dark:text-white">{status.streak.count}</div>
                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
                             Maalmood oo xiriir ah
                         </div>
@@ -93,7 +78,7 @@ export function StatusScreen({ status, loading }: StatusScreenProps) {
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <div className="text-2xl font-black dark:text-white">{status.identity}</div>
+                        <div className="text-2xl font-black dark:text-white capitalize">{status.identity}</div>
                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
                             Aqoonsigaaga hadda
                         </div>
@@ -124,7 +109,7 @@ export function StatusScreen({ status, loading }: StatusScreenProps) {
                 <Info className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                 <div>
                     <h4 className="text-sm font-black dark:text-white uppercase tracking-tight mb-0.5">Fariinta Garaad</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{statusLabels[status.streak.status]}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Sii wad barashada si aad u kordhiso dhibcahaaga!</p>
                 </div>
             </div>
         </div>

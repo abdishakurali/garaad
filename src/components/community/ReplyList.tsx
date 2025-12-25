@@ -20,7 +20,7 @@ import { formatDistanceToNow } from "date-fns";
 import { UserProfileModal } from "./UserProfileModal";
 
 interface ReplyListProps {
-    postId: number;
+    postId: string;
     replies: CommunityReply[];
     userProfile: UserProfile | null;
 }
@@ -29,10 +29,10 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [replyContent, setReplyContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-    const handleOpenProfile = (userId: number) => {
+    const handleOpenProfile = (userId: string) => {
         setSelectedUserId(userId);
         setIsProfileModalOpen(true);
     };
@@ -69,7 +69,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
         }
     };
 
-    const handleDelete = async (replyId: number) => {
+    const handleDelete = async (replyId: string) => {
         if (!confirm("Ma hubtaa inaad tirtirto jawaabtan?")) return;
 
         try {

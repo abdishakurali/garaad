@@ -28,9 +28,9 @@ import { getMediaUrl } from '@/lib/utils';
 interface NotificationCenterProps {
     notifications: Notification[];
     unreadCount: number;
-    onMarkAsRead: (notificationId: number) => void;
+    onMarkAsRead: (notificationId: string) => void;
     onMarkAllAsRead: () => void;
-    onDelete?: (notificationId: number) => void;
+    onDelete?: (notificationId: string) => void;
     onNotificationClick?: (notification: Notification) => void;
     loading?: boolean;
     showTabs?: boolean;
@@ -306,7 +306,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 export const NotificationDropdown: React.FC<{
     notifications: Notification[];
     unreadCount: number;
-    onMarkAsRead: (id: number) => void;
+    onMarkAsRead: (id: string) => void;
     onMarkAllAsRead: () => void;
     onNotificationClick?: (notification: Notification) => void;
     maxDisplay?: number;

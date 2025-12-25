@@ -1,11 +1,9 @@
-export type UserIdentity = "Explorer" | "Builder" | "Solver" | "Mentor";
+export type UserIdentity = "explorer" | "builder" | "solver" | "mentor";
 
 export interface NextAction {
-  type: string;
   title: string;
-  description: string;
-  action_url: string;
-  payload?: Record<string, any>;
+  action_type: string;
+  priority: "normal" | "high" | "low";
 }
 
 export interface User {

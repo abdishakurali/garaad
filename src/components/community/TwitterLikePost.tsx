@@ -37,7 +37,7 @@ interface Post {
     post_type: string;
     post_type_display: string;
     user: {
-        id: number;
+        id: string;
         first_name: string;
         last_name: string;
         username: string;
@@ -61,7 +61,7 @@ interface TwitterLikePostProps {
     onEdit?: (postId: string) => void;
     onDelete?: (postId: string) => void;
     onReport?: (postId: string) => void;
-    currentUserId?: number;
+    currentUserId?: string;
 }
 
 export const TwitterLikePost: React.FC<TwitterLikePostProps> = ({

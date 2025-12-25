@@ -21,7 +21,7 @@ import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { getMediaUrl } from "@/lib/utils";
 
 interface UserProfileModalProps {
-    userId: number | null;
+    userId: string | null;
     isOpen: boolean;
     onClose: () => void;
 }

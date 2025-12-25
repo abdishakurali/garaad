@@ -5,10 +5,10 @@ import { UserIdentity } from "@/types/auth";
 import { useAuth } from "@/hooks/useAuth";
 
 const IDENTITY_LEVELS: Record<UserIdentity, number> = {
-    "Explorer": 1,
-    "Builder": 2,
-    "Solver": 3,
-    "Mentor": 4
+    "explorer": 1,
+    "builder": 2,
+    "solver": 3,
+    "mentor": 4
 };
 
 interface IdentityWrapperProps {
