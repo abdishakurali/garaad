@@ -4,6 +4,7 @@ import type { Course, Category, Lesson, Module } from "@/types/learning";
 import axios from "axios";
 import AuthService from "@/services/auth";
 import useSWR from "swr";
+import { API_BASE_URL } from "@/lib/constants";
 
 type LessonType = Lesson;
 
@@ -70,7 +71,7 @@ export const fetchCategories = createAsyncThunk(
       const authService = AuthService.getInstance();
       const response = await authService.makeAuthenticatedRequest<Category[]>(
         "get",
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/`
+        `${API_BASE_URL}/api/lms/categories/`
       );
       return response;
     } catch (error) {
@@ -94,7 +95,7 @@ export const fetchCourse = createAsyncThunk(
     try {
       // First, fetch all courses for the category
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/?category=${categoryId}`
+        `${API_BASE_URL}/api/lms/courses/?category=${categoryId}`
       );
 
       // Find the specific course by slug
@@ -108,7 +109,7 @@ export const fetchCourse = createAsyncThunk(
 
       // Fetch the modules for this course using the course ID
       const modulesResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/?course=${course.id}`
+        `${API_BASE_URL}/api/lms/lessons/?course=${course.id}`
       );
 
       // Combine course data with modules
@@ -129,12 +130,12 @@ export const fetchModuleLessons = createAsyncThunk(
     try {
       // First fetch the module details
       const moduleResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${moduleId}/`
+        `${API_BASE_URL}/api/lms/lessons/${moduleId}/`
       );
 
       // Then fetch all lessons
       const lessonsResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/?module=${moduleId}`
+        `${API_BASE_URL}/api/lms/lessons/?module=${moduleId}`
       );
 
       return {
@@ -159,7 +160,7 @@ export const submitAnswer = createAsyncThunk(
 
       // First, get the lesson details
       const lessonResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${lessonId}/`,
+        `${API_BASE_URL}/api/lms/lessons/${lessonId}/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -234,7 +235,7 @@ export const fetchLesson = createAsyncThunk(
   async (lessonId: string) => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${lessonId}/`
+        `${API_BASE_URL}/api/lms/lessons/${lessonId}/`
       );
       return response.data;
     } catch (error) {

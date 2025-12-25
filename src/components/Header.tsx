@@ -15,6 +15,7 @@ import AuthService from "@/services/auth";
 import useSWR from "swr";
 import NotificationPanel from "./Notifications";
 import Logo from "./ui/Logo";
+import { API_BASE_URL } from "@/lib/constants";
 
 const AuthDialog = dynamic(() => import("@/components/auth/AuthDialog").then(mod => mod.AuthDialog), {
   loading: () => <div className="h-10 w-24 bg-gray-100 animate-pulse rounded-md" />,
@@ -104,7 +105,7 @@ export function Header() {
     error,
     isLoading: loading,
   } = useSWR<StreakData>(
-    user ? `${process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org"}/api/streaks/` : null,
+    user ? `${API_BASE_URL}/api/streaks/` : null,
     streakFetcher,
     {
       revalidateOnFocus: false,

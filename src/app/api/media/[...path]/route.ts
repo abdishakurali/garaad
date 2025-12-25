@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { baseURL } from "@/config";
 import { cookies } from "next/headers";
+import { API_BASE_URL } from "@/lib/constants";
 
 // Use the same base URL as other services
-const API_URL = process.env.NEXT_PUBLIC_API_URL || baseURL;
-
+const API_URL = API_BASE_URL;
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }

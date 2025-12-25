@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { API_BASE_URL } from "@/lib/constants";
 
 export async function POST(request: Request) {
   try {
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
 
       // Update premium status in the backend
       const updateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/update-premium/`,
+        `${API_BASE_URL}/api/auth/update-premium/`,
         {
           method: "POST",
           headers: {

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { CategoryState } from "@/types/lms";
 import axios, { AxiosError } from "axios";
+import { API_BASE_URL } from "@/lib/constants";
 
 const initialState: CategoryState = {
   items: [],
@@ -14,7 +15,7 @@ export const fetchCategories = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/`
+        `${API_BASE_URL}/api/lms/categories/`
       );
       return response.data;
     } catch (error) {
@@ -31,7 +32,7 @@ export const fetchCategoryById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${id}/`
+        `${API_BASE_URL}/api/lms/categories/${id}/`
       );
       return response.data;
     } catch (error) {

@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-course.svg";
@@ -40,7 +41,7 @@ const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string
   // Handle both relative and absolute URLs
   let imageSrc = src || defaultCourseImage;
   if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('/images/')) {
-    imageSrc = `${process.env.NEXT_PUBLIC_API_URL}${imageSrc}`;
+    imageSrc = `${API_BASE_URL}${imageSrc}`;
   }
 
   return (

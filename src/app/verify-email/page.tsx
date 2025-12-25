@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { API_BASE_URL } from "@/lib/constants";
 import type React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export default function VerifyEmailPage() {
         console.log("Sending initial verification email to:", email);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
+          `${API_BASE_URL}/api/auth/resend-verification/`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -194,7 +195,7 @@ export default function VerifyEmailPage() {
       setIsVerifying(true);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-email/`,
+        `${API_BASE_URL}/api/auth/verify-email/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

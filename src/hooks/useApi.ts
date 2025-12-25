@@ -2,6 +2,7 @@ import useSWR from "swr";
 import { Category, Course, Lesson } from "@/types/lms";
 import axios from "axios";
 import { Module } from "@/types/learning";
+import { API_BASE_URL } from "@/lib/constants";
 
 // Add cache configuration
 const swrConfig = {
@@ -38,7 +39,7 @@ const fetcher = async (url: string) => {
 // Categories and Courses
 export function useCategories() {
   const { data, error, isLoading, mutate } = useSWR<Category[]>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/`,
+    `${API_BASE_URL}/api/lms/categories/`,
     fetcher,
     swrConfig
   );
@@ -72,7 +73,7 @@ export function useCategories() {
 export function useModule(courseId: string, moduleId: string) {
   const { data, error, isLoading, mutate } = useSWR<Module>(
     courseId && moduleId
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/${courseId}/modules/${moduleId}/`
+      ? `${API_BASE_URL}/api/lms/courses/${courseId}/modules/${moduleId}/`
       : null,
     fetcher,
     swrConfig
@@ -90,7 +91,7 @@ export function useModule(courseId: string, moduleId: string) {
 export function useLesson(moduleId: string, lessonId: string) {
   const { data, error, isLoading, mutate } = useSWR<Lesson>(
     moduleId && lessonId
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/modules/${moduleId}/lessons/${lessonId}/`
+      ? `${API_BASE_URL}/api/lms/modules/${moduleId}/lessons/${lessonId}/`
       : null,
     fetcher,
     swrConfig
@@ -107,7 +108,7 @@ export function useLesson(moduleId: string, lessonId: string) {
 // User Progress
 export function useUserProgress() {
   const { data, error, isLoading, mutate } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/user/progress/`,
+    `${API_BASE_URL}/api/lms/user/progress/`,
     fetcher,
     swrConfig
   );
@@ -125,7 +126,7 @@ export function useLeaderboard(
   timePeriod: "daily" | "weekly" | "all_time" = "all_time"
 ) {
   const { data, error, isLoading, mutate } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/?time_period=${timePeriod}`,
+    `${API_BASE_URL}/api/lms/leaderboard/?time_period=${timePeriod}`,
     fetcher,
     swrConfig
   );
@@ -141,7 +142,7 @@ export function useLeaderboard(
 // User Rank
 export function useUserRank() {
   const { data, error, isLoading, mutate } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/my_rank/`,
+    `${API_BASE_URL}/api/lms/leaderboard/my_rank/`,
     fetcher,
     swrConfig
   );
@@ -158,8 +159,8 @@ export function useUserRank() {
 export function useUserRewards(lessonId?: string) {
   const { data, error, isLoading, mutate } = useSWR(
     lessonId
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/rewards?lesson_id=${lessonId}`
-      : `${process.env.NEXT_PUBLIC_API_URL}/api/lms/rewards`,
+      ? `${API_BASE_URL}/api/lms/rewards?lesson_id=${lessonId}`
+      : `${API_BASE_URL}/api/lms/rewards`,
     fetcher,
     swrConfig
   );
@@ -175,7 +176,7 @@ export function useUserRewards(lessonId?: string) {
 // User Streak
 export function useUserStreak() {
   const { data, error, isLoading, mutate } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/streaks/`,
+    `${API_BASE_URL}/api/streaks/`,
     fetcher,
     swrConfig
   );
@@ -197,7 +198,7 @@ export function useCourse(categoryId: string, courseSlug: string) {
     shouldFetch ? ["/course", categoryId, courseSlug] : null,
     async () => {
       const coursesRes = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/?category=${categoryId}`
+        `${API_BASE_URL}/api/lms/courses/?category=${categoryId}`
       );
       const course: Course | undefined = coursesRes.data.find(
         (c: Course) => c.slug === courseSlug
@@ -205,7 +206,7 @@ export function useCourse(categoryId: string, courseSlug: string) {
       if (!course) throw new Error("Course not found");
 
       const modulesRes = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/?course=${course.id}`
+        `${API_BASE_URL}/api/lms/lessons/?course=${course.id}`
       );
       return { ...course, modules: modulesRes.data as Module[] };
     }

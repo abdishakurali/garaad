@@ -30,6 +30,7 @@ import CalculatorProblemBlock from "@/components/lesson/CalculatorProblemBlock";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { cn } from "@/lib/utils";
 import RewardSequence from "@/components/Reward";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface ProblemData {
     id: number;
@@ -438,7 +439,7 @@ const LessonPage = () => {
 
     // SWR hooks for data fetching
     const { data: courses } = useSWR<Course[]>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/`,
+        `${API_BASE_URL}/api/lms/courses/`,
         publicFetcher,
         {
             revalidateOnFocus: false,
@@ -451,7 +452,7 @@ const LessonPage = () => {
         isLoading: isStreakLoading,
         mutate: refreshStreakData,
     } = useSWR<StreakData>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/streaks/`,
+        `${API_BASE_URL}/api/streaks/`,
         streakFetcher,
         {
             revalidateOnFocus: false,
@@ -466,7 +467,7 @@ const LessonPage = () => {
         isLoading: isLeagueLoading,
         mutate: refreshLeagueData,
     } = useSWR<LeaderboardData>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/league/leagues/status/`,
+        `${API_BASE_URL}/api/league/leagues/status/`,
         streakFetcher,
         {
             revalidateOnFocus: false,
@@ -485,8 +486,7 @@ const LessonPage = () => {
         isLoading: isLeaderboardLoading,
         mutate: refreshLeaderboardData,
     } = useSWR<LeaderboardData>(
-        `${process.env.NEXT_PUBLIC_API_URL
-        }/api/league/leagues/leaderboard/?time_period=weekly&league=${leagueId ?? 1
+        `${API_BASE_URL}/api/league/leagues/leaderboard/?time_period=weekly&league=${leagueId ?? 1
         }`,
         streakFetcher,
         {
@@ -591,7 +591,7 @@ const LessonPage = () => {
         try {
             const fetches = problemBlocks.map((block) =>
                 fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/problems/${block.problem}/`
+                    `${API_BASE_URL}/api/lms/problems/${block.problem}/`
                 )
             );
             const responses = await Promise.all(fetches);
@@ -761,7 +761,7 @@ const LessonPage = () => {
                     .map((b) => b.problem);
 
                 await authFetcher(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${currentLesson.id}/complete/`,
+                    `${API_BASE_URL}/api/lms/lessons/${currentLesson.id}/complete/`,
                     "post",
                     {
                         completed_problems: completedProblemIds,

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 import { useCourse } from "@/hooks/useApi";
+import { API_BASE_URL } from "@/lib/constants";
 import AuthService from "@/services/auth";
 import useSWR from "swr";
 import { UserProgress } from "@/services/progress";
@@ -53,14 +54,14 @@ export default function CourseDetailPage() {
 
     const {
         data: enrollments,
-    } = useSWR<EnrollmentProgress[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/lms/enrollments/`, authFetcher, {
+    } = useSWR<EnrollmentProgress[]>(`${API_BASE_URL}/api/lms/enrollments/`, authFetcher, {
         revalidateOnFocus: false,
         dedupingInterval: 600000,
     });
 
     const {
         data: progress,
-    } = useSWR<UserProgress[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/lms/user-progress/`, authFetcher, {
+    } = useSWR<UserProgress[]>(`${API_BASE_URL}/api/lms/user-progress/`, authFetcher, {
         revalidateOnFocus: false,
         dedupingInterval: 600000,
     });

@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import AuthService from "@/services/auth";
 import { LeaderboardEntry, UserRank, UserReward } from "@/services/progress";
 import { LessonContentBlock } from "@/types/learning";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface LessonCompletionHandlerProps {
   currentLesson?: {
@@ -79,7 +80,7 @@ export const useLessonCompletionHandler = ({
                 reward?: { value: number };
               }>(
                 "post",
-                `${process.env.NEXT_PUBLIC_API_URL}/api/lms/lessons/${currentLesson.id}/complete/`,
+                `${API_BASE_URL}/api/lms/lessons/${currentLesson.id}/complete/`,
                 {
                   score: isCorrect ? 100 : 0,
                 }
@@ -94,7 +95,7 @@ export const useLessonCompletionHandler = ({
                 };
               }>(
                 "get",
-                `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/${courseId}/`
+                `${API_BASE_URL}/api/lms/courses/${courseId}/`
               );
 
             // // 3. Show reward if any
@@ -116,18 +117,18 @@ export const useLessonCompletionHandler = ({
               await Promise.all([
                 AuthService.getInstance().makeAuthenticatedRequest<
                   UserReward[]
-                >("get", `${process.env.NEXT_PUBLIC_API_URL}/api/lms/rewards/`),
+                >("get", `${API_BASE_URL}/api/lms/rewards/`),
                 AuthService.getInstance().makeAuthenticatedRequest<
                   LeaderboardEntry[]
                 >(
                   "get",
-                  `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/?time_period=all_time&limit=10`
+                  `${API_BASE_URL}/api/lms/leaderboard/?time_period=all_time&limit=10`
                 ),
                 AuthService.getInstance().makeAuthenticatedRequest<
                   Partial<UserRank>
                 >(
                   "get",
-                  `${process.env.NEXT_PUBLIC_API_URL}/api/lms/leaderboard/my_rank/`
+                  `${API_BASE_URL}/api/lms/leaderboard/my_rank/`
                 ),
               ]);
 

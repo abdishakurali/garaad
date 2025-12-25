@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { API_BASE_URL } from "@/lib/constants";
 import axios from "axios";
 import Cookies from "js-cookie";
 import {
@@ -47,7 +48,7 @@ export default function ProgressPage() {
   const [refreshCount, setRefreshCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/lms/user-progress/`;
+  const apiUrl = `${API_BASE_URL}/api/lms/user-progress/`;
 
   const fetchProgress = useCallback(async () => {
     setError(null);

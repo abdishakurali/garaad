@@ -1,7 +1,8 @@
 import AuthService from "@/services/auth";
+import { API_BASE_URL } from "@/lib/constants";
 import type { CreatePostData, CreateReplyData, ReactionType } from "@/types/community";
 
-const BASE_URL = "/api/";
+const BASE_URL = `${API_BASE_URL}/api/`;
 
 // Helper function for making authenticated API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {

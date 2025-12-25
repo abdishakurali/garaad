@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { CourseState } from "@/types/lms";
 import axios, { AxiosError } from "axios";
+import { API_BASE_URL } from "@/lib/constants";
 
 const initialState: CourseState = {
   items: [],
@@ -14,8 +15,8 @@ export const fetchCourses = createAsyncThunk(
   async (categoryId: string | undefined, { rejectWithValue }) => {
     try {
       const url = categoryId
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/`;
+        ? `${API_BASE_URL}/api/lms/categories/${categoryId}/courses/`
+        : `${API_BASE_URL}/api/lms/courses/`;
       const response = await axios.get(url);
       return response.data;
     } catch (error) {
@@ -35,7 +36,7 @@ export const fetchCourseById = createAsyncThunk(
   ) => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/${courseId}/`
+        `${API_BASE_URL}/api/lms/categories/${categoryId}/courses/${courseId}/`
       );
       return response.data;
     } catch (error) {
@@ -59,7 +60,7 @@ export const updateCourseProgress = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/${courseId}/progress/`,
+        `${API_BASE_URL}/api/lms/categories/${categoryId}/courses/${courseId}/progress/`,
         {
           progress,
         }

@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { Category } from "@/types/lms";
+import { API_BASE_URL } from "@/lib/constants";
 
 const fetcher = async (url: string) => {
   const token =
@@ -21,7 +22,7 @@ const fetcher = async (url: string) => {
 
 export function useCourses() {
   const { data, error, isLoading, mutate } = useSWR<Category[]>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/`,
+    `${API_BASE_URL}/api/lms/categories/`,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -41,7 +42,7 @@ export function useCourses() {
 export function useCourseBySlug(categoryId: string, courseSlug: string) {
   const { data, error, isLoading, mutate } = useSWR<Category>(
     categoryId && courseSlug
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/${courseSlug}/`
+      ? `${API_BASE_URL}/api/lms/categories/${categoryId}/courses/${courseSlug}/`
       : null,
     fetcher,
     {

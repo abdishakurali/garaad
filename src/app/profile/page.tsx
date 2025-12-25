@@ -37,6 +37,7 @@ import { getMediaUrl } from "@/lib/utils";
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/features/authSlice";
+import { API_BASE_URL } from "@/lib/constants";
 
 // Extend User type to include required fields
 interface ExtendedUser extends User {
@@ -87,7 +88,7 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://api.garaad.org/api/auth/upload-profile-picture/", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/upload-profile-picture/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
@@ -175,10 +176,10 @@ export default function ProfilePage() {
 
       try {
         const [statsResponse, listResponse] = await Promise.all([
-          fetch('https://api.garaad.org/api/auth/referral-stats/', {
+          fetch(`${API_BASE_URL}/api/auth/referral-stats/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch('https://api.garaad.org/api/auth/referral-list/', {
+          fetch(`${API_BASE_URL}/api/auth/referral-list/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -244,7 +245,7 @@ export default function ProfilePage() {
 
       console.log('Profile picture update: Starting upload...');
 
-      const response = await fetch('https://api.garaad.org/api/auth/upload-profile-picture/', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/upload-profile-picture/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${AuthService.getInstance().getToken()}`,
@@ -732,7 +733,7 @@ export default function ProfilePage() {
                             return;
                           }
 
-                          const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org";
+                          const apiBase = API_BASE_URL;
                           const response = await fetch(`${apiBase}/api/auth/generate-referral-code/`, {
                             method: "POST",
                             headers: {

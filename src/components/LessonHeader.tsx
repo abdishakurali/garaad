@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import LessonStreak from "./LessonStreak";
 import AuthService from "@/services/auth";
 import axios from "axios";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface LessonHeaderProps {
   currentQuestion: number;
@@ -63,7 +64,7 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
       const token = authService.getToken();
 
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/streaks/`,
+        `${API_BASE_URL}/api/streaks//`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

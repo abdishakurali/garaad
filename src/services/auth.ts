@@ -2,6 +2,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { User } from "@/types/auth";
 import { validateEmail } from "@/lib/email-validation";
+import { API_BASE_URL } from "@/lib/constants";
 
 export interface SignUpData {
   email: string;

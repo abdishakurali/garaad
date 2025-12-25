@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { API_BASE_URL } from "@/lib/constants";
 import type React from "react";
 import Image from "next/image";
 import useSWR from "swr";
@@ -184,7 +185,7 @@ export default function Home() {
     isLoading: isLoadingCourses,
     error: coursesError,
   } = useSWR<Course[]>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/lms/courses/`,
+    `${API_BASE_URL}/api/lms/courses/`,
     publicFetcher,
     {
       revalidateOnFocus: false,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +24,7 @@ export default function RewardsPage() {
     const fetchRewards = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/lms/rewards/`
+          `${API_BASE_URL}/api/lms/rewards/`
         );
         const data = await response.json();
         setRewards(data.results);
