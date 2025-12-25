@@ -238,12 +238,12 @@ const communitySlice = createSlice({
   initialState,
   reducers: {
     setSelectedCategory: (state, action: PayloadAction<CommunityCategory | null>) => {
-      state.selectedCategory = action.payload;
       // Clear posts when changing category
       if (action.payload?.id !== state.selectedCategory?.id) {
         state.posts = [];
         state.pagination.posts = { page: 1, hasMore: false };
       }
+      state.selectedCategory = action.payload;
     },
 
     // OPTIMISTIC: Add post immediately

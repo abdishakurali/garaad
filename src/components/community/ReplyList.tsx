@@ -122,9 +122,9 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
             ) : (
                 <div className="space-y-3">
                     {replies.map((reply) => {
-                        const isPending = reply.id.toString().startsWith("temp-");
-                        const isOwnReply = userProfile?.user.id === reply.author.id;
-                        const timeAgo = formatDistanceToNow(new Date(reply.created_at), { addSuffix: true });
+                        const isPending = reply.id?.toString().startsWith("temp-") || false;
+                        const isOwnReply = userProfile?.user?.id === reply.author?.id;
+                        const timeAgo = reply.created_at ? formatDistanceToNow(new Date(reply.created_at), { addSuffix: true }) : SOMALI_UI_TEXT.now;
 
                         return (
                             <div
@@ -133,22 +133,22 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
                             >
                                 <div
                                     className="cursor-pointer transition-transform hover:scale-105"
-                                    onClick={() => handleOpenProfile(reply.author.id)}
+                                    onClick={() => reply.author?.id && handleOpenProfile(reply.author.id)}
                                 >
                                     <AuthenticatedAvatar
-                                        src={getMediaUrl(reply.author.profile_picture, 'profile_pics')}
-                                        alt={reply.author.first_name || reply.author.username}
+                                        src={getMediaUrl(reply.author?.profile_picture, 'profile_pics')}
+                                        alt={reply.author?.first_name || reply.author?.username || "User"}
                                         size="sm"
-                                        fallback={reply.author.first_name?.[0] || reply.author.username[0]}
+                                        fallback={reply.author?.first_name?.[0] || reply.author?.username?.[0] || "?"}
                                     />
                                 </div>
                                 <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                                     <div className="flex items-center gap-2 mb-1">
                                         <span
                                             className="font-bold text-xs dark:text-white cursor-pointer hover:text-primary transition-colors"
-                                            onClick={() => handleOpenProfile(reply.author.id)}
+                                            onClick={() => reply.author?.id && handleOpenProfile(reply.author.id)}
                                         >
-                                            {reply.author.first_name || reply.author.username}
+                                            {reply.author?.first_name || reply.author?.username || "User"}
                                         </span>
                                         <span className="text-xs text-gray-500">{timeAgo}</span>
                                         {reply.is_edited && (

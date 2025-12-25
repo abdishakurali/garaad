@@ -76,10 +76,10 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                             <div className="absolute -inset-1.5 bg-gradient-to-tr from-primary to-purple-500 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000" />
                             <div className="relative">
                                 <AuthenticatedAvatar
-                                    src={profile ? getMediaUrl(profile.user.profile_picture, 'profile_pics') : undefined}
-                                    alt={profile?.user.username || "User"}
+                                    src={profile ? getMediaUrl(profile.user?.profile_picture, 'profile_pics') : undefined}
+                                    alt={profile?.user?.username || "User"}
                                     size="xl"
-                                    fallback={profile?.user.first_name?.[0] || profile?.user.username[0] || "?"}
+                                    fallback={profile?.user?.first_name?.[0] || profile?.user?.username?.[0] || "?"}
                                     className="border-[6px] border-white dark:border-[#1E1F22] w-28 h-28 text-3xl shadow-xl"
                                 />
                                 {profile && (
@@ -110,10 +110,10 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                         ) : profile ? (
                             <>
                                 <h2 className="text-2xl font-black dark:text-white mb-1 tracking-tight">
-                                    {profile.user.first_name ? `${profile.user.first_name} ${profile.user.last_name || ""}` : profile.user.username}
+                                    {profile.user?.first_name ? `${profile.user.first_name} ${profile.user.last_name || ""}` : profile.user?.username || "User"}
                                 </h2>
                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 italic">
-                                    @{profile.user.username}
+                                    @{profile.user?.username || "user"}
                                 </p>
 
                                 <div

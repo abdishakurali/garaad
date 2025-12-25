@@ -32,12 +32,13 @@ export function PostCard({ post, userProfile }: PostCardProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-    const isOwnPost = userProfile?.user.id === post.author.id;
-    const isPending = post.id.toString().startsWith("temp-");
+    const isOwnPost = userProfile?.user?.id === post.author?.id;
+    const isPending = post.id?.toString().startsWith("temp-") || false;
 
     // OPTIMISTIC: Handle reaction click
     const handleReaction = (type: ReactionType) => {
-        const isAdding = !post.user_reactions.includes(type);
+        if (!post.id) return;
+        const isAdding = !post.user_reactions?.includes(type);
 
         // 1. Immediately update UI
         dispatch(toggleReactionOptimistic({ postId: post.id, type, isAdding }));
@@ -47,6 +48,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
     };
 
     const handleDelete = async () => {
+        if (!post.id) return;
         if (!confirm("Ma hubtaa inaad tirtirto qoraalkan?")) return;
 
         setIsDeleting(true);
@@ -58,7 +60,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
         }
     };
 
-    const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
+    const timeAgo = post.created_at ? formatDistanceToNow(new Date(post.created_at), { addSuffix: true }) : SOMALI_UI_TEXT.now;
 
     return (
         <div className={cn(
@@ -73,10 +75,10 @@ export function PostCard({ post, userProfile }: PostCardProps) {
                     onClick={() => setIsProfileModalOpen(true)}
                 >
                     <AuthenticatedAvatar
-                        src={getMediaUrl(post.author.profile_picture, 'profile_pics')}
-                        alt={post.author.first_name || post.author.username}
+                        src={getMediaUrl(post.author?.profile_picture, 'profile_pics')}
+                        alt={post.author?.first_name || post.author?.username || "User"}
                         size="md"
-                        fallback={post.author.first_name?.[0] || post.author.username[0]}
+                        fallback={post.author?.first_name?.[0] || post.author?.username?.[0] || "?"}
                     />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -85,7 +87,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
                             className="font-bold text-sm dark:text-white cursor-pointer hover:text-primary transition-colors"
                             onClick={() => setIsProfileModalOpen(true)}
                         >
-                            {post.author.first_name || post.author.username}
+                            {post.author?.first_name || post.author?.username || "User"}
                         </span>
                         <span className="text-xs text-gray-500">
                             {timeAgo}
@@ -178,7 +180,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
             )}
 
             <UserProfileModal
-                userId={post.author.id}
+                userId={post.author?.id || null}
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
             />
