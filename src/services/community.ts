@@ -55,11 +55,8 @@ export const categoryService = {
 // Post Management APIs
 export const postService = {
   getPosts: async (categoryId: string, page?: number) => {
-    const params = new URLSearchParams();
-    params.append("category", categoryId);
-    if (page) params.append("page", page.toString());
-
-    return apiCall(`community/posts/?${params.toString()}`);
+    const params = page ? `?page=${page}` : "";
+    return apiCall(`community/categories/${categoryId}/posts/${params}`);
   },
 
   // Create post
@@ -74,13 +71,13 @@ export const postService = {
         formData.append(`images`, image);
       });
 
-      return apiCall(`community/posts/`, {
+      return apiCall(`community/categories/${categoryId}/posts/`, {
         method: "POST",
         body: formData,
       });
     } else {
       const { images, ...jsonData } = postData;
-      return apiCall(`community/posts/`, {
+      return apiCall(`community/categories/${categoryId}/posts/`, {
         method: "POST",
         body: JSON.stringify(jsonData),
       });
