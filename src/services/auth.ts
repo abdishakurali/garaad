@@ -30,6 +30,36 @@ export interface SignUpData {
   };
 }
 
+export interface OnboardingData {
+  goal: string;
+  learning_approach: string;
+  topic: string;
+  math_level: string;
+  minutes_per_day: number;
+  preferred_study_time: string;
+}
+
+export interface DashboardProfile {
+  id: number;
+  username: string;
+  xp: number;
+  streak: {
+    current: number;
+    max: number;
+    energy: number;
+  };
+  league: {
+    id: number;
+    name: string;
+    min_xp: number;
+  };
+  community_profile: {
+    badge_level: string;
+    total_posts: number;
+  };
+  profile_picture: string;
+}
+
 export interface SignUpResponse {
   message?: string;
   user: User;
@@ -778,6 +808,36 @@ export class AuthService {
       }
       throw new Error("Sawirka lama tirtiri karin");
     }
+  }
+
+  // New Profile Management APIs
+
+  public async getDashboardProfile(): Promise<DashboardProfile> {
+    return this.makeAuthenticatedRequest("get", "/api/auth/profile/");
+  }
+
+  public async getBasicProfile(): Promise<User> {
+    return this.makeAuthenticatedRequest("get", "/api/auth/user-profile/");
+  }
+
+  public async updateProfile(data: Partial<User>): Promise<User> {
+    const response = await this.makeAuthenticatedRequest<User>(
+      "put",
+      "/api/auth/update-user-profile/",
+      data as Record<string, unknown>
+    );
+    this.setCurrentUser(response);
+    return response;
+  }
+
+  // Onboarding Endpoints
+
+  public async getOnboardingStatus(): Promise<{ has_completed_onboarding: boolean }> {
+    return this.makeAuthenticatedRequest("get", "/api/auth/onboarding-status/");
+  }
+
+  public async completeOnboarding(data: OnboardingData): Promise<{ message: string }> {
+    return this.makeAuthenticatedRequest("post", "/api/auth/complete-onboarding/", data as unknown as Record<string, unknown>);
   }
 }
 

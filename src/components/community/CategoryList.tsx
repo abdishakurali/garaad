@@ -85,7 +85,7 @@ export function CategoryList({
                                     </p>
                                     <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
                                         <MessageSquare className="h-3 w-3" />
-                                        <span>{category.posts_count} qoraal</span>
+                                        <span>{category.posts_count || 0} qoraal</span>
                                     </div>
                                 </div>
                             </div>

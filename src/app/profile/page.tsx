@@ -39,11 +39,16 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/store/features/authSlice";
 import { API_BASE_URL } from "@/lib/constants";
 
-// Extend User type to include required fields
+import { BadgeLevel } from "@/types/community";
+import { DashboardProfile } from "@/services/auth";
+
+// Extended User type to include required fields
 interface ExtendedUser extends User {
   first_name: string;
   last_name: string;
   username: string;
+  age?: number;
+  bio?: string;
 }
 
 interface ReferralStats {
@@ -88,52 +93,51 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/upload-profile-picture/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
-      });
-
-      if (!response.ok)
-        throw new Error("Ku guuldaraystay in la cusboonaysiiyo profile-ka");
-
-      const updated = await response.json();
-      setUserState(updated);
+      const authService = AuthService.getInstance();
+      const updated = await authService.updateProfile(editForm);
+      setUserState(updated as ExtendedUser);
       setShowEditModal(false);
+      // Show success message
+      alert("Profile-ka waa la cusboonaysiiyay!");
     } catch (err) {
       console.error(err);
       setError("Ku guuldaraystay in la cusboonaysiiyo profile-ka");
     }
   };
 
-  // Load user from AuthService (cookies)
+  const [dashboardProfile, setDashboardProfile] = useState<DashboardProfile | null>(null);
+
+  // Load user data using new APIs
   useEffect(() => {
-    setIsLoading(true);
-    try {
-      const storedUser = AuthService.getInstance().getCurrentUser();
-      if (storedUser) {
-        console.log('Profile page: Loaded user from storage:', {
-          id: storedUser.id,
-          profile_picture: storedUser.profile_picture,
-          first_name: storedUser.first_name,
-          last_name: storedUser.last_name
-        });
-        setUserState(storedUser as ExtendedUser);
+    const fetchProfileData = async () => {
+      setIsLoading(true);
+      const authService = AuthService.getInstance();
+      try {
+        const [basic, dashboard] = await Promise.all([
+          authService.getBasicProfile(),
+          authService.getDashboardProfile()
+        ]);
+
+        setUserState(basic as ExtendedUser);
+        setDashboardProfile(dashboard);
+
         setEditForm({
-          first_name: storedUser.first_name,
-          last_name: storedUser.last_name,
-          username: storedUser.username,
-          email: storedUser.email,
+          first_name: basic.first_name,
+          last_name: basic.last_name,
+          username: basic.username,
+          email: basic.email,
+          bio: (basic as any).bio,
+          age: (basic as any).age,
         });
-      } else {
-        setError("Isticmaalaha lama helin");
+      } catch (err) {
+        console.error("Qalad ayaa dhacay marka la soo raray isticmaalaha:", err);
+        setError("Ku guuldaraystay in la soo raro xogta profile-ka");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Qalad ayaa dhacay marka la soo raray isticmaalaha:", err);
-      setError("Ku guuldaraystay in la soo raro xogta profile-ka");
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    fetchProfileData();
   }, []);
 
   // Debug: Log user changes
@@ -407,19 +411,45 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Quick Stats */}
-                <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-blue-600">{lessonsCompleted}</div>
-                      <div className="text-xs text-gray-500">Casharka</div>
+                {/* Enhanced Stats */}
+                <div className="px-6 py-6 border-t border-gray-100 dark:border-gray-700">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20 mb-2">
+                        <Flame className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <div className="text-xl font-bold text-gray-900 dark:text-white">{dashboardProfile?.streak?.current || 0}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Maalin</div>
                     </div>
-                    <div>
-                      <div className="text-2xl font-bold text-purple-600">{completedPercentage}%</div>
-                      <div className="text-xs text-gray-500">Horumarinta</div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 mb-2">
+                        <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div className="text-xl font-bold text-gray-900 dark:text-white">{dashboardProfile?.xp || 0}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">XP</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center p-2 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 mb-2">
+                        <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                      </div>
+                      <div className="text-xl font-bold text-gray-900 dark:text-white">{dashboardProfile?.league?.name || "Liig"}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Horyaal</div>
                     </div>
                   </div>
                 </div>
+
+                {/* Badge Level from Community */}
+                {dashboardProfile?.community_profile && (
+                  <div className="mx-6 mb-6 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                    <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Heerka Bulshada</div>
+                    <div className="text-lg font-bold flex items-center justify-between">
+                      {dashboardProfile.community_profile.badge_level}
+                      <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-0">
+                        {dashboardProfile.community_profile.total_posts} qoraal
+                      </Badge>
+                    </div>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="p-6 border-t border-gray-100 dark:border-gray-700 space-y-3">
@@ -788,21 +818,32 @@ export default function ProfilePage() {
               </DialogHeader>
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-6 py-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Koowaad</Label>
-                    <Input id="first_name" name="first_name" value={editForm.first_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magacaaga koowaad" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Dambe</Label>
-                    <Input id="last_name" name="last_name" value={editForm.last_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magacaaga dambe" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="username" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Isticmaalaha</Label>
-                    <Input id="username" name="username" value={editForm.username || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli magaca isticmaalaha" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-200">Iimaylka</Label>
-                    <Input id="email" name="email" type="email" value={editForm.email || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Geli iimaylkaaga" />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Koowaad</Label>
+                        <Input id="first_name" name="first_name" value={editForm.first_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Liban" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Magaca Dambe</Label>
+                        <Input id="last_name" name="last_name" value={editForm.last_name || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="Garaad" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="age" className="text-sm font-medium text-gray-700 dark:text-gray-200">Da'da</Label>
+                      <Input id="age" name="age" type="number" value={editForm.age || ""} onChange={handleInputChange} className="rounded-lg bg-gray-50 dark:bg-gray-800" placeholder="25" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="bio" className="text-sm font-medium text-gray-700 dark:text-gray-200">Bio</Label>
+                      <textarea
+                        id="bio"
+                        name="bio"
+                        value={editForm.bio || ""}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+                        className="w-full flex min-h-[100px] rounded-lg border border-input bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="Wax nooga sheeg naftaada..."
+                      />
+                    </div>
                   </div>
                 </div>
                 <DialogFooter className="gap-3">

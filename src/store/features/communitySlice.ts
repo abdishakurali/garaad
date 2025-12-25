@@ -57,8 +57,13 @@ export const fetchCategories = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const data = await communityService.category.getCategories();
-      // Filter only community-enabled categories
-      return data.filter((cat: any) => cat.is_community_enabled);
+      // Ensure each category has necessary community fields with fallbacks
+      return data.map((cat: any) => ({
+        ...cat,
+        posts_count: cat.posts_count || 0,
+        community_description: cat.community_description || cat.description || "",
+        is_community_enabled: cat.is_community_enabled ?? true,
+      }));
     } catch (error: any) {
       return rejectWithValue(handleApiError(error));
     }
