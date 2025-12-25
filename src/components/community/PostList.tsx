@@ -49,7 +49,7 @@ export function PostList({ posts, loading, error, userProfile }: PostListProps) 
     return (
         <ScrollArea className="flex-1">
             <div className="max-w-3xl mx-auto p-4 space-y-4">
-                {posts.map((post) => (
+                {posts?.filter(post => !!post && !!post.id).map((post) => (
                     <PostCard
                         key={post.id}
                         post={post}

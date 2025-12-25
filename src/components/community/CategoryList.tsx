@@ -37,7 +37,7 @@ export function CategoryList({
     return (
         <ScrollArea className="flex-1">
             <div className="p-3 space-y-1">
-                {categories.map((category) => {
+                {categories?.filter(c => !!c && !!c.id).map((category) => {
                     const isSelected = selectedCategory?.id === category.id;
 
                     return (
