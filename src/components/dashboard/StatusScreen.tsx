@@ -58,12 +58,15 @@ export function StatusScreen({ status, loading }: StatusScreenProps) {
                             <Zap className="w-6 h-6" />
                         </div>
                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            {status.energy.current}/{status.energy.max} Energy
+                            {status.energy?.current ?? 0}/{status.energy?.max ?? 0} Energy
                         </div>
                     </div>
                     <div className="space-y-3">
                         <div className="text-3xl font-black dark:text-white">Awoodda</div>
-                        <Progress value={(status.energy.current / status.energy.max) * 100} className="h-2" />
+                        <Progress
+                            value={status.energy?.max ? (status.energy.current / status.energy.max) * 100 : 0}
+                            className="h-2"
+                        />
                     </div>
                 </Card>
 

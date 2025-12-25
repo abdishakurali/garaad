@@ -111,10 +111,10 @@ export default function StreakDisplay({
                 />
               </div>
               <div className="flex gap-1 bg-gray-100 rounded-md p-1.5 relative">
-                {Array.from({ length: streakData.energy.max }).map((_, i) => (
+                {Array.from({ length: streakData?.energy?.max ?? 0 }).map((_, i) => (
                   <Zap
                     key={i}
-                    className={`w-4 h-4 ${i < streakData.energy.current
+                    className={`w-4 h-4 ${i < (streakData?.energy?.current ?? 0)
                       ? "text-yellow-400 fill-yellow-400"
                       : "text-gray-300"
                       }`}
