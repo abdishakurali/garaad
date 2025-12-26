@@ -8,7 +8,7 @@ export interface UserPremiumUpdate {
 export class UserService {
   private static instance: UserService;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): UserService {
     if (!UserService.instance) {
@@ -21,34 +21,13 @@ export class UserService {
     try {
       console.log("Updating user premium status:", update);
 
-      // TODO: Replace this with your actual database update logic
-      // Examples:
+      console.log(
+        `✅ Using simulated database update for user ${update.userId}`
+      );
 
-      // Option 1: Call your existing API
-      // const response = await fetch('/api/auth/update-premium', {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${getAuthToken()}`,
-      //   },
-      //   body: JSON.stringify({
-      //     userId: update.userId,
-      //     isPremium: update.isPremium,
-      //     subscriptionId: update.subscriptionId,
-      //   }),
-      // });
+      // NOTE: In production, integrate with your actual database here.
+      // e.g., await db.users.update({ where: { id: update.userId }, data: { isPremium: update.isPremium } });
 
-      // Option 2: Update Redux store directly
-      // import { useDispatch } from 'react-redux';
-      // import { setUser } from '@/store/features/authSlice';
-      // dispatch(setUser({ ...currentUser, isPremium: update.isPremium }));
-
-      // Option 3: Update localStorage
-      // const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      // currentUser.isPremium = update.isPremium;
-      // localStorage.setItem('user', JSON.stringify(currentUser));
-
-      // For now, we'll simulate a successful update
       console.log(
         `✅ User ${update.userId} premium status updated to: ${update.isPremium}`
       );
@@ -68,21 +47,9 @@ export class UserService {
     try {
       console.log(`Getting premium status for user: ${userId}`);
 
-      // TODO: Replace this with your actual database query logic
-      // Examples:
-
-      // Option 1: Call your existing API
-      // const response = await fetch(`/api/auth/user/${userId}`);
-      // const data = await response.json();
-      // return data.isPremium;
-
-      // Option 2: Check Redux store
-      // const currentUser = useSelector(selectCurrentUser);
-      // return currentUser?.isPremium || false;
-
-      // Option 3: Check localStorage
-      // const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      // return currentUser.isPremium || false;
+      // NOTE: In production, replace with actual database query.
+      // e.g., const user = await db.users.findUnique({ where: { id: userId } });
+      // return user?.isPremium || false;
 
       // For now, return false (user is not premium)
       return false;

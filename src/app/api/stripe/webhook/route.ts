@@ -161,7 +161,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   console.log("👤 Customer ID:", subscription.customer);
   console.log("💰 Amount:", subscription.items.data[0]?.price?.unit_amount);
 
-  // TODO: Update user's premium status in your database
+  // NOTE: Implement database update logic here
   // const userId = subscription.metadata.userId;
   // await updateUserPremiumStatus(userId, true, subscription.id);
 
@@ -173,7 +173,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   console.log("📊 Status:", subscription.status);
   console.log("👤 Customer ID:", subscription.customer);
 
-  // TODO: Update user's subscription status in your database
+  // NOTE: Implement subscription status update logic here
   // const userId = subscription.metadata.userId;
   // await updateUserSubscriptionStatus(userId, subscription.status, subscription.id);
 }
@@ -182,7 +182,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   console.log("🗑️ Subscription deleted:", subscription.id);
   console.log("👤 Customer ID:", subscription.customer);
 
-  // TODO: Update user's premium status to false in your database
+  // NOTE: Implement premium status revocation logic here
   // const userId = subscription.metadata.userId;
   // await updateUserPremiumStatus(userId, false, null);
 
@@ -196,8 +196,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   console.log("📅 Period start:", new Date(invoice.period_start * 1000));
   console.log("📅 Period end:", new Date(invoice.period_end * 1000));
 
-  // TODO: Handle successful payment
-  // This could include sending confirmation emails, updating usage metrics, etc.
+  // NOTE: Handle successful payment logic (email, metrics, etc.)
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
@@ -205,8 +204,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   console.log("💰 Amount due:", invoice.amount_due);
   console.log("👤 Customer ID:", invoice.customer);
 
-  // TODO: Handle failed payment
-  // This could include sending dunning emails, updating subscription status, etc.
+  // NOTE: Handle failed payment logic (dunning emails, etc.)
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
@@ -215,6 +213,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   console.log("💰 Amount total:", session.amount_total);
   console.log("📦 Mode:", session.mode);
 
-  // TODO: Handle completed checkout
-  // This could include updating user access, sending welcome emails, etc.
+  // NOTE: Handle completed checkout logic
+
 }

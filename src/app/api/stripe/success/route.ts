@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       const userService = UserService.getInstance();
 
       // For now, we'll use a placeholder user ID
-      // TODO: Get the actual user ID from your authentication system
+      // NOTE: Using userId from session metadata. Ensure this is populated during checkout creation.
       const userId = session.metadata?.userId || "temp_user_id";
 
       const updateSuccess = await userService.updatePremiumStatus({

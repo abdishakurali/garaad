@@ -1,8 +1,8 @@
 import React from "react";
 import ReactFlow, { Background, Controls } from "reactflow";
 import "reactflow/dist/style.css";
-import { LearningPathNode } from "./rize/LearningPathNode";
-import { PathConnection } from "./rize/PathConnection";
+import { LearningPathNode } from "./LearningPathNode";
+import { PathConnection } from "./PathConnection";
 
 interface Node {
   id: string;

@@ -22,7 +22,7 @@ export class ActivityService {
   /**
    * Update user activity (V2 Single Mutation Path)
    */
-  public async updateActivity(actionType: string = "active", payload?: Record<string, any>): Promise<ActivityUpdateResponse> {
+  public async updateActivity(actionType: string = "online", payload?: Record<string, any>): Promise<ActivityUpdateResponse> {
     const startTime = Date.now();
     let success = false;
     const requestId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : this.generateFallbackUUID();

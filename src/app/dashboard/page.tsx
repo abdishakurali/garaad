@@ -14,7 +14,7 @@ import type {
   UserRank,
 } from "@/services/progress";
 import type { PracticeSet as PracticeSetType } from "@/services/practice";
-import { WaafiPayConfigEditor } from "@/components/WaafiPayConfigEditor";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function DashboardPage() {
@@ -81,18 +81,7 @@ export default function DashboardPage() {
         <ProgressCard progress={progress} rewards={rewards} />
         <Leaderboard leaderboard={leaderboard} userRank={userRank} />
 
-        {/* WaafiPay Configuration Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>WaafiPay Configuration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-4">
-              Configure phone number prefixes for WaafiPay wallet types (EVC, ZAAD, SAHAL, WAAFI).
-            </p>
-            <WaafiPayConfigEditor />
-          </CardContent>
-        </Card>
+
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {practiceSets.map((practiceSet) => (

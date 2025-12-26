@@ -14,13 +14,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "ds055uzetaobb.cloudfront.net",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
-    domains: [
-      "ds055uzetaobb.cloudfront.net",
-      "res.cloudinary.com",
-      "assets.grok.com",
-      "api.garaad.org",
-    ],
+
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -82,14 +81,10 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
-    serverActions: {
-      allowedOrigins: ["garaad.so"],
-    },
+
   },
 
-  eslint: {
-    ignoreDuringBuilds: true, // Allow build to pass even with lint errors
-  },
+
 
   typescript: {
     ignoreBuildErrors: true, // Allow build to pass even with TypeScript errors

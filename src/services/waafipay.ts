@@ -362,10 +362,10 @@ class WaafiPayService {
 
 // Create and export a singleton instance
 export const waafipayService = new WaafiPayService({
-  merchantUid: process.env.WAAFI_MERCHANT_UID || "M0913943",
-  apiUserId: process.env.WAAFI_API_USER_ID || "1008162",
-  apiKey: process.env.WAAFI_API_KEY || "API-Vzyqi4xh6IpUEq8EZpKxcf0Du",
+  merchantUid: process.env.WAAFI_MERCHANT_UID!,
+  apiUserId: process.env.WAAFI_API_USER_ID!,
+  apiKey: process.env.WAAFI_API_KEY!,
   isTestMode: process.env.WAAFI_TEST_MODE === "true",
-  storeId: process.env.WAAFI_STORE_ID || "1008162",
-  hppKey: process.env.WAAFI_HPP_KEY || "HPP-KEY-001",
+  storeId: process.env.WAAFI_STORE_ID!,
+  hppKey: process.env.WAAFI_HPP_KEY!,
 });
