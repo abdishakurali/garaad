@@ -38,7 +38,7 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
         errorData = { raw: responseText };
       }
 
-      console.error(`API Error [${response.status}] ${url}:`, errorData);
+      console.error(`API Error [${response.status}] ${url}:`, JSON.stringify(errorData, null, 2));
 
       throw {
         status: response.status,
@@ -124,7 +124,10 @@ export const postService = {
   reactToPost: async (postId: string, type: ReactionType) => {
     return apiCall(`community/posts/${postId}/react/`, {
       method: "POST",
-      body: JSON.stringify({ type }),
+      body: JSON.stringify({
+        type,
+        reaction: type // Mirror for compatibility
+      }),
     });
   },
 };

@@ -34,13 +34,21 @@ export class ActivityService {
         throw new Error("Authentication required");
       }
 
-      const body: ActivityUpdatePayload = {
+      const body: any = {
         action_type: actionType,
-        request_id: requestId,
-        problems_solved: payload?.problems_solved,
-        energy_spent: payload?.energy_spent,
-        lesson_ids: payload?.lesson_ids,
+        activity_type: actionType, // Mirror for backward compatibility
       };
+
+      if (payload?.problems_solved !== undefined) body.problems_solved = payload.problems_solved;
+      if (payload?.energy_spent !== undefined) body.energy_spent = payload.energy_spent;
+      if (payload?.lesson_ids !== undefined) body.lesson_ids = payload.lesson_ids;
+      // Mirror keys that might be expected in different versions
+      if (payload?.problem_id !== undefined) body.problem_id = payload.problem_id;
+      if (payload?.answer !== undefined) body.answer = payload.answer;
+      if (payload?.attempt_number !== undefined) body.attempt_number = payload.attempt_number;
+
+      // Omit request_id temporarily to see if it fixes the 400
+      // body.request_id = requestId;
 
       const response = await fetch(`${API_BASE_URL}/api/activity/update/`, {
         method: "POST",
@@ -52,6 +60,20 @@ export class ActivityService {
       });
 
       if (!response.ok) {
+        let errorData = {};
+        try {
+          const responseText = await response.text();
+          try {
+            errorData = JSON.parse(responseText);
+          } catch (e) {
+            errorData = { raw: responseText };
+          }
+        } catch (e) {
+          errorData = { error: "Could not read response body" };
+        }
+
+        console.error(`Activity update failed [${response.status}] ${API_BASE_URL}/api/activity/update/:`, JSON.stringify(errorData, null, 2));
+
         if (response.status === 401) {
           throw new Error("Authentication failed");
         }
