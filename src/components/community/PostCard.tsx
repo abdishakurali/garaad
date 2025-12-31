@@ -16,7 +16,12 @@ import {
 import { getMediaUrl, cn } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, MoreHorizontal, Loader2 } from "lucide-react";
+import { MessageSquare, MoreHorizontal, Loader2, Heart, Flame, Lightbulb } from "lucide-react";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import { ReplyList } from "./ReplyList";
 import { formatDistanceToNow } from "date-fns";
 import { UserProfileModal } from "./UserProfileModal";
@@ -142,27 +147,44 @@ export function PostCard({ post, userProfile }: PostCardProps) {
 
             {/* Reactions */}
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                {(['like', 'fire', 'insight'] as ReactionType[]).map((type) => {
-                    const count = post.reactions_count[type] || 0;
-                    const isActive = post.user_reactions.includes(type);
-
-                    return (
+                <Popover>
+                    <PopoverTrigger asChild>
                         <button
-                            key={type}
-                            onClick={() => handleReaction(type)}
                             disabled={isPending}
                             className={cn(
-                                "flex items-center gap-1 px-2.5 py-1.5 sm:px-3 rounded-full text-[10px] sm:text-xs font-bold transition-all",
-                                isActive
+                                "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                                post.user_reactions.length > 0
                                     ? "bg-primary/10 text-primary dark:bg-primary/20"
                                     : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
                             )}
                         >
-                            <span>{REACTION_ICONS[type]}</span>
-                            {count > 0 && <span>{count}</span>}
+                            {post.user_reactions.includes('fire') ? <Flame className="h-4 w-4 fill-orange-500 text-orange-500" /> :
+                                post.user_reactions.includes('insight') ? <Lightbulb className="h-4 w-4 fill-yellow-500 text-yellow-500" /> :
+                                    post.user_reactions.includes('like') ? <Heart className="h-4 w-4 fill-red-500 text-red-500" /> :
+                                        <Heart className="h-4 w-4" />}
+
+                            <span>
+                                {Object.values(post.reactions_count).reduce((a, b) => a + b, 0) > 0
+                                    ? Object.values(post.reactions_count).reduce((a, b) => a + b, 0)
+                                    : "Like"}
+                            </span>
                         </button>
-                    );
-                })}
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-1.5 flex gap-1 rounded-full border-none shadow-xl bg-white dark:bg-[#1E1F22]" side="top">
+                        {(['like', 'fire', 'insight'] as ReactionType[]).map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => handleReaction(type)}
+                                className={cn(
+                                    "p-2 rounded-full transition-transform hover:scale-125 hover:bg-gray-100 dark:hover:bg-white/10",
+                                    post.user_reactions.includes(type) && "bg-primary/10"
+                                )}
+                            >
+                                <span className="text-xl">{REACTION_ICONS[type]}</span>
+                            </button>
+                        ))}
+                    </PopoverContent>
+                </Popover>
 
                 {/* Reply Toggle */}
                 <button

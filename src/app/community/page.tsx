@@ -12,6 +12,7 @@ import {
 import CommunityWebSocket from '@/services/communityWebSocket';
 import { CategoryList } from '@/components/community/CategoryList';
 import { PostList } from '@/components/community/PostList';
+import { CreatePostInput } from '@/components/community/CreatePostInput';
 import { CreatePostDialog } from '@/components/community/CreatePostDialog';
 import { AlertCircle, Plus, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -161,7 +162,9 @@ export default function CommunityPage() {
                         </div>
 
                         {/* Posts */}
-                        <div className="flex-1 overflow-hidden">
+                        <div className="flex-1 overflow-y-auto">
+                            <CreatePostInput categoryId={selectedCategory.id} />
+
                             <PostList
                                 posts={posts}
                                 loading={loading.posts}
@@ -184,18 +187,7 @@ export default function CommunityPage() {
                     </div>
                 )}
 
-                {/* Floating Create Post Button */}
-                {selectedCategory && (
-                    <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 z-20">
-                        <Button
-                            onClick={() => setIsCreatePostOpen(true)}
-                            className="h-14 w-14 lg:w-auto lg:px-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95"
-                        >
-                            <Plus className="h-6 w-6" />
-                            <span className="hidden lg:inline">{SOMALI_UI_TEXT.createPost}</span>
-                        </Button>
-                    </div>
-                )}
+
             </div>
 
             {/* Create Post Dialog */}
