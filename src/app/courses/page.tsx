@@ -106,6 +106,30 @@ export default function CoursesPage() {
   return (
     <ProtectedRoute requirePremium={true}>
       <div className="min-h-screen bg-white dark:bg-slate-950">
+        {/* Course Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              "itemListElement": categories?.flatMap(cat => cat.courses || []).map((course, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "item": {
+                  "@type": "Course",
+                  "name": course.title,
+                  "description": course.description,
+                  "provider": {
+                    "@type": "EducationalOrganization",
+                    "name": "Garaad STEM",
+                    "sameAs": "https://garaad.so"
+                  }
+                }
+              })) || []
+            })
+          }}
+        />
         <Header />
         <main className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 relative">
           {/* Background decoration */}

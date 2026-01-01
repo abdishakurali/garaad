@@ -150,20 +150,56 @@ export default function Home() {
     <>
       <Header />
 
-      <div className="flex flex-col gap-8 p-6 md:p-8 max-w-5xl mx-auto mt-20 pb-24">
+      <div className="flex flex-col gap-8 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto mt-20 pb-24">
         {showReturnScreen ? (
           <SafetyReturnScreen onReturn={() => setShowReturnScreen(false)} />
         ) : (
-          <>
-            {/* 1. Daily Focus & Stats - Unified */}
-            <div className="grid gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Main Content Area */}
+            <div className="lg:col-span-8 space-y-8">
               <DailyFocus nextAction={user?.next_action || gamificationStatus?.next_action} />
-              <StatusScreen status={gamificationStatus} loading={isLoadingStatus} />
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
-              {/* Left: Courses */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <StatusScreen status={gamificationStatus} loading={isLoadingStatus} />
+
+                {/* Horyaalka (Leaderboard) for Tablet/Mobile */}
+                <div className="lg:hidden space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Horyaalka</h3>
+                    <Tabs value={leaderboardPeriod} onValueChange={setLeaderboardPeriod}>
+                      <TabsList className="h-8 bg-gray-100 dark:bg-gray-800 p-0.5 rounded-lg">
+                        <TabsTrigger value="weekly" className="text-xs px-3 h-7 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">Usbuuca</TabsTrigger>
+                        <TabsTrigger value="monthly" className="text-xs px-3 h-7 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">Bisha</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
+                  <Card className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl overflow-hidden">
+                    <div className="p-4 space-y-1">
+                      {isLoadingLeaderboard ? (
+                        [1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)
+                      ) : leagueLeaderboard?.standings.slice(0, 5).map((standing, idx) => (
+                        <div key={standing.user.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                          <div className={cn(
+                            "w-6 h-6 rounded flex items-center justify-center text-xs font-bold",
+                            idx === 0 ? "bg-yellow-100 text-yellow-700" :
+                              idx === 1 ? "bg-gray-100 text-gray-700" :
+                                idx === 2 ? "bg-orange-100 text-orange-700" : "text-gray-400"
+                          )}>
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium truncate">{standing.user.name}</div>
+                            <div className="text-[10px] text-gray-500">{standing.points} XP</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Courses Section */}
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Koorsooyinkaaga</h3>
                   <Link href="/courses">
@@ -178,18 +214,25 @@ export default function Home() {
                     [1, 2].map(i => <Skeleton key={i} className="h-48 rounded-2xl" />)
                   ) : courses?.slice(0, 4).map(course => (
                     <Link href={`/courses/default/${course.slug}`} key={course.id} className="block group">
-                      <Card className="h-full overflow-hidden border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
-                        <div className="aspect-video bg-gray-50 dark:bg-gray-800 relative">
-                          {course.thumbnail && (
-                            <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
-                          )}
+                      <Card className="h-full border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl overflow-hidden group-hover:border-primary/20 transition-all group-hover:shadow-md">
+                        <div className="relative h-32 sm:h-40">
+                          <Image
+                            src={course.thumbnail || "/images/placeholder-course.svg"}
+                            alt={course.title}
+                            fill
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                          <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                            <div className="px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-bold">
+                              {course.progress}%
+                            </div>
+                          </div>
                         </div>
                         <div className="p-4">
-                          <h4 className="font-semibold text-sm mb-3 line-clamp-1">{course.title}</h4>
-                          <div className="flex items-center gap-3">
-                            <Progress value={course.progress} className="h-1.5 flex-1 bg-gray-100 dark:bg-gray-800" />
-                            <span className="text-xs font-bold text-primary">{course.progress}%</span>
-                          </div>
+                          <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors line-clamp-1">
+                            {course.title}
+                          </h4>
                         </div>
                       </Card>
                     </Link>
@@ -197,7 +240,11 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right: Leaderboard */}
+              {/* Footer Links moved inside the main area for better mobile flow or kept as a full width section */}
+            </div>
+
+            {/* Sidebar for Desktop */}
+            <div className="hidden lg:block lg:col-span-4 space-y-8">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Horyaalka</h3>
@@ -212,7 +259,7 @@ export default function Home() {
                 <Card className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl overflow-hidden">
                   <div className="p-4 space-y-1">
                     {isLoadingLeaderboard ? (
-                      [1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)
+                      [1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)
                     ) : leagueLeaderboard?.standings.slice(0, 5).map((standing, idx) => (
                       <div key={standing.user.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                         <div className={cn(
@@ -249,32 +296,34 @@ export default function Home() {
                 </Card>
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Footer Links */}
-            <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6 opacity-60 hover:opacity-100 transition-opacity">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <Mail className="w-4 h-4" />
-                  <a href="mailto:Info@garaad.org" className="hover:text-primary transition-colors">Info@garaad.org</a>
-                </div>
+        {/* Footer Links (Full Width at bottom) */}
+        {!showReturnScreen && (
+          <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 opacity-60 hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Mail className="w-4 h-4" />
+                <a href="mailto:Info@garaad.org" className="hover:text-primary transition-colors">Info@garaad.org</a>
+              </div>
 
-                <div className="flex items-center gap-6">
-                  <a href="https://www.linkedin.com/company/garaad" target="_blank" rel="noopener noreferrer" className="hover:text-[#0077b5] transition-colors flex items-center gap-2 text-sm font-medium">
-                    <Linkedin className="w-4 h-4" />
-                    <span className="hidden md:inline">LinkedIn</span>
-                  </a>
-                  <a href="https://x.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                    <Twitter className="w-4 h-4" />
-                    <span className="hidden md:inline">Twitter</span>
-                  </a>
-                  <a href="http://facebook.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-[#1877F2] transition-colors flex items-center gap-2 text-sm font-medium">
-                    <Facebook className="w-4 h-4" />
-                    <span className="hidden md:inline">Facebook</span>
-                  </a>
-                </div>
+              <div className="flex items-center gap-6">
+                <a href="https://www.linkedin.com/company/garaad" target="_blank" rel="noopener noreferrer" className="hover:text-[#0077b5] transition-colors flex items-center gap-2 text-sm font-medium">
+                  <Linkedin className="w-4 h-4" />
+                  <span className="hidden md:inline">LinkedIn</span>
+                </a>
+                <a href="https://x.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                  <Twitter className="w-4 h-4" />
+                  <span className="hidden md:inline">Twitter</span>
+                </a>
+                <a href="http://facebook.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-[#1877F2] transition-colors flex items-center gap-2 text-sm font-medium">
+                  <Facebook className="w-4 h-4" />
+                  <span className="hidden md:inline">Facebook</span>
+                </a>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </>

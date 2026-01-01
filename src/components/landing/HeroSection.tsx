@@ -47,7 +47,7 @@ export function HeroSection() {
                 </div>
             </div>
 
-            <div className="relative z-10 max-w-5xl mx-auto py-10 text-center space-y-12">
+            <div className="relative z-10 max-w-5xl mx-auto py-6 sm:py-10 text-center space-y-8 sm:space-y-12">
 
                 {/* Community Badge */}
                 <div className="flex justify-center">
@@ -61,12 +61,12 @@ export function HeroSection() {
                 </div>
 
                 {/* Main Content */}
-                <div className="space-y-8 px-4 sm:px-0">
+                <div className="space-y-6 sm:space-y-8 px-4 sm:px-0">
                     {/* Headline */}
-                    <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-foreground leading-[1.1] tracking-tight flex flex-col sm:block items-center justify-center gap-x-4">
+                    <h1 className="text-4xl sm:text-7xl lg:text-8xl font-black text-foreground leading-[1.2] sm:leading-[1.1] tracking-tight flex flex-col sm:block items-center justify-center gap-x-4">
                         <span className="whitespace-nowrap">Ku baro Sameyn</span>
                         <span className="hidden sm:inline-block mx-3"></span>
-                        <span className="inline-block relative mt-2 sm:mt-0">
+                        <span className="inline-block relative mt-1 sm:mt-0">
                             <span className="absolute -inset-1 blur-2xl bg-gradient-to-r from-primary/30 to-blue-600/30 opacity-50"></span>
                             <span
                                 key={cycleTexts[activeIndex]}
@@ -78,7 +78,7 @@ export function HeroSection() {
                     </h1>
 
                     {/* Description */}
-                    <p className="text-lg sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium px-4">
+                    <p className="text-base sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium px-4">
                         Ku baro <span className="text-foreground font-semibold">Xisaabta, Fiisikiska, iyo Tiknoolajiyadda</span> afkaaga hooyo.
                         Casharo heer sare ah oo u furan ardayda iyo horumariyeyaasha.
                     </p>
@@ -91,7 +91,7 @@ export function HeroSection() {
                         className="w-full sm:w-auto text-lg h-14 px-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg hover:shadow-primary/25 transition-all transform hover:-translate-y-1"
                         onClick={() => router.push(isAuthenticated ? "/courses" : "/welcome")}
                     >
-                        {isAuthenticated ? "Sii wad Barashada" : "Bilow Hadda - Waa Bilaash"}
+                        {isAuthenticated ? "Sii wad Barashada" : "Bilow Hadda"}
                     </Button>
 
 

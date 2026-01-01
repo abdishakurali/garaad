@@ -53,7 +53,7 @@ const courses = [
 
 export function CourseGrid() {
   return (
-    <section className="py-24 sm:py-32 bg-white dark:bg-slate-950 overflow-hidden">
+    <section className="py-12 sm:py-32 bg-white dark:bg-slate-950 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 relative">
         {/* Decorative background elements */}
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-[#d18ffd]/5 rounded-full blur-[100px] pointer-events-none" />
@@ -83,13 +83,13 @@ export function CourseGrid() {
             <div
               key={index}
               className={cn(
-                "group relative p-8 sm:p-10 rounded-[3rem] border transition-all duration-500",
+                "group relative p-6 sm:p-10 rounded-3xl sm:rounded-[3rem] border transition-all duration-500",
                 "bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800",
                 "hover:border-[#d18ffd]/30 hover:shadow-[0_20px_50px_rgba(209,143,253,0.12)]",
                 "perspective-1000"
               )}
             >
-              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="absolute inset-0 rounded-3xl sm:rounded-[3rem] bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
               <div className="relative space-y-8 h-full flex flex-col">
                 <div className={cn(
@@ -118,7 +118,7 @@ export function CourseGrid() {
                   </div>
 
                   {index === 0 && (
-                    <div className="px-3 py-1 rounded-full bg-[#f0ff00]/10 text-[#d4e000] text-[10px] font-black uppercase tracking-tighter border border-[#f0ff00]/20">
+                    <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-tighter border border-primary/20">
                       Ugu caansan
                     </div>
                   )}
@@ -129,7 +129,7 @@ export function CourseGrid() {
 
           {/* Call to action card */}
           <div
-            className="group relative p-10 rounded-[3rem] border border-dashed border-[#d18ffd]/30 bg-[#d18ffd]/5 flex flex-col items-center justify-center text-center gap-6"
+            className="group relative p-8 sm:p-10 rounded-3xl sm:rounded-[3rem] border border-dashed border-[#d18ffd]/30 bg-[#d18ffd]/5 flex flex-col items-center justify-center text-center gap-6"
           >
             <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-[#d18ffd] shadow-md group-hover:scale-110 transition-transform">
               <Sparkles size={32} />

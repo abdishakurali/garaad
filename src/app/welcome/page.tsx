@@ -630,7 +630,7 @@ export default function Page() {
                       Magacaaga
                     </Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                       <Input
                         id="firstName"
                         type="text"
@@ -639,7 +639,7 @@ export default function Page() {
                         onChange={(e) =>
                           setUserData({ ...userData, name: e.target.value })
                         }
-                        className="w-full pl-10 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
+                        className="w-full pl-12 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
                         disabled={isLoading}
                       />
                     </div>
@@ -653,7 +653,7 @@ export default function Page() {
                       Da`da
                     </Label>
                     <div className="relative">
-                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                       <Input
                         id="age"
                         type="number"
@@ -664,7 +664,7 @@ export default function Page() {
                         onChange={(e) =>
                           setUserData({ ...userData, age: e.target.value })
                         }
-                        className="w-full pl-10 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
+                        className="w-full pl-12 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
                         disabled={isLoading}
                       />
                     </div>
@@ -679,7 +679,7 @@ export default function Page() {
                     Emailkaaga
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     <Input
                       id="email"
                       type="email"
@@ -688,7 +688,7 @@ export default function Page() {
                       onChange={(e) =>
                         setUserData({ ...userData, email: e.target.value })
                       }
-                      className="w-full pl-10 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
+                      className="w-full pl-12 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
                       disabled={isLoading}
                     />
                   </div>
@@ -702,7 +702,7 @@ export default function Page() {
                     Passwordkaaga
                   </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     <Input
                       id="password"
                       type="password"
@@ -711,7 +711,7 @@ export default function Page() {
                       onChange={(e) =>
                         setUserData({ ...userData, password: e.target.value })
                       }
-                      className="w-full pl-10 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
+                      className="w-full pl-12 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
                       disabled={isLoading}
                     />
                   </div>
@@ -726,7 +726,7 @@ export default function Page() {
                     Koodka La Wareejiyo (ikhtiyaari)
                   </Label>
                   <div className="relative">
-                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     <Input
                       id="referralCode"
                       type="text"
@@ -735,7 +735,7 @@ export default function Page() {
                       onChange={(e) =>
                         setUserData({ ...userData, referralCode: e.target.value })
                       }
-                      className="w-full pl-10 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
+                      className="w-full pl-12 p-3 h-auto rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20 text-base shadow-sm transition-all duration-200 hover:border-slate-300"
                       disabled={isLoading}
                     />
                   </div>

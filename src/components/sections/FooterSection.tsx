@@ -6,7 +6,7 @@ export function FooterSection() {
     product: [
       { name: "Koorsooyin", href: "/courses" },
       { name: "Wargeys", href: "/wargeys" },
-      { name: "Guriga", href: "/home" },
+      { name: "Hoy", href: "/home" },
     ],
     company: [
       { name: "Nagu saabsan", href: "/about" },
@@ -107,8 +107,10 @@ export function FooterSection() {
             <div className="flex gap-6 justify-center sm:justify-start">
               {/* Facebook */}
               <a
-                href="#"
-                className="text-gray-400 hover:text-gray-300 transition-colors"
+                href="http://facebook.com/Garaadstem"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-[#1877F2] transition-colors"
               >
                 <span className="sr-only">Facebook</span>
                 <svg
@@ -127,8 +129,10 @@ export function FooterSection() {
 
               {/* Twitter/X */}
               <a
-                href="#"
-                className="text-gray-400 hover:text-gray-300 transition-colors"
+                href="https://x.com/Garaadstem"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
               >
                 <span className="sr-only">Twitter</span>
                 <svg
@@ -163,8 +167,10 @@ export function FooterSection() {
 
               {/* LinkedIn */}
               <a
-                href="#"
-                className="text-gray-400 hover:text-gray-300 transition-colors"
+                href="https://www.linkedin.com/company/garaad"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-[#0077b5] transition-colors"
               >
                 <span className="sr-only">LinkedIn</span>
                 <svg

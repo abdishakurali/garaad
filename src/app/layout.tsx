@@ -16,12 +16,14 @@ export const metadata: Metadata = {
     template: "%s | Garaad - Somali STEM Education",
   },
   description:
-    "Garaad waa platform-ka ugu horreeya ee Soomaalida oo ku saabsan barashada xisaabta, algebra, geometry, physics, AI, crypto iyo STEM-ka oo dhan. Waxaan kuu diyaarisay koorsooyin tayo sare leh oo ku qoran Af-Soomaali, gaar ahaan ardayda Soomaalida ee Gen Z.",
+    "Garaad waa platform-ka ugu horreeya ee Soomaalida oo lagu barto STEM: Xisaabta, AI, Physics, iyo Programming. Ku baro afkaaga hooyo casharo tayo sare leh oo loogu talagalay ardayda Soomaaliyeed meel kasta oo ay joogaan.",
   keywords: [
-    "Garaad", "Xisaab Soomaali", "Algebra Soomaali", "Geometry Soomaali", "Physics Soomaali", "AI Soomaali", "Crypto Soomaali", "STEM Soomaali"
+    "Garaad", "Garaad STEM", "Xisaab Soomaali", "Baro Coding", "STEM Soomaali",
+    "AI Soomaali", "Physics Soomaali", "Soomaali Education", "Garaad Platform",
+    "Tiknoolajiyad Soomaali", "Somali STEM Education", "Garaad Education"
   ],
-  authors: [{ name: "Garaad Team" }],
-  creator: "Garaad Team",
+  authors: [{ name: "Garaad Team", url: "https://garaad.so" }],
+  creator: "Abdishakur Ali",
   publisher: "Garaad",
   metadataBase: new URL("https://garaad.so"),
   alternates: {
@@ -94,6 +96,17 @@ export default function RootLayout({
               "@type": "EducationalOrganization",
               name: "Garaad",
               url: "https://garaad.so",
+              logo: "https://garaad.so/logo.png",
+              sameAs: [
+                "https://www.linkedin.com/company/garaad",
+                "https://x.com/Garaadstem",
+                "https://facebook.com/Garaadstem"
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                "email": "Info@garaad.org",
+                "contactType": "customer support"
+              }
             }),
           }}
         />
