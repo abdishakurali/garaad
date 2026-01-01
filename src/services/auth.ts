@@ -400,7 +400,7 @@ export class AuthService {
         return null;
       }
 
-      const response = await fetch(`${this.baseURL}/api/auth/user/`, {
+      const response = await fetch(`${this.baseURL}/api/auth/user-profile/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
