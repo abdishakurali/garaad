@@ -8,8 +8,11 @@ export interface SignUpData {
   email: string;
   password: string;
   name: string;
+  username?: string;
   // last_name: string;
   age: number;
+  referral_code?: string;
+  promo_code?: string;
   onboarding_data: {
     goal: string;
     preferred_study_time: string;

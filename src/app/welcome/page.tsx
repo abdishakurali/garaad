@@ -272,6 +272,7 @@ export default function Page() {
 
 
       // Call AuthService directly to avoid Redux error handling interference
+      console.log("SENDING SIGNUP PAYLOAD:", JSON.stringify(signUpData, null, 2));
       const result = await AuthService.getInstance().signUp(signUpData);
 
 
