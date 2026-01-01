@@ -10,7 +10,11 @@ import {
   ChevronRight,
   Zap,
   Crown,
-  Trophy
+  Trophy,
+  Mail,
+  Linkedin,
+  Twitter,
+  Facebook
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -146,52 +150,45 @@ export default function Home() {
     <>
       <Header />
 
-      <div className="flex flex-col gap-12 p-6 md:p-12 max-w-6xl mx-auto mt-20 pb-32">
+      <div className="flex flex-col gap-8 p-6 md:p-8 max-w-5xl mx-auto mt-20 pb-24">
         {showReturnScreen ? (
           <SafetyReturnScreen onReturn={() => setShowReturnScreen(false)} />
         ) : (
           <>
-            {/* 1. Daily Focus & Stats */}
-            <div className="space-y-8">
-              <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <DailyFocus nextAction={user?.next_action || gamificationStatus?.next_action} />
-              </section>
-
-              <section className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-                <StatusScreen status={gamificationStatus} loading={isLoadingStatus} />
-              </section>
+            {/* 1. Daily Focus & Stats - Unified */}
+            <div className="grid gap-6">
+              <DailyFocus nextAction={user?.next_action || gamificationStatus?.next_action} />
+              <StatusScreen status={gamificationStatus} loading={isLoadingStatus} />
             </div>
 
-            {/* 2. Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
               {/* Left: Courses */}
-              <div className="lg:col-span-2 space-y-10">
+              <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-black uppercase tracking-tight text-black dark:text-white">Koorsooyinkaaga</h3>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Koorsooyinkaaga</h3>
                   <Link href="/courses">
-                    <Button variant="link" className="font-black text-[10px] uppercase tracking-widest text-primary p-0 h-auto">
+                    <Button variant="ghost" className="text-xs font-medium text-primary hover:bg-primary/10">
                       Eeg Dhammaan
                     </Button>
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {isLoadingCourses ? (
-                    [1, 2].map(i => <Skeleton key={i} className="h-64 rounded-3xl" />)
+                    [1, 2].map(i => <Skeleton key={i} className="h-48 rounded-2xl" />)
                   ) : courses?.slice(0, 4).map(course => (
-                    <Link href={`/courses/default/${course.slug}`} key={course.id}>
-                      <Card className="p-2 rounded-[2rem] bg-white dark:bg-[#1E1F22] border-none shadow-sm hover:shadow-md transition-all group overflow-hidden">
-                        <div className="aspect-video rounded-3xl bg-slate-100 dark:bg-[#2B2D31] relative overflow-hidden mb-4">
+                    <Link href={`/courses/default/${course.slug}`} key={course.id} className="block group">
+                      <Card className="h-full overflow-hidden border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
+                        <div className="aspect-video bg-gray-50 dark:bg-gray-800 relative">
                           {course.thumbnail && (
-                            <Image src={course.thumbnail} alt={course.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
                           )}
                         </div>
-                        <div className="px-4 pb-4">
-                          <h4 className="font-bold text-lg mb-2 text-black dark:text-white truncate">{course.title}</h4>
-                          <div className="flex items-center justify-between gap-4">
-                            <Progress value={course.progress} className="h-1 flex-1" />
-                            <span className="text-[10px] font-black text-primary uppercase">{course.progress}%</span>
+                        <div className="p-4">
+                          <h4 className="font-semibold text-sm mb-3 line-clamp-1">{course.title}</h4>
+                          <div className="flex items-center gap-3">
+                            <Progress value={course.progress} className="h-1.5 flex-1 bg-gray-100 dark:bg-gray-800" />
+                            <span className="text-xs font-bold text-primary">{course.progress}%</span>
                           </div>
                         </div>
                       </Card>
@@ -201,53 +198,80 @@ export default function Home() {
               </div>
 
               {/* Right: Leaderboard */}
-              <div className="space-y-10">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-black uppercase tracking-tight text-black dark:text-white italic">Horyaalka</h3>
-                  <Tabs value={leaderboardPeriod} onValueChange={setLeaderboardPeriod} className="w-auto">
-                    <TabsList className="bg-transparent h-auto p-0 gap-3">
-                      <TabsTrigger value="weekly" className="text-[10px] font-black uppercase tracking-widest p-0 h-auto data-[state=active]:text-primary border-none shadow-none bg-transparent">Usbuuca</TabsTrigger>
-                      <TabsTrigger value="monthly" className="text-[10px] font-black uppercase tracking-widest p-0 h-auto data-[state=active]:text-primary border-none shadow-none bg-transparent">Bisha</TabsTrigger>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Horyaalka</h3>
+                  <Tabs value={leaderboardPeriod} onValueChange={setLeaderboardPeriod}>
+                    <TabsList className="h-8 bg-gray-100 dark:bg-gray-800 p-0.5 rounded-lg">
+                      <TabsTrigger value="weekly" className="text-xs px-3 h-7 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">Usbuuca</TabsTrigger>
+                      <TabsTrigger value="monthly" className="text-xs px-3 h-7 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">Bisha</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
 
-                <Card className="p-6 rounded-[2.5rem] bg-white dark:bg-[#1E1F22] border-none shadow-sm">
-                  <div className="space-y-4">
+                <Card className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl overflow-hidden">
+                  <div className="p-4 space-y-1">
                     {isLoadingLeaderboard ? (
-                      [1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-14 rounded-2xl" />)
-                    ) : leagueLeaderboard?.standings.slice(0, 6).map((standing, idx) => (
-                      <div key={standing.user.id} className="flex items-center gap-4 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                      [1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)
+                    ) : leagueLeaderboard?.standings.slice(0, 5).map((standing, idx) => (
+                      <div key={standing.user.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                         <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs",
-                          idx === 0 ? "bg-yellow-400 text-black shadow-sm" : "text-gray-400"
+                          "w-6 h-6 rounded flex items-center justify-center text-xs font-bold",
+                          idx === 0 ? "bg-yellow-100 text-yellow-700" :
+                            idx === 1 ? "bg-gray-100 text-gray-700" :
+                              idx === 2 ? "bg-orange-100 text-orange-700" : "text-gray-400"
                         )}>
                           {idx + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-bold text-sm text-black dark:text-white truncate">{standing.user.name}</div>
-                          <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{standing.points} XP</div>
+                          <div className="text-sm font-medium truncate">{standing.user.name}</div>
+                          <div className="text-[10px] text-gray-500">{standing.points} XP</div>
                         </div>
-                        {idx < 3 && <Crown className={cn("w-4 h-4", idx === 0 ? "text-yellow-500" : "text-gray-300")} />}
+                        {idx < 3 && <Crown className={cn("w-3 h-3", idx === 0 ? "text-yellow-500" : "text-gray-300")} />}
                       </div>
                     ))}
                   </div>
 
                   {leagueLeaderboard?.my_standing && (
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-                      <div className="flex items-center gap-4 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs bg-primary text-white">
+                    <div className="p-4 bg-primary/5 border-t border-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-xs">
                           {leagueLeaderboard.my_standing.rank}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-sm text-primary">Kaalintaada</div>
-                          <div className="text-[9px] font-black text-primary/70 uppercase tracking-widest">{leagueLeaderboard.my_standing.points} XP</div>
+                        <div className="flex-1">
+                          <div className="text-xs font-medium text-primary">Is barbar dhig</div>
+                          <div className="text-[10px] text-primary/70">{leagueLeaderboard.my_standing.points} XP</div>
                         </div>
                         <Trophy className="w-4 h-4 text-primary" />
                       </div>
                     </div>
                   )}
                 </Card>
+              </div>
+            </div>
+
+            {/* Footer Links */}
+            <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6 opacity-60 hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Mail className="w-4 h-4" />
+                  <a href="mailto:Info@garaad.org" className="hover:text-primary transition-colors">Info@garaad.org</a>
+                </div>
+
+                <div className="flex items-center gap-6">
+                  <a href="https://www.linkedin.com/company/garaad" target="_blank" rel="noopener noreferrer" className="hover:text-[#0077b5] transition-colors flex items-center gap-2 text-sm font-medium">
+                    <Linkedin className="w-4 h-4" />
+                    <span className="hidden md:inline">LinkedIn</span>
+                  </a>
+                  <a href="https://x.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                    <Twitter className="w-4 h-4" />
+                    <span className="hidden md:inline">Twitter</span>
+                  </a>
+                  <a href="http://facebook.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-[#1877F2] transition-colors flex items-center gap-2 text-sm font-medium">
+                    <Facebook className="w-4 h-4" />
+                    <span className="hidden md:inline">Facebook</span>
+                  </a>
+                </div>
               </div>
             </div>
           </>

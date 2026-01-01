@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Loader2, Image as ImageIcon, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { getMediaUrl, cn } from "@/lib/utils";
+import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 
 interface CreatePostDialogProps {
     isOpen: boolean;
@@ -79,7 +80,7 @@ export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDial
         const optimisticPost: CommunityPost = {
             id: tempId as any,
             category: categoryId,
-            author: userProfile.user,
+            author: userProfile,
             content,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -140,103 +141,100 @@ export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDial
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[600px] p-0 gap-0 overflow-hidden bg-white dark:bg-[#1E1F22] border-none shadow-2xl">
+                <DialogHeader className="sr-only">
                     <DialogTitle>{SOMALI_UI_TEXT.createPost}</DialogTitle>
-                    <DialogDescription className="sr-only">
-                        Ku dar qoraal cusub bulshada Garaad si aad u wadaagto fikradahaaga.
-                    </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                    {/* Content Input */}
-                    <Textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Maxaa ku jira maskaxdaada?"
-                        className="min-h-[150px]"
-                        disabled={isSubmitting}
-                    />
 
-                    {/* Image Previews */}
-                    {imagePreviews.length > 0 && (
-                        <div className="grid grid-cols-2 gap-2">
-                            {imagePreviews.map((preview, index) => (
-                                <div key={index} className="relative group">
-                                    <img
-                                        src={preview}
-                                        alt={`Preview ${index + 1}`}
-                                        className="w-full h-32 object-cover rounded-lg"
-                                    />
-                                    <button
-                                        onClick={() => handleRemoveImage(index)}
-                                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        disabled={isSubmitting}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                {/* Header with Close & Submit (Mobile-like feel, or just top bar) */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                    <button onClick={handleClose} className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <X className="h-5 w-5 text-gray-500" />
+                    </button>
+                    {/* Only show 'Draft' or empty space here if we want twitter style, traditionally 'Tweet' button is here or bottom right */}
+                </div>
 
-                    {/* Error Message */}
-                    {error && (
-                        <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-                        </div>
-                    )}
+                <div className="p-4 flex gap-4">
+                    {/* Left: Avatar */}
+                    <div className="flex-shrink-0 pt-1">
+                        <AuthenticatedAvatar
+                            src={getMediaUrl(userProfile?.profile_picture, 'profile_pics')}
+                            alt={userProfile?.first_name || userProfile?.username || "User"}
+                            size="md"
+                            fallback={userProfile?.first_name?.[0] || userProfile?.username?.[0] || "?"}
+                        />
+                    </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center justify-between gap-2">
-                        {/* Image Upload Button */}
-                        <div>
-                            <input
-                                type="file"
-                                id="image-upload"
-                                accept="image/jpeg,image/jpg,image/png,image/webp"
-                                multiple
-                                onChange={handleImageSelect}
-                                className="hidden"
-                                disabled={isSubmitting}
-                            />
-                            <label htmlFor="image-upload">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
+                    {/* Right: Input Area */}
+                    <div className="flex-1 min-w-0">
+                        <Textarea
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="Maxaa ku jira maskaxdaada?"
+                            className="min-h-[120px] w-full border-none focus-visible:ring-0 p-0 resize-none text-lg placeholder:text-gray-400 bg-transparent"
+                            disabled={isSubmitting}
+                        />
+
+                        {/* Image Previews */}
+                        {imagePreviews.length > 0 && (
+                            <div className="grid grid-cols-2 gap-2 mt-4 mb-2">
+                                {imagePreviews.map((preview, index) => (
+                                    <div key={index} className="relative group">
+                                        <img
+                                            src={preview}
+                                            alt={`Preview ${index + 1}`}
+                                            className="w-full h-48 object-cover rounded-2xl border border-gray-100 dark:border-gray-800"
+                                        />
+                                        <button
+                                            onClick={() => handleRemoveImage(index)}
+                                            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 transition-colors backdrop-blur-sm"
+                                            disabled={isSubmitting}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Error Message */}
+                        {error && (
+                            <div className="mt-4 flex items-center gap-2 text-sm text-red-500">
+                                <AlertCircle className="h-4 w-4" />
+                                <p>{error}</p>
+                            </div>
+                        )}
+
+                        {/* Footer Actions */}
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                            {/* Media Tools */}
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="file"
+                                    id="image-upload"
+                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                    multiple
+                                    onChange={handleImageSelect}
+                                    className="hidden"
                                     disabled={isSubmitting}
-                                    asChild
-                                >
-                                    <span className="cursor-pointer">
-                                        <ImageIcon className="h-4 w-4 mr-1" />
-                                        Sawir
-                                    </span>
-                                </Button>
-                            </label>
-                        </div>
+                                />
+                                <label htmlFor="image-upload">
+                                    <div className="p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-colors text-primary">
+                                        <ImageIcon className="h-5 w-5" />
+                                    </div>
+                                </label>
+                            </div>
 
-                        {/* Submit/Cancel */}
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                onClick={handleClose}
-                                disabled={isSubmitting}
-                            >
-                                <X className="h-4 w-4 mr-1" />
-                                Jooji
-                            </Button>
+                            {/* Post Button */}
                             <Button
                                 onClick={handleSubmit}
                                 disabled={!content.trim() || isSubmitting}
+                                className="rounded-full px-6 font-bold bg-primary hover:bg-primary/90 text-white"
                             >
                                 {isSubmitting ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                        {SOMALI_UI_TEXT.loading}
-                                    </>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    SOMALI_UI_TEXT.create
+                                    SOMALI_UI_TEXT.createPost
                                 )}
                             </Button>
                         </div>

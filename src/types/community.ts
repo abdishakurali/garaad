@@ -66,8 +66,7 @@ export interface CreateReplyData {
 }
 
 // User Profile & Gamification types
-export interface UserProfile {
-  user: User;
+export interface UserProfile extends User {
   community_points: number;
   badge_level: "dhalinyaro" | "dhexe" | "sare" | "weyne" | "hogaamiye";
   badge_level_display: string;

@@ -2,15 +2,18 @@ import { CommunityPost, UserProfile, SOMALI_UI_TEXT } from "@/types/community";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PostCard } from "./PostCard";
 import { AlertCircle } from "lucide-react";
+import { InlinePostInput } from "./InlinePostInput";
 
 interface PostListProps {
     posts: CommunityPost[];
     loading?: boolean;
     error?: string | null;
     userProfile: UserProfile | null;
+    categoryId?: string;
+    showInlineInput?: boolean;
 }
 
-export function PostList({ posts, loading, error, userProfile }: PostListProps) {
+export function PostList({ posts, loading, error, userProfile, categoryId, showInlineInput }: PostListProps) {
     if (loading) {
         return (
             <div className="flex-1 flex items-center justify-center">
@@ -35,27 +38,29 @@ export function PostList({ posts, loading, error, userProfile }: PostListProps) 
         );
     }
 
-    if (posts.length === 0) {
-        return (
-            <div className="flex-1 flex items-center justify-center p-8">
-                <div className="text-center max-w-md">
-                    <p className="text-lg font-bold mb-2 dark:text-white">{SOMALI_UI_TEXT.noPosts}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{SOMALI_UI_TEXT.firstPost}</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <ScrollArea className="flex-1">
             <div className="max-w-3xl mx-auto p-4 space-y-4">
-                {posts?.filter(post => !!post && !!post.id).map((post) => (
-                    <PostCard
-                        key={post.id}
-                        post={post}
-                        userProfile={userProfile}
-                    />
-                ))}
+                {showInlineInput && categoryId && (
+                    <InlinePostInput categoryId={categoryId} />
+                )}
+
+                {posts.length === 0 ? (
+                    <div className="text-center py-12">
+                        <p className="text-lg font-bold mb-2 dark:text-white">{SOMALI_UI_TEXT.noPosts}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{SOMALI_UI_TEXT.firstPost}</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {posts?.filter(post => !!post && !!post.id).map((post) => (
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                userProfile={userProfile}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </ScrollArea>
     );

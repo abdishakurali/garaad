@@ -85,14 +85,14 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                             <div className="absolute -inset-1.5 bg-gradient-to-tr from-primary to-purple-500 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000" />
                             <div className="relative">
                                 <AuthenticatedAvatar
-                                    src={profile ? getMediaUrl(profile.user?.profile_picture, 'profile_pics') : undefined}
-                                    alt={profile?.user?.username || "User"}
+                                    src={profile ? getMediaUrl(profile.profile_picture, 'profile_pics') : undefined}
+                                    alt={profile?.username || "User"}
                                     size="xl"
-                                    fallback={profile?.user?.first_name?.[0] || profile?.user?.username?.[0] || "?"}
+                                    fallback={profile?.first_name?.[0] || profile?.username?.[0] || "?"}
                                     className="border-[6px] border-white dark:border-[#1E1F22] w-28 h-28 text-3xl shadow-xl"
                                 />
                                 {profile && (
-                                    <div className="absolute bottom-1 right-1 bg-white dark:bg-[#2B2D31] p-2 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800">
+                                    <div className="absolute bottom-1 right-1 bg-white dark:bg-[#1E1F22] p-2 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5">
                                         <span className="text-2xl leading-none" title={profile.badge_level_display}>
                                             {badge?.emoji}
                                         </span>
@@ -119,10 +119,10 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                         ) : profile ? (
                             <>
                                 <h2 className="text-2xl font-black dark:text-white mb-1 tracking-tight">
-                                    {profile.user?.first_name ? `${profile.user.first_name} ${profile.user.last_name || ""}` : profile.user?.username || "User"}
+                                    {profile.first_name ? `${profile.first_name} ${profile.last_name || ""}` : profile.username || "User"}
                                 </h2>
                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 italic">
-                                    @{profile.user?.username || "user"}
+                                    @{profile.username || "user"}
                                 </p>
 
                                 <div
@@ -137,17 +137,17 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
 
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-3 gap-3 w-full mb-8">
-                                    <div className="bg-gray-50 dark:bg-[#2B2D31] p-4 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 shadow-sm transition-transform hover:scale-[1.02]">
+                                    <div className="bg-gray-50/50 dark:bg-white/5 p-4 rounded-[1.5rem] border border-gray-100 dark:border-white/5 shadow-sm transition-transform hover:scale-[1.02]">
                                         <Star className="w-6 h-6 text-yellow-500 mx-auto mb-1.5" />
                                         <div className="text-lg font-black dark:text-white leading-tight">{profile.community_points}</div>
                                         <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Dhibco</div>
                                     </div>
-                                    <div className="bg-gray-50 dark:bg-[#2B2D31] p-4 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 shadow-sm transition-transform hover:scale-[1.02]">
+                                    <div className="bg-gray-50/50 dark:bg-white/5 p-4 rounded-[1.5rem] border border-gray-100 dark:border-white/5 shadow-sm transition-transform hover:scale-[1.02]">
                                         <Flame className="w-6 h-6 text-orange-500 mx-auto mb-1.5" />
                                         <div className="text-lg font-black dark:text-white leading-tight">{profile.streak_days}</div>
                                         <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Maalmood</div>
                                     </div>
-                                    <div className="bg-gray-50 dark:bg-[#2B2D31] p-4 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 shadow-sm transition-transform hover:scale-[1.02]">
+                                    <div className="bg-gray-50/50 dark:bg-white/5 p-4 rounded-[1.5rem] border border-gray-100 dark:border-white/5 shadow-sm transition-transform hover:scale-[1.02]">
                                         <Trophy className="w-6 h-6 text-primary mx-auto mb-1.5" />
                                         <div className="text-lg font-black dark:text-white leading-tight">{profile.level}</div>
                                         <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">League</div>
@@ -158,11 +158,11 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                                 <div className="w-full text-left space-y-2.5 mb-8 px-2">
                                     <div className="flex justify-between items-end">
                                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Heerka {profile.level}</span>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary">{profile.xp_to_next_level} XP left</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary font-bold">{profile.xp_to_next_level} XP left</span>
                                     </div>
-                                    <div className="relative h-2.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
+                                    <div className="relative h-3 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden shadow-inner p-0.5">
                                         <div
-                                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-1000 ease-out rounded-full"
+                                            className="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-1000 ease-out rounded-full shadow-lg"
                                             style={{ width: `${profile.level_progress_percentage}%` }}
                                         />
                                     </div>
@@ -170,8 +170,8 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
 
                                 {/* Activity Summary */}
                                 <div className="w-full grid grid-cols-2 gap-4 px-2">
-                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50">
-                                        <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 dark:bg-white/5 border border-transparent hover:border-gray-100 dark:hover:border-white/10 transition-colors">
+                                        <div className="w-8 h-8 rounded-xl bg-blue-100/50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600">
                                             <MessageSquare className="w-4 h-4" />
                                         </div>
                                         <div className="text-left">
@@ -179,8 +179,8 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                                             <div className="text-[9px] font-bold text-gray-400 uppercase">Qoraal</div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50">
-                                        <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 dark:bg-white/5 border border-transparent hover:border-gray-100 dark:hover:border-white/10 transition-colors">
+                                        <div className="w-8 h-8 rounded-xl bg-purple-100/50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600">
                                             <Activity className="w-4 h-4" />
                                         </div>
                                         <div className="text-left">

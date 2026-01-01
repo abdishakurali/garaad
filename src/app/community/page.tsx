@@ -12,11 +12,12 @@ import {
 import CommunityWebSocket from '@/services/communityWebSocket';
 import { CategoryList } from '@/components/community/CategoryList';
 import { PostList } from '@/components/community/PostList';
-import { CreatePostDialog } from '@/components/community/CreatePostDialog';
-import { AlertCircle, Plus, Menu } from 'lucide-react';
+import { InlinePostInput } from '@/components/community/InlinePostInput';
+import { AlertCircle, Menu, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SOMALI_UI_TEXT } from '@/types/community';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import Image from 'next/image';
 
 export default function CommunityPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -30,9 +31,26 @@ export default function CommunityPage() {
     } = useSelector((state: RootState) => state.community);
 
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-    const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const wsRef = useRef<CommunityWebSocket | null>(null);
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    // Initialize theme based on document class
+    useEffect(() => {
+        setIsDarkMode(document.documentElement.classList.contains('dark'));
+    }, []);
+
+    const toggleTheme = () => {
+        const newMode = !isDarkMode;
+        setIsDarkMode(newMode);
+        if (newMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    };
 
     // Initialize data (fetch once)
     useEffect(() => {
@@ -98,43 +116,62 @@ export default function CommunityPage() {
     }
 
     const categoryList = (
-        <CategoryList
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={(cat) => {
-                dispatch(setSelectedCategory(cat));
-                setIsMobileMenuOpen(false);
-            }}
-            loading={loading.categories}
-        />
+        <div className="flex flex-col h-full bg-gray-50/50 dark:bg-black/50">
+            <div className="flex-1 overflow-y-auto py-2">
+                <CategoryList
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={(cat) => {
+                        dispatch(setSelectedCategory(cat));
+                        setIsMobileMenuOpen(false);
+                    }}
+                    loading={loading.categories}
+                />
+            </div>
+        </div>
     );
 
     return (
-        <div className="flex h-screen bg-white dark:bg-[#313338] overflow-hidden">
+        <div className="flex h-screen bg-white dark:bg-black overflow-hidden">
             {/* Sidebar: Category List (Campuses) - Desktop Only */}
-            <div className="hidden lg:flex w-80 border-r border-[#E3E5E8] dark:border-[#1E1F22] flex-col">
-                <div className="h-14 px-4 flex items-center justify-between border-b border-black/10 dark:border-white/10">
-                    <h1 className="text-lg font-black dark:text-white uppercase tracking-tight">
-                        {SOMALI_UI_TEXT.community}
-                    </h1>
+            <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
+                <div className="h-20 px-8 flex items-center gap-4">
+                    <div className="relative w-10 h-10 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg shadow-primary/10 border border-gray-100 dark:border-white/5">
+                        <Image
+                            src="/logo.png"
+                            alt="Garaad Logo"
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                        />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-black dark:text-white tracking-tight leading-none">
+                            {SOMALI_UI_TEXT.community}
+                        </h1>
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Platform</p>
+                    </div>
                 </div>
                 {categoryList}
             </div>
 
             {/* Main: Post List */}
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-black">
                 {/* Mobile Header */}
-                <div className="lg:hidden h-14 px-4 flex items-center justify-between border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#313338] z-10">
+                <div className="lg:hidden h-14 px-4 flex items-center justify-between border-b border-gray-100 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-md z-10 sticky top-0">
                     <div className="flex items-center gap-3">
                         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="lg:hidden">
+                                <Button variant="ghost" size="icon" className="lg:hidden -ml-2">
                                     <Menu className="h-6 w-6" />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="p-0 w-80 bg-white dark:bg-[#2B2D31] border-none">
-                                <SheetHeader className="p-4 border-b border-black/10 dark:border-white/10">
-                                    <SheetTitle className="text-lg font-black uppercase tracking-tight text-left">
+                            <SheetContent
+                                side="left"
+                                className="p-0 w-[280px] sm:w-[350px] bg-white dark:bg-black border-r border-gray-100 dark:border-white/5 transition-transform duration-500 ease-in-out"
+                            >
+                                <SheetHeader className="p-8 border-b border-gray-100 dark:border-white/5">
+                                    <SheetTitle className="text-xl font-bold text-left">
                                         {SOMALI_UI_TEXT.community}
                                     </SheetTitle>
                                     <SheetDescription className="sr-only">
@@ -144,7 +181,7 @@ export default function CommunityPage() {
                                 {categoryList}
                             </SheetContent>
                         </Sheet>
-                        <h1 className="text-lg font-black dark:text-white uppercase tracking-tight">
+                        <h1 className="text-lg font-bold dark:text-white">
                             {SOMALI_UI_TEXT.community}
                         </h1>
                     </div>
@@ -153,10 +190,27 @@ export default function CommunityPage() {
                 {selectedCategory ? (
                     <>
                         {/* Header */}
-                        <div className="h-14 px-6 flex items-center justify-between border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#313338]">
+                        <div className="h-20 px-8 flex items-center justify-between border-b border-gray-100 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-md z-10 sticky top-0">
                             <div className="min-w-0">
-                                <h2 className="text-base font-black dark:text-white uppercase tracking-tight truncate">{selectedCategory.title}</h2>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{selectedCategory.posts_count} {SOMALI_UI_TEXT.posts}</p>
+                                <h2 className="text-xl font-black dark:text-white truncate tracking-tight">{selectedCategory.title}</h2>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                                        {selectedCategory.posts_count} {SOMALI_UI_TEXT.posts}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={toggleTheme}
+                                    className="rounded-full w-10 h-10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all active:scale-90"
+                                    title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                                >
+                                    {isDarkMode ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-gray-500" />}
+                                </Button>
                             </div>
                         </div>
 
@@ -167,45 +221,25 @@ export default function CommunityPage() {
                                 loading={loading.posts}
                                 error={errors.posts}
                                 userProfile={userProfile}
+                                categoryId={selectedCategory.id}
+                                showInlineInput={true}
                             />
                         </div>
                     </>
                 ) : (
                     <div className="flex-1 flex items-center justify-center p-6 text-center">
                         <div className="max-w-md">
-                            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <AlertCircle className="h-10 w-10 text-gray-400" />
+                            <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                                <AlertCircle className="h-8 w-8 text-gray-400" />
                             </div>
-                            <h3 className="text-lg font-black mb-2 dark:text-white uppercase tracking-tight">Dooro Qaybta</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <h3 className="text-xl font-bold mb-2 dark:text-white">Dooro Qaybta</h3>
+                            <p className="text-gray-500 dark:text-gray-400">
                                 Dooro mid ka mid ah qaybaha si aad u aragto qoraallada bulshada.
                             </p>
                         </div>
                     </div>
                 )}
-
-                {/* Floating Create Post Button */}
-                {selectedCategory && (
-                    <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 z-20">
-                        <Button
-                            onClick={() => setIsCreatePostOpen(true)}
-                            className="h-14 w-14 lg:w-auto lg:px-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95"
-                        >
-                            <Plus className="h-6 w-6" />
-                            <span className="hidden lg:inline">{SOMALI_UI_TEXT.createPost}</span>
-                        </Button>
-                    </div>
-                )}
             </div>
-
-            {/* Create Post Dialog */}
-            {selectedCategory && (
-                <CreatePostDialog
-                    isOpen={isCreatePostOpen}
-                    onClose={() => setIsCreatePostOpen(false)}
-                    categoryId={selectedCategory.id}
-                />
-            )}
         </div>
     );
 }

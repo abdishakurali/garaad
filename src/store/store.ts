@@ -27,7 +27,15 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         // Ignore these action types
-        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+        ignoredActions: [
+          "persist/PERSIST",
+          "persist/REHYDRATE",
+          "community/createPost/pending",
+          "community/createPost/fulfilled"
+        ],
+        // Allow File objects in these paths
+        ignoredActionPaths: ['payload.images', 'meta.arg.images'],
+        ignoredPaths: ['community.posts.images'],
       },
     }),
 });

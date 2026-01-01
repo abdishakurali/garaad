@@ -10,12 +10,13 @@ import {
     createReply,
     addOptimisticReply,
     deleteReply,
+    removeOptimisticReply,
 } from "@/store/features/communitySlice";
 import { getMediaUrl } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { UserProfileModal } from "./UserProfileModal";
 
@@ -72,6 +73,10 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const handleDelete = async (replyId: string) => {
         if (!confirm("Ma hubtaa inaad tirtirto jawaabtan?")) return;
 
+        // 1. Instantly remove from UI for better UX
+        dispatch(removeOptimisticReply({ postId, tempId: replyId }));
+
+        // 2. Sync with server in background
         try {
             await dispatch(deleteReply({ postId, replyId })).unwrap();
         } catch (error) {
@@ -123,7 +128,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
                 <div className="space-y-3">
                     {replies.map((reply) => {
                         const isPending = reply.id?.toString().startsWith("temp-") || false;
-                        const isOwnReply = userProfile?.user?.id === reply.author?.id;
+                        const isOwnReply = userProfile?.id === reply.author?.id;
                         const timeAgo = reply.created_at ? formatDistanceToNow(new Date(reply.created_at), { addSuffix: true }) : SOMALI_UI_TEXT.now;
 
                         return (
@@ -162,9 +167,10 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
                                         {isOwnReply && !isPending && (
                                             <button
                                                 onClick={() => handleDelete(reply.id)}
-                                                className="ml-auto text-xs text-red-500 hover:text-red-700"
+                                                className="ml-auto text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/10"
+                                                title={SOMALI_UI_TEXT.delete}
                                             >
-                                                {SOMALI_UI_TEXT.delete}
+                                                <Trash2 className="h-3.5 w-3.5" />
                                             </button>
                                         )}
                                     </div>
