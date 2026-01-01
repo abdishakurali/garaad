@@ -647,7 +647,13 @@ export class AuthService {
       if (response?.email && Array.isArray(response.email)) {
         const emailError = response.email[0];
         console.log("Processing email error:", emailError);
-        if (emailError.includes("already exists")) {
+
+        // If it's a success/info message from our new signup_view logic, keep it
+        if (emailError.includes("Premium")) {
+          throw new Error(emailError);
+        }
+
+        if (emailError.includes("already exists") || emailError.includes("waa la isticmaalay")) {
           const errorMessage =
             "Emailkan horey ayaa loo diiwaangeliyay. Fadlan isticmaal email kale";
           console.log("Throwing email error:", errorMessage);
