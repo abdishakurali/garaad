@@ -10,9 +10,11 @@ import {
 import { CommunityPost, SOMALI_UI_TEXT } from "@/types/community";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Loader2, Image as ImageIcon, AlertCircle } from "lucide-react";
+import { X, Loader2, Image as ImageIcon, AlertCircle, Smile } from "lucide-react";
 import { getMediaUrl, cn } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
+import { EmojiPicker } from "./EmojiPicker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface InlinePostInputProps {
     categoryId: string;
@@ -60,6 +62,10 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
         URL.revokeObjectURL(imagePreviews[index]);
         setImages(prev => prev.filter((_, i) => i !== index));
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleEmojiSelect = (emoji: string) => {
+        setContent(prev => prev + emoji);
     };
 
     const handleSubmit = async () => {
@@ -132,7 +138,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         onFocus={() => setIsFocused(true)}
-                        placeholder="Maxaa ku jira maskaxdaada?"
+                        placeholder="Maxaa maskaxdaada ku jira?"
                         className={cn(
                             "w-full border-none focus-visible:ring-0 p-0 resize-none text-lg placeholder:text-gray-400 bg-transparent min-h-[40px] transition-all",
                             (isFocused || content.length > 0) ? "min-h-[100px]" : "min-h-[40px]"
@@ -159,7 +165,6 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                             ))}
                         </div>
                     )}
-
                     {error && (
                         <div className="mt-2 flex items-center gap-2 text-xs text-red-500 font-bold">
                             <AlertCircle className="h-3 w-3" />
@@ -184,6 +189,20 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                                         <ImageIcon className="h-5 w-5" />
                                     </div>
                                 </label>
+
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <button className="p-2 rounded-full hover:bg-primary/10 cursor-pointer transition-colors text-primary outline-none">
+                                            <Smile className="h-5 w-5" />
+                                        </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent side="top" align="start" className="p-0 border-none bg-transparent shadow-none w-auto">
+                                        <EmojiPicker
+                                            onEmojiSelect={handleEmojiSelect}
+                                            onClose={() => { }}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
 
                             <Button

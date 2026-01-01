@@ -10,25 +10,38 @@ import {
     Trophy,
     Settings,
     Lock,
-    Home
+    Home,
+    Pin,
+    PinOff,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { togglePinRoom } from "@/store/features/communitySlice";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LockedRoomDialog } from "./LockedRoomDialog";
 
-interface ChannelSidebarProps {
+export function ChannelSidebar({
+    campuses,
+    selectedCampus,
+    rooms,
+    selectedRoomId,
+    userProfile,
+    onSelectRoom,
+    onSelectCampus,
+    onClearCampus
+}: {
     campuses: Campus[];
     selectedCampus: Campus | null;
     rooms: CampusRoom[];
-    groupedRooms: GroupedRooms | null; // Kept for type compatibility but ignored
     selectedRoomId?: number;
     userProfile: UserProfile | null;
     onSelectRoom: (room: CampusRoom) => void;
     onSelectCampus: (campus: Campus) => void;
     onClearCampus: () => void;
-}
-
-export function ChannelSidebar({ campuses, selectedCampus, rooms, groupedRooms, selectedRoomId, userProfile, onSelectRoom, onSelectCampus, onClearCampus }: ChannelSidebarProps) {
+}) {
+    const dispatch = useDispatch<AppDispatch>();
+    const { pinnedRoomIds } = useSelector((state: RootState) => state.community);
     const [lockedRoomTarget, setLockedRoomTarget] = useState<CampusRoom | null>(null);
 
     const handleRoomClick = (room: CampusRoom) => {
@@ -39,33 +52,53 @@ export function ChannelSidebar({ campuses, selectedCampus, rooms, groupedRooms, 
         }
     };
 
+    const handlePinClick = (e: React.MouseEvent, roomId: number) => {
+        e.stopPropagation();
+        dispatch(togglePinRoom(roomId));
+    };
+
+    const pinnedRooms = rooms.filter(r => pinnedRoomIds.includes(r.id));
+    const unpinnedRooms = rooms.filter(r => !pinnedRoomIds.includes(r.id));
+
     const renderRoomButton = (room: CampusRoom) => {
         const isLocked = room.is_locked;
         const isSelected = selectedRoomId === room.id;
+        const isPinned = pinnedRoomIds.includes(room.id);
 
         return (
-            <Button
-                key={room.id}
-                variant="ghost"
-                className={cn(
-                    "w-full justify-start h-8 px-2 font-bold text-sm tracking-tight rounded-md border-none transition-all group mb-0.5 relative",
-                    isSelected
-                        ? 'bg-[#D9DADD] dark:bg-[#404249] text-gray-900 dark:text-white'
-                        : 'text-gray-500 dark:text-[#949BA4] hover:bg-[#D9DADD] dark:hover:bg-[#35373C] hover:text-gray-900 dark:hover:text-white',
-                    isLocked && "opacity-75 hover:opacity-100"
-                )}
-                onClick={() => handleRoomClick(room)}
-            >
-                {isLocked ? (
-                    <Lock className="h-4 w-4 mr-1.5 text-red-400" />
-                ) : (
-                    <MessageSquare className={cn(
-                        "h-4 w-4 mr-1.5 transition-colors",
-                        isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'
-                    )} />
-                )}
-                <span className="truncate flex-1 text-left">{room.name_somali}</span>
-            </Button>
+            <div key={room.id} className="group/btn relative">
+                <Button
+                    variant="ghost"
+                    className={cn(
+                        "w-full justify-start h-8 px-2 font-bold text-sm tracking-tight rounded-md border-none transition-all mb-0.5",
+                        isSelected
+                            ? 'bg-[#D9DADD] dark:bg-[#404249] text-gray-900 dark:text-white'
+                            : 'text-gray-500 dark:text-[#949BA4] hover:bg-[#D9DADD] dark:hover:bg-[#35373C] hover:text-gray-900 dark:hover:text-white',
+                        isLocked && "opacity-75 hover:opacity-100"
+                    )}
+                    onClick={() => handleRoomClick(room)}
+                >
+                    {isLocked ? (
+                        <Lock className="h-4 w-4 mr-1.5 text-red-400" />
+                    ) : (
+                        <MessageSquare className={cn(
+                            "h-4 w-4 mr-1.5 transition-colors",
+                            isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 group-hover/btn:text-gray-600 dark:group-hover/btn:text-gray-300'
+                        )} />
+                    )}
+                    <span className="truncate flex-1 text-left">{room.name_somali}</span>
+                </Button>
+
+                <button
+                    onClick={(e) => handlePinClick(e, room.id)}
+                    className={cn(
+                        "absolute right-2 top-1.5 p-1 rounded-sm transition-all opacity-0 group-hover/btn:opacity-100",
+                        isPinned ? "opacity-100 text-primary" : "text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                    )}
+                >
+                    {isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
+                </button>
+            </div>
         );
     };
 
@@ -73,18 +106,21 @@ export function ChannelSidebar({ campuses, selectedCampus, rooms, groupedRooms, 
         <div className="w-60 flex flex-col bg-[#F2F3F5] dark:bg-[#2B2D31] select-none h-full border-r border-[#E3E5E8] dark:border-[#1E1F22]">
             {/* Header */}
             <div
-                className="h-12 px-4 flex items-center shadow-sm border-b border-black/10 font-black dark:text-white hover:bg-black/5 dark:hover:bg-[#35373C] cursor-pointer transition-colors relative"
+                className="h-12 px-4 flex items-center shadow-sm border-b border-black/10 dark:text-white hover:bg-black/5 dark:hover:bg-[#35373C] cursor-pointer transition-colors relative"
                 onClick={onClearCampus}
             >
                 <div className="flex items-center gap-2 overflow-hidden">
-                    {selectedCampus && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6 -ml-2" onClick={(e) => { e.stopPropagation(); onClearCampus(); }}>
-                            <Home className="h-4 w-4" />
-                        </Button>
-                    )}
-                    <span className="truncate uppercase tracking-tighter text-sm">
-                        {selectedCampus?.name_somali || "Bulshada Garaad"}
-                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <img src="/logo.png" alt="G" className="w-5 h-5 opacity-40 grayscale" />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="truncate font-black text-sm tracking-tight leading-none uppercase">
+                            {selectedCampus?.name_somali || SOMALI_UI_TEXT.community}
+                        </span>
+                        <span className="text-[10px] font-bold text-primary tracking-widest leading-none mt-0.5 uppercase">
+                            PLATFORM
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -113,12 +149,27 @@ export function ChannelSidebar({ campuses, selectedCampus, rooms, groupedRooms, 
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {/* Flat list of rooms */}
+                            {/* Pinned Rooms */}
+                            {pinnedRooms.length > 0 && (
+                                <div className="space-y-0.5">
+                                    <div className="px-2 py-1 flex items-center justify-between group cursor-default">
+                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1">
+                                            <Pin className="h-2.5 w-2.5" />
+                                            {SOMALI_UI_TEXT.pinned}
+                                        </span>
+                                    </div>
+                                    {pinnedRooms.map(renderRoomButton)}
+                                </div>
+                            )}
+
+                            {/* All Rooms */}
                             <div className="space-y-0.5">
                                 <div className="px-2 py-1 flex items-center justify-between group cursor-default">
-                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Wadahadalada</span>
+                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                                        {SOMALI_UI_TEXT.allRooms}
+                                    </span>
                                 </div>
-                                {rooms.map(renderRoomButton)}
+                                {unpinnedRooms.map(renderRoomButton)}
                             </div>
                         </div>
                     )}

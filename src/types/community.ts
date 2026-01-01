@@ -149,6 +149,7 @@ export interface CommunityState {
   selectedCategory: CommunityCategory | null;
   userProfile: UserProfile | null;
   notifications: Notification[];
+  pinnedRoomIds: number[];
 
   // UI State
   loading: {
@@ -303,4 +304,20 @@ export const SOMALI_UI_TEXT = {
   postUpdated: "Qoraalka waa la cusboonaysiiyay!",
   postDeleted: "Qoraalka waa la tirtiray!",
   reactionAdded: "Falcelinta waa la dhigay!",
+
+  // Emoji & Pinning
+  searchEmoji: "Raadi emoji...",
+  pinned: "Lagu xiray",
+  allRooms: "Dhammaan qolalka",
+  pinRoom: "Xir qolka",
+  unpinRoom: "Ka fur qolka",
+  frequentlyUsed: "Mar walba la isticmaalo",
+  smileysPeople: "Dhoola cadeyn & Dad",
+  animalsNature: "Xayawaan & Dabeecad",
+  foodDrink: "Cunto & Cabitaan",
+  activities: "Waxqabadyo",
+  travelPlaces: "Socdaal & Meelo",
+  objects: "Alaab",
+  symbols: "Calaamado",
+  flags: "Calanka",
 };

@@ -47,6 +47,9 @@ const initialState: CommunityState = {
       hasMore: false,
     },
   },
+  pinnedRoomIds: typeof window !== "undefined"
+    ? JSON.parse(localStorage.getItem("pinnedRoomIds") || "[]")
+    : [],
 };
 
 // Async Thunks
@@ -342,6 +345,18 @@ const communitySlice = createSlice({
         profile: null,
         notifications: null,
       };
+    },
+
+    togglePinRoom: (state, action: PayloadAction<number>) => {
+      const roomId = action.payload;
+      if (state.pinnedRoomIds.includes(roomId)) {
+        state.pinnedRoomIds = state.pinnedRoomIds.filter(id => id !== roomId);
+      } else {
+        state.pinnedRoomIds.push(roomId);
+      }
+      if (typeof window !== "undefined") {
+        localStorage.setItem("pinnedRoomIds", JSON.stringify(state.pinnedRoomIds));
+      }
     },
   },
   extraReducers: (builder) => {
