@@ -181,6 +181,11 @@ export const profileService = {
     return apiCall(`community/profiles/${userId}/`);
   },
 
+  // Get users who have enabled notifications
+  getNotificationEnabledUsers: async () => {
+    return apiCall('community/profiles/notification_enabled/');
+  },
+
   // Update profile settings
   updateProfile: async (profileData: {
     preferred_language?: "so" | "en";

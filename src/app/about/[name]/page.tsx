@@ -17,8 +17,9 @@ import {
 import { cn } from "@/lib/utils";
 import { playfair } from "@/lib/fonts";
 
-export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
-    const displayName = params.name.replace(/-/g, " ");
+export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
+    const { name } = await params;
+    const displayName = name.replace(/-/g, " ");
     return {
         title: `${displayName} - Founder, Inventor & Mentor`,
         description: `Profile of ${displayName}, Founder and CEO of Garaad. A visionary inventor and self-taught developer dedicated to empowering the next generation.`,
@@ -28,9 +29,10 @@ export async function generateMetadata({ params }: { params: { name: string } })
     };
 }
 
-export default function AboutProfilePage({ params }: { params: { name: string } }) {
+export default async function AboutProfilePage({ params }: { params: Promise<{ name: string }> }) {
+    const { name } = await params;
     // Decoding name for display
-    const displayName = params.name.replace(/-/g, " ");
+    const displayName = name.replace(/-/g, " ");
 
     // Bio sections based on user request
     const journeyHighlights = [
