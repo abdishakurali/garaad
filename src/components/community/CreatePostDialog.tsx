@@ -74,6 +74,7 @@ export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDial
     const handleSubmit = async () => {
         if (!content.trim() || !userProfile) return;
 
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const tempId = `temp-${Date.now()}`;
 
         // Create optimistic post with preview URLs
@@ -94,6 +95,7 @@ export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDial
                 insight: 0,
             },
             user_reactions: [],
+            request_id: requestId,
         };
 
         // 1. Immediately add to UI
@@ -117,6 +119,7 @@ export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDial
                     category: categoryId,
                     content: contentToSend,
                     images: imagesToSend.length > 0 ? imagesToSend : undefined,
+                    requestId,
                 },
                 tempId,
             })).unwrap();

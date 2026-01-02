@@ -58,6 +58,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
 
         const isAdding = !post.user_reactions.includes(type);
 
+        const requestId = `req_react_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         // 1. Immediately update UI (Toggle the clicked one)
         dispatch(toggleReactionOptimistic({ postId: post.id, type, isAdding }));
 
@@ -71,21 +72,22 @@ export function PostCard({ post, userProfile }: PostCardProps) {
         // But we MUST also toggle OFF the old one if it exists and is different.
 
         if (activeReaction) {
-            dispatch(reactToPost({ postId: post.id, type: activeReaction })); // Toggle off old
+            dispatch(reactToPost({ postId: post.id, type: activeReaction, requestId })); // Toggle off old
         }
-        dispatch(reactToPost({ postId: post.id, type })); // Toggle on new
+        dispatch(reactToPost({ postId: post.id, type, requestId })); // Toggle on new
     };
 
     const handleDelete = async () => {
         if (!post.id) return;
         if (!confirm("Ma hubtaa inaad tirtirto qoraalkan?")) return;
 
+        const requestId = `req_del_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         // 1. Instantly remove from UI for better UX
         dispatch(removeOptimisticPost(post.id));
 
         // 2. Sync with server in background
         try {
-            await dispatch(deletePost(post.id)).unwrap();
+            await dispatch(deletePost({ postId: post.id, requestId })).unwrap();
         } catch (error) {
             console.error("Failed to delete post:", error);
             // On failure, the user might see it again on refresh, 

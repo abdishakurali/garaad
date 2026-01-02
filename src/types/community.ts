@@ -30,6 +30,7 @@ export interface CommunityReply {
   content: string;
   created_at: string;
   is_edited: boolean;
+  request_id?: string;
 }
 
 // Post Image
@@ -53,6 +54,7 @@ export interface CommunityPost {
   replies_count: number;
   reactions_count: Record<string, number>;
   user_reactions: ReactionType[];
+  request_id?: string;
 }
 
 // Create post data
@@ -60,11 +62,13 @@ export interface CreatePostData {
   category: string;
   content: string;
   images?: File[];
+  requestId?: string;
 }
 
 // Create reply data
 export interface CreateReplyData {
   content: string;
+  requestId?: string;
 }
 
 // Helper to format user display name with "Garaad" prefix
@@ -105,7 +109,9 @@ export interface Notification {
   | "post_comment"
   | "comment_reply"
   | "mention"
-  | "new_campus_member";
+  | "new_campus_member"
+  | "post_deleted"
+  | "reply_deleted";
   notification_type_display: string;
   title: string;
   message: string;
@@ -180,6 +186,7 @@ export interface CommunityState {
       hasMore: boolean;
     };
   };
+  pendingRequestIds: string[];
 }
 
 // Badge and Achievement types

@@ -47,6 +47,7 @@ const initialState: CommunityState = {
       hasMore: false,
     },
   },
+  pendingRequestIds: [],
   pinnedCategoryIds: typeof window !== "undefined"
     ? JSON.parse(localStorage.getItem("pinnedCategoryIds") || "[]")
     : [],
@@ -96,8 +97,10 @@ export const createPost = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const result = await communityService.post.createPost(categoryId, postData);
-      return { ...result, tempId };
+      // Generate a unique requestId for this action
+      const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const result = await communityService.post.createPost(categoryId, { ...postData, requestId });
+      return { ...result, tempId, requestId };
     } catch (error: any) {
       return rejectWithValue({ error: handleApiError(error), tempId });
     }
@@ -122,10 +125,14 @@ export const updatePost = createAsyncThunk(
 // Delete a post
 export const deletePost = createAsyncThunk(
   "community/deletePost",
-  async (postId: string, { rejectWithValue }) => {
+  async (
+    { postId, requestId }: { postId: string; requestId?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      await communityService.post.deletePost(postId);
-      return postId;
+      const finalRequestId = requestId || `req_del_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      await communityService.post.deletePost(postId, finalRequestId);
+      return { postId, requestId: finalRequestId };
     } catch (error: any) {
       return rejectWithValue(handleApiError(error));
     }
@@ -136,11 +143,11 @@ export const deletePost = createAsyncThunk(
 export const reactToPost = createAsyncThunk(
   "community/reactToPost",
   async (
-    { postId, type }: { postId: string; type: ReactionType },
+    { postId, type, requestId }: { postId: string; type: ReactionType; requestId?: string },
     { rejectWithValue }
   ) => {
     try {
-      return await communityService.post.reactToPost(postId, type);
+      return await communityService.post.reactToPost(postId, type, requestId);
     } catch (error: any) {
       return rejectWithValue({ error: handleApiError(error), postId, type });
     }
@@ -155,8 +162,9 @@ export const createReply = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const reply = await communityService.reply.createReply(postId, replyData);
-      return { postId, reply, tempId };
+      const requestId = `req_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const reply = await communityService.reply.createReply(postId, { ...replyData, requestId });
+      return { postId, reply, tempId, requestId };
     } catch (error: any) {
       return rejectWithValue({ error: handleApiError(error), postId, tempId });
     }
@@ -182,12 +190,13 @@ export const updateReply = createAsyncThunk(
 export const deleteReply = createAsyncThunk(
   "community/deleteReply",
   async (
-    { postId, replyId }: { postId: string; replyId: string },
+    { postId, replyId, requestId }: { postId: string; replyId: string; requestId?: string },
     { rejectWithValue }
   ) => {
     try {
-      await communityService.reply.deleteReply(replyId);
-      return { postId, replyId };
+      const finalRequestId = requestId || `req_del_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      await communityService.reply.deleteReply(replyId, finalRequestId);
+      return { postId, replyId, requestId: finalRequestId };
     } catch (error: any) {
       return rejectWithValue(handleApiError(error));
     }
@@ -322,58 +331,97 @@ const communitySlice = createSlice({
       }
     },
 
-    // WEBSOCKET: Handle incoming post
-    handleWebSocketPost: (state, action: PayloadAction<CommunityPost>) => {
-      // Only add if not already in list (avoid duplicates)
-      const exists = state.posts.find(p => p.id === action.payload.id);
-      if (!exists) {
+    // WEBSOCKET: Handle incoming post (Create or Update)
+    handleWebSocketPost: (state, action: PayloadAction<CommunityPost & { request_id?: string }>) => {
+      const { request_id, id, category } = action.payload;
+
+      // If this client initiated the request, ignore the WebSocket echo to prevent duplication
+      if (request_id && state.pendingRequestIds.includes(request_id)) {
+        return;
+      }
+
+      const index = state.posts.findIndex(p => p.id === id);
+      if (index !== -1) {
+        // Update existing post (authoritative sync)
+        state.posts[index] = { ...state.posts[index], ...action.payload };
+      } else {
+        // Add new post
         state.posts.unshift(action.payload);
         // Increment category post count
-        const category = state.categories.find(c => c.id === action.payload.category);
-        if (category) {
-          category.posts_count = (category.posts_count || 0) + 1;
+        const cat = state.categories.find(c => c.id === category);
+        if (cat) {
+          cat.posts_count = (cat.posts_count || 0) + 1;
         }
       }
     },
 
     // WEBSOCKET: Handle post deletion
-    handleWebSocketPostDeleted: (state, action: PayloadAction<string>) => {
-      const post = state.posts.find(p => p.id === action.payload);
-      state.posts = state.posts.filter(p => p.id !== action.payload);
+    handleWebSocketPostDeleted: (state, action: PayloadAction<{ post_id: string; request_id?: string }>) => {
+      const { post_id, request_id } = action.payload;
 
-      // Decrement category post count if we deleted a post we knew about
+      // Ignore if we initiated the delete
+      if (request_id && state.pendingRequestIds.includes(request_id)) {
+        return;
+      }
+
+      const post = state.posts.find(p => p.id === post_id);
+      state.posts = state.posts.filter(p => p.id !== post_id);
+
       if (post) {
         const category = state.categories.find(c => c.id === post.category);
         if (category) {
           category.posts_count = Math.max(0, (category.posts_count || 0) - 1);
         }
-      } else if (state.selectedCategory) {
-        // If we didn't have the post in the list but we are in the category, we should still decrement
-        // But checking ID is safer.
-        // Actually, if we are in the category view and receive a delete for a post we don't have loaded,
-        // it implies total count might be off, but we can't be sure which category it belonged to unless payload included it.
-        // For now, safe to only decrement if we knew about the post or assume current selected category if that's safer?
-        // Let's stick to 'if post exists' to recall its category.
       }
     },
 
     // WEBSOCKET: Handle reaction update
-    handleWebSocketReactionUpdate: (state, action: PayloadAction<{ post_id: string; reactions_count: Record<string, number> }>) => {
-      const post = state.posts.find(p => p.id === action.payload.post_id);
+    handleWebSocketReactionUpdate: (state, action: PayloadAction<{ post_id: string; reactions_count: Record<string, number>; request_id?: string }>) => {
+      const { post_id, reactions_count, request_id } = action.payload;
+
+      // Ignore if we initiated the reaction (optimistic UI handles it)
+      if (request_id && state.pendingRequestIds.includes(request_id)) {
+        return;
+      }
+
+      const post = state.posts.find(p => p.id === post_id);
       if (post) {
-        post.reactions_count = action.payload.reactions_count;
+        post.reactions_count = reactions_count;
       }
     },
 
-    // WEBSOCKET: Handle new reply
-    handleWebSocketReply: (state, action: PayloadAction<{ postId: string; reply: CommunityReply }>) => {
-      const post = state.posts.find(p => p.id === action.payload.postId);
-      if (post) {
-        // Only add if not already in list
-        const exists = post.replies.find(r => r.id === action.payload.reply.id);
-        if (!exists) {
-          post.replies.push(action.payload.reply);
+    // WEBSOCKET: Handle reply (Create, Update, or Delete)
+    handleWebSocketReply: (state, action: PayloadAction<{
+      postId: string;
+      reply?: CommunityReply;
+      reply_id?: string;
+      request_id?: string
+    }>) => {
+      const { postId, reply, reply_id, request_id } = action.payload;
+
+      // Ignore if we initiated the request
+      if (request_id && state.pendingRequestIds.includes(request_id)) {
+        return;
+      }
+
+      const post = state.posts.find(p => p.id === postId);
+      if (!post) return;
+
+      if (reply) {
+        // Handle Creation or Update
+        const index = post.replies.findIndex(r => r.id === reply.id);
+        if (index !== -1) {
+          post.replies[index] = reply;
+        } else {
+          post.replies.push(reply);
           post.replies_count += 1;
+        }
+      } else if (reply_id) {
+        // Handle Deletion
+        const exists = post.replies.some(r => r.id === reply_id);
+        if (exists) {
+          post.replies = post.replies.filter(r => r.id !== reply_id);
+          post.replies_count = Math.max(0, post.replies_count - 1);
         }
       }
     },
@@ -473,14 +521,25 @@ const communitySlice = createSlice({
     // Create Post - Replace temp with real
     builder
       .addCase(createPost.fulfilled, (state, action) => {
-        const index = state.posts.findIndex(p => p.id.toString() === action.payload.tempId);
+        const index = state.posts.findIndex(p => p.id === action.payload.tempId);
         if (index !== -1) {
           state.posts[index] = action.payload;
+        } else {
+          // If not found (maybe not added optimistically), add it
+          state.posts.unshift(action.payload);
         }
+        // Cleanup requestId
+        if (action.payload.requestId) {
+          state.pendingRequestIds = state.pendingRequestIds.filter(id => id !== action.payload.requestId);
+        }
+      })
+      .addCase(createPost.pending, (state, action) => {
+        // requestId is not easily accessible here without meta, let's skip for now
+        // and handle it in fulfilled/rejected
       })
       .addCase(createPost.rejected, (state, action) => {
         // Remove optimistic post on failure
-        const tempId = (action.payload as any)?.tempId;
+        const tempId = (action.meta.arg as any)?.tempId; // Assuming tempId is in meta.arg for rejected
         if (tempId) {
           // Find post to get category before removing
           const post = state.posts.find(p => p.id.toString() === tempId);
@@ -507,25 +566,21 @@ const communitySlice = createSlice({
     // Delete Post
     builder
       .addCase(deletePost.fulfilled, (state, action) => {
+        const { postId, requestId } = action.payload;
         // Find post to get category before removing (if it was in list)
-        const post = state.posts.find(p => p.id === action.payload);
-        state.posts = state.posts.filter(p => p.id !== action.payload);
+        const post = state.posts.find(p => p.id === postId);
+        state.posts = state.posts.filter(p => p.id !== postId);
 
         if (post) {
           const category = state.categories.find(c => c.id === post.category);
           if (category) {
             category.posts_count = Math.max(0, (category.posts_count || 0) - 1);
           }
-        } else if (state.selectedCategory) {
-          // If we are in the category view, we can assume it belongs to selectedCategory
-          // Safest to just decrement if we are sure. 
-          // Since we filter by ID, if we didn't find it in posts, we might not have it loaded?
-          // But counting relies on accurate server data.
-          // Ideally validation matches server.
-          // For now, if we found it in posts array, we decrement.
-          // If not found, we refrain from guessing to avoid skewing unless we trust selectedCategory.
-          // Let's stick to consistent logic: if found in posts, decrement.
-          // Actually, if we just deleted it, we likely had it.
+        }
+
+        // Cleanup requestId
+        if (requestId) {
+          state.pendingRequestIds = state.pendingRequestIds.filter(id => id !== requestId);
         }
       });
 
@@ -594,10 +649,16 @@ const communitySlice = createSlice({
     // Delete Reply
     builder
       .addCase(deleteReply.fulfilled, (state, action) => {
-        const post = state.posts.find(p => p.id === action.payload.postId);
+        const { postId, replyId, requestId } = action.payload;
+        const post = state.posts.find(p => p.id === postId);
         if (post) {
-          post.replies = post.replies.filter(r => r.id !== action.payload.replyId);
+          post.replies = post.replies.filter(r => r.id !== replyId);
           post.replies_count = Math.max(0, post.replies_count - 1);
+        }
+
+        // Cleanup requestId
+        if (requestId) {
+          state.pendingRequestIds = state.pendingRequestIds.filter(id => id !== requestId);
         }
       });
 

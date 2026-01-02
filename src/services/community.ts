@@ -133,19 +133,21 @@ export const postService = {
   },
 
   // Delete post
-  deletePost: async (postId: string) => {
-    return apiCall(`community/posts/${postId}/`, {
+  deletePost: async (postId: string, requestId?: string) => {
+    const params = requestId ? `?requestId=${requestId}` : "";
+    return apiCall(`community/posts/${postId}/${params}`, {
       method: "DELETE",
     });
   },
 
   // React to post (toggle)
-  reactToPost: async (postId: string, type: ReactionType) => {
+  reactToPost: async (postId: string, type: ReactionType, requestId?: string) => {
     return apiCall(`community/posts/${postId}/react/`, {
       method: "POST",
       body: JSON.stringify({
         type,
-        reaction: type // Mirror for compatibility
+        reaction: type, // Mirror for compatibility
+        requestId
       }),
     });
   },
@@ -170,8 +172,9 @@ export const replyService = {
   },
 
   // Delete reply
-  deleteReply: async (replyId: string) => {
-    return apiCall(`community/replies/${replyId}/`, {
+  deleteReply: async (replyId: string, requestId?: string) => {
+    const params = requestId ? `?requestId=${requestId}` : "";
+    return apiCall(`community/replies/${replyId}/${params}`, {
       method: "DELETE",
     });
   },

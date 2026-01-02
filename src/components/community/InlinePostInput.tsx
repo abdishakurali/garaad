@@ -71,6 +71,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
     const handleSubmit = async () => {
         if (!content.trim() || !userProfile) return;
 
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const tempId = `temp-${Date.now()}`;
         const optimisticPost: CommunityPost = {
             id: tempId as any,
@@ -85,6 +86,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
             replies_count: 0,
             reactions_count: { like: 0, fire: 0, insight: 0 },
             user_reactions: [],
+            request_id: requestId,
         };
 
         dispatch(addOptimisticPost(optimisticPost));
@@ -105,6 +107,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                     category: categoryId,
                     content: contentToSend,
                     images: imagesToSend.length > 0 ? imagesToSend : undefined,
+                    requestId,
                 },
                 tempId,
             })).unwrap();

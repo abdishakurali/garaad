@@ -43,6 +43,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const handleSubmit = async () => {
         if (!replyContent.trim() || !userProfile) return;
 
+        const requestId = `req_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const tempId = `temp-${Date.now()}`;
         const optimisticReply: CommunityReply = {
             id: tempId as any,
@@ -50,6 +51,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
             content: replyContent,
             created_at: new Date().toISOString(),
             is_edited: false,
+            request_id: requestId,
         };
 
         // 1. Immediately add to UI
@@ -61,7 +63,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
         try {
             await dispatch(createReply({
                 postId,
-                replyData: { content: replyContent },
+                replyData: { content: replyContent, requestId },
                 tempId,
             })).unwrap();
         } catch (error) {
@@ -74,12 +76,13 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const handleDelete = async (replyId: string) => {
         if (!confirm("Ma hubtaa inaad tirtirto jawaabtan?")) return;
 
+        const requestId = `req_del_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         // 1. Instantly remove from UI for better UX
         dispatch(removeOptimisticReply({ postId, tempId: replyId }));
 
         // 2. Sync with server in background
         try {
-            await dispatch(deleteReply({ postId, replyId })).unwrap();
+            await dispatch(deleteReply({ postId, replyId, requestId })).unwrap();
         } catch (error) {
             console.error("Failed to delete reply:", error);
         }

@@ -76,12 +76,17 @@ export class CommunityWebSocket {
         switch (data.type) {
             case "post_created":
                 // New post from another user
-                this.dispatch(handleWebSocketPost(data.post));
+                this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
+                break;
+
+            case "post_updated":
+                // Post updated by another user
+                this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
                 break;
 
             case "post_deleted":
                 // Post deleted by another user
-                this.dispatch(handleWebSocketPostDeleted(data.post_id));
+                this.dispatch(handleWebSocketPostDeleted({ post_id: data.post_id, request_id: data.request_id }));
                 break;
 
             case "reaction_updated":
@@ -89,7 +94,7 @@ export class CommunityWebSocket {
                 this.dispatch(handleWebSocketReactionUpdate({
                     post_id: data.post_id,
                     reactions_count: data.reactions_count,
-                    user_reactions: data.user_reactions,
+                    request_id: data.request_id
                 }));
                 break;
 
@@ -98,6 +103,25 @@ export class CommunityWebSocket {
                 this.dispatch(handleWebSocketReply({
                     postId: data.post_id,
                     reply: data.reply,
+                    request_id: data.request_id
+                }));
+                break;
+
+            case "reply_updated":
+                // Reply updated by another user
+                this.dispatch(handleWebSocketReply({
+                    postId: data.post_id,
+                    reply: data.reply,
+                    request_id: data.request_id
+                }));
+                break;
+
+            case "reply_deleted":
+                // Reply deleted by another user
+                this.dispatch(handleWebSocketReply({
+                    postId: data.post_id,
+                    reply_id: data.reply_id,
+                    request_id: data.request_id
                 }));
                 break;
 
