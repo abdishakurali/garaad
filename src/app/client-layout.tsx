@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import AuthService from "@/services/auth";
 import { useDispatch } from "react-redux";
 import { setUser, logout } from "@/store/features/authSlice";
@@ -13,6 +14,8 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const dispatch = useDispatch();
+
+  const pathname = usePathname();
 
   useEffect(() => {
     const authService = AuthService.getInstance();
@@ -30,8 +33,11 @@ export default function ClientLayout({
           dispatch(fetchUserProfile() as any);
 
           // Initialize Global WebSocket for real-time notifications
-          const { CommunityWebSocket } = await import("@/services/communityWebSocket");
-          CommunityWebSocket.getInstance().connect(null, dispatch as any); // Connect to 'global' room
+          // Skip if on community page, as that page handles its own connection logic
+          if (!pathname?.startsWith('/community')) {
+            const { CommunityWebSocket } = await import("@/services/communityWebSocket");
+            CommunityWebSocket.getInstance().connect(null, dispatch as any); // Connect to 'global' room
+          }
         }
       } else {
         dispatch(logout());
@@ -39,7 +45,7 @@ export default function ClientLayout({
     };
 
     init();
-  }, [dispatch]);
+  }, [dispatch, pathname]);
 
   // Just render children - no Providers here
   return (

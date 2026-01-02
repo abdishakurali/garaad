@@ -28,11 +28,14 @@ export class CommunityWebSocket {
         return CommunityWebSocket.instance;
     }
 
-    connect(categoryId: string | null = null, dispatch: AppDispatch) {
+    async connect(categoryId: string | null = null, dispatch: AppDispatch) {
         if (typeof window === "undefined") return;
 
         const authService = AuthService.getInstance();
-        const token = authService.getToken();
+
+        // Ensure we have a valid token (refresh if needed) before connecting
+        const token = await authService.ensureValidToken();
+
         if (!token) {
             console.warn("No auth token, skipping WebSocket connection");
             return;
@@ -41,14 +44,21 @@ export class CommunityWebSocket {
         // If categoryId is null, we connect to "global" which receives private notifications
         const roomName = categoryId || "global";
 
-        // Don't reconnect if already connected to the same room
-        if (this.ws && this.currentCategoryId === categoryId && this.ws.readyState === WebSocket.OPEN) {
+        const currentRoom = this.currentCategoryId || "global";
+        const targetRoom = categoryId || "global";
+
+        // Don't reconnect if already connected or connecting to the same room
+        if (this.ws && currentRoom === targetRoom &&
+            (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
             return;
         }
 
         // If switching rooms, disconnect first
         if (this.ws) {
-            console.log(`[WS] Switching room from ${this.currentCategoryId || 'global'} to ${roomName}`);
+            // Prevent old socket from triggering reconnects or errors
+            this.ws.onclose = null;
+            this.ws.onerror = null;
+            this.ws.onmessage = null;
             this.ws.close();
         }
 
@@ -71,12 +81,7 @@ export class CommunityWebSocket {
             };
 
             this.ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    this.handleMessage(data);
-                } catch (error) {
-                    console.warn("Error parsing WebSocket message:", error);
-                }
+                this.handleMessage(event);
             };
 
             this.ws.onclose = (event) => {
@@ -94,70 +99,76 @@ export class CommunityWebSocket {
         }
     }
 
-    private handleMessage(data: any) {
+
+    private handleMessage(event: MessageEvent) {
         if (!this.dispatch) return;
 
-        switch (data.type) {
-            case "post_created":
-                this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
-                break;
+        try {
+            const data = JSON.parse(event.data);
 
-            case "post_updated":
-                this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
-                break;
+            switch (data.type) {
+                case "post_created":
+                    this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
+                    break;
 
-            case "post_deleted":
-                this.dispatch(handleWebSocketPostDeleted({ post_id: data.post_id, request_id: data.request_id }));
-                break;
+                case "post_updated":
+                    this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
+                    break;
 
-            case "reaction_updated":
-                this.dispatch(handleWebSocketReactionUpdate({
-                    post_id: data.post_id,
-                    reactions_count: data.reactions_count,
-                    request_id: data.request_id
-                }));
-                break;
+                case "post_deleted":
+                    this.dispatch(handleWebSocketPostDeleted({ post_id: data.post_id, request_id: data.request_id }));
+                    break;
 
-            case "reply_created":
-                this.dispatch(handleWebSocketReply({
-                    postId: data.post_id,
-                    reply: data.reply,
-                    request_id: data.request_id
-                }));
-                break;
+                case "reaction_updated":
+                    this.dispatch(handleWebSocketReactionUpdate({
+                        post_id: data.post_id,
+                        reactions_count: data.reactions_count,
+                        request_id: data.request_id
+                    }));
+                    break;
 
-            case "reply_updated":
-                this.dispatch(handleWebSocketReply({
-                    postId: data.post_id,
-                    reply: data.reply,
-                    request_id: data.request_id
-                }));
-                break;
+                case "reply_created":
+                    this.dispatch(handleWebSocketReply({
+                        postId: data.post_id,
+                        reply: data.reply,
+                        request_id: data.request_id
+                    }));
+                    break;
 
-            case "reply_deleted":
-                this.dispatch(handleWebSocketReply({
-                    postId: data.post_id,
-                    reply_id: data.reply_id,
-                    request_id: data.request_id
-                }));
-                break;
+                case "reply_updated":
+                    this.dispatch(handleWebSocketReply({
+                        postId: data.post_id,
+                        reply: data.reply,
+                        request_id: data.request_id
+                    }));
+                    break;
 
-            case "notification_created":
-                // New notification for the current user
-                console.log("[WS] Received notification:", data.notification);
-                this.dispatch(addNotification(data.notification));
-                break;
+                case "reply_deleted":
+                    this.dispatch(handleWebSocketReply({
+                        postId: data.post_id,
+                        reply_id: data.reply_id,
+                        request_id: data.request_id
+                    }));
+                    break;
 
-            case "notification_read":
-                this.dispatch(handleWebSocketNotificationRead({ notification_id: data.notification_id }));
-                break;
+                case "notification_created":
+                    // New notification for the current user
+                    this.dispatch(addNotification(data.notification));
+                    break;
 
-            case "all_notifications_read":
-                this.dispatch(handleWebSocketAllNotificationsRead());
-                break;
+                case "notification_read":
+                    this.dispatch(handleWebSocketNotificationRead({ notification_id: data.notification_id }));
+                    break;
 
-            default:
-                console.log("Unknown WebSocket event type:", data.type);
+                case "all_notifications_read":
+                    this.dispatch(handleWebSocketAllNotificationsRead());
+                    break;
+
+                default:
+                    console.log("Unknown WebSocket event type:", data.type);
+            }
+        } catch (error) {
+            console.warn("Error parsing WebSocket message:", error);
         }
     }
 
@@ -175,6 +186,9 @@ export class CommunityWebSocket {
 
     disconnect() {
         if (this.ws) {
+            this.ws.onclose = null;
+            this.ws.onerror = null;
+            this.ws.onmessage = null;
             this.ws.close();
             this.ws = null;
         }
@@ -185,3 +199,4 @@ export class CommunityWebSocket {
 }
 
 export default CommunityWebSocket;
+

@@ -120,6 +120,7 @@ export default function NotificationPanel() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { notification, mutate } = useNotification();
+  const isLoading = useSelector((state: RootState) => state.community.loading.notifications);
   const communityNotifications = useSelector((state: RootState) => state.community.notifications);
   const communityUnreadCount = useSelector(selectUnreadNotificationCount);
 
@@ -141,20 +142,21 @@ export default function NotificationPanel() {
     }
   };
 
-  // Fetch data on mount
+  // Fetch data on mount for badge accuracy
   useEffect(() => {
     dispatch(fetchNotifications({ reset: true }));
     fetchEnabledUsers();
   }, [dispatch]);
 
-  // Refetch when popover opens
-  useEffect(() => {
-    if (open) {
-      mutate(); // refetch gamification notifications
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
+      // Refresh data when opening to ensure latest
+      mutate(); // gamification
       dispatch(fetchNotifications({ reset: true }));
       fetchEnabledUsers();
     }
-  }, [open, mutate, dispatch]);
+  };
 
   const visibleGamificationNotifications: Notification[] =
     notification?.filter((n: Notification) => !dismissed.includes(n.id)) || [];
@@ -188,7 +190,7 @@ export default function NotificationPanel() {
 
   return (
     <div className="relative">
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="ghost"

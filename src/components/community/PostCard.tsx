@@ -120,6 +120,9 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
 
     const timeAgo = formatSomaliRelativeTime(post.created_at);
 
+    // DEBUG: Log render to verify updates
+    // console.log(`[PostCard] Rendering post ${post.id}, replies: ${post.replies?.length}`);
+
     return (
         <div id={`post-${post.id}`} className={cn(
             "bg-white dark:bg-[#1E1F22] rounded-2xl border border-gray-100 dark:border-white/5 p-5 transition-all shadow-sm hover:shadow-md",

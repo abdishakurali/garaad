@@ -142,15 +142,31 @@ export default function CommunityPage() {
         }
     }, [categories, selectedCategory, dispatch]);
 
-    // Category change effect (room switching for category events)
+    // Manage WebSocket connection for active category
     useEffect(() => {
         if (!isAuthenticated) return;
 
-        // Note: For now we are using a global connection in ClientLayout
-        // If we want to join specific category rooms for real-time post updates while browsing,
-        // we can still use a secondary connection or update the global one.
-        // For simplicity, notifications work globally via 'global' room.
+        const connectToCategory = async () => {
+            const { default: CommunityWebSocket } = await import('@/services/communityWebSocket');
+            // Backend broadcasts to "community_<categoryId>" so we connect to "categoryId"
+            // The consumer adds "community_" prefix to the group name automatically
+            const roomId = selectedCategory ? selectedCategory.id : 'global';
+            CommunityWebSocket.getInstance().connect(roomId, dispatch);
+        };
+
+        connectToCategory();
     }, [dispatch, selectedCategory, isAuthenticated]);
+
+    // Revert to global channel when leaving community page
+    useEffect(() => {
+        return () => {
+            const revertToGlobal = async () => {
+                const { default: CommunityWebSocket } = await import('@/services/communityWebSocket');
+                CommunityWebSocket.getInstance().connect('global', dispatch);
+            };
+            revertToGlobal();
+        };
+    }, [dispatch]);
 
     // Fetch posts when category changes
     useEffect(() => {

@@ -55,7 +55,14 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
 
     try {
       const text = await response.text();
-      return text ? JSON.parse(text) : {};
+      const data = text ? JSON.parse(text) : {};
+
+      // DEBUG: Log posts response to see if replies are included
+      if (typeof url === 'string' && url.includes('/posts')) {
+        console.log(`[API] Response from ${url}:`, JSON.stringify(data, null, 2));
+      }
+
+      return data;
     } catch (e) {
       console.warn(`Failed to parse JSON response from ${url}:`, e);
       return {};
