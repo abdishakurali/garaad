@@ -138,6 +138,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
                         return (
                             <div
                                 key={reply.id}
+                                id={`reply-${reply.id}`}
                                 className={`flex gap-2 ${isPending ? 'opacity-60' : ''}`}
                             >
                                 <div

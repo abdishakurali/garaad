@@ -33,13 +33,35 @@ import { UserProfileModal } from "./UserProfileModal";
 interface PostCardProps {
     post: CommunityPost;
     userProfile: UserProfile | null;
+    initiallyShowReplies?: boolean;
+    targetReplyId?: string | null;
 }
 
-export function PostCard({ post, userProfile }: PostCardProps) {
+export function PostCard({ post, userProfile, initiallyShowReplies = false, targetReplyId = null }: PostCardProps) {
     const dispatch = useDispatch<AppDispatch>();
-    const [showReplies, setShowReplies] = useState(false);
+    const [showReplies, setShowReplies] = useState(initiallyShowReplies);
+
+    // Update showReplies if prop changes
+    React.useEffect(() => {
+        if (initiallyShowReplies) {
+            setShowReplies(true);
+        }
+    }, [initiallyShowReplies]);
+
     const [isDeleting, setIsDeleting] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+    // Scroll to reply if it's the target
+    React.useEffect(() => {
+        if (showReplies && targetReplyId) {
+            const element = document.getElementById(`reply-${targetReplyId}`);
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 100);
+            }
+        }
+    }, [showReplies, targetReplyId]);
 
     const isOwnPost = userProfile?.id === post.author?.id;
     const isPending = post.id?.toString().startsWith("temp-") || false;
@@ -99,7 +121,7 @@ export function PostCard({ post, userProfile }: PostCardProps) {
     const timeAgo = formatSomaliRelativeTime(post.created_at);
 
     return (
-        <div className={cn(
+        <div id={`post-${post.id}`} className={cn(
             "bg-white dark:bg-[#1E1F22] rounded-2xl border border-gray-100 dark:border-white/5 p-5 transition-all shadow-sm hover:shadow-md",
             isPending && "opacity-60",
             isDeleting && "opacity-40 pointer-events-none"

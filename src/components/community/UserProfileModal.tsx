@@ -210,7 +210,7 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                                     <div className="bg-gray-50/50 dark:bg-white/5 p-4 rounded-[1.5rem] border border-gray-100 dark:border-white/5 shadow-sm transition-transform hover:scale-[1.02]">
                                         <Flame className="w-6 h-6 text-orange-500 mx-auto mb-1.5" />
                                         <div className="text-lg font-black dark:text-white leading-tight">{profile.streak_days}</div>
-                                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Maalmood</div>
+                                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">MAALIN</div>
                                     </div>
                                     <div className="bg-gray-50/50 dark:bg-white/5 p-4 rounded-[1.5rem] border border-gray-100 dark:border-white/5 shadow-sm transition-transform hover:scale-[1.02]">
                                         <Trophy className="w-6 h-6 text-primary mx-auto mb-1.5" />

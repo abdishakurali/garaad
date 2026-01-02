@@ -62,7 +62,7 @@ export function getMediaUrl(
 
 /**
  * Formats a date string into a relative Somali time string in uppercase
- * e.g., "20 SAACAD KA HOR", "HADDA"
+ * e.g., "20 SAAC KA HOR", "HADDA"
  */
 export function formatSomaliRelativeTime(dateString?: string): string {
   if (!dateString) return "HADDA";
@@ -79,12 +79,12 @@ export function formatSomaliRelativeTime(dateString?: string): string {
 
   if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
-    return `${hours} SAACAD KA HOR`;
+    return `${hours} SAAC KA HOR`;
   }
 
   if (diffInSeconds < 604800) {
     const days = Math.floor(diffInSeconds / 86400);
-    return `${days} MAALMOOD KA HOR`;
+    return `${days} MAALIN KA HOR`;
   }
 
   if (diffInSeconds < 2419200) {

@@ -57,7 +57,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         if (diffInMinutes < 60) return `${diffInMinutes} daqiiqad kahor`;
 
         const diffInHours = Math.floor(diffInMinutes / 60);
-        if (diffInHours < 24) return `${diffInHours} saacadood kahor`;
+        if (diffInHours < 24) return `${diffInHours} SAACood kahor`;
 
         const diffInDays = Math.floor(diffInHours / 24);
         if (diffInDays < 7) return `${diffInDays} maalin kahor`;

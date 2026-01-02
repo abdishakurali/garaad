@@ -11,6 +11,7 @@ import type {
   ReactionType,
 } from "@/types/community";
 import communityService, { handleApiError } from "@/services/community";
+import type { RootState } from "@/store/store";
 
 // Initial state
 const initialState: CommunityState = {
@@ -262,6 +263,19 @@ export const markNotificationRead = createAsyncThunk(
   }
 );
 
+// Mark all notifications as read
+export const markAllNotificationsAsRead = createAsyncThunk(
+  "community/markAllNotificationsAsRead",
+  async (_, { rejectWithValue }) => {
+    try {
+      await communityService.notification.markAllNotificationsRead();
+      return true;
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
+
 // Community Slice
 const communitySlice = createSlice({
   name: "community",
@@ -498,6 +512,19 @@ const communitySlice = createSlice({
           }
         }
       }
+    },
+
+    // WEBSOCKET: Add new notification in real-time
+    addNotification: (state, action: PayloadAction<Notification>) => {
+      // Add to beginning of notifications array
+      state.notifications.unshift(action.payload);
+    },
+
+    // Mark all notifications as read
+    markAllNotificationsAsRead: (state) => {
+      state.notifications.forEach(n => {
+        n.is_read = true;
+      });
     },
   },
   extraReducers: (builder) => {
@@ -784,6 +811,14 @@ const communitySlice = createSlice({
         }
       });
 
+    // Mark All Notifications Read
+    builder
+      .addCase(markAllNotificationsAsRead.fulfilled, (state) => {
+        state.notifications.forEach(n => {
+          n.is_read = true;
+        });
+      });
+
     // Toggle Pin Category
     builder.addCase(togglePinCategory.rejected, (state, action) => {
       // Rollback on failure (simplified: re-fetch profile or just undo local - let's just undo)
@@ -815,6 +850,8 @@ export const {
   togglePinCategoryOptimistic,
   setPinnedCategories,
   loadPinnedCategoriesFromStorage,
+  addNotification,
+  markAllNotificationsAsRead: markAllNotificationsAsReadAction,
 } = communitySlice.actions;
 
 export default communitySlice.reducer;
@@ -830,4 +867,9 @@ export const selectSortedCategories = (state: RootState) => {
     if (bIndex !== -1) return 1;
     return 0;
   });
+};
+
+// Selector for unread notification count
+export const selectUnreadNotificationCount = (state: RootState) => {
+  return state.community.notifications.filter((n: Notification) => !n.is_read).length;
 };

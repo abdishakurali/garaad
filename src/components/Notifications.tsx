@@ -100,10 +100,10 @@ const formatTimeAgo = (dateString: string) => {
   if (diffInMinutes < 60) return `${diffInMinutes} daqiiqo ka hor`;
 
   const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} saacadood ka hor`;
+  if (diffInHours < 24) return `${diffInHours} SAACood ka hor`;
 
   const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `${diffInDays} maalmood ka hor`;
+  if (diffInDays < 7) return `${diffInDays} MAALIN ka hor`;
 
   return date.toLocaleDateString("so-SO");
 };

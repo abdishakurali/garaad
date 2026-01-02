@@ -5,6 +5,7 @@ import {
     handleWebSocketPostDeleted,
     handleWebSocketReactionUpdate,
     handleWebSocketReply,
+    addNotification,
 } from "@/store/features/communitySlice";
 
 export class CommunityWebSocket {
@@ -15,7 +16,7 @@ export class CommunityWebSocket {
     private maxReconnectAttempts = 5;
     private reconnectDelay = 1000;
 
-    connect(categoryId: string, dispatch: AppDispatch) {
+    connect(categoryId: string | null, dispatch: AppDispatch) {
         if (typeof window === "undefined") return;
 
         const authService = AuthService.getInstance();
@@ -25,20 +26,17 @@ export class CommunityWebSocket {
             return;
         }
 
-        if (!categoryId || categoryId === "null" || categoryId === "undefined") {
-            console.warn("Invalid categoryId, skipping WebSocket connection:", categoryId);
-            return;
-        }
+        const roomName = categoryId || "global";
 
         this.dispatch = dispatch;
         this.currentCategoryId = categoryId;
 
         try {
             const baseUrl = process.env.NEXT_PUBLIC_WS_URL || "wss://api.garaad.org/ws/community/";
-            // Ensure baseUrl ends in a slash if adding categoryId
+            // Ensure baseUrl ends in a slash
             const formattedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-            // Connect to community WebSocket with categoryId in path
-            const url = `${formattedBaseUrl}${categoryId}/?token=${token}`;
+            // Connect to community WebSocket
+            const url = `${formattedBaseUrl}${roomName}/?token=${token}`;
             console.log(`Connecting to WebSocket: ${url}`);
 
             this.ws = new WebSocket(url);
@@ -125,19 +123,24 @@ export class CommunityWebSocket {
                 }));
                 break;
 
+            case "notification_created":
+                // New notification for the current user
+                this.dispatch(addNotification(data.notification));
+                break;
+
             default:
                 console.log("Unknown WebSocket event type:", data.type);
         }
     }
 
     private attemptReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts && this.currentCategoryId && this.dispatch) {
+        if (this.reconnectAttempts < this.maxReconnectAttempts && this.dispatch) {
             this.reconnectAttempts++;
             setTimeout(() => {
                 console.log(
                     `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
                 );
-                this.connect(this.currentCategoryId!, this.dispatch!);
+                this.connect(this.currentCategoryId, this.dispatch!);
             }, this.reconnectDelay * this.reconnectAttempts);
         }
     }

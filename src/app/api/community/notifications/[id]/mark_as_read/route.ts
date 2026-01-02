@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE = "https://api.garaad.org/api/community/";
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const token = request.headers.get("authorization");
 
@@ -13,13 +16,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = await fetch(`${API_BASE}notifications/mark_all_read/`, {
-      method: "POST",
-      headers: {
-        Authorization: token,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${API_BASE}notifications/${params.id}/mark_as_read/`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -29,7 +35,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error marking all notifications as read:", error);
+    console.error("Error marking notification as read:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

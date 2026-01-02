@@ -9,14 +9,20 @@ import {
     fetchCategoryPosts,
     setSelectedCategory,
     selectSortedCategories,
+    fetchNotifications,
+    markNotificationRead,
+    markAllNotificationsAsRead,
+    selectUnreadNotificationCount,
 } from '@/store/features/communitySlice';
 import CommunityWebSocket from '@/services/communityWebSocket';
 import { CategoryList } from '@/components/community/CategoryList';
 import { PostList } from '@/components/community/PostList';
 import { InlinePostInput } from '@/components/community/InlinePostInput';
 import { UserProfileModal } from '@/components/community/UserProfileModal';
-import { AlertCircle, Menu, Moon, Sun } from 'lucide-react';
+import { NotificationDropdown } from '@/components/community/NotificationCenter';
+import { AlertCircle, Menu, Moon, Sun, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { SOMALI_UI_TEXT, getUserDisplayName } from '@/types/community';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useRouter } from 'next/navigation';
@@ -32,8 +38,10 @@ export default function CommunityPage() {
         userProfile,
         loading,
         errors,
+        notifications,
     } = useSelector((state: RootState) => state.community);
 
+    const unreadCount = useSelector(selectUnreadNotificationCount);
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,6 +49,59 @@ export default function CommunityPage() {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [pendingScrollPostId, setPendingScrollPostId] = useState<string | null>(null);
+    const [pendingScrollReplyId, setPendingScrollReplyId] = useState<string | null>(null);
+
+    // Logic for handling notification click
+    const handleNotificationClick = (notification: any) => {
+        // 1. Mark as read
+        if (!notification.is_read) {
+            dispatch(markNotificationRead(notification.id));
+        }
+
+        // 2. Navigate to category and post
+        if (notification.category_id) {
+            const category = categories.find(c => c.id === notification.category_id);
+            if (category) {
+                dispatch(setSelectedCategory(category));
+                if (notification.post_id) {
+                    setPendingScrollPostId(notification.post_id);
+                }
+                if (notification.reply_id) {
+                    setPendingScrollReplyId(notification.reply_id);
+                }
+            }
+        } else if (notification.post_id && selectedCategory) {
+            // Already in category or category unknown, just scroll
+            const element = document.getElementById(`post-${notification.post_id}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                if (notification.reply_id) {
+                    setPendingScrollReplyId(notification.reply_id);
+                }
+            }
+        }
+    };
+
+    // Scroll to post/reply when posts are loaded/updated
+    useEffect(() => {
+        if (pendingScrollPostId && posts.length > 0) {
+            const element = document.getElementById(`post-${pendingScrollPostId}`);
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // If we have a reply, the PostCard will handle its own scrolling once expanded,
+                    // but we need to keep the IDs for a bit.
+                    setTimeout(() => {
+                        setPendingScrollPostId(null);
+                        setPendingScrollReplyId(null);
+                    }, 1000);
+                }, 500); // Wait for render
+            }
+        }
+    }, [posts, pendingScrollPostId]);
 
     // Redirect to home if not authenticated
     useEffect(() => {
@@ -72,6 +133,7 @@ export default function CommunityPage() {
 
         dispatch(fetchCategories());
         dispatch(fetchUserProfile());
+        dispatch(fetchNotifications({ reset: true }));
     }, [dispatch, isAuthenticated]);
 
     // Select first category by default when categories load
@@ -81,26 +143,27 @@ export default function CommunityPage() {
         }
     }, [categories, selectedCategory, dispatch]);
 
-    // Fetch posts and join WebSocket when category changes
+    // Maintain constant WebSocket connection for real-time notifications
     useEffect(() => {
-        if (!selectedCategory) return;
+        if (!isAuthenticated) return;
 
-        // Fetch posts ONLY on initial load
-        dispatch(fetchCategoryPosts({ categoryId: selectedCategory.id }));
-
-        // Join WebSocket room for real-time sync
         if (!wsRef.current) {
             wsRef.current = new CommunityWebSocket();
         }
-        wsRef.current.connect(selectedCategory.id, dispatch);
 
-        // Cleanup: disconnect WebSocket when leaving category
+        // Connect to current category or global
+        wsRef.current.connect(selectedCategory?.id || null, dispatch);
+
         return () => {
-            if (wsRef.current) {
-                wsRef.current.disconnect();
-                wsRef.current = null;
-            }
+            // Only disconnect if specifically desired, for now we keep it simple
+            // and reconnect on category changes
         };
+    }, [dispatch, selectedCategory, isAuthenticated]);
+
+    // Fetch posts when category changes
+    useEffect(() => {
+        if (!selectedCategory) return;
+        dispatch(fetchCategoryPosts({ categoryId: selectedCategory.id }));
     }, [dispatch, selectedCategory]);
 
     if (loading.categories || loading.profile) {
@@ -224,6 +287,34 @@ export default function CommunityPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
+                                {/* Notification Bell */}
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="relative rounded-full w-10 h-10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                                        >
+                                            <Bell className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                            {unreadCount > 0 && (
+                                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                                </span>
+                                            )}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80 p-0" align="end">
+                                        <NotificationDropdown
+                                            notifications={notifications}
+                                            unreadCount={unreadCount}
+                                            onMarkAsRead={(id) => dispatch(markNotificationRead(id))}
+                                            onMarkAllAsRead={() => dispatch(markAllNotificationsAsRead())}
+                                            onNotificationClick={handleNotificationClick}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+
+                                {/* Theme Toggle */}
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -245,6 +336,11 @@ export default function CommunityPage() {
                                 userProfile={userProfile}
                                 categoryId={selectedCategory.id}
                                 showInlineInput={true}
+                                expandedReplyId={pendingScrollReplyId}
+                                onScrollComplete={() => {
+                                    setPendingScrollPostId(null);
+                                    setPendingScrollReplyId(null);
+                                }}
                             />
                         </div>
                     </>
@@ -266,7 +362,6 @@ export default function CommunityPage() {
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
                 userId={selectedUserId}
-                currentUserProfile={userProfile}
             />
         </div>
     );

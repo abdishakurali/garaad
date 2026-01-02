@@ -11,9 +11,20 @@ interface PostListProps {
     userProfile: UserProfile | null;
     categoryId?: string;
     showInlineInput?: boolean;
+    expandedReplyId?: string | null;
+    onScrollComplete?: () => void;
 }
 
-export function PostList({ posts, loading, error, userProfile, categoryId, showInlineInput }: PostListProps) {
+export function PostList({
+    posts,
+    loading,
+    error,
+    userProfile,
+    categoryId,
+    showInlineInput,
+    expandedReplyId,
+    onScrollComplete
+}: PostListProps) {
     if (loading) {
         return (
             <div className="flex-1 flex items-center justify-center">
@@ -57,6 +68,8 @@ export function PostList({ posts, loading, error, userProfile, categoryId, showI
                                 key={post.id}
                                 post={post}
                                 userProfile={userProfile}
+                                initiallyShowReplies={!!expandedReplyId && post.replies?.some(r => r.id === expandedReplyId)}
+                                targetReplyId={expandedReplyId}
                             />
                         ))}
                     </div>

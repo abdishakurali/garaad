@@ -248,14 +248,14 @@ export const notificationService = {
 
   // Mark notification as read
   markNotificationRead: async (notificationId: string) => {
-    return apiCall(`community/notifications/${notificationId}/mark_read/`, {
+    return apiCall(`community/notifications/${notificationId}/mark_as_read/`, {
       method: "POST",
     });
   },
 
   // Mark all notifications as read
   markAllNotificationsRead: async () => {
-    return apiCall("community/notifications/mark_all_read/", {
+    return apiCall("community/notifications/mark_all_as_read/", {
       method: "POST",
     });
   },

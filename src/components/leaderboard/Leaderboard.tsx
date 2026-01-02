@@ -55,7 +55,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
           {/* Days Left */}
           <p className="text-gray-500 font-medium">
-            {daysLeft} Maalmood ayaa haray
+            {daysLeft} MAALIN ayaa haray
           </p>
 
           {/* Leaderboard Entries */}
@@ -68,9 +68,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               return (
                 <div
                   key={entry.id}
-                  className={`flex items-center justify-between p-3 rounded-lg relative overflow-x-auto ${
-                    isCurrentUser ? "bg-green-50" : ""
-                  }`}
+                  className={`flex items-center justify-between p-3 rounded-lg relative overflow-x-auto ${isCurrentUser ? "bg-green-50" : ""
+                    }`}
                 >
                   <div className="flex items-center gap-1 md:gap-3">
                     {/* Rank Number */}

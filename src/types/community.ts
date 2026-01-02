@@ -119,6 +119,7 @@ export interface Notification {
   created_at: string;
   post_title?: string;
   post_id?: string;
+  category_id?: string;
   comment_id?: string;
   campus_name?: string;
   campus_slug?: string;
@@ -296,7 +297,7 @@ export const SOMALI_UI_TEXT = {
   // Time
   now: "hadda",
   minute: "daqiiqad",
-  hour: "saacad",
+  hour: "SAAC",
   day: "maalin",
   week: "usbuuc",
   month: "bilood",
