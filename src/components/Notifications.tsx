@@ -115,7 +115,7 @@ import AuthenticatedAvatar from "./ui/authenticated-avatar";
 import { getMediaUrl } from "@/lib/utils";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
-import { markNotificationRead, markAllNotificationsAsRead, selectUnreadNotificationCount } from "@/store/features/communitySlice";
+import { markNotificationRead, markAllNotificationsAsRead, selectUnreadNotificationCount, fetchNotifications } from "@/store/features/communitySlice";
 import { useRouter } from "next/navigation";
 import { getUserDisplayName } from "@/types/community";
 
@@ -158,6 +158,7 @@ export default function NotificationPanel() {
 
   const handleOpen = async () => {
     await mutate(); // refetch gamification notifications
+    dispatch(fetchNotifications({ reset: true })); // refetch community notifications
     fetchEnabledUsers();
   };
 

@@ -24,6 +24,11 @@ export default function ClientLayout({
         if (user) {
           dispatch(setUser(user));
 
+          // Fetch initial community data
+          const { fetchNotifications, fetchUserProfile } = await import("@/store/features/communitySlice");
+          dispatch(fetchNotifications({ reset: true }) as any);
+          dispatch(fetchUserProfile() as any);
+
           // Initialize Global WebSocket for real-time notifications
           const { CommunityWebSocket } = await import("@/services/communityWebSocket");
           const ws = new CommunityWebSocket();
