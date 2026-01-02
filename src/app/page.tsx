@@ -28,7 +28,7 @@ const DynamicDownloadApp = dynamic(
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* JSON-LD for Search Engines */}
       <script
         type="application/ld+json"

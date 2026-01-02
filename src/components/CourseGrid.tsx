@@ -1,7 +1,8 @@
 "use client";
 
-import { Calculator, BarChart3, Binary, Brain, Wrench, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronRight, Link as LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const courses = [
   {
@@ -11,6 +12,7 @@ const courses = [
     iconColor: "text-[#d18ffd]",
     glow: "shadow-[#d18ffd]/20",
     isPrimary: true,
+    href: "/courses",
   },
   {
     title: "Falanqeyn Xogeed",
@@ -19,6 +21,7 @@ const courses = [
     iconColor: "text-[#d4e000]",
     glow: "shadow-[#f0ff00]/20",
     isPrimary: false,
+    href: "/courses",
   },
   {
     title: "Cilmiga Kombiyuutarka",
@@ -27,6 +30,7 @@ const courses = [
     iconColor: "text-[#d18ffd]",
     glow: "shadow-[#d18ffd]/20",
     isPrimary: true,
+    href: "/courses",
   },
   {
     title: "Sirdoonka Macmalka ah",
@@ -35,6 +39,7 @@ const courses = [
     iconColor: "text-[#d4e000]",
     glow: "shadow-[#f0ff00]/20",
     isPrimary: false,
+    href: "/courses",
   },
   {
     title: "Injineeriyadda",
@@ -43,42 +48,43 @@ const courses = [
     iconColor: "text-[#d18ffd]",
     glow: "shadow-[#d18ffd]/20",
     isPrimary: true,
+    href: "/courses",
   },
 ];
 
 export function CourseGrid() {
   return (
-    <section className="py-12 sm:py-32 bg-white dark:bg-slate-950 overflow-hidden">
+    <section className="py-12 sm:py-32 bg-background overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 relative">
         {/* Decorative background elements */}
-        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-[#d18ffd]/5 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-[#f0ff00]/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[500px] h-[500px] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#f0ff00]/10 dark:bg-[#f0ff00]/5 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="relative z-10 mb-20 space-y-6 text-center lg:text-left">
-
+        <div className="relative z-10 mb-24 space-y-6 text-center lg:text-left">
           <div className="max-w-3xl">
-            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black text-foreground tracking-tight leading-[1.05]">
-              Koorsooyinkayaga <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d18ffd] to-[#a855f7]">Sare</span>
+            <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-foreground tracking-tight leading-[1.05]">
+              Koorsooyinkayaga <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-primary">Sare</span>
             </h2>
-            <div className="h-2 w-32 bg-gradient-to-r from-[#d18ffd] to-[#f0ff00] mt-8 rounded-full mx-auto lg:mx-0 shadow-lg shadow-[#d18ffd]/20" />
-            <p className="mt-8 text-xl text-muted-foreground font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Baro xirfadihii ugu dambeeyay ee adduunka ka jira, annagoo kuu soo diyaarinay tusaalooyin dhab ah iyo akhris fudud.
+            <div className="h-2 w-40 bg-gradient-to-r from-primary to-secondary mt-10 rounded-full mx-auto lg:mx-0 shadow-lg shadow-primary/20" />
+            <p className="mt-10 text-xl sm:text-2xl text-muted-foreground font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              Baro xirfadihii ugu dambeeyay ee adduunka ka jira, annagoo kuu soo diyaarinay tusaalooyin dhab ah oo maskaxdaada kobcinaya.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10">
           {courses.map((course, index) => (
-            <div
+            <Link
               key={index}
+              href={course.href}
               className={cn(
-                "group relative p-6 sm:p-10 rounded-3xl sm:rounded-[3rem] border transition-all duration-500",
-                "bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800",
-                "hover:border-[#d18ffd]/30 hover:shadow-[0_20px_50px_rgba(209,143,253,0.12)]",
-                "perspective-1000"
+                "group relative p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] border transition-all duration-700",
+                "bg-card/50 backdrop-blur-sm border-border/50",
+                "hover:border-primary/40 hover:shadow-[0_30px_60px_-12px_rgba(209,143,253,0.15)]",
+                "hover:-translate-y-2"
               )}
             >
-              <div className="absolute inset-0 rounded-3xl sm:rounded-[3rem] bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="absolute inset-0 rounded-[2.5rem] sm:rounded-[3.5rem] bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
               <div className="relative space-y-8 h-full flex flex-col">
 
@@ -104,7 +110,7 @@ export function CourseGrid() {
                   )}
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
 
         </div>

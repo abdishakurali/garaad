@@ -471,14 +471,20 @@ const communitySlice = createSlice({
       if (state.pinnedCategoryIds.includes(categoryId)) {
         state.pinnedCategoryIds = state.pinnedCategoryIds.filter(id => id !== categoryId);
       } else {
-        // Enforce 3-limit check is handled in component but good to have here too
         if (state.pinnedCategoryIds.length < 3) {
           state.pinnedCategoryIds.push(categoryId);
         }
       }
+      // Persist to localStorage immediately for better UX on refresh
+      if (typeof window !== "undefined") {
+        localStorage.setItem("pinnedCategoryIds", JSON.stringify(state.pinnedCategoryIds));
+      }
     },
     setPinnedCategories: (state, action: PayloadAction<string[]>) => {
       state.pinnedCategoryIds = action.payload;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("pinnedCategoryIds", JSON.stringify(state.pinnedCategoryIds));
+      }
     },
     // Action to load from localStorage explicitly
     loadPinnedCategoriesFromStorage: (state) => {
@@ -514,8 +520,10 @@ const communitySlice = createSlice({
             action.payload.pinned_categories.every((id: string) => localSet.has(id));
 
           if (!isSameSet) {
-            // If the sets differ (e.g. server rejected a pin due to limit, or added one), we must use server properties.
             state.pinnedCategoryIds = action.payload.pinned_categories;
+            if (typeof window !== "undefined") {
+              localStorage.setItem("pinnedCategoryIds", JSON.stringify(state.pinnedCategoryIds));
+            }
           }
           // Else: Sets match, so we keep state.pinnedCategoryIds which has the optimistic sort order.
         }
@@ -736,6 +744,9 @@ const communitySlice = createSlice({
 
           if (!isSameSet) {
             state.pinnedCategoryIds = action.payload.pinned_categories;
+            if (typeof window !== "undefined") {
+              localStorage.setItem("pinnedCategoryIds", JSON.stringify(state.pinnedCategoryIds));
+            }
           }
         }
       })
@@ -807,3 +818,16 @@ export const {
 } = communitySlice.actions;
 
 export default communitySlice.reducer;
+
+// Selectors
+export const selectSortedCategories = (state: RootState) => {
+  const { categories, pinnedCategoryIds } = state.community;
+  return [...categories].sort((a, b) => {
+    const aIndex = pinnedCategoryIds.indexOf(a.id);
+    const bIndex = pinnedCategoryIds.indexOf(b.id);
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    return 0;
+  });
+};

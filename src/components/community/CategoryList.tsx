@@ -57,31 +57,12 @@ export function CategoryList({
         );
     }
 
-    // Sort categories: Pinned first (in specific order), then others
-    const sortedCategories = [...categories].sort((a, b) => {
-        const aIndex = pinnedCategoryIds.indexOf(a.id);
-        const bIndex = pinnedCategoryIds.indexOf(b.id);
-
-        // Both are pinned: sort by their order in the pinned list
-        if (aIndex !== -1 && bIndex !== -1) {
-            return aIndex - bIndex;
-        }
-
-        // Only A is pinned: A comes first
-        if (aIndex !== -1) return -1;
-
-        // Only B is pinned: B comes first
-        if (bIndex !== -1) return 1;
-
-        // Neither pinned: keep original order (or logical sort if defined elsewhere)
-        return 0;
-    });
 
     return (
         <TooltipProvider>
             <ScrollArea className="flex-1">
                 <div className="p-3 space-y-1">
-                    {sortedCategories?.filter(c => !!c && !!c.id).map((category) => {
+                    {categories?.filter(c => !!c && !!c.id).map((category) => {
                         const isSelected = selectedCategory?.id === category.id;
                         const isPinned = pinnedCategoryIds.includes(category.id);
 
@@ -89,7 +70,7 @@ export function CategoryList({
                             e.stopPropagation();
 
                             if (!isPinned && pinnedCategoryIds.length >= 3) {
-                                toast.error("Ma tirtiri kartid in ka badan 3 qaybood.");
+                                toast.error("Ma biin garayn kartid in ka badan 3 qaybood.");
                                 return;
                             }
 

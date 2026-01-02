@@ -40,6 +40,7 @@ interface Course {
   thumbnail?: string;
   progress: number;
   is_published: boolean;
+  category_id: string;
   lesson_count?: number;
   estimatedHours?: number;
 }
@@ -213,7 +214,7 @@ export default function Home() {
                   {isLoadingCourses ? (
                     [1, 2].map(i => <Skeleton key={i} className="h-48 rounded-2xl" />)
                   ) : courses?.slice(0, 4).map(course => (
-                    <Link href={`/courses/default/${course.slug}`} key={course.id} className="block group">
+                    <Link href={`/courses/${course.category_id}/${course.slug}`} key={course.id} className="block group">
                       <Card className="h-full border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl overflow-hidden group-hover:border-primary/20 transition-all group-hover:shadow-md">
                         <div className="relative h-32 sm:h-40">
                           <Image
@@ -299,32 +300,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Footer Links (Full Width at bottom) */}
-        {!showReturnScreen && (
-          <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Mail className="w-4 h-4" />
-                <a href="mailto:Info@garaad.org" className="hover:text-primary transition-colors">Info@garaad.org</a>
-              </div>
-
-              <div className="flex items-center gap-6">
-                <a href="https://www.linkedin.com/company/garaad" target="_blank" rel="noopener noreferrer" className="hover:text-[#0077b5] transition-colors flex items-center gap-2 text-sm font-medium">
-                  <Linkedin className="w-4 h-4" />
-                  <span className="hidden md:inline">LinkedIn</span>
-                </a>
-                <a href="https://x.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                  <Twitter className="w-4 h-4" />
-                  <span className="hidden md:inline">Twitter</span>
-                </a>
-                <a href="http://facebook.com/Garaadstem" target="_blank" rel="noopener noreferrer" className="hover:text-[#1877F2] transition-colors flex items-center gap-2 text-sm font-medium">
-                  <Facebook className="w-4 h-4" />
-                  <span className="hidden md:inline">Facebook</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );

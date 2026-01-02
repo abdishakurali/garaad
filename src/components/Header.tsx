@@ -16,6 +16,7 @@ import useSWR from "swr";
 import NotificationPanel from "./Notifications";
 import Logo from "./ui/Logo";
 import { API_BASE_URL } from "@/lib/constants";
+import { ThemeToggle } from "./ThemeToggle";
 
 const AuthDialog = dynamic(() => import("@/components/auth/AuthDialog").then(mod => mod.AuthDialog), {
   loading: () => <div className="h-10 w-24 bg-gray-100 animate-pulse rounded-md" />,
@@ -167,7 +168,7 @@ export function Header() {
 
       <header className={clsx(
         "sticky top-0 z-50 transition-all duration-300",
-        isScrolled ? "py-2 glassmorphism mx-4 mt-4 rounded-2xl" : "py-5 bg-white"
+        isScrolled ? "py-2 glassmorphism mx-4 mt-4 rounded-2xl" : "py-5 bg-background/80 backdrop-blur-md"
       )}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="items-center gap-10 flex">
@@ -217,6 +218,7 @@ export function Header() {
             {user && <NotificationPanel />}
 
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               {user ? <ProfileDropdown /> : <AuthDialog />}
             </div>
           </div>

@@ -8,6 +8,7 @@ import {
     fetchUserProfile,
     fetchCategoryPosts,
     setSelectedCategory,
+    selectSortedCategories,
 } from '@/store/features/communitySlice';
 import CommunityWebSocket from '@/services/communityWebSocket';
 import { CategoryList } from '@/components/community/CategoryList';
@@ -24,8 +25,8 @@ import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 
 export default function CommunityPage() {
     const dispatch = useDispatch<AppDispatch>();
+    const categories = useSelector(selectSortedCategories);
     const {
-        categories,
         posts,
         selectedCategory,
         userProfile,
@@ -39,6 +40,7 @@ export default function CommunityPage() {
     const wsRef = useRef<CommunityWebSocket | null>(null);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
     // Redirect to home if not authenticated
     useEffect(() => {
@@ -260,6 +262,12 @@ export default function CommunityPage() {
                     </div>
                 )}
             </div>
+            <UserProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                userId={selectedUserId}
+                currentUserProfile={userProfile}
+            />
         </div>
     );
 }
