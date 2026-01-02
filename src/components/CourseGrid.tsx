@@ -80,11 +80,14 @@ export function CourseGrid() {
               className={cn(
                 "group relative p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] border transition-all duration-700",
                 "bg-card/50 backdrop-blur-sm border-border/50",
-                "hover:border-primary/40 hover:shadow-[0_30px_60px_-12px_rgba(209,143,253,0.15)]",
-                "hover:-translate-y-2"
+                "hover:border-primary/40 hover:shadow-[0_40px_80px_-15px_rgba(209,143,253,0.2)]",
+                "hover:-translate-y-3 hover:rotate-1 active:scale-95"
               )}
             >
-              <div className="absolute inset-0 rounded-[2.5rem] sm:rounded-[3.5rem] bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 rounded-[2.5rem] sm:rounded-[3.5rem] bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 rounded-[2.5rem] sm:rounded-[3.5rem] bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
               <div className="relative space-y-8 h-full flex flex-col">
 

@@ -81,7 +81,14 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
-
+    optimizePackageImports: [
+      "lucide-react",
+      "@rive-app/canvas",
+      "@rive-app/react-canvas",
+      "recharts",
+      "date-fns",
+      "framer-motion"
+    ],
   },
 
 

@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/store/features/authSlice";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
 import { usePathname } from "next/navigation";
-import { FolderDot, Home, ExternalLink, X, Loader2, Users } from "lucide-react";
+import { FolderDot, Home, ExternalLink, X, Loader2, Users, Menu } from "lucide-react";
 import clsx from "clsx";
 import StreakDisplay from "./StreakDisplay";
 import { useMemo, useCallback, useState, useEffect } from "react";
@@ -98,6 +98,7 @@ export function Header() {
   const user = useSelector(selectCurrentUser);
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // SWR hook for streak data with caching and automatic revalidation
   const {
@@ -137,6 +138,11 @@ export function Header() {
       return () => window.removeEventListener("scroll", handleScroll);
     }
   }, []);
+
+  // Close mobile menu on pathname change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   // Memoized navigation links to prevent unnecessary re-renders
   const navLinks = useMemo(
@@ -206,7 +212,7 @@ export function Header() {
 
           <div className="flex items-center gap-6">
             {user && (
-              <div className="hidden sm:block">
+              <div className="hidden lg:block">
                 <StreakDisplay
                   loading={loading}
                   error={errorMessage}
@@ -215,11 +221,59 @@ export function Header() {
               </div>
             )}
 
-            {user && <NotificationPanel />}
-
             <div className="flex items-center gap-3">
+              {user && <NotificationPanel />}
               <ThemeToggle />
-              {user ? <ProfileDropdown /> : <AuthDialog />}
+              <div className="hidden sm:block">
+                {user ? <ProfileDropdown /> : <AuthDialog />}
+              </div>
+
+              {/* Mobile Menu Trigger */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 text-gray-500 hover:text-black transition-colors"
+                aria-label="Menu"
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Overlay */}
+        <div className={clsx(
+          "md:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-xl transition-all duration-300 transform",
+          isMobileMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        )}>
+          <div className="flex flex-col items-center justify-center h-full gap-8 p-6">
+            {navLinks.map(({ name, href, icon: Icon }) => {
+              const active = isLinkActive(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={clsx(
+                    "flex flex-col items-center gap-3 text-2xl font-black transition-all",
+                    active ? "text-primary scale-110" : "text-gray-400 hover:text-black"
+                  )}
+                >
+                  {Icon && <Icon className={clsx("w-8 h-8", active && "animate-pulse")} />}
+                  <span>{name}</span>
+                </Link>
+              );
+            })}
+
+            <div className="mt-8 pt-8 border-t border-gray-100 w-full flex flex-col items-center gap-6">
+              <div className="flex items-center gap-4">
+                {user ? <ProfileDropdown /> : <AuthDialog />}
+              </div>
+              {user && (
+                <StreakDisplay
+                  loading={loading}
+                  error={errorMessage}
+                  streakData={streakData || null}
+                />
+              )}
             </div>
           </div>
         </div>

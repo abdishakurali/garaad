@@ -9,8 +9,8 @@ import { Reveal } from "@/components/landing/Reveal";
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Garaad STEM | Baro Xisaabta, Fiisigiska iyo Tiknoolajiyadda',
-  description: 'Garaad waa goob waxbarasho oo casri ah oo lagu barto maaddooyinka STEM (Xisaabta, Fiisigiska, iyo Tiknoolajiyadda) afka Soomaaliga.',
+  title: 'Garaad STEM | Baro Xisaabta, Fiisigiska iyo Tiknoolajiyadda Afkaaga',
+  description: 'Baro xirfadihii ugu dambeeyay ee STEM (Xisaabta, Fiisigiska, iyo AI) adiga oo adeegsanaya afka Soomaaliga. Ku soo biir platform-ka ugu weyn STEM Soomaaliya.',
 };
 
 // Dynamically import only necessary heavy sections
@@ -52,7 +52,23 @@ export default function Home() {
       <main>
         <div className="relative">
           <HeroSection />
-          <CourseGrid />
+          <div className="space-y-12 sm:space-y-20 pb-20">
+            <Reveal>
+              <CourseGrid />
+            </Reveal>
+
+            <Suspense fallback={<SectionSkeleton />}>
+              <DynamicGuidedPathsSection />
+            </Suspense>
+
+            <Suspense fallback={<SectionSkeleton />}>
+              <DynamicLearningLevelsSection />
+            </Suspense>
+
+            <Suspense fallback={<SectionSkeleton />}>
+              <DynamicDownloadApp />
+            </Suspense>
+          </div>
           <FooterSection />
         </div>
       </main>
