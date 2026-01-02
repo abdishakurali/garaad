@@ -417,9 +417,9 @@ export const NotificationDropdown: React.FC<{
             if (diffInMinutes < 60) return `${diffInMinutes} Daqiiqo`;
 
             const diffInHours = Math.floor(diffInMinutes / 60);
-            if (diffInHours < 24) return `${diffInHours} S`; // Saacadood
+            if (diffInHours < 24) return `${diffInHours} Saacad`;
 
             const diffInDays = Math.floor(diffInHours / 24);
-            return `${diffInDays} M`; // Maalmood
+            return `${diffInDays} Maalmood`;
         }
     }; 

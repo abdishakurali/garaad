@@ -258,6 +258,11 @@ export const markNotificationRead = createAsyncThunk(
       await communityService.notification.markNotificationRead(notificationId);
       return notificationId;
     } catch (error: any) {
+      // If notification is not found (404), it might have been deleted (e.g. post deleted)
+      // We still want to mark it as read locally or remove it to stop the error
+      if (error?.status === 404) {
+        return notificationId;
+      }
       return rejectWithValue(handleApiError(error));
     }
   }
