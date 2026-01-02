@@ -20,10 +20,18 @@ import {
   Star,
   BellOff,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import communityService from "@/services/community";
+import { UserProfile, Notification as CommunityNotification } from "@/types/community";
+import AuthenticatedAvatar from "./ui/authenticated-avatar";
+import { getMediaUrl } from "@/lib/utils";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/store/store";
+import { markNotificationRead, markAllNotificationsAsRead, selectUnreadNotificationCount, fetchNotifications } from "@/store/features/communitySlice";
+import { useRouter } from "next/navigation";
 
 interface Notification {
   id: number;
@@ -108,17 +116,6 @@ const formatTimeAgo = (dateString: string) => {
   return date.toLocaleDateString("so-SO");
 };
 
-import { useRef, useMemo } from "react";
-import communityService from "@/services/community";
-import { UserProfile, Notification as CommunityNotification } from "@/types/community";
-import AuthenticatedAvatar from "./ui/authenticated-avatar";
-import { getMediaUrl } from "@/lib/utils";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "@/store/store";
-import { markNotificationRead, markAllNotificationsAsRead, selectUnreadNotificationCount, fetchNotifications } from "@/store/features/communitySlice";
-import { useRouter } from "next/navigation";
-import { getUserDisplayName } from "@/types/community";
-
 export default function NotificationPanel() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -126,41 +123,11 @@ export default function NotificationPanel() {
   const communityNotifications = useSelector((state: RootState) => state.community.notifications);
   const communityUnreadCount = useSelector(selectUnreadNotificationCount);
 
+  const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'notifications' | 'users'>('notifications');
   const [enabledUsers, setEnabledUsers] = useState<UserProfile[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-
-  const visibleGamificationNotifications: Notification[] =
-    notification?.filter((n: Notification) => !dismissed.includes(n.id)) || [];
-
-  const gamificationUnreadCount = visibleGamificationNotifications.filter((n) => !n.is_read).length;
-  const totalUnreadCount = gamificationUnreadCount + communityUnreadCount;
-
-  // Combine and sort notifications
-  const allNotifications = useMemo(() => {
-    const combined = [
-      ...visibleGamificationNotifications.map(n => ({ ...n, source: 'gamification' as const })),
-      ...communityNotifications.map(n => ({
-        id: n.id,
-        type: 'social' as const, // Map community notifications to consistent icon
-        title: n.title,
-        message: n.message,
-        is_read: n.is_read,
-        created_at: n.created_at,
-        source: 'community' as const,
-        raw: n
-      }))
-    ];
-
-    return combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [visibleGamificationNotifications, communityNotifications]);
-
-  const handleOpen = async () => {
-    await mutate(); // refetch gamification notifications
-    dispatch(fetchNotifications({ reset: true })); // refetch community notifications
-    fetchEnabledUsers();
-  };
 
   const fetchEnabledUsers = async () => {
     try {
@@ -174,16 +141,61 @@ export default function NotificationPanel() {
     }
   };
 
+  // Fetch data on mount
+  useEffect(() => {
+    dispatch(fetchNotifications({ reset: true }));
+    fetchEnabledUsers();
+  }, [dispatch]);
+
+  // Refetch when popover opens
+  useEffect(() => {
+    if (open) {
+      mutate(); // refetch gamification notifications
+      dispatch(fetchNotifications({ reset: true }));
+      fetchEnabledUsers();
+    }
+  }, [open, mutate, dispatch]);
+
+  const visibleGamificationNotifications: Notification[] =
+    notification?.filter((n: Notification) => !dismissed.includes(n.id)) || [];
+
+  const gamificationUnreadCount = visibleGamificationNotifications.filter((n) => !n.is_read).length;
+  const communityUnreadCountValue = communityUnreadCount;
+  const totalUnreadCount = gamificationUnreadCount + communityUnreadCountValue;
+
+  // Combine and sort notifications
+  const allNotifications = useMemo(() => {
+    const combined = [
+      ...visibleGamificationNotifications.map(n => ({ ...n, source: 'gamification' as const })),
+      ...communityNotifications.map(n => ({
+        id: n.id,
+        type: 'social' as const,
+        title: n.title,
+        message: n.message,
+        is_read: n.is_read,
+        created_at: n.created_at,
+        source: 'community' as const,
+        raw: n
+      }))
+    ];
+
+    return combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [visibleGamificationNotifications, communityNotifications]);
+
   const handleDismiss = (id: number) => {
     setDismissed((prev) => [...prev, id]);
   };
 
   return (
     <div className="relative">
-      <Popover onOpenChange={(open) => open && handleOpen()}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="icon" className="relative">
-            <Bell className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative h-9 w-9 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <Bell className="h-5 w-5 text-gray-600" />
             {totalUnreadCount > 0 && (
               <Badge
                 variant="destructive"
@@ -257,6 +269,7 @@ export default function NotificationPanel() {
                             onClick={() => {
                               if (isCommunity && notif.source === 'community') {
                                 if (!notif.is_read) dispatch(markNotificationRead(notif.id));
+                                setOpen(false);
                                 router.push(`/community?post=${notif.raw.post_id}`);
                               }
                             }}
@@ -265,7 +278,7 @@ export default function NotificationPanel() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (isCommunity && notif.source === 'community') {
-                                  dispatch(markNotificationRead(notif.id)); // Using markRead as dismiss for community
+                                  dispatch(markNotificationRead(notif.id));
                                 } else {
                                   handleDismiss(Number(notif.id));
                                 }
