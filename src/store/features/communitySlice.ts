@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction, createSelector } from "@reduxjs/toolkit";
 import type {
   CommunityCategory,
   CommunityPost,
@@ -887,19 +887,27 @@ export const {
 export default communitySlice.reducer;
 
 // Selectors
-export const selectSortedCategories = (state: RootState) => {
-  const { categories, pinnedCategoryIds } = state.community;
-  return [...categories].sort((a, b) => {
-    const aIndex = pinnedCategoryIds.indexOf(a.id);
-    const bIndex = pinnedCategoryIds.indexOf(b.id);
-    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-    if (aIndex !== -1) return -1;
-    if (bIndex !== -1) return 1;
-    return 0;
-  });
-};
+const selectCommunityState = (state: RootState) => state.community;
+
+export const selectSortedCategories = createSelector(
+  [selectCommunityState],
+  (community) => {
+    const { categories, pinnedCategoryIds } = community;
+    return [...categories].sort((a, b) => {
+      const aIndex = pinnedCategoryIds.indexOf(a.id);
+      const bIndex = pinnedCategoryIds.indexOf(b.id);
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return 0;
+    });
+  }
+);
 
 // Selector for unread notification count
-export const selectUnreadNotificationCount = (state: RootState) => {
-  return state.community.notifications.filter((n: Notification) => !n.is_read).length;
-};
+export const selectUnreadNotificationCount = createSelector(
+  [selectCommunityState],
+  (community) => {
+    return community.notifications.filter((n: Notification) => !n.is_read).length;
+  }
+);
