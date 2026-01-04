@@ -108,8 +108,8 @@ export const postService = {
 
   // Create post
   createPost: async (categoryId: string, postData: CreatePostData) => {
-    // Handle image uploads if present
-    if (postData.images && postData.images.length > 0) {
+    // Handle file uploads (images or attachments) if present
+    if ((postData.images && postData.images.length > 0) || (postData.attachments && postData.attachments.length > 0) || postData.video_url) {
       const formData = new FormData();
       formData.append("category", postData.category);
       formData.append("content", postData.content);
@@ -118,16 +118,28 @@ export const postService = {
         formData.append("requestId", postData.requestId);
       }
 
-      postData.images.forEach((image, index) => {
-        formData.append(`images`, image);
-      });
+      if (postData.video_url) {
+        formData.append("video_url", postData.video_url);
+      }
+
+      if (postData.images) {
+        postData.images.forEach((image) => {
+          formData.append(`images`, image);
+        });
+      }
+
+      if (postData.attachments) {
+        postData.attachments.forEach((file) => {
+          formData.append(`attachments`, file);
+        });
+      }
 
       return apiCall(`community/posts/`, {
         method: "POST",
         body: formData,
       });
     } else {
-      const { images, ...jsonData } = postData;
+      const { images, attachments, ...jsonData } = postData;
       return apiCall(`community/posts/`, {
         method: "POST",
         body: JSON.stringify(jsonData),
@@ -168,10 +180,36 @@ export const postService = {
 export const replyService = {
   // Reply to post
   createReply: async (postId: string, replyData: CreateReplyData) => {
-    return apiCall(`community/posts/${postId}/reply/`, {
-      method: "POST",
-      body: JSON.stringify(replyData),
-    });
+    // If there are attachments, we must use FormData
+    if ((replyData.attachments && replyData.attachments.length > 0) || replyData.video_url) {
+      const formData = new FormData();
+      formData.append("content", replyData.content);
+
+      if (replyData.requestId) {
+        formData.append("requestId", replyData.requestId);
+      }
+
+      if (replyData.video_url) {
+        formData.append("video_url", replyData.video_url);
+      }
+
+      if (replyData.attachments) {
+        replyData.attachments.forEach((file) => {
+          formData.append("attachments", file);
+        });
+      }
+
+      return apiCall(`community/posts/${postId}/reply/`, {
+        method: "POST",
+        body: formData,
+      });
+    } else {
+      const { attachments, ...jsonData } = replyData;
+      return apiCall(`community/posts/${postId}/reply/`, {
+        method: "POST",
+        body: JSON.stringify(jsonData),
+      });
+    }
   },
 
   // Update reply

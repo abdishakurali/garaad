@@ -10,8 +10,8 @@ import communityService from '@/services/community';
 
 interface RoomSelectorProps {
     campusSlug: string | null;
-    selectedRoomId: number | null;
-    onRoomSelect: (roomId: number) => void;
+    selectedRoomId: string | null;
+    onRoomSelect: (roomId: string) => void;
     disabled?: boolean;
     placeholder?: string;
     showDescription?: boolean;
@@ -39,7 +39,9 @@ export const RoomSelector: React.FC<RoomSelectorProps> = ({
             try {
                 setLoading(true);
                 setError(null);
-                const roomsData = await communityService.campus.getCampusRooms(campusSlug);
+                const response = await communityService.category.getCategories();
+                // If it's paginated, get the results
+                const roomsData = response.results || response;
                 setRooms(roomsData);
             } catch (error: unknown) {
                 setError('Cillad ayaa dhacday qolalka soo rarida');
@@ -92,8 +94,8 @@ export const RoomSelector: React.FC<RoomSelectorProps> = ({
     return (
         <div className="space-y-2">
             <Select
-                value={selectedRoomId?.toString() || ''}
-                onValueChange={(value) => onRoomSelect(parseInt(value))}
+                value={selectedRoomId || ''}
+                onValueChange={(value) => onRoomSelect(value)}
                 disabled={disabled || loading}
             >
                 <SelectTrigger className={loading ? 'opacity-50' : ''}>
@@ -108,28 +110,18 @@ export const RoomSelector: React.FC<RoomSelectorProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                     {rooms.map((room) => (
-                        <SelectItem key={room.id} value={room.id.toString()}>
+                        <SelectItem key={room.id} value={room.id}>
                             <div className="flex items-center space-x-3 py-1">
-                                <span className="text-lg">{getRoomIcon(room.room_type)}</span>
+                                <span className="text-lg">💬</span>
                                 <div className="flex-1">
                                     <div className="flex items-center space-x-2">
-                                        <span className="font-medium">{room.name_somali}</span>
-                                        {room.is_private && (
-                                            <Lock className="h-3 w-3 text-gray-500" />
-                                        )}
+                                        <span className="font-medium">{room.title}</span>
                                     </div>
                                     <div className="flex items-center space-x-3 text-xs text-gray-500 mt-1">
                                         <div className="flex items-center space-x-1">
-                                            <Users className="h-3 w-3" />
-                                            <span>{room.member_count}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
                                             <MessageCircle className="h-3 w-3" />
-                                            <span>{room.post_count}</span>
+                                            <span>{room.posts_count} qoraal</span>
                                         </div>
-                                        <Badge variant="outline" className="text-xs px-1 py-0">
-                                            {room.room_type_display}
-                                        </Badge>
                                     </div>
                                 </div>
                             </div>
@@ -139,59 +131,30 @@ export const RoomSelector: React.FC<RoomSelectorProps> = ({
             </Select>
 
             {/* Selected Room Description */}
-            {showDescription && selectedRoom && (
-                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
-                    <div className="flex items-start space-x-3">
-                        <span className="text-xl">{getRoomIcon(selectedRoom.room_type)}</span>
-                        <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                                <h4 className="font-medium text-sm">{selectedRoom.name_somali}</h4>
-                                {selectedRoom.is_private && (
-                                    <Badge variant="secondary" className="text-xs">
-                                        <Lock className="h-3 w-3 mr-1" />
-                                        Gaar
-                                    </Badge>
-                                )}
-                                <Badge variant="outline" className="text-xs">
-                                    {selectedRoom.room_type_display}
-                                </Badge>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                {selectedRoom.description_somali}
-                            </p>
-                            <div className="flex items-center space-x-4 text-xs text-gray-500">
-                                <div className="flex items-center space-x-1">
-                                    <Users className="h-3 w-3" />
-                                    <span>{selectedRoom.member_count} xubnood</span>
+            {
+                showDescription && selectedRoom && (
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                        <div className="flex items-start space-x-3">
+                            <span className="text-xl">💬</span>
+                            <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-1">
+                                    <h4 className="font-medium text-sm">{selectedRoom.title}</h4>
                                 </div>
-                                <div className="flex items-center space-x-1">
-                                    <MessageCircle className="h-3 w-3" />
-                                    <span>{selectedRoom.post_count} qoraal</span>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    {selectedRoom.description}
+                                </p>
+                                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                    <div className="flex items-center space-x-1">
+                                        <MessageCircle className="h-3 w-3" />
+                                        <span>{selectedRoom.posts_count} qoraal</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-            {/* Room Guidelines */}
-            {selectedRoom && selectedRoom.room_type === 'announcements' && (
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-sm">
-                        Qolkan wuxuu u gaar yahay ogeysiisyada muhiimka ah. Kaliya maamulayaashu way qoraya kari.
-                    </AlertDescription>
-                </Alert>
-            )}
-
-            {selectedRoom && selectedRoom.room_type === 'qa' && (
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-sm">
-                        Qolkan wuxuu u gaar yahay su&apos;aalaha iyo jawaabaha. Fadlan su&apos;aalaha cad oo muhiim ah iska soo gali.
-                    </AlertDescription>
-                </Alert>
-            )}
-        </div>
+        </div >
     );
 }; 

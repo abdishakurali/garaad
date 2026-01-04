@@ -20,7 +20,7 @@ import {
 import { getMediaUrl, cn, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Loader2, Plus, Smile } from "lucide-react";
+import { MessageSquare, Trash2, Loader2, Plus, Smile, Play, File, Download, Film } from "lucide-react";
 import { ReplyList } from "./ReplyList";
 import {
     DropdownMenu,
@@ -210,6 +210,66 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Video Support */}
+            {post.video_url && (
+                <div className="mb-4 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/5">
+                    {post.video_url.includes('youtube.com') || post.video_url.includes('youtu.be') ? (
+                        <div className="relative aspect-video">
+                            <iframe
+                                src={post.video_url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                                className="absolute inset-0 w-full h-full"
+                                allowFullScreen
+                            />
+                        </div>
+                    ) : (
+                        <div className="bg-gray-50 dark:bg-white/5 p-4 flex items-center gap-3">
+                            <Play className="h-5 w-5 text-primary" />
+                            <a
+                                href={post.video_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-medium text-primary hover:underline truncate"
+                            >
+                                {post.video_url}
+                            </a>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Attachments (Docs, Videos, etc.) */}
+            {post.attachments && post.attachments.length > 0 && (
+                <div className="mb-4 space-y-2">
+                    {post.attachments.map((file) => (
+                        <div key={file.id} className="flex items-center justify-between bg-gray-50 dark:bg-white/5 p-3 rounded-xl border border-gray-100 dark:border-white/5 group">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                {file.file_type.includes('video') ? (
+                                    <Film className="h-5 w-5 text-purple-500" />
+                                ) : (
+                                    <File className="h-5 w-5 text-blue-500" />
+                                )}
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-sm font-medium truncate">{file.name}</span>
+                                    <span className="text-[10px] text-gray-400 capitalize">
+                                        {(file.size / 1024 / 1024).toFixed(2)} MB • {file.file_type.split('/')[1] || 'Fayl'}
+                                    </span>
+                                </div>
+                            </div>
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                asChild
+                            >
+                                <a href={getMediaUrl(file.file, 'community_attachments')} target="_blank" rel="noopener noreferrer">
+                                    <Download className="h-4 w-4" />
+                                </a>
+                            </Button>
+                        </div>
+                    ))}
                 </div>
             )}
 

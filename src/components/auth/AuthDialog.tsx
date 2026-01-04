@@ -48,7 +48,11 @@ const formSchema = z.object({
     .min(6, "Number sir ah waa inuu ahaadaa ugu yaraan 6 xaraf"),
 });
 
-export function AuthDialog() {
+interface AuthDialogProps {
+  trigger?: React.ReactNode;
+}
+
+export function AuthDialog({ trigger }: AuthDialogProps) {
   const dispatch = useDispatch<AppDispatch>();
   const [isLogin] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -141,12 +145,16 @@ export function AuthDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="font-semibold text-base md:text-lg bg-primary hover:bg-primary/90 text-white hover:text-white shadow-md transition-all"
-        >
-          Soo gal
-        </Button>
+        {trigger ? (
+          trigger
+        ) : (
+          <Button
+            variant="outline"
+            className="font-semibold text-base md:text-lg bg-primary hover:bg-primary/90 text-white hover:text-white shadow-md transition-all"
+          >
+            Soo gal
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent
         className="max-w-[400px] sm:max-w-[450px] md:max-w-[500px] px-6 py-8 rounded-xl shadow-xl border border-gray-100 bg-white dark:bg-gray-900 dark:border-gray-700

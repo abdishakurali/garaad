@@ -13,10 +13,6 @@ export function FooterSection() {
       { name: "Shaqo", href: "#" },
       { name: "Macalimiin", href: "#" },
     ],
-    behindScenes: [
-      { name: "Xalinta Isla'egyada", href: "#" },
-      { name: "Ku fikir koodka", href: "#" },
-    ],
     legal: [
       { name: "Shuruudaha adeegga", href: "#" },
       { name: "Siyaasadda sirta", href: "#" },
@@ -40,7 +36,7 @@ export function FooterSection() {
           </div>
 
           {/* Navigation Columns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:col-span-2 lg:col-span-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:col-span-2 lg:col-span-3">
             <div>
               <h3 className="text-sm font-semibold">Alaabta</h3>
               <ul className="mt-6 flex flex-col gap-4 list-none p-0">
@@ -60,22 +56,6 @@ export function FooterSection() {
               <h3 className="text-sm font-semibold">Shirkadda</h3>
               <ul className="mt-6 space-y-4 list-none p-0">
                 {navigation.company.map((item) => (
-                  <li key={item.name}>
-                    <a
-                      href={item.href}
-                      className="text-sm text-gray-300 hover:text-white"
-                    >
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold">Ka dambeeya muuqaalka</h3>
-              <ul className="mt-6 space-y-4 list-none p-0">
-                {navigation.behindScenes.map((item) => (
                   <li key={item.name}>
                     <a
                       href={item.href}
@@ -178,10 +158,15 @@ export function FooterSection() {
               </a>
             </div>
           </div>
-          <p className="mt-8 text-xs text-gray-400 text-center sm:text-left">
-            © Garaad, Org. Barnaamijku waa mid loogu talagalay dadka
-            Soomaaliyeed, isagoo diiradda saaraya STEM.
-          </p>
+          <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+            <p className="text-center sm:text-left">
+              © Garaad, Org. Barnaamijku waa mid loogu talagalay dadka
+              Soomaaliyeed, isagoo diiradda saaraya STEM.
+            </p>
+            <p className="font-medium text-gray-300">
+              Made in love in somalia 😊
+            </p>
+          </div>
         </div>
       </div>
     </footer>

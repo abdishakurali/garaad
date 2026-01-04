@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function getMediaUrl(
   filename?: string,
-  type: "profile_pics" | "community_posts" | "courses" | "generic" = "generic"
+  type: "profile_pics" | "community_posts" | "courses" | "community_attachments" | "generic" = "generic"
 ): string | undefined {
   if (!filename) return undefined;
 
@@ -46,6 +46,9 @@ export function getMediaUrl(
       break;
     case "courses":
       finalUrl = `${baseUrl}/courses/${cleanFilename}`;
+      break;
+    case "community_attachments":
+      finalUrl = `${baseUrl}/community/attachments/${cleanFilename}`;
       break;
     default:
       finalUrl = `${baseUrl}/${cleanFilename}`;

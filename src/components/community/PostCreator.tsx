@@ -20,7 +20,10 @@ import {
     Hash,
     MessageCircle,
     Megaphone,
-    HelpCircle
+    HelpCircle,
+    Paperclip,
+    File,
+    Film
 } from 'lucide-react';
 import { RoomSelector } from './RoomSelector';
 
@@ -30,7 +33,7 @@ interface PostCreatorProps {
     campusSlug?: string | null;
     loading?: boolean;
     errors?: PostFormErrors;
-    defaultRoomId?: number | null;
+    defaultRoomId?: string | null;
 }
 
 export const PostCreator: React.FC<PostCreatorProps> = ({
@@ -47,14 +50,16 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
         room_id: defaultRoomId || null,
         language: 'so',
         post_type: 'discussion',
-        image: null,
-        video_url: ''
+        images: [],
+        video_url: '',
+        attachments: []
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [localErrors, setLocalErrors] = useState<PostFormErrors>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const attachmentInputRef = useRef<HTMLInputElement>(null);
 
     const postTypes = [
         { value: 'discussion', label: 'Dood', icon: <MessageCircle className="h-4 w-4" />, description: 'Dood guud oo ku saabsan mawduuca' },
@@ -82,13 +87,13 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
             return;
         }
 
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            setLocalErrors(prev => ({ ...prev, image: 'Sawirka waa inuu ka yar yahay 5MB' }));
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            setLocalErrors(prev => ({ ...prev, image: 'Sawirka waa inuu ka yar yahay 10MB' }));
             return;
         }
 
-        setFormData(prev => ({ ...prev, image: file }));
+        setFormData(prev => ({ ...prev, images: [file] }));
 
         // Create preview
         const reader = new FileReader();
@@ -102,11 +107,48 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
     };
 
     const removeImage = () => {
-        setFormData(prev => ({ ...prev, image: null }));
+        setFormData(prev => ({ ...prev, images: [] }));
         setImagePreview(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
+    };
+
+    const handleFileAttach = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
+
+        // Limit total files (e.g., 5)
+        if (formData.attachments && (formData.attachments.length + files.length) > 5) {
+            setLocalErrors(prev => ({ ...prev, attachments: 'Ma soo galin kartid in ka badan 5 fayl' }));
+            return;
+        }
+
+        const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+        const validFiles: File[] = [];
+        for (const file of files) {
+            if (file.size > MAX_SIZE) {
+                setLocalErrors(prev => ({ ...prev, attachments: `Faylka "${file.name}" aad buu u weyn yahay (Max 10MB).` }));
+                continue;
+            }
+            validFiles.push(file);
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            attachments: [...(prev.attachments || []), ...validFiles]
+        }));
+
+        if (validFiles.length > 0) {
+            setLocalErrors(prev => ({ ...prev, attachments: undefined }));
+        }
+    };
+
+    const removeAttachment = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            attachments: (prev.attachments || []).filter((_, i) => i !== index)
+        }));
     };
 
     const validateForm = (): boolean => {
@@ -150,7 +192,14 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
 
         try {
             setSubmitting(true);
-            await onSubmit(formData as CreatePostData);
+            const submitData: CreatePostData = {
+                category: formData.room_id || '',
+                content: formData.content,
+                video_url: formData.video_url || undefined,
+                images: formData.images,
+                attachments: formData.attachments
+            };
+            await onSubmit(submitData);
 
             // Reset form on success
             setFormData({
@@ -159,8 +208,9 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                 room_id: defaultRoomId || null,
                 language: 'so',
                 post_type: 'discussion',
-                image: null,
-                video_url: ''
+                images: [],
+                video_url: '',
+                attachments: []
             });
             setImagePreview(null);
             setLocalErrors({});
@@ -275,33 +325,57 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                         Media (ikhtiyaari)
                     </label>
 
-                    {/* Image Upload */}
-                    <div className="flex items-center space-x-2">
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                        />
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={submitting}
-                        >
-                            <ImageIcon className="h-4 w-4 mr-2" />
-                            Sawir ku dar
-                        </Button>
+                    {/* Image/Video/File Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Left Side: Buttons */}
+                        <div className="flex items-center gap-2">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="hidden"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 h-10"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={submitting}
+                            >
+                                <ImageIcon className="h-4 w-4 mr-2 text-green-600" />
+                                Sawir
+                            </Button>
 
-                        {/* Video URL */}
-                        <div className="flex-1">
+                            <input
+                                ref={attachmentInputRef}
+                                type="file"
+                                multiple
+                                onChange={handleFileAttach}
+                                className="hidden"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 h-10"
+                                onClick={() => attachmentInputRef.current?.click()}
+                                disabled={submitting}
+                            >
+                                <Paperclip className="h-4 w-4 mr-2 text-blue-600" />
+                                Fayl
+                            </Button>
+                        </div>
+
+                        {/* Right Side: Video URL */}
+                        <div className="relative">
+                            <Video className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <Input
-                                placeholder="Ama ku dar link video (YouTube, Vimeo...)"
+                                placeholder="Link video (YouTube...)"
                                 value={formData.video_url}
                                 onChange={(e) => handleInputChange('video_url', e.target.value)}
-                                className={`text-sm ${allErrors.video_url ? 'border-red-500' : ''}`}
+                                className={`pl-9 h-10 text-sm ${allErrors.video_url ? 'border-red-500' : ''}`}
                             />
                         </div>
                     </div>
@@ -315,9 +389,16 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                     )}
 
                     {allErrors.video_url && (
-                        <Alert>
+                        <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
                             <AlertDescription>{allErrors.video_url}</AlertDescription>
+                        </Alert>
+                    )}
+
+                    {allErrors.attachments && (
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{allErrors.attachments}</AlertDescription>
                         </Alert>
                     )}
 
@@ -344,11 +425,49 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                     {/* Video Preview */}
                     {formData.video_url && isValidUrl(formData.video_url) && (
                         <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                            <div className="flex items-center space-x-2">
-                                <Video className="h-5 w-5 text-blue-600" />
-                                <span className="text-sm font-medium">Video:</span>
-                                <span className="text-sm text-gray-600 truncate">{formData.video_url}</span>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                    <Video className="h-5 w-5 text-blue-600" />
+                                    <span className="text-sm font-medium">Video:</span>
+                                    <span className="text-sm text-gray-600 truncate max-w-[200px]">{formData.video_url}</span>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleInputChange('video_url', '')}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
                             </div>
+                        </div>
+                    )}
+
+                    {/* Attachments List */}
+                    {formData.attachments && formData.attachments.length > 0 && (
+                        <div className="space-y-2">
+                            {formData.attachments.map((file, index) => (
+                                <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 p-2 rounded border">
+                                    <div className="flex items-center space-x-2 overflow-hidden">
+                                        {file.type.startsWith('video/') ? (
+                                            <Film className="h-4 w-4 text-purple-600 shrink-0" />
+                                        ) : (
+                                            <File className="h-4 w-4 text-gray-600 shrink-0" />
+                                        )}
+                                        <span className="text-xs truncate font-medium">{file.name}</span>
+                                        <span className="text-[10px] text-gray-500 shrink-0">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => removeAttachment(index)}
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </Button>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>

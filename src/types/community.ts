@@ -23,11 +23,23 @@ export interface CommunityCategory {
 
 // Reaction types have been moved to bottom to allow string type
 
+// Attachment (Generic file, Video, etc.)
+export interface CommunityAttachment {
+  id: string;
+  file: string;
+  file_type: string;
+  name: string;
+  size: number;
+  uploaded_at: string;
+}
+
 // Reply (one-level response to post)
 export interface CommunityReply {
   id: string;
   author: User;
   content: string;
+  video_url?: string;
+  attachments?: CommunityAttachment[];
   created_at: string;
   is_edited: boolean;
   request_id?: string;
@@ -46,10 +58,12 @@ export interface CommunityPost {
   category: string;
   author: User;
   content: string;
+  video_url?: string;
   created_at: string;
   updated_at: string;
   is_edited: boolean;
   images: (string | PostImage)[];
+  attachments?: CommunityAttachment[];
   replies: CommunityReply[];
   replies_count: number;
   reactions_count: Record<string, number>;
@@ -61,14 +75,40 @@ export interface CommunityPost {
 export interface CreatePostData {
   category: string;
   content: string;
+  video_url?: string;
   images?: File[];
+  attachments?: File[];
   requestId?: string;
 }
 
 // Create reply data
 export interface CreateReplyData {
   content: string;
+  video_url?: string;
+  attachments?: File[];
   requestId?: string;
+}
+
+// Post Creation Form Types
+export interface PostFormData {
+  title: string;
+  content: string;
+  room_id: string | null;
+  language: string;
+  post_type: string;
+  images: File[];
+  video_url: string;
+  attachments: File[];
+}
+
+export type PostFormErrors = Partial<Record<keyof PostFormData | 'image' | 'general', string>>;
+
+export interface CampusRoom {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  posts_count?: number;
 }
 
 // Helper to format user display name with "Garaad" prefix
