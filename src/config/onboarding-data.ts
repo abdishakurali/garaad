@@ -25,6 +25,14 @@ export const topics = [
     { id: "math_engineering", text: "Mathematics & Engineering", badge: "Dhis aasaas adag oo STEM ah", icon: React.createElement(Target, { className: "w-5 h-5" }) },
 ];
 
+export const topicsByGoal: Record<string, string[]> = {
+    build_project: ["saas_challenge", "web_development", "ai_python", "ui_ux_design"],
+    learn_programming: ["web_development", "ai_python", "saas_challenge"],
+    improve_stem: ["math_engineering", "ai_python"],
+    exam_preparation: ["math_engineering", "web_development"],
+    career_growth: ["saas_challenge", "web_development", "ai_python", "ui_ux_design"],
+};
+
 export const topicLevelsByTopic = {
     "saas_challenge": [
         { title: "Bilow Cusub (Genesis)", description: "Waxaan rabaa inaan ka bilaabo eber ilaa aan ka dhiso MVP ugu horreeya.", example: "Waxaan rabaa inaan barto sida fikrad loogu beddelo SaaS.", level: "beginner", icon: React.createElement(Rocket, { className: "w-5 h-5" }) },

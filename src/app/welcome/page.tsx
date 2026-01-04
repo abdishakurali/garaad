@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import React from "react";
 import type { JSX } from "react";
 
@@ -52,6 +52,7 @@ import {
   stepTitles,
   goals,
   topics,
+  topicsByGoal,
   topicLevelsByTopic,
   learningGoals
 } from "@/config/onboarding-data";
@@ -218,7 +219,14 @@ export default function Page() {
     disabled?: boolean;
   }
 
-  const currentOptions = steps[currentStep] as Option[] | null;
+  const currentOptions = useMemo(() => {
+    if (currentStep === 1) {
+      const selectedGoal = selections[0] as string;
+      const allowedTopicIds = topicsByGoal[selectedGoal] || [];
+      return topics.filter(topic => allowedTopicIds.includes(topic.id)) as Option[];
+    }
+    return steps[currentStep] as Option[] | null;
+  }, [currentStep, selections]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -266,6 +274,7 @@ export default function Page() {
           topic: String(selections[1]).trim(),
           math_level: String(selections[2]).trim(),
           minutes_per_day: Number.parseInt(String(selections[3])),
+          preferred_study_time: String(selections[3]).trim(), // Using minutes_per_day string representation for now
         },
         ...(userData.referralCode ? { referral_code: userData.referralCode.trim() } : {}),
         ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
@@ -544,7 +553,7 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {topicLevelsByTopic[selectedTopic].map((level) => (
+                  {(topicLevelsByTopic as any)[selectedTopic].map((level: any) => (
                     <div key={level.level}>
                       <button
                         onClick={() => handleSelect(level.level)}
