@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Copy, Share2, Gift, Check, Send, GraduationCap, Banknote, TrendingUp as TrendingUpIcon } from 'lucide-react';
 import { generateReferralLink, type ReferralLink } from '@/services/referral';
@@ -49,18 +49,9 @@ export default function ReferralModal({ isOpen, onClose }: ReferralModalProps) {
         try {
             setCopying(true);
             await navigator.clipboard.writeText(referralData.referral_link);
-            toast({
-                title: 'Waa la koobiyeeyay! 🎉',
-                description: 'Link-gaaga waa uu diyaar yahay.',
-            });
+            setTimeout(() => setCopying(false), 2000);
         } catch (error) {
-            toast({
-                variant: 'destructive',
-                title: 'Khalad ayaa dhacay',
-                description: 'Lama koobiyeyn karo link-ga.',
-            });
-        } finally {
-            setCopying(false);
+            console.error('Failed to copy:', error);
         }
     };
 
@@ -90,9 +81,9 @@ export default function ReferralModal({ isOpen, onClose }: ReferralModalProps) {
                         <DialogTitle className="text-2xl font-black text-slate-900 dark:text-white leading-tight">
                             La Wada Fursadda, Kasbina Dakhli
                         </DialogTitle>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">
+                        <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">
                             U dir saaxiibkaaga raba inuu wax barto, adna hel dakhli!
-                        </p>
+                        </DialogDescription>
                     </DialogHeader>
 
                     {loading ? (
@@ -135,10 +126,10 @@ export default function ReferralModal({ isOpen, onClose }: ReferralModalProps) {
                                             onClick={copyToClipboard}
                                             disabled={copying}
                                             size="sm"
-                                            className="rounded-lg h-8 px-3 text-[10px] font-bold"
+                                            className={`rounded-lg h-8 px-3 text-[10px] font-bold transition-all ${copying ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
                                         >
                                             {copying ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                            <span className="ml-1.5">{copying ? 'Ok' : 'Koobiyee'}</span>
+                                            <span className="ml-1.5">{copying ? 'La koobiyeyay' : 'Koobiyee'}</span>
                                         </Button>
                                     </div>
                                 </div>

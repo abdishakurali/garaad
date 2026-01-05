@@ -35,9 +35,9 @@ export function CourseCard({
 
   if (!course.is_published) {
     return (
-      <Card className="group overflow-hidden bg-white rounded-3xl border border-[#E5E7EB] opacity-60">
+      <Card className="group overflow-hidden bg-card rounded-3xl border border-border opacity-60">
         <div className="relative">
-          <div className="relative w-full h-40 bg-[#F8F9FB] flex items-center justify-center">
+          <div className="relative w-full h-40 bg-muted flex items-center justify-center">
             <Image
               src={imageSrc || "/placeholder.svg"}
               alt={course.title}
@@ -56,7 +56,7 @@ export function CourseCard({
           </span>
         </div>
         <div className="p-4">
-          <h3 className="font-medium text-base text-center text-[#1A1D1E]">
+          <h3 className="font-bold text-base text-center text-foreground">
             {course.title}
           </h3>
         </div>
@@ -71,9 +71,9 @@ export function CourseCard({
       onClick={onClick}
     >
       <Link href={`/courses/${categoryId}/${course.slug}`}>
-        <Card className="group overflow-hidden bg-white rounded-3xl hover:shadow-lg transition-all duration-300 border border-[#E5E7EB]">
+        <Card className="group overflow-hidden bg-card rounded-3xl hover:shadow-lg transition-all duration-300 border border-border">
           <div className="relative">
-            <div className="relative w-full h-40 bg-[#F8F9FB] flex items-center justify-center">
+            <div className="relative w-full h-40 bg-muted flex items-center justify-center">
               <Image
                 src={imageSrc || "/placeholder.svg"}
                 alt={course.title}
@@ -94,7 +94,7 @@ export function CourseCard({
             )}
           </div>
           <div className="p-4">
-            <h3 className="font-medium text-base text-center text-[#1A1D1E] group-hover:text-[#2563EB] transition-colors">
+            <h3 className="font-bold text-base text-center text-foreground group-hover:text-primary transition-colors">
               {course.title}
             </h3>
           </div>

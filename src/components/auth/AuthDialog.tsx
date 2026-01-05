@@ -157,8 +157,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
         )}
       </DialogTrigger>
       <DialogContent
-        className="max-w-[400px] sm:max-w-[450px] md:max-w-[500px] px-6 py-8 rounded-xl shadow-xl border border-gray-100 bg-white dark:bg-gray-900 dark:border-gray-700
-        transition-all duration-300 ease-out transform-gpu
+        className="max-w-[400px] sm:max-w-[450px] md:max-w-[500px] px-6 py-8 rounded-xl shadow-xl border border-border bg-background transition-all duration-300 ease-out transform-gpu
         data-[state=open]:opacity-100 data-[state=open]:scale-100 data-[state=closed]:opacity-0 data-[state=closed]:scale-95"
         aria-describedby="auth-description"
       >
@@ -204,7 +203,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
                         placeholder="tusaale@example.com"
                         {...field}
                         disabled={isLoading}
-                        className="h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/50 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        className="h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/50 border-input bg-background text-foreground"
                       />
                     </FormControl>
                     <FormMessage className="text-red-500 dark:text-red-400" />
@@ -227,7 +226,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
                           placeholder="Geli lambarka sirta"
                           {...field}
                           disabled={isLoading}
-                          className="h-12 text-base pr-12 focus-visible:ring-2 focus-visible:ring-primary/50 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                          className="h-12 text-base pr-12 focus-visible:ring-2 focus-visible:ring-primary/50 border-input bg-background text-foreground"
                         />
                         <button
                           type="button"

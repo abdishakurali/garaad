@@ -33,6 +33,9 @@ import {
   Sparkles,
   GraduationCap,
   DollarSign,
+  Copy,
+  Check,
+  Share2,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { getMediaUrl } from "@/lib/utils";
@@ -92,13 +95,15 @@ export default function ProfilePage() {
       setIsLoading(true);
       const authService = AuthService.getInstance();
       try {
-        const [basic, dashboard] = await Promise.all([
+        const [basic, dashboard, referral] = await Promise.all([
           authService.getBasicProfile(),
-          authService.getDashboardProfile()
+          authService.getDashboardProfile(),
+          getReferralDashboard()
         ]);
 
         setUserState(basic as ExtendedUser);
         setDashboardProfile(dashboard);
+        setReferralData(referral);
 
         setEditForm({
           first_name: basic.first_name,
@@ -119,19 +124,6 @@ export default function ProfilePage() {
     fetchProfileData();
   }, []);
 
-  // Fetch referral data
-  useEffect(() => {
-    const fetchReferralData = async () => {
-      try {
-        const data = await getReferralDashboard();
-        setReferralData(data);
-      } catch (err) {
-        console.error("Failed to load referral data:", err);
-      }
-    };
-    fetchReferralData();
-  }, []);
-
   // Fetch progress
   useEffect(() => {
     const fetchProgress = async () => {
@@ -147,10 +139,9 @@ export default function ProfilePage() {
     fetchProgress();
   }, [user]);
 
-  // Handle profile picture update with file type validation
+  // Handle profile picture update
   const handleProfilePictureUpdate = async (file: File) => {
     try {
-      // Validate file type before upload
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp'];
       if (!validTypes.includes(file.type.toLowerCase())) {
         alert("Nooca faylka aan la aqbalin. Isticmaal JPG, PNG, GIF, ama BMP.");
@@ -204,6 +195,8 @@ export default function ProfilePage() {
       setIsUploadingPicture(false);
     }
   };
+
+  const [isCopied, setIsCopied] = useState(false);
 
   if (isLoading) {
     return (
@@ -351,7 +344,7 @@ export default function ProfilePage() {
                           <DollarSign className="h-6 w-6" />
                           <span className="text-sm font-medium text-emerald-100">Wadarta Dakhliga</span>
                         </div>
-                        <div className="text-4xl font-black">${referralData.total_earnings.toFixed(2)}</div>
+                        <div className="text-4xl font-black">${Number(referralData.total_earnings || 0).toFixed(2)}</div>
                       </div>
                       <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-2">
@@ -375,12 +368,13 @@ export default function ProfilePage() {
                           size="sm"
                           onClick={() => {
                             navigator.clipboard.writeText(referralData.referral_link);
-                            alert('Link-ka ayaa la koobiyeeyay! 🎉');
+                            setIsCopied(true);
+                            setTimeout(() => setIsCopied(false), 2000);
                           }}
-                          className="shrink-0"
+                          className={`shrink-0 transition-all ${isCopied ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
                         >
-                          <Copy className="h-4 w-4 mr-2" />
-                          Koobiyee
+                          {isCopied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                          {isCopied ? 'La koobiyeyay' : 'Koobiyee'}
                         </Button>
                       </div>
 

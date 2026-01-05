@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { signUp, selectAuthLoading, selectAuthError, setError } from "@/store/features/authSlice";
 import { useRouter } from "next/navigation";
@@ -168,28 +168,28 @@ export function SignupForm({ onClose }: SignupFormProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200"
     >
       <div
-        className="bg-white rounded-xl p-10 max-w-2xl w-full mx-6 shadow-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+        className="bg-background rounded-2xl p-8 md:p-10 max-w-2xl w-full mx-6 shadow-2xl max-h-[90vh] overflow-y-auto border border-border animate-in zoom-in-95 duration-200"
       >
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h2 className="text-3xl font-bold mb-2">Waxbarashadaada waa diyaar!</h2>
-            <p className="text-gray-600">Samee akoon bilaash ah si aad u bilowdo.</p>
+            <h2 className="text-2xl md:text-3xl font-black mb-2 text-foreground">Waxbarashadaada waa diyaar!</h2>
+            <p className="text-muted-foreground">Samee akoon bilaash ah si aad u bilowdo.</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors p-2 hover:bg-muted rounded-full"
           >
-            ✕
+            <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="email" className="text-sm font-bold text-foreground mb-1.5 block">
                 Email-kaaga
               </Label>
               <Input
@@ -198,7 +198,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                 type="email"
                 placeholder="Iimaylka"
                 className={cn(
-                  "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
+                  "w-full p-3 md:p-4 border border-input bg-background rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg transition-all",
                   errors.email && "border-red-500 focus:ring-red-500/20"
                 )}
                 style={{ fontSize: '16px' }}
@@ -214,7 +214,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
             {showAdditionalFields && (
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="password" className="text-sm font-bold text-foreground mb-1.5 block">
                     Furaha sirta ah
                   </Label>
                   <div className="relative">
@@ -224,7 +224,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                       type={showPassword ? "text" : "password"}
                       placeholder="Furaha sirta ah"
                       className={cn(
-                        "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg pr-12",
+                        "w-full p-3 md:p-4 border border-input bg-background rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg pr-12 transition-all",
                         errors.password && "border-red-500 focus:ring-red-500/20"
                       )}
                       style={{ fontSize: '16px' }}
@@ -235,7 +235,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       disabled={isLoading}
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -248,7 +248,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                    <Label htmlFor="firstName" className="text-sm font-bold text-foreground mb-1.5 block">
                       Magaca koowaad
                     </Label>
                     <Input
@@ -257,7 +257,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                       type="text"
                       placeholder="Magaca koowaad"
                       className={cn(
-                        "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
+                        "w-full p-3 md:p-4 border border-input bg-background rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg transition-all",
                         errors.firstName && "border-red-500 focus:ring-red-500/20"
                       )}
                       style={{ fontSize: '16px' }}
@@ -271,7 +271,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                   </div>
 
                   <div>
-                    <Label htmlFor="age" className="text-sm font-medium text-gray-700">
+                    <Label htmlFor="age" className="text-sm font-bold text-foreground mb-1.5 block">
                       Da&apos;da
                     </Label>
                     <Input
@@ -282,7 +282,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                       max="100"
                       placeholder="Da&apos;da"
                       className={cn(
-                        "w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg",
+                        "w-full p-3 md:p-4 border border-input bg-background rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg transition-all",
                         errors.age && "border-red-500 focus:ring-red-500/20"
                       )}
                       style={{ fontSize: '16px' }}
@@ -296,7 +296,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                   </div>
                 </div>
                 <div className="pt-2">
-                  <Label htmlFor="promoCode" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="promoCode" className="text-sm font-bold text-foreground mb-1.5 block">
                     Koodka Dalacsiinta (Ikhtiyaari)
                   </Label>
                   <Input
@@ -304,7 +304,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                     name="promoCode"
                     type="text"
                     placeholder="Garaad#2026"
-                    className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg"
+                    className="w-full p-3 md:p-4 border border-input bg-background rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg transition-all"
                     style={{ fontSize: '16px' }}
                     value={formData.promoCode}
                     onChange={handleInputChange}
@@ -317,7 +317,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
             <Button
               type="submit"
               className={cn(
-                "w-full bg-black text-white rounded-xl p-4 hover:bg-black/90 transition-colors relative",
+                "w-full bg-primary text-primary-foreground rounded-xl p-4 hover:bg-primary/90 transition-all font-black",
                 isLoading && "opacity-70 cursor-not-allowed"
               )}
               disabled={isLoading || !showAdditionalFields}
@@ -333,18 +333,18 @@ export function SignupForm({ onClose }: SignupFormProps) {
             </Button>
           </div>
 
-          <p className="text-xs text-center text-gray-500">
+          <p className="text-xs text-center text-muted-foreground">
             Marka aad guujiso Is diiwaan geli, waxaad ogoshahay{" "}
-            <a href="#" className="underline">Shuruudaha</a> iyo{" "}
-            <a href="#" className="underline">Xogta gaarka ah</a>
+            <a href="#" className="underline hover:text-foreground">Shuruudaha</a> iyo{" "}
+            <a href="#" className="underline hover:text-foreground">Xogta gaarka ah</a>
           </p>
 
-          <div className="text-center">
-            <span className="text-sm text-gray-600">Horay ma u diiwaan gashay? </span>
+          <div className="text-center pt-2">
+            <span className="text-sm text-muted-foreground">Horay ma u diiwaan gashay? </span>
             <button
               type="button"
               onClick={onClose}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-primary font-bold hover:underline"
             >
               Soo gal
             </button>

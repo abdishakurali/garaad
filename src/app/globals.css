@@ -113,6 +113,7 @@
 } */
 
 :root {
+  color-scheme: light;
   --radius: 0.625rem;
   --background: #ffffff;
   --foreground: #252525;
@@ -156,37 +157,56 @@
 }
 
 .dark {
-  --background: #252525;
-  --foreground: #fbfbfb;
-  --card: #353535;
-  --card-foreground: #fbfbfb;
-  --popover: #353535;
-  --popover-foreground: #fbfbfb;
-  --primary: #02b470;
-  --primary-foreground: #353535;
-  --secondary: #7f00ff;
-  --secondary-foreground: #fbfbfb;
-  --muted: #444444;
-  --muted-foreground: #b5b5b5;
-  --accent: #444444;
-  --accent-foreground: #fbfbfb;
-  --destructive: #ff5c00;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.15);
-  --ring: #8e8e8e;
-  --chart-1: #5f00ff;
-  --chart-2: #00d2ff;
-  --chart-3: #e0a000;
-  --chart-4: #7f00ff;
-  --chart-5: #ff6600;
-  --sidebar: #353535;
-  --sidebar-foreground: #fbfbfb;
-  --sidebar-primary: #5f00ff;
-  --sidebar-primary-foreground: #fbfbfb;
-  --sidebar-accent: #444444;
-  --sidebar-accent-foreground: #fbfbfb;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #8e8e8e;
+  color-scheme: dark;
+  --background: #09090b;
+  /* Zinc 950 - Deep black-ish */
+  --foreground: #fafafa;
+  /* Zinc 50 - High contrast text */
+  --card: #18181b;
+  /* Zinc 900 - Subtle depth */
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --primary: #10b981;
+  /* Emerald 500 - Vibrant primary */
+  --primary-foreground: #022c22;
+  /* Deep emerald for text on primary */
+  --secondary: #8b5cf6;
+  /* Violet 500 - Vibrant secondary */
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
+  /* Zinc 800 */
+  --muted-foreground: #a1a1aa;
+  /* Zinc 400 */
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #ef4444;
+  /* Red 500 */
+  --border: #27272a;
+  /* Zinc 800 - Visible borders */
+  --input: #27272a;
+  --ring: #10b981;
+  --chart-1: #10b981;
+  --chart-2: #8b5cf6;
+  --chart-3: #f59e0b;
+  --chart-4: #3b82f6;
+  --chart-5: #ec4899;
+  --sidebar: #09090b;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #022c22;
+  --sidebar-accent: #27272a;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #10b981;
+
+  /* Premium Design Tokens - Dark */
+  --glass-bg: rgba(24, 24, 27, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+
+  --primary-glow: 0 0 20px rgba(16, 185, 129, 0.2);
+  --secondary-glow: 0 0 20px rgba(139, 92, 246, 0.2);
 }
 
 @layer base {
@@ -376,10 +396,13 @@ ul {
 }
 
 @keyframes bounce-subtle {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(-5%);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
+
   50% {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);

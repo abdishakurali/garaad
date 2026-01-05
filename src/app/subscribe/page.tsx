@@ -23,7 +23,7 @@ const PAYMENT_METHODS = [
 
 // Price configuration based on location
 const PRICES = {
-    SOMALIA: "19",
+    SOMALIA: "49",
     INTERNATIONAL: "49"
 };
 

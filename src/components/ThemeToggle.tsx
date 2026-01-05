@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
+    const { theme, setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = React.useState(false);
 
     // Avoid hydration mismatch
@@ -26,7 +26,7 @@ export function ThemeToggle() {
         <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
             className="rounded-full w-10 h-10 transition-all duration-300 hover:bg-primary/10 group"
             aria-label="Toggle theme"
         >

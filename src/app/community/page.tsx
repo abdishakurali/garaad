@@ -20,7 +20,8 @@ import { PostList } from '@/components/community/PostList';
 import { InlinePostInput } from '@/components/community/InlinePostInput';
 import { UserProfileModal } from '@/components/community/UserProfileModal';
 import { NotificationDropdown } from '@/components/community/NotificationCenter';
-import { AlertCircle, Menu, Moon, Sun, Bell, GraduationCap } from 'lucide-react';
+import { AlertCircle, Menu, Bell, GraduationCap } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { SOMALI_UI_TEXT, getUserDisplayName } from '@/types/community';
@@ -46,7 +47,6 @@ export default function CommunityPage() {
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [pendingScrollPostId, setPendingScrollPostId] = useState<string | null>(null);
@@ -111,22 +111,6 @@ export default function CommunityPage() {
         }
     }, [isAuthenticated, router]);
 
-    // Initialize theme based on document class
-    useEffect(() => {
-        setIsDarkMode(document.documentElement.classList.contains('dark'));
-    }, []);
-
-    const toggleTheme = () => {
-        const newMode = !isDarkMode;
-        setIsDarkMode(newMode);
-        if (newMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    };
 
     // Initialize data (fetch once)
     useEffect(() => {
@@ -237,7 +221,7 @@ export default function CommunityPage() {
     );
 
     return (
-        <div className="flex h-screen bg-white dark:bg-black overflow-hidden">
+        <div className="flex h-screen bg-background overflow-hidden">
             <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
                 <div className="h-20 ml-0 pl-0 px-8 flex items-center justify-center">
                     <div className="relative w-32 h-12 pl-0 px-8  overflow-hidden flex-shrink-0">
@@ -266,7 +250,7 @@ export default function CommunityPage() {
                             </SheetTrigger>
                             <SheetContent
                                 side="left"
-                                className="p-0 w-[280px] sm:w-[350px] bg-white dark:bg-black border-r border-gray-100 dark:border-white/5 transition-transform duration-500 ease-in-out"
+                                className="p-0 w-[280px] sm:w-[350px] bg-background border-r border-border transition-transform duration-500 ease-in-out"
                             >
                                 <SheetHeader className="p-8 border-b border-gray-100 dark:border-white/5">
                                     <SheetTitle className="text-xl font-bold text-left">
@@ -338,16 +322,7 @@ export default function CommunityPage() {
                                     </PopoverContent>
                                 </Popover>
 
-                                {/* Theme Toggle */}
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={toggleTheme}
-                                    className="rounded-full w-10 h-10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all active:scale-90"
-                                    title={isDarkMode ? 'Habka Iftiinka' : 'Habka Mugdiga'}
-                                >
-                                    {isDarkMode ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-gray-500" />}
-                                </Button>
+                                <ThemeToggle />
                             </div>
                         </div>
 

@@ -295,7 +295,7 @@ export const SUBSCRIPTION_TYPE_OPTIONS = [
     value: "monthly",
     label: "Monthly",
     label_somali: "Bishii",
-    price_usd: 9.99,
+    price_usd: 49.00,
   },
   {
     value: "yearly",

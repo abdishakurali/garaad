@@ -71,7 +71,7 @@ function getUserInfo(
 const FALLBACK_PRICES = {
   monthly: {
     SOMALIA: {
-      unit_amount: 1900, // $19.00 in cents
+      unit_amount: 4900, // $49.00 in cents
       currency: "usd",
     },
     INTERNATIONAL: {
@@ -187,9 +187,8 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: fallbackPrice.currency,
             product_data: {
-              name: `Garaad ${
-                plan === "monthly" ? "Monthly" : "Yearly"
-              } Subscription`,
+              name: `Garaad ${plan === "monthly" ? "Monthly" : "Yearly"
+                } Subscription`,
               description: `Access to all premium features and content`,
             },
             unit_amount: fallbackPrice.unit_amount,
@@ -208,8 +207,7 @@ export async function POST(request: NextRequest) {
         `   Price: ${fallbackPrice.unit_amount} ${fallbackPrice.currency}`
       );
       console.log(
-        `   Reason: ${
-          !priceId ? "No Price ID found" : "Invalid Price ID format"
+        `   Reason: ${!priceId ? "No Price ID found" : "Invalid Price ID format"
         }`
       );
     }
