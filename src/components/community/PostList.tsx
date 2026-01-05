@@ -13,6 +13,7 @@ interface PostListProps {
     showInlineInput?: boolean;
     expandedReplyId?: string | null;
     onScrollComplete?: () => void;
+    isRefreshing?: boolean;
 }
 
 export function PostList({
@@ -23,9 +24,10 @@ export function PostList({
     categoryId,
     showInlineInput,
     expandedReplyId,
-    onScrollComplete
+    onScrollComplete,
+    isRefreshing
 }: PostListProps) {
-    if (loading) {
+    if (loading && posts.length === 0) {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
@@ -50,7 +52,14 @@ export function PostList({
     }
 
     return (
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
+        <div className="flex-1 overflow-y-auto scrollbar-hide relative">
+            {/* Subtle refresh indicator */}
+            {isRefreshing && (
+                <div className="sticky top-0 left-0 right-0 z-20 h-1 bg-primary/10 overflow-hidden">
+                    <div className="h-full bg-primary animate-progress origin-left"></div>
+                </div>
+            )}
+
             <div className="max-w-3xl mx-auto p-4 space-y-4 pb-20">
                 {showInlineInput && categoryId && (
                     <InlinePostInput categoryId={categoryId} />

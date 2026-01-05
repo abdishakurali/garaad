@@ -93,7 +93,11 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
     };
 
     const handleSubmit = async () => {
-        if (!content.trim() || !userProfile) return;
+        // Allow submission if there's content OR files OR video
+        const hasContent = content.trim().length > 0;
+        const hasMedia = images.length > 0 || attachments.length > 0 || videoUrl.trim().length > 0;
+
+        if ((!hasContent && !hasMedia) || !userProfile) return;
 
         const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const tempId = `temp-${Date.now()}`;

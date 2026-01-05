@@ -8,6 +8,7 @@ import {
     addNotification,
     handleWebSocketNotificationRead,
     handleWebSocketAllNotificationsRead,
+    handleWebSocketReplyReactionUpdate,
 } from "@/store/features/communitySlice";
 
 export class CommunityWebSocket {
@@ -122,6 +123,15 @@ export class CommunityWebSocket {
                 case "reaction_updated":
                     this.dispatch(handleWebSocketReactionUpdate({
                         post_id: data.post_id,
+                        reactions_count: data.reactions_count,
+                        request_id: data.request_id
+                    }));
+                    break;
+
+                case "reply_reaction_updated":
+                    this.dispatch(handleWebSocketReplyReactionUpdate({
+                        post_id: data.post_id,
+                        reply_id: data.reply_id,
                         reactions_count: data.reactions_count,
                         request_id: data.request_id
                     }));

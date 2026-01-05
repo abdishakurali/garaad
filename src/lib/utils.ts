@@ -42,13 +42,24 @@ export function getMediaUrl(
       finalUrl = `${baseUrl}/profile_pics/${cleanFilename}`;
       break;
     case "community_posts":
-      finalUrl = `${baseUrl}/community/posts/${cleanFilename}`;
+      // Check if it already has the path to avoid duplication
+      if (cleanFilename.includes('community/posts/')) {
+        finalUrl = `${baseUrl}/${cleanFilename}`;
+      } else {
+        finalUrl = `${baseUrl}/community/posts/${cleanFilename}`;
+      }
       break;
     case "courses":
       finalUrl = `${baseUrl}/courses/${cleanFilename}`;
       break;
     case "community_attachments":
-      finalUrl = `${baseUrl}/community/attachments/${cleanFilename}`;
+      // The backend stores it as 'community/posts/attachments/' or 'community/replies/attachments/'
+      // If the filename already contains 'community/', use it directly with baseUrl
+      if (cleanFilename.includes('community/')) {
+        finalUrl = `${baseUrl}/${cleanFilename}`;
+      } else {
+        finalUrl = `${baseUrl}/community/attachments/${cleanFilename}`;
+      }
       break;
     default:
       finalUrl = `${baseUrl}/${cleanFilename}`;

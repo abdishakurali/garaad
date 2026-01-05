@@ -138,7 +138,10 @@ export default function CommunityPage() {
     // Select first category by default when categories load
     useEffect(() => {
         if (categories.length > 0 && !selectedCategory) {
-            dispatch(setSelectedCategory(categories[0]));
+            const firstCategory = categories[0];
+            dispatch(setSelectedCategory(firstCategory));
+            // Pre-fetch immediately for better UX
+            dispatch(fetchCategoryPosts({ categoryId: firstCategory.id }));
         }
     }, [categories, selectedCategory, dispatch]);
 
@@ -340,6 +343,7 @@ export default function CommunityPage() {
                             <PostList
                                 posts={posts}
                                 loading={loading.posts}
+                                isRefreshing={loading.refreshingPosts}
                                 error={errors.posts}
                                 userProfile={userProfile}
                                 categoryId={selectedCategory.id}

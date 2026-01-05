@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import EmojiPicker, { Theme } from 'emoji-picker-react';
+import React, { useState, useMemo } from "react";
 import { LinkifiedText } from "@/components/ui/linkified-text";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
@@ -16,12 +15,14 @@ import {
     toggleReactionOptimistic,
     deletePost,
     removeOptimisticPost,
+    updatePost
 } from "@/store/features/communitySlice";
 import { getMediaUrl, cn, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Loader2, Plus, Smile, Play, File, Download, Film } from "lucide-react";
+import { MessageSquare, Trash2, Loader2, Plus, Smile, Play } from "lucide-react";
 import { ReplyList } from "./ReplyList";
+import { AttachmentDisplay } from "./AttachmentDisplay";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,6 +52,8 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
 
     const [isDeleting, setIsDeleting] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState(post.content);
 
     // Scroll to reply if it's the target
     React.useEffect(() => {
@@ -107,6 +110,21 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
             console.error("Failed to delete post:", error);
             // On failure, the user might see it again on refresh, 
             // but we don't want to block the UI now.
+        }
+    };
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+        setEditContent(post.content || "");
+    };
+
+    const handleUpdatePost = async () => {
+        if (!editContent.trim()) return;
+        try {
+            await dispatch(updatePost({ postId: post.id, content: editContent })).unwrap();
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Failed to update post:", error);
         }
     };
 
@@ -168,23 +186,62 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                     </div>
                 </div>
                 {isOwnPost && !isPending && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors rounded-full"
-                        onClick={handleDelete}
-                        disabled={isDeleting}
-                        title={SOMALI_UI_TEXT.delete}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2 text-gray-400 hover:text-primary transition-colors rounded-full text-[10px] font-bold"
+                            onClick={handleEditClick}
+                            disabled={isDeleting}
+                        >
+                            BEDEL
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors rounded-full"
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            title={SOMALI_UI_TEXT.delete}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
                 )}
             </div>
 
             <div className="mb-4">
-                <div className="text-[15px] dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
-                    <LinkifiedText text={post.content} />
-                </div>
+                {isEditing ? (
+                    <div className="space-y-3">
+                        <textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            className="w-full p-4 text-sm bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-xl focus:ring-1 focus:ring-primary outline-none min-h-[120px] resize-none"
+                            autoFocus
+                        />
+                        <div className="flex justify-end gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsEditing(false)}
+                                className="text-gray-500 underline text-xs"
+                            >
+                                Ka noqo
+                            </Button>
+                            <Button
+                                onClick={handleUpdatePost}
+                                disabled={!editContent.trim() || editContent === post.content}
+                                className="bg-primary text-white rounded-lg px-6 h-9 text-xs font-bold"
+                            >
+                                Kaydi
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="text-[15px] dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                        <LinkifiedText text={post.content} />
+                    </div>
+                )}
             </div>
 
             {/* Images */}
@@ -240,82 +297,69 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                 </div>
             )}
 
-            {/* Attachments (Docs, Videos, etc.) */}
+            {/* File Attachments */}
             {post.attachments && post.attachments.length > 0 && (
-                <div className="mb-4 space-y-2">
-                    {post.attachments.map((file) => (
-                        <div key={file.id} className="flex items-center justify-between bg-gray-50 dark:bg-white/5 p-3 rounded-xl border border-gray-100 dark:border-white/5 group">
-                            <div className="flex items-center gap-3 overflow-hidden">
-                                {file.file_type.includes('video') ? (
-                                    <Film className="h-5 w-5 text-purple-500" />
-                                ) : (
-                                    <File className="h-5 w-5 text-blue-500" />
-                                )}
-                                <div className="flex flex-col min-w-0">
-                                    <span className="text-sm font-medium truncate">{file.name}</span>
-                                    <span className="text-[10px] text-gray-400 capitalize">
-                                        {(file.size / 1024 / 1024).toFixed(2)} MB • {file.file_type.split('/')[1] || 'Fayl'}
-                                    </span>
-                                </div>
-                            </div>
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                asChild
-                            >
-                                <a href={getMediaUrl(file.file, 'community_attachments')} target="_blank" rel="noopener noreferrer">
-                                    <Download className="h-4 w-4" />
-                                </a>
-                            </Button>
-                        </div>
-                    ))}
-                </div>
+                <AttachmentDisplay attachments={post.attachments} />
             )}
 
             {/* Reactions & Actions */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-                <div className="flex items-center gap-1.5 p-1 bg-gray-50/50 dark:bg-white/5 rounded-full">
-                    {/* Active Reactions Display (Counter) */}
-                    {(['like', 'fire', 'insight'] as ReactionType[]).map((type) => {
-                        const count = post.reactions_count[type] || 0;
-                        if (count === 0) return null;
-                        return (
-                            <div key={type} className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-white/10 rounded-full text-xs font-bold shadow-sm">
-                                <span>{REACTION_ICONS[type]}</span>
-                                <span>{count}</span>
-                            </div>
-                        )
-                    })}
-
-                    {/* Reaction Trigger Dropdown */}
+            <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-gray-100 dark:border-white/5 mt-2">
+                <div className="flex items-center gap-1 p-1 bg-gray-50/50 dark:bg-white/5 rounded-full">
+                    {/* Reaction Bar / Toggle */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <button
                                 disabled={isPending}
                                 className={cn(
-                                    "flex items-center justify-center h-8 w-8 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-white/10",
-                                    post.user_reactions.length > 0 ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" : "text-gray-400"
+                                    "flex items-center justify-center h-9 px-3 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-white/10 outline-none gap-2",
+                                    post.user_reactions.length > 0 ? "text-primary font-bold" : "text-gray-500"
                                 )}
                             >
-                                {/* Show user's active reaction emoji if they have one, else a generic 'Add' icon */}
-                                {post.user_reactions.length > 0
-                                    ? <span className="text-sm">{REACTION_ICONS[post.user_reactions[0] as ReactionType] || post.user_reactions[0]}</span> /* Fallback to raw emoji if not in map */
-                                    : <span className="text-lg">👍</span>
-                                }
+                                {post.user_reactions.length > 0 ? (
+                                    <>
+                                        <span className="text-lg">{REACTION_ICONS[post.user_reactions[0] as ReactionType] || post.user_reactions[0]}</span>
+                                        <span className="text-xs capitalize">{post.user_reactions[0]}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="h-4 w-4" />
+                                        <span className="text-xs">{SOMALI_UI_TEXT.react || "React"}</span>
+                                    </>
+                                )}
                             </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="p-0 border-none bg-transparent shadow-none">
-                            <EmojiPicker
-                                onEmojiClick={(emojiData) => handleReaction(emojiData.emoji as ReactionType)}
-                                theme={Theme.AUTO}
-                                searchDisabled={false}
-                                skinTonesDisabled
-                                width={300}
-                                height={400}
-                            />
+                        <DropdownMenuContent align="start" className="flex items-center gap-1 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                            {(Object.entries(REACTION_ICONS) as [ReactionType, string][]).map(([type, icon]) => (
+                                <DropdownMenuItem
+                                    key={type}
+                                    onClick={() => handleReaction(type)}
+                                    className="p-1.5 h-10 w-10 flex items-center justify-center text-2xl cursor-pointer rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-transform hover:scale-125 focus:bg-gray-100 dark:focus:bg-white/10 outline-none"
+                                    title={type}
+                                >
+                                    {icon}
+                                </DropdownMenuItem>
+                            ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
+
+                    {/* Quick Counts Summary (Facebook style) */}
+                    <div className="flex items-center -space-x-1.5 ml-1">
+                        {Object.entries(post.reactions_count)
+                            .filter(([_, count]) => count > 0)
+                            .sort(([_, a], [__, b]) => b - a)
+                            .slice(0, 3)
+                            .map(([type]) => (
+                                <div key={type} className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/10 flex items-center justify-center text-[11px] shadow-sm z-10">
+                                    {REACTION_ICONS[type as ReactionType] || type}
+                                </div>
+                            ))
+                        }
+                    </div>
+                    {Object.values(post.reactions_count).reduce((a, b) => (a as number) + (b as number), 0) > 0 && (
+                        <span className="text-xs text-muted-foreground ml-1.5 font-medium">
+                            {Object.values(post.reactions_count).reduce((a, b) => (a as number) + (b as number), 0)}
+                        </span>
+                    )}
                 </div>
 
                 {/* Reply Toggle */}

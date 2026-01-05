@@ -7,20 +7,32 @@ import {
     UserProfile,
     SOMALI_UI_TEXT,
     getUserDisplayName,
+    ReactionType,
+    REACTION_ICONS
 } from "@/types/community";
 import {
     createReply,
     addOptimisticReply,
     deleteReply,
     removeOptimisticReply,
+    reactToReply,
+    updateReply,
+    toggleReplyReactionOptimistic
 } from "@/store/features/communitySlice";
 import { getMediaUrl, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Trash2, Paperclip, File, X, Video, Play, Download, Film } from "lucide-react";
+import { Send, Loader2, Trash2, Paperclip, X, Video, Play } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { UserProfileModal } from "./UserProfileModal";
+import { AttachmentDisplay } from "./AttachmentDisplay";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ReplyListProps {
     postId: string;
@@ -36,10 +48,52 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [videoUrl, setVideoUrl] = useState("");
     const [attachments, setAttachments] = useState<File[]>([]);
+    const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+    const [editContent, setEditContent] = useState("");
 
     const handleOpenProfile = (userId: string) => {
         setSelectedUserId(userId);
         setIsProfileModalOpen(true);
+    };
+
+    const handleReaction = (replyId: string, type: ReactionType) => {
+        if (!userProfile) return;
+
+        const reply = replies.find(r => r.id === replyId);
+        if (!reply) return;
+
+        const isAdding = !reply.user_reactions?.includes(type);
+        const requestId = `req_react_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        dispatch(toggleReplyReactionOptimistic({
+            postId,
+            replyId,
+            type,
+            isAdding,
+            request_id: requestId
+        }));
+
+        dispatch(reactToReply({
+            postId,
+            replyId,
+            type,
+            requestId
+        }));
+    };
+
+    const handleEditClick = (reply: CommunityReply) => {
+        setEditingReplyId(reply.id);
+        setEditContent(reply.content);
+    };
+
+    const handleUpdateReply = async (replyId: string) => {
+        if (!editContent.trim()) return;
+        try {
+            await dispatch(updateReply({ replyId, content: editContent })).unwrap();
+            setEditingReplyId(null);
+        } catch (error) {
+            console.error("Failed to update reply:", error);
+        }
     };
 
     const handleSubmit = async () => {
@@ -256,17 +310,54 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
                                             <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
                                         )}
                                         {isOwnReply && !isPending && (
-                                            <button
-                                                onClick={() => handleDelete(reply.id)}
-                                                className="ml-auto text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/10"
-                                                title={SOMALI_UI_TEXT.delete}
-                                            >
-                                                <Trash2 className="h-3.5 w-3.5" />
-                                            </button>
+                                            <div className="ml-auto flex items-center gap-1">
+                                                <button
+                                                    onClick={() => handleEditClick(reply)}
+                                                    className="text-gray-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-primary/5"
+                                                    title={SOMALI_UI_TEXT.edit}
+                                                >
+                                                    <Loader2 className="h-3.5 w-3.5 hidden" /> {/* Dummy for spacing if needed */}
+                                                    <span className="text-[10px] font-medium px-1">BEDEL</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(reply.id)}
+                                                    className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/10"
+                                                    title={SOMALI_UI_TEXT.delete}
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                     <div className="text-xs dark:text-gray-200 whitespace-pre-wrap">
-                                        <LinkifiedText text={reply.content} />
+                                        {editingReplyId === reply.id ? (
+                                            <div className="space-y-2 mt-1">
+                                                <textarea
+                                                    value={editContent}
+                                                    onChange={(e) => setEditContent(e.target.value)}
+                                                    className="w-full p-2 text-xs bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-md focus:ring-1 focus:ring-primary outline-none"
+                                                    rows={3}
+                                                    autoFocus
+                                                />
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => setEditingReplyId(null)}
+                                                        className="px-2 py-1 text-[10px] text-gray-500 hover:text-gray-700 underline"
+                                                    >
+                                                        Ka noqo
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleUpdateReply(reply.id)}
+                                                        disabled={!editContent.trim() || editContent === reply.content}
+                                                        className="px-3 py-1 text-[10px] bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
+                                                    >
+                                                        Kaydi
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <LinkifiedText text={reply.content} />
+                                        )}
                                     </div>
 
                                     {/* Reply Video */}
@@ -293,24 +384,58 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
 
                                     {/* Reply Attachments */}
                                     {reply.attachments && reply.attachments.length > 0 && (
-                                        <div className="mt-2 space-y-1">
-                                            {reply.attachments.map((file) => (
-                                                <div key={file.id} className="flex items-center justify-between bg-white dark:bg-black/20 p-2 rounded-lg border border-gray-200 dark:border-white/5 group">
-                                                    <div className="flex items-center gap-2 overflow-hidden">
-                                                        {file.file_type.includes('video') ? (
-                                                            <Film className="h-3.5 w-3.5 text-purple-500" />
-                                                        ) : (
-                                                            <File className="h-3.5 w-3.5 text-blue-500" />
-                                                        )}
-                                                        <span className="text-[10px] font-medium truncate">{file.name}</span>
-                                                    </div>
-                                                    <a href={getMediaUrl(file.file, 'community_attachments')} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
-                                                        <Download className="h-3.5 w-3.5" />
-                                                    </a>
-                                                </div>
-                                            ))}
+                                        <div className="mt-2">
+                                            <AttachmentDisplay attachments={reply.attachments} />
                                         </div>
                                     )}
+                                    {/* Reply Reactions */}
+                                    <div className="mt-2 flex items-center gap-3">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <button className={`text-[10px] font-bold transition-colors flex items-center gap-1 p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5 ${reply.user_reactions?.length ? 'text-primary' : 'text-gray-500'}`}>
+                                                    {reply.user_reactions?.length ? (
+                                                        <>
+                                                            <span>{REACTION_ICONS[reply.user_reactions[0] as ReactionType]}</span>
+                                                            <span className="uppercase">{reply.user_reactions[0]}</span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="uppercase">U jawaab</span>
+                                                    )}
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="start" className="flex items-center gap-1 p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/10 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+                                                {(Object.entries(REACTION_ICONS) as [ReactionType, string][]).map(([type, icon]) => (
+                                                    <DropdownMenuItem
+                                                        key={type}
+                                                        onClick={() => handleReaction(reply.id, type)}
+                                                        className="p-1 h-8 w-8 flex items-center justify-center text-lg cursor-pointer rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-transform hover:scale-125 focus:bg-gray-100 dark:focus:bg-white/10 outline-none"
+                                                        title={type}
+                                                    >
+                                                        {icon}
+                                                    </DropdownMenuItem>
+                                                ))}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+
+                                        {/* Reactions Summary */}
+                                        {reply.reactions_count && Object.values(reply.reactions_count).some(c => c > 0) && (
+                                            <div className="flex items-center gap-1.5 bg-white dark:bg-black/20 px-1.5 py-0.5 rounded-full border border-gray-100 dark:border-white/5 shadow-sm">
+                                                <div className="flex items-center -space-x-1">
+                                                    {Object.entries(reply.reactions_count)
+                                                        .filter(([_, count]) => count > 0)
+                                                        .sort(([_, a], [__, b]) => b - a)
+                                                        .slice(0, 2)
+                                                        .map(([type]) => (
+                                                            <span key={type} className="text-[10px]">{REACTION_ICONS[type as ReactionType]}</span>
+                                                        ))
+                                                    }
+                                                </div>
+                                                <span className="text-[10px] font-medium text-gray-500">
+                                                    {Object.values(reply.reactions_count).reduce((a, b) => Number(a) + Number(b), 0)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         );

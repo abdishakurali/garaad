@@ -227,6 +227,18 @@ export const replyService = {
       method: "DELETE",
     });
   },
+
+  // React to reply (toggle)
+  reactToReply: async (replyId: string, type: ReactionType, requestId?: string) => {
+    return apiCall(`community/replies/${replyId}/react/`, {
+      method: "POST",
+      body: JSON.stringify({
+        type,
+        reaction: type,
+        requestId
+      }),
+    });
+  },
 };
 
 // User Profile APIs

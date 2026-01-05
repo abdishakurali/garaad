@@ -43,6 +43,8 @@ export interface CommunityReply {
   created_at: string;
   is_edited: boolean;
   request_id?: string;
+  reactions_count?: Record<string, number>;
+  user_reactions?: string[];
 }
 
 // Post Image
@@ -196,6 +198,7 @@ export interface CommunityState {
   // Data
   categories: CommunityCategory[];
   posts: CommunityPost[];
+  postsByCategory: Record<string, CommunityPost[]>; // Cache for instant switching
   selectedCategory: CommunityCategory | null;
   userProfile: UserProfile | null;
   notifications: Notification[];
@@ -205,6 +208,7 @@ export interface CommunityState {
   loading: {
     categories: boolean;
     posts: boolean;
+    refreshingPosts: boolean; // Background refresh indicator
     profile: boolean;
     notifications: boolean;
   };
@@ -285,10 +289,15 @@ export const BADGE_LEVELS: Record<string, Badge> = {
 };
 
 // Basic types
-export type ReactionType = string; // Was 'like' | 'fire' | 'insight', now any string for full emoji support
+export type ReactionType = 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' | 'fire' | 'insight';
 
-export const REACTION_ICONS: Record<string, string> = {
+export const REACTION_ICONS: Record<ReactionType, string> = {
   like: "👍",
+  love: "❤️",
+  haha: "😆",
+  wow: "😮",
+  sad: "😢",
+  angry: "😡",
   fire: "🔥",
   insight: "💡",
 };

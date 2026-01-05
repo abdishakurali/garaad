@@ -154,22 +154,25 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
     const validateForm = (): boolean => {
         const newErrors: PostFormErrors = {};
 
-        if (!formData.title.trim()) {
-            newErrors.title = 'Ciwaanka waa lagama maarmaan';
-        } else if (formData.title.length < 5) {
-            newErrors.title = 'Ciwaanka waa inuu ka kooban yahay ugu yaraan 5 xaraf';
+        // Check if there's any media (images, attachments, or video)
+        const hasMedia = formData.images.length > 0 || formData.attachments.length > 0 || formData.video_url.trim().length > 0;
+        const hasText = formData.content.trim().length > 0;
+
+        // If no media and no text, require both title and content
+        if (!hasMedia && !hasText) {
+            if (!formData.content.trim()) {
+                newErrors.content = 'Qoraalka waa lagama maarmaan';
+            } else if (formData.content.length < 10) {
+                newErrors.content = 'Qoraalka waa inuu ka kooban yahay ugu yaraan 10 xaraf';
+            }
         }
 
-        if (!formData.content.trim()) {
-            newErrors.content = 'Qoraalka waa lagama maarmaan';
-        } else if (formData.content.length < 10) {
-            newErrors.content = 'Qoraalka waa inuu ka kooban yahay ugu yaraan 10 xaraf';
-        }
-
+        // Room is always required
         if (!formData.room_id) {
             newErrors.room_id = 'Qolka waa lagama maarmaan';
         }
 
+        // Validate video URL if provided
         if (formData.video_url && !isValidUrl(formData.video_url)) {
             newErrors.video_url = 'Link-ka video-ga ma sax aha';
         }

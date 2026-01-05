@@ -18,6 +18,7 @@ const initialState: CommunityState = {
   // Data
   categories: [],
   posts: [],
+  postsByCategory: {},
   selectedCategory: null,
   userProfile: null,
   notifications: [],
@@ -26,6 +27,7 @@ const initialState: CommunityState = {
   loading: {
     categories: false,
     posts: false,
+    refreshingPosts: false,
     profile: false,
     notifications: false,
   },
@@ -209,6 +211,23 @@ export const deleteReply = createAsyncThunk(
   }
 );
 
+// React to a reply (optimistic handled in reducer)
+export const reactToReply = createAsyncThunk(
+  "community/reactToReply",
+  async (
+    { postId, replyId, type, requestId }: { postId: string; replyId: string; type: ReactionType; requestId?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const final_request_id = requestId || `req_react_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const result = await communityService.reply.reactToReply(replyId, type, final_request_id);
+      return { ...result, postId, replyId, request_id: final_request_id };
+    } catch (error: any) {
+      return rejectWithValue({ error: handleApiError(error), postId, replyId, type });
+    }
+  }
+);
+
 // Fetch user profile
 export const fetchUserProfile = createAsyncThunk(
   "community/fetchUserProfile",
@@ -287,24 +306,32 @@ const communitySlice = createSlice({
   initialState,
   reducers: {
     setSelectedCategory: (state, action: PayloadAction<CommunityCategory | null>) => {
-      // Clear posts when changing category
-      if (action.payload?.id !== state.selectedCategory?.id) {
-        state.posts = [];
-        state.pagination.posts = { page: 1, hasMore: false };
-      }
       state.selectedCategory = action.payload;
+      // When category changes, immediately show cached posts for that category if they exist
+      if (action.payload) {
+        state.posts = state.postsByCategory[action.payload.id] || [];
+      } else {
+        state.posts = [];
+      }
     },
 
     // OPTIMISTIC: Add post immediately
     addOptimisticPost: (state, action: PayloadAction<CommunityPost>) => {
-      state.posts.unshift(action.payload);
-      // Increment category post count
-      const category = state.categories.find(c => c.id === action.payload.category);
+      const post = action.payload;
+      state.posts.unshift(post);
+
+      // Also update cache
+      if (!state.postsByCategory[post.category]) {
+        state.postsByCategory[post.category] = [];
+      }
+      state.postsByCategory[post.category].unshift(post);
+
+      const category = state.categories.find(c => c.id === post.category);
       if (category) {
         category.posts_count = (category.posts_count || 0) + 1;
       }
-      if (action.payload.request_id) {
-        state.pendingRequestIds.push(action.payload.request_id);
+      if (post.request_id) {
+        state.pendingRequestIds.push(post.request_id);
       }
     },
 
@@ -333,17 +360,45 @@ const communitySlice = createSlice({
         const { type, isAdding, request_id } = action.payload;
 
         if (isAdding) {
-          post.reactions_count[type] += 1;
+          post.reactions_count[type] = (post.reactions_count[type] || 0) + 1;
           if (!post.user_reactions.includes(type)) {
             post.user_reactions.push(type);
           }
         } else {
-          post.reactions_count[type] = Math.max(0, post.reactions_count[type] - 1);
+          post.reactions_count[type] = Math.max(0, (post.reactions_count[type] || 0) - 1);
           post.user_reactions = post.user_reactions.filter(r => r !== type);
         }
 
         if (request_id) {
           state.pendingRequestIds.push(request_id);
+        }
+      }
+    },
+
+    // OPTIMISTIC: Toggle reply reaction immediately
+    toggleReplyReactionOptimistic: (state, action: PayloadAction<{ postId: string; replyId: string; type: ReactionType; isAdding: boolean; request_id?: string }>) => {
+      const post = state.posts.find(p => p.id === action.payload.postId);
+      if (post) {
+        const reply = post.replies.find(r => r.id === action.payload.replyId);
+        if (reply) {
+          const { type, isAdding, request_id } = action.payload;
+
+          if (!reply.reactions_count) reply.reactions_count = {};
+          if (!reply.user_reactions) reply.user_reactions = [];
+
+          if (isAdding) {
+            reply.reactions_count[type] = (reply.reactions_count[type] || 0) + 1;
+            if (!reply.user_reactions.includes(type)) {
+              reply.user_reactions.push(type);
+            }
+          } else {
+            reply.reactions_count[type] = Math.max(0, (reply.reactions_count[type] || 0) - 1);
+            reply.user_reactions = reply.user_reactions.filter(r => r !== type);
+          }
+
+          if (request_id) {
+            state.pendingRequestIds.push(request_id);
+          }
         }
       }
     },
@@ -382,20 +437,20 @@ const communitySlice = createSlice({
         return;
       }
 
-      // Robust check: Is there any post with this ID or this REQUEST_ID?
-      // Matches both real IDs and optimistic temp IDs if they share the same requestId
-      const index = state.posts.findIndex(p => p.id === id || (request_id && p.request_id === request_id));
-      if (index !== -1) {
-        // Update existing post (authoritative sync)
-        state.posts[index] = { ...state.posts[index], ...action.payload };
+      // Update Category cache
+      if (!state.postsByCategory[category]) {
+        state.postsByCategory[category] = [];
+      }
+      const catIndex = state.postsByCategory[category].findIndex(p => p.id === id || (request_id && p.request_id === request_id));
+      if (catIndex !== -1) {
+        state.postsByCategory[category][catIndex] = { ...state.postsByCategory[category][catIndex], ...action.payload };
       } else {
-        // Add new post
-        state.posts.unshift(action.payload);
-        // Increment category post count
-        const cat = state.categories.find(c => c.id === category);
-        if (cat) {
-          cat.posts_count = (cat.posts_count || 0) + 1;
-        }
+        state.postsByCategory[category].unshift(action.payload);
+      }
+
+      const cat = state.categories.find(c => c.id === category);
+      if (cat) {
+        cat.posts_count = (cat.posts_count || 0) + 1;
       }
     },
 
@@ -408,11 +463,18 @@ const communitySlice = createSlice({
         return;
       }
 
-      const post = state.posts.find(p => p.id === post_id);
+      // Update main list
+      const postToRemove = state.posts.find(p => p.id === post_id);
       state.posts = state.posts.filter(p => p.id !== post_id);
 
-      if (post) {
-        const category = state.categories.find(c => c.id === post.category);
+      // Update cache
+      if (postToRemove) {
+        const catId = postToRemove.category;
+        if (state.postsByCategory[catId]) {
+          state.postsByCategory[catId] = state.postsByCategory[catId].filter(p => p.id !== post_id);
+        }
+
+        const category = state.categories.find(c => c.id === catId);
         if (category) {
           category.posts_count = Math.max(0, (category.posts_count || 0) - 1);
         }
@@ -473,6 +535,24 @@ const communitySlice = createSlice({
       } else if (replies_count !== undefined) {
         // Handle standalone count update if needed
         post.replies_count = replies_count;
+      }
+    },
+
+    // WEBSOCKET: Handle reply reaction update
+    handleWebSocketReplyReactionUpdate: (state, action: PayloadAction<{ post_id: string; reply_id: string; reactions_count: Record<string, number>; request_id?: string }>) => {
+      const { post_id, reply_id, reactions_count, request_id } = action.payload;
+
+      // Ignore if we initiated the reaction
+      if (request_id && state.pendingRequestIds.includes(request_id)) {
+        return;
+      }
+
+      const post = state.posts.find(p => p.id === post_id);
+      if (post) {
+        const reply = post.replies.find(r => r.id === reply_id);
+        if (reply) {
+          reply.reactions_count = reactions_count;
+        }
       }
     },
 
@@ -593,34 +673,62 @@ const communitySlice = createSlice({
         state.errors.categories = (action.payload as any)?.message || "Failed to fetch categories";
       });
 
-    // Fetch Category Posts (ONLY on initial load)
+    // Fetch Category Posts
     builder
-      .addCase(fetchCategoryPosts.pending, (state) => {
-        state.loading.posts = true;
+      .addCase(fetchCategoryPosts.pending, (state, action) => {
+        const { categoryId } = action.meta.arg;
+        const hasCached = state.postsByCategory[categoryId] && state.postsByCategory[categoryId].length > 0;
+
+        if (hasCached) {
+          state.loading.refreshingPosts = true;
+        } else {
+          state.loading.posts = true;
+        }
         state.errors.posts = null;
       })
       .addCase(fetchCategoryPosts.fulfilled, (state, action) => {
+        const { categoryId } = action.meta.arg;
         state.loading.posts = false;
+        state.loading.refreshingPosts = false;
+
+        // Update both the main list and the cache
         state.posts = action.payload;
+        state.postsByCategory[categoryId] = action.payload;
       })
       .addCase(fetchCategoryPosts.rejected, (state, action) => {
         state.loading.posts = false;
+        state.loading.refreshingPosts = false;
         state.errors.posts = (action.payload as any)?.message || "Failed to fetch posts";
       });
 
     // Create Post - Replace temp with real
     builder
       .addCase(createPost.fulfilled, (state, action) => {
-        const index = state.posts.findIndex(p => p.id === action.payload.tempId);
+        const post = action.payload;
+        const { tempId, category, request_id } = post;
+
+        // Update main list
+        const index = state.posts.findIndex(p => p.id.toString() === tempId.toString());
         if (index !== -1) {
-          state.posts[index] = action.payload;
+          state.posts[index] = post;
         } else {
-          // If not found (maybe not added optimistically), add it
-          state.posts.unshift(action.payload);
+          state.posts.unshift(post);
         }
+
+        // Update cache
+        if (!state.postsByCategory[category]) {
+          state.postsByCategory[category] = [];
+        }
+        const cacheIndex = state.postsByCategory[category].findIndex(p => p.id.toString() === tempId.toString());
+        if (cacheIndex !== -1) {
+          state.postsByCategory[category][cacheIndex] = post;
+        } else {
+          state.postsByCategory[category].unshift(post);
+        }
+
         // Cleanup request_id
-        if (action.payload.request_id) {
-          state.pendingRequestIds = state.pendingRequestIds.filter(id => id !== action.payload.request_id);
+        if (request_id) {
+          state.pendingRequestIds = state.pendingRequestIds.filter(id => id !== request_id);
         }
       })
       .addCase(createPost.pending, (state, action) => {
@@ -707,10 +815,10 @@ const communitySlice = createSlice({
           // Reverse the optimistic change
           const wasAdding = post.user_reactions.includes(type);
           if (wasAdding) {
-            post.reactions_count[type] = Math.max(0, post.reactions_count[type] - 1);
+            post.reactions_count[type] = Math.max(0, (post.reactions_count[type] || 0) - 1);
             post.user_reactions = post.user_reactions.filter(r => r !== type);
           } else {
-            post.reactions_count[type] += 1;
+            post.reactions_count[type] = (post.reactions_count[type] || 0) + 1;
             post.user_reactions.push(type);
           }
         }
@@ -778,6 +886,38 @@ const communitySlice = createSlice({
         // Cleanup request_id
         if (request_id) {
           state.pendingRequestIds = state.pendingRequestIds.filter(id => id !== request_id);
+        }
+      })
+      .addCase(reactToReply.fulfilled, (state, action) => {
+        const post = state.posts.find(p => p.id === action.payload.postId);
+        if (post) {
+          const reply = post.replies.find(r => r.id === action.payload.replyId);
+          if (reply && action.payload) {
+            reply.reactions_count = action.payload.reactions_count || reply.reactions_count;
+            reply.user_reactions = action.payload.user_reactions || reply.user_reactions;
+          }
+        }
+        // Cleanup request_id
+        if (action.payload.request_id) {
+          state.pendingRequestIds = state.pendingRequestIds.filter(id => id !== action.payload.request_id);
+        }
+      })
+      .addCase(reactToReply.rejected, (state, action) => {
+        const { postId, replyId, type } = action.meta.arg;
+        const post = state.posts.find(p => p.id === postId);
+        if (post) {
+          const reply = post.replies.find(r => r.id === replyId);
+          if (reply) {
+            const wasAdding = reply.user_reactions?.includes(type);
+            if (wasAdding) {
+              reply.reactions_count[type] = Math.max(0, (reply.reactions_count[type] || 0) - 1);
+              reply.user_reactions = reply.user_reactions.filter(r => r !== type);
+            } else {
+              reply.reactions_count[type] = (reply.reactions_count[type] || 0) + 1;
+              if (!reply.user_reactions) reply.user_reactions = [];
+              reply.user_reactions.push(type);
+            }
+          }
         }
       });
 
@@ -901,6 +1041,8 @@ export const {
   addNotification,
   handleWebSocketNotificationRead,
   handleWebSocketAllNotificationsRead,
+  toggleReplyReactionOptimistic,
+  handleWebSocketReplyReactionUpdate,
   markAllNotificationsAsRead: markAllNotificationsAsReadAction,
 } = communitySlice.actions;
 
