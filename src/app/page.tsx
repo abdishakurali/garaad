@@ -4,7 +4,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { WhyGaraadSection } from "@/components/landing/WhyGaraadSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CommunityCTASection } from "@/components/landing/CommunityCTASection";
-import { WhatsAppFloat } from "@/components/landing/WhatsAppFloat";
+import { OverlayElements } from "@/components/landing/OverlayElements";
 import { SectionSkeleton } from "@/components/landing/SkeletonLoader";
 import { Suspense } from "react";
 import { Metadata } from "next";
@@ -80,7 +80,7 @@ export default function Home() {
       </main>
 
       <FooterSection />
-      <WhatsAppFloat />
+      <OverlayElements />
     </div>
   );
 }
