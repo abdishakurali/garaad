@@ -145,7 +145,7 @@ export function Header() {
         : [
           { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
           { name: "5-Week Challenge", href: "/challenge", icon: Home },
-          { name: "Bulshada", href: "/community-preview", icon: Users },
+          { name: "Bulshada", href: "/communitypreview", icon: Users },
         ],
     [user]
   );

@@ -47,25 +47,7 @@ export default function CommunityPreview() {
 
             <main className="pt-10 pb-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Hero Section */}
-                    <div className="text-center mb-16">
-                        <Reveal>
-                            <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-black uppercase tracking-widest mb-6">
-                                Bulshada Garaad
-                            </span>
-                        </Reveal>
-                        <Reveal>
-                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-8 leading-tight">
-                                Ka Mid Noqo <span className="text-primary italic">Dhisayaasha</span> <br />
-                                Mustaqbalka Soomaaliya
-                            </h1>
-                        </Reveal>
-                        <Reveal>
-                            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
-                                Garaad Community waa meesha ay isugu yimaadaan dadka wax dhisaya, baranaya, oo raba inay tignoolajiyada u adeegsadaan horumarka.
-                            </p>
-                        </Reveal>
-                    </div>
+
 
                     {/* Main Image Showcase */}
                     <Reveal>

@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
 import { CreatePostData, PostFormData, PostFormErrors, CampusRoom } from '@/types/community';
 import {
     Send,
@@ -23,8 +24,10 @@ import {
     HelpCircle,
     Paperclip,
     File,
-    Film
+    Film,
+    Globe
 } from 'lucide-react';
+import { SOMALI_UI_TEXT } from '@/types/community';
 import { RoomSelector } from './RoomSelector';
 
 interface PostCreatorProps {
@@ -52,7 +55,8 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
         post_type: 'discussion',
         images: [],
         video_url: '',
-        attachments: []
+        attachments: [],
+        is_public: false
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -200,7 +204,8 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                 content: formData.content,
                 video_url: formData.video_url || undefined,
                 images: formData.images,
-                attachments: formData.attachments
+                attachments: formData.attachments,
+                is_public: formData.is_public
             };
             await onSubmit(submitData);
 
@@ -213,7 +218,8 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                 post_type: 'discussion',
                 images: [],
                 video_url: '',
-                attachments: []
+                attachments: [],
+                is_public: false
             });
             setImagePreview(null);
             setLocalErrors({});
@@ -301,6 +307,28 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                     <p className="text-xs text-gray-500 mt-1">
                         {formData.title.length}/100 xaraf
                     </p>
+                </div>
+
+                {/* Public Toggle - MOVED FOR PROMINENCE */}
+                <div className="flex items-center justify-between p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                    <div className="flex items-center space-x-3">
+                        <div className="p-1.5 bg-white dark:bg-blue-900/30 rounded-lg shadow-sm">
+                            <Globe className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-blue-900 dark:text-blue-100 uppercase tracking-tight">
+                                {SOMALI_UI_TEXT.makePublic}
+                            </p>
+                            <p className="text-[10px] text-blue-700/60 dark:text-blue-300/60 font-medium">
+                                Qoraalkani wuxuu u muuqan doonaa dadka aan soo galin.
+                            </p>
+                        </div>
+                    </div>
+                    <Switch
+                        checked={formData.is_public}
+                        onCheckedChange={(checked) => handleInputChange('is_public', checked)}
+                        className="data-[state=checked]:bg-blue-600"
+                    />
                 </div>
 
                 {/* Content Input */}
@@ -501,6 +529,7 @@ export const PostCreator: React.FC<PostCreatorProps> = ({
                         <AlertDescription>{allErrors.general}</AlertDescription>
                     </Alert>
                 )}
+
 
                 {/* Action Buttons */}
                 <div className="flex justify-end space-x-2 pt-4">

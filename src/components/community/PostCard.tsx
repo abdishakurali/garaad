@@ -20,7 +20,8 @@ import {
 import { getMediaUrl, cn, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Loader2, Plus, Smile, Play } from "lucide-react";
+import { MessageSquare, Trash2, Loader2, Plus, Smile, Play, Globe } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { ReplyList } from "./ReplyList";
 import { AttachmentDisplay } from "./AttachmentDisplay";
 import {
@@ -37,9 +38,10 @@ interface PostCardProps {
     userProfile: UserProfile | null;
     initiallyShowReplies?: boolean;
     targetReplyId?: string | null;
+    isReadOnly?: boolean;
 }
 
-export function PostCard({ post, userProfile, initiallyShowReplies = false, targetReplyId = null }: PostCardProps) {
+export function PostCard({ post, userProfile, initiallyShowReplies = false, targetReplyId = null, isReadOnly = false }: PostCardProps) {
     const dispatch = useDispatch<AppDispatch>();
     const [showReplies, setShowReplies] = useState(initiallyShowReplies);
 
@@ -54,6 +56,7 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(post.content);
+    const [editPublic, setEditPublic] = useState(post.is_public);
 
     // Scroll to reply if it's the target
     React.useEffect(() => {
@@ -72,7 +75,7 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
 
     // OPTIMISTIC: Handle reaction click
     const handleReaction = (type: ReactionType) => {
-        if (!post.id) return;
+        if (!post.id || isReadOnly) return;
 
         // Find if user has any OTHER reaction active
         const activeReaction = post.user_reactions.find(r => r !== type);
@@ -116,12 +119,13 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
     const handleEditClick = () => {
         setIsEditing(true);
         setEditContent(post.content || "");
+        setEditPublic(post.is_public);
     };
 
     const handleUpdatePost = async () => {
         if (!editContent.trim()) return;
         try {
-            await dispatch(updatePost({ postId: post.id, content: editContent })).unwrap();
+            await dispatch(updatePost({ postId: post.id, content: editContent, is_public: editPublic })).unwrap();
             setIsEditing(false);
         } catch (error) {
             console.error("Failed to update post:", error);
@@ -179,6 +183,12 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                                     • {SOMALI_UI_TEXT.edited}
                                 </span>
                             )}
+                            {post.is_public && (
+                                <span className="flex items-center gap-1 text-[10px] text-blue-500 font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-md">
+                                    <Globe className="h-2.5 w-2.5" />
+                                    Dadweynaha
+                                </span>
+                            )}
                             {isPending && (
                                 <Loader2 className="h-3 w-3 animate-spin text-primary" />
                             )}
@@ -219,22 +229,33 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                             className="w-full p-4 text-sm bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-xl focus:ring-1 focus:ring-primary outline-none min-h-[120px] resize-none"
                             autoFocus
                         />
-                        <div className="flex justify-end gap-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setIsEditing(false)}
-                                className="text-gray-500 underline text-xs"
-                            >
-                                Ka noqo
-                            </Button>
-                            <Button
-                                onClick={handleUpdatePost}
-                                disabled={!editContent.trim() || editContent === post.content}
-                                className="bg-primary text-white rounded-lg px-6 h-9 text-xs font-bold"
-                            >
-                                Kaydi
-                            </Button>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/5">
+                                <Globe className={cn("h-3.5 w-3.5", editPublic ? "text-blue-500" : "text-gray-400")} />
+                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Kaga dhig mid dadka u furan</span>
+                                <Switch
+                                    checked={editPublic}
+                                    onCheckedChange={setEditPublic}
+                                    className="scale-75"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setIsEditing(false)}
+                                    className="text-gray-500 underline text-xs"
+                                >
+                                    Ka noqo
+                                </Button>
+                                <Button
+                                    onClick={handleUpdatePost}
+                                    disabled={!editContent.trim() || (editContent === post.content && editPublic === post.is_public)}
+                                    className="bg-primary text-white rounded-lg px-6 h-9 text-xs font-bold"
+                                >
+                                    Kaydi
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -309,10 +330,11 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <button
-                                disabled={isPending}
+                                disabled={isPending || isReadOnly}
                                 className={cn(
                                     "flex items-center justify-center h-9 px-3 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-white/10 outline-none gap-2",
-                                    post.user_reactions.length > 0 ? "text-primary font-bold" : "text-gray-500"
+                                    post.user_reactions.length > 0 ? "text-primary font-bold" : "text-gray-500",
+                                    isReadOnly && "opacity-50 cursor-not-allowed"
                                 )}
                             >
                                 {post.user_reactions.length > 0 ? (
@@ -328,18 +350,20 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                                 )}
                             </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="flex items-center gap-1 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                            {(Object.entries(REACTION_ICONS) as [ReactionType, string][]).map(([type, icon]) => (
-                                <DropdownMenuItem
-                                    key={type}
-                                    onClick={() => handleReaction(type)}
-                                    className="p-1.5 h-10 w-10 flex items-center justify-center text-2xl cursor-pointer rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-transform hover:scale-125 focus:bg-gray-100 dark:focus:bg-white/10 outline-none"
-                                    title={type}
-                                >
-                                    {icon}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
+                        {!isReadOnly && (
+                            <DropdownMenuContent align="start" className="flex items-center gap-1 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                                {(Object.entries(REACTION_ICONS) as [ReactionType, string][]).map(([type, icon]) => (
+                                    <DropdownMenuItem
+                                        key={type}
+                                        onClick={() => handleReaction(type)}
+                                        className="p-1.5 h-10 w-10 flex items-center justify-center text-2xl cursor-pointer rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-transform hover:scale-125 focus:bg-gray-100 dark:focus:bg-white/10 outline-none"
+                                        title={type}
+                                    >
+                                        {icon}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        )}
                     </DropdownMenu>
 
                     {/* Quick Counts Summary (Facebook style) */}
@@ -364,12 +388,13 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
 
                 {/* Reply Toggle */}
                 <button
-                    onClick={() => setShowReplies(!showReplies)}
+                    onClick={() => !isReadOnly && setShowReplies(!showReplies)}
                     className={cn(
                         "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ml-auto outline-none",
                         showReplies
                             ? "bg-primary text-white shadow-lg shadow-primary/25"
-                            : "bg-gray-50/50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10"
+                            : "bg-gray-50/50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10",
+                        isReadOnly && "opacity-75 cursor-default"
                     )}
                 >
                     <MessageSquare className={cn("h-4 w-4", showReplies ? "fill-current" : "")} />
@@ -378,7 +403,7 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
             </div>
 
             {/* Replies */}
-            {showReplies && (
+            {showReplies && !isReadOnly && (
                 <div ref={replySectionRef} className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5">
                     <ReplyList
                         postId={post.id}

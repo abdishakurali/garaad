@@ -77,6 +77,25 @@ export const fetchCategories = createAsyncThunk(
   }
 );
 
+// Fetch categories for unauthenticated users
+export const fetchPublicCategories = createAsyncThunk(
+  "community/fetchPublicCategories",
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await communityService.category.getPublicCategories();
+      // Ensure each category has necessary community fields with fallbacks
+      return data.map((cat: any) => ({
+        ...cat,
+        posts_count: cat.posts_count || 0,
+        community_description: cat.community_description || cat.description || "",
+        is_community_enabled: cat.is_community_enabled ?? true,
+      }));
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
+
 // Fetch posts for a category (ONLY on initial load)
 export const fetchCategoryPosts = createAsyncThunk(
   "community/fetchCategoryPosts",
@@ -86,6 +105,18 @@ export const fetchCategoryPosts = createAsyncThunk(
   ) => {
     try {
       return await communityService.post.getPosts(categoryId, page);
+    } catch (error: any) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
+
+// Fetch all public posts (for unauthenticated users)
+export const fetchPublicPosts = createAsyncThunk(
+  "community/fetchPublicPosts",
+  async ({ page }: { page?: number } = {}, { rejectWithValue }) => {
+    try {
+      return await communityService.post.getPublicPosts(page);
     } catch (error: any) {
       return rejectWithValue(handleApiError(error));
     }
@@ -116,11 +147,11 @@ export const createPost = createAsyncThunk(
 export const updatePost = createAsyncThunk(
   "community/updatePost",
   async (
-    { postId, content }: { postId: string; content: string },
+    { postId, content, is_public }: { postId: string; content?: string; is_public?: boolean },
     { rejectWithValue }
   ) => {
     try {
-      return await communityService.post.updatePost(postId, content);
+      return await communityService.post.updatePost(postId, content, is_public);
     } catch (error: any) {
       return rejectWithValue(handleApiError(error));
     }
@@ -671,6 +702,20 @@ const communitySlice = createSlice({
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading.categories = false;
         state.errors.categories = (action.payload as any)?.message || "Failed to fetch categories";
+      })
+
+      // Fetch Public Categories
+      .addCase(fetchPublicCategories.pending, (state) => {
+        state.loading.categories = true;
+        state.errors.categories = null;
+      })
+      .addCase(fetchPublicCategories.fulfilled, (state, action) => {
+        state.loading.categories = false;
+        state.categories = action.payload.results || action.payload;
+      })
+      .addCase(fetchPublicCategories.rejected, (state, action) => {
+        state.loading.categories = false;
+        state.errors.categories = (action.payload as any)?.message || "Failed to fetch public categories";
       });
 
     // Fetch Category Posts
@@ -699,6 +744,22 @@ const communitySlice = createSlice({
         state.loading.posts = false;
         state.loading.refreshingPosts = false;
         state.errors.posts = (action.payload as any)?.message || "Failed to fetch posts";
+      });
+
+    // Fetch Public Posts
+    builder
+      .addCase(fetchPublicPosts.pending, (state) => {
+        state.loading.posts = true;
+        state.errors.posts = null;
+      })
+      .addCase(fetchPublicPosts.fulfilled, (state, action) => {
+        state.loading.posts = false;
+        state.posts = action.payload.results || action.payload; // Support both paginated and non-paginated
+        state.pagination.posts.hasMore = !!action.payload.next;
+      })
+      .addCase(fetchPublicPosts.rejected, (state, action) => {
+        state.loading.posts = false;
+        state.errors.posts = (action.payload as any)?.message || "Failed to fetch public posts";
       });
 
     // Create Post - Replace temp with real

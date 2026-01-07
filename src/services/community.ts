@@ -79,11 +79,68 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   }
 };
 
+// Helper for public (unauthenticated) API calls
+const publicApiCall = async (endpoint: string, options: RequestInit = {}) => {
+  const isFormData = options.body instanceof FormData;
+  const headers = {
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...options.headers,
+  };
+
+  const config: RequestInit = {
+    ...options,
+    headers,
+  };
+
+  const url = `${BASE_URL}${endpoint}`;
+  try {
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      let errorData = {};
+      try {
+        errorData = JSON.parse(responseText);
+      } catch (e) {
+        errorData = { raw: responseText };
+      }
+
+      console.error(`Public API Error [${response.status}] ${url}:`, JSON.stringify(errorData, null, 2));
+
+      throw {
+        status: response.status,
+        message: response.statusText || "Request failed",
+        data: errorData,
+      };
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (response.status === 204 || !contentType || contentType.indexOf("application/json") === -1) {
+      return {};
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
+  } catch (error: any) {
+    if (error.status) throw error;
+    console.error(`Public Network Error ${url}:`, error);
+    throw {
+      status: 0,
+      message: error.message || "Network request failed",
+      data: error,
+    };
+  }
+};
+
 // Category Management APIs
 export const categoryService = {
   // Get all categories (Campuses)
   getCategories: async () => {
     return apiCall("community/categories/");
+  },
+
+  getPublicCategories: async () => {
+    return publicApiCall("community/categories/");
   },
 
   // Get category details (Optional, but keeping for completeness)
@@ -106,6 +163,11 @@ export const postService = {
     return apiCall(`community/categories/${categoryId}/posts/${params}`);
   },
 
+  getPublicPosts: async (page?: number) => {
+    const params = page ? `?page=${page}` : "";
+    return publicApiCall(`community/posts/public/${params}`);
+  },
+
   // Create post
   createPost: async (categoryId: string, postData: CreatePostData) => {
     // Handle file uploads (images or attachments) if present
@@ -116,6 +178,10 @@ export const postService = {
 
       if (postData.requestId) {
         formData.append("requestId", postData.requestId);
+      }
+
+      if (postData.is_public !== undefined) {
+        formData.append("is_public", String(postData.is_public));
       }
 
       if (postData.video_url) {
@@ -148,10 +214,14 @@ export const postService = {
   },
 
   // Update post
-  updatePost: async (postId: string, content: string) => {
+  updatePost: async (postId: string, content?: string, is_public?: boolean) => {
+    const body: any = {};
+    if (content !== undefined) body.content = content;
+    if (is_public !== undefined) body.is_public = is_public;
+
     return apiCall(`community/posts/${postId}/`, {
       method: "PATCH",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify(body),
     });
   },
 

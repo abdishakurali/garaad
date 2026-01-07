@@ -71,6 +71,7 @@ export interface CommunityPost {
   reactions_count: Record<string, number>;
   user_reactions: ReactionType[];
   request_id?: string;
+  is_public: boolean;
 }
 
 // Create post data
@@ -81,6 +82,7 @@ export interface CreatePostData {
   images?: File[];
   attachments?: File[];
   requestId?: string;
+  is_public?: boolean;
 }
 
 // Create reply data
@@ -101,6 +103,7 @@ export interface PostFormData {
   images: File[];
   video_url: string;
   attachments: File[];
+  is_public: boolean;
 }
 
 export type PostFormErrors = Partial<Record<keyof PostFormData | 'image' | 'general', string>>;
@@ -339,7 +342,7 @@ export const SOMALI_UI_TEXT = {
 
   // Status
   loading: "Waa la soo rarayaa...",
-  noPosts: "Ma jiraan qoraallo",
+  noPosts: "Ma jiraan Qoraall",
   noReplies: "Ma jiraan jawaabo",
   firstPost: "Noqo qofka ugu horreeya ee halkan wax ku qora!",
 
@@ -385,4 +388,6 @@ export const SOMALI_UI_TEXT = {
   objects: "Alaab",
   symbols: "Calaamado",
   flags: "Calanka",
+  makePublic: "Ka dhig mid dadka oo dhan u furan",
+  publicDescription: "Qof kasta (xitaa haddii uusan soo galin) wuu arki karaa qoraalkan",
 };

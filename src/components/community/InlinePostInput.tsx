@@ -15,6 +15,8 @@ import { getMediaUrl, cn } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { EmojiPicker } from "./EmojiPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+import { Globe } from "lucide-react";
 
 interface InlinePostInputProps {
     categoryId: string;
@@ -36,6 +38,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
     const [error, setError] = useState<string | null>(null);
     const [isFocused, setIsFocused] = useState(false);
     const [showVideoInput, setShowVideoInput] = useState(false);
+    const [isPublic, setIsPublic] = useState(false);
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
@@ -116,6 +119,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
             replies_count: 0,
             reactions_count: { like: 0, fire: 0, insight: 0 },
             user_reactions: [],
+            is_public: isPublic,
             request_id: requestId,
         };
 
@@ -131,6 +135,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
         setImagePreviews([]);
         setAttachments([]);
         setVideoUrl("");
+        setIsPublic(false);
         setShowVideoInput(false);
         setError(null);
         setIsSubmitting(true);
@@ -145,6 +150,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                     images: imagesToSend.length > 0 ? imagesToSend : undefined,
                     attachments: attachmentsToSend.length > 0 ? attachmentsToSend : undefined,
                     video_url: videoUrlToSend || undefined,
+                    is_public: isPublic,
                     requestId,
                 },
                 tempId,
@@ -310,17 +316,29 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                                 </Popover>
                             </div>
 
-                            <Button
-                                onClick={handleSubmit}
-                                disabled={(!content.trim() && images.length === 0 && attachments.length === 0 && !videoUrl.trim()) || isSubmitting}
-                                className="rounded-full px-6 font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
-                            >
-                                {isSubmitting ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                    SOMALI_UI_TEXT.createPost
-                                )}
-                            </Button>
+                            <div className="flex items-center gap-4">
+                                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                                    <Globe className={cn("h-3.5 w-3.5", isPublic ? "text-blue-500" : "text-gray-400")} />
+                                    <span className="text-[10px] font-bold text-blue-900/70 dark:text-blue-100/70 uppercase tracking-tight">Dadweynaha</span>
+                                    <Switch
+                                        checked={isPublic}
+                                        onCheckedChange={setIsPublic}
+                                        className="scale-75 data-[state=checked]:bg-blue-600"
+                                    />
+                                </div>
+
+                                <Button
+                                    onClick={handleSubmit}
+                                    disabled={(!content.trim() && images.length === 0 && attachments.length === 0 && !videoUrl.trim()) || isSubmitting}
+                                    className="rounded-full px-6 font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
+                                >
+                                    {isSubmitting ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        SOMALI_UI_TEXT.createPost
+                                    )}
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </div>
