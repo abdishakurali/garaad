@@ -404,28 +404,29 @@ export default function CommunityPage() {
                                 </p>
                             </div>
                         </div>
+                    </>
                 )}
-                    </div>
-                <UserProfileModal
-                    isOpen={isProfileModalOpen}
-                    onClose={() => setIsProfileModalOpen(false)}
-                    userId={selectedUserId}
-                />
-                <ReferralModal
-                    isOpen={isReferralModalOpen}
-                    onClose={() => setIsReferralModalOpen(false)}
-                />
-                <Dialog open={isPushSettingsOpen} onOpenChange={setIsPushSettingsOpen}>
-                    <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none">
-                        <DialogHeader className="sr-only">
-                            <DialogTitle>Ogeysiisyada Push</DialogTitle>
-                            <DialogDescription>
-                                Halkaan kaga bixi ama ku xir ogeysiisyada push.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <PushNotificationSettings />
-                    </DialogContent>
-                </Dialog>
             </div>
-            );
+            <UserProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                userId={selectedUserId}
+            />
+            <ReferralModal
+                isOpen={isReferralModalOpen}
+                onClose={() => setIsReferralModalOpen(false)}
+            />
+            <Dialog open={isPushSettingsOpen} onOpenChange={setIsPushSettingsOpen}>
+                <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Ogeysiisyada Push</DialogTitle>
+                        <DialogDescription>
+                            Halkaan kaga bixi ama ku xir ogeysiisyada push.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <PushNotificationSettings />
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
 }

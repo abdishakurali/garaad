@@ -19,50 +19,50 @@ interface Era {
 const eras: Era[] = [
     {
         number: 1,
-        title: "The Self-Taught Rebel",
-        subtitle: "The Awakening",
+        title: "The Self-Taught Rebel | Is-barid",
+        subtitle: "The Awakening | Toosniin",
         location: "Mogadishu, Somalia",
         period: "2019–2020",
         age: "Age 16–17",
-        body: "At 16, broke and frustrated with outdated curriculum, I taught myself modern programming using YouTube and free resources — no mentors, no money, just hunger and grit.",
-        quote: "Real learning happens outside the classroom. I built the future while others stuck to old textbooks.",
-        tags: ["Self-taught", "University dropout", "Modern stack"],
+        body: "Markii aan ahaa 16 jir, anigoo dareemaya niyad jab waxbarashadii hore, waxaan iskii u bartay programming-ka casriga ah anigoo isticmaalaya YouTube iyo kheyraad bilaash ah.",
+        quote: "Barashada dhabta ah waxay ka dhacdaa bannaanka fasalka. I built the future while others stuck to old textbooks.",
+        tags: ["Self-taught", "Dropout", "Grit"],
         image: "/images/garaad.jpg",
     },
     {
         number: 2,
-        title: "The Freelancer",
-        subtitle: "The Hustle",
+        title: "The Freelancer | Shaqo Madax-banaan",
+        subtitle: "The Hustle | Dadaal",
         location: "Mogadishu, Somalia",
         period: "2020–2021",
         age: "Age 17–18",
-        body: "Started freelancing on Upwork and Fiverr, building websites and apps for clients worldwide. Learned pricing, client relations, and project delivery.",
-        quote: "Experience beats theory. Every project taught me more than any textbook.",
-        tags: ["Freelancer", "Client projects", "Business skills"],
+        body: "Waxaan bilaabay freelancing ka Upwork iyo Fiverr, anigoo u dhisaya websites iyo apps macaamiil caalami ah. Waxaan bartay qiimeynta, xiriirka macaamiisha, iyo bixinta mashaariicda.",
+        quote: "Waaya-aragnimada ayaa ka muhiimsan aragtida (theory). Every project taught me more.",
+        tags: ["Freelancer", "Global Clients", "Business"],
         image: "/images/freelancer.png",
     },
     {
         number: 3,
-        title: "The European Builder",
+        title: "The European Builder | Dhisaha Caalamiga",
         subtitle: "The Global Player",
         location: "Nairobi → Europe",
         period: "2022–2023",
         age: "Age 19–20",
-        body: "Landed remote jobs with European companies, building SaaS products for thousands of users. Learned advanced tech and global collaboration.",
-        quote: "The internet opens global markets. Don't limit yourself locally.",
-        tags: ["SaaS", "Remote work", "Global market"],
+        body: "Waxaan helay shaqooyin remote ah oo aan la shaqeynayay shirkado Yurub ah, anigoo u dhisaya alaabada SaaS kumanaan isticmaalayaal ah.",
+        quote: "Internet-ku wuxuu furaa suuqyo caalami ah. Ha isku xirin deegaankaaga kaliya.",
+        tags: ["SaaS", "Remote Work", "Scale"],
         image: "/images/builder.png",
     },
     {
         number: 4,
-        title: "The Visionary",
+        title: "The Visionary | Aragtida Fog",
         subtitle: "The Empire Builder",
         location: "Europe",
         period: "2023–2024",
         age: "Age 20–21",
-        body: "Now running multiple SaaS companies and empowering Somali youth. Focused on edtech and community impact.",
-        quote: "Success is about lifting communities and creating lasting impact.",
-        tags: ["SaaS empire", "Education tech", "Community impact"],
+        body: "Hadda waxaan maamulaa shirkado badan oo SaaS ah waxaanan dhiirigelinayaa dhalinyarada Soomaaliyeed. Focused on edtech and community impact.",
+        quote: "Guushu waa inaad kor u qaaddaa bulshadaada oo aad abuurtaa saameyn waara.",
+        tags: ["Founder", "EdTech", "Impact"],
         image: "/images/last.png",
     },
 ];
@@ -78,7 +78,7 @@ export function OurStorySection() {
                 <div className="text-center mb-16 md:mb-24">
                     <div className="inline-block px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
                         <span className="text-sm font-bold text-primary uppercase tracking-wider">
-                            Our Story
+                            Qisadeena | Our Story
                         </span>
                     </div>
                     <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
@@ -87,11 +87,10 @@ export function OurStorySection() {
                             Mogadishu Hustler
                         </span>
                         <br />
-                        to SaaS Builder in Europe
+                        to SaaS Builder 🚀
                     </h2>
                     <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
-                        The real journey of a Somali Gen Z who went from broke CS student to
-                        building profitable SaaS companies—and now teaching others.
+                        Safarkii dhabta ahaa ee dhalinyaro Soomaaliyeed oo ka soo bilowday eber ilaa ay ka dhisayaan shirkado SaaS oo faa'iido leh—haddana ku baraya adiga.
                     </p>
                 </div>
 
@@ -117,12 +116,12 @@ export function OurStorySection() {
                                 <div className={`w-full md:w-[calc(50%-3rem)] ${index % 2 === 0 ? "md:text-right" : "md:text-left"}`}>
                                     <div className="group relative p-8 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
                                         {/* Image */}
-                                        <div className="relative w-full aspect-video mb-6 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700">
+                                        <div className="relative w-full aspect-video mb-6 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50">
                                             <Image
                                                 src={era.image}
                                                 alt={era.title}
                                                 fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                className="object-contain group-hover:scale-105 transition-transform duration-500"
                                                 sizes="(max-width: 768px) 100vw, 50vw"
                                             />
                                         </div>

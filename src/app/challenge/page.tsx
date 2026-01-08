@@ -9,9 +9,9 @@ import { WhatsAppFloat } from "@/components/landing/WhatsAppFloat";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "5-Week Tech Challenge | Launch Your First SaaS - Garaad",
+    title: "5-Week Tech Challenge | Bilow SaaS-kaaga Koowaad - Garaad",
     description:
-        "Join the 5-Week Tech Challenge and build your first profitable SaaS business. From idea to paying customers—learn modern web development, AI integration, and business skills. Perfect for Somali youth and aspiring entrepreneurs worldwide.",
+        "Ka qaybgal tartanka 5-ta toddobaad oo dhis meheraddaada SaaS ee ugu horreysa. Join the 5-Week Tech Challenge and build your first profitable SaaS business. From idea to paying customers.",
     keywords: [
         "SaaS builder",
         "5-week challenge",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "5-Week Tech Challenge | Launch Your First SaaS",
         description:
-            "Build and launch your first AI-powered SaaS business in just 5 weeks. Join bold Somali builders turning ideas into income.",
+            "Dhis oo bilow meheraddaada SaaS ee ugu horreysa 5 toddobaad gudahood. Build and launch your first AI-powered SaaS business in just 5 weeks.",
         type: "website",
         locale: "en_US",
         url: "https://garaad.org/challenge",
@@ -44,9 +44,9 @@ export default function ChallengePage() {
                     __html: JSON.stringify({
                         "@context": "https://schema.org",
                         "@type": "Course",
-                        name: "5-Week Tech Challenge",
+                        name: "5-Week Tech Challenge | Tartanka Tech-ga",
                         description:
-                            "Build and launch your first AI-powered SaaS business in 5 weeks. From idea validation to paying customers.",
+                            "Dhis oo bilow meheraddaada SaaS ee ugu horreysa 5 toddobaad gudahood. Build and launch your first AI-powered SaaS business in 5 weeks.",
                         provider: {
                             "@type": "Organization",
                             name: "Garaad",
@@ -54,7 +54,7 @@ export default function ChallengePage() {
                         },
                         educationalLevel: "Beginner to Intermediate",
                         timeRequired: "P5W",
-                        inLanguage: "en",
+                        inLanguage: ["so", "en"],
                         coursePrerequisites: "Basic computer skills and willingness to learn",
                         hasCourseInstance: {
                             "@type": "CourseInstance",

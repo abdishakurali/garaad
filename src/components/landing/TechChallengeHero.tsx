@@ -73,13 +73,13 @@ export function TechChallengeHero() {
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm mb-8 animate-fade-in">
                     <Sparkles className="w-4 h-4 text-primary" />
                     <span className="text-sm font-bold text-primary uppercase tracking-wider">
-                        5-Week Tech Challenge
+                        5-Week Tech Challenge | Tartanka Tech-ga
                     </span>
                 </div>
 
                 {/* Main Headline */}
                 <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up">
-                    <span className="text-white">Launch Your First</span>
+                    <span className="text-white">Bilow SaaS-kaaga</span>
                     <br />
                     <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent">
                         Online Business
@@ -90,18 +90,18 @@ export function TechChallengeHero() {
 
                 {/* Sub-headline */}
                 <p className="text-lg sm:text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto mb-12 leading-relaxed animate-fade-in-up delay-200">
-                    Ready to turn your ideas into income? We give you clear steps, expert
-                    guidance, and a proven plan to build a profitable SaaS business from
-                    scratch—<span className="text-white font-semibold">no fluff, no delays</span>.
+                    Ma diyaar u tahay inaad fikradahaaga u beddesho dakhli adigoo dhisaya SaaS?
+                    We give you clear steps, expert guidance, and a proven plan—
+                    <span className="text-white font-semibold">tallaabo tallaabo ah (step-by-step)</span>.
                 </p>
 
                 {/* Countdown Timer */}
                 <div className="flex items-center justify-center gap-4 sm:gap-6 mb-12 animate-fade-in-up delay-300">
                     {[
-                        { label: "Weeks", value: timeLeft.weeks },
-                        { label: "Days", value: timeLeft.days },
-                        { label: "Hours", value: timeLeft.hours },
-                        { label: "Minutes", value: timeLeft.minutes },
+                        { label: "Toddobaad", labelEn: "Weeks", value: timeLeft.weeks },
+                        { label: "Maalmood", labelEn: "Days", value: timeLeft.days },
+                        { label: "Saacadood", labelEn: "Hours", value: timeLeft.hours },
+                        { label: "Daqiiqado", labelEn: "Minutes", value: timeLeft.minutes },
                     ].map((item, index) => (
                         <div
                             key={item.label}
@@ -110,8 +110,10 @@ export function TechChallengeHero() {
                             <div className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-1">
                                 {String(item.value).padStart(2, "0")}
                             </div>
-                            <div className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">
+                            <div className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider text-center">
                                 {item.label}
+                                <br />
+                                <span className="text-[8px] opacity-70">{item.labelEn}</span>
                             </div>
                         </div>
                     ))}
@@ -123,14 +125,14 @@ export function TechChallengeHero() {
                         onClick={handlePrimaryCTA}
                         className="group relative px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50 flex items-center gap-2"
                     >
-                        <span>Start My Business</span>
+                        <span>Ku Biir Hadda (Join Today)</span>
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
                     <button
                         onClick={handleSecondaryCTA}
                         className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 transition-all duration-300 hover:scale-105"
                     >
-                        Discover How
+                        Sidee u Shaqaynayaa?
                     </button>
                 </div>
 
@@ -146,7 +148,7 @@ export function TechChallengeHero() {
                             ))}
                         </div>
                         <span className="text-sm font-medium">
-                            <span className="text-white font-bold">500+</span> builders joined
+                            <span className="text-white font-bold">500+</span> builders joined | builders ku biiray
                         </span>
                     </div>
                     <div className="hidden sm:block w-px h-6 bg-slate-700" />

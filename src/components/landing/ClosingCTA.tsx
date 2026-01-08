@@ -36,16 +36,17 @@ export function ClosingCTA() {
                 </div>
 
                 {/* Headline */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 text-white">
-                    Ready to{" "}
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 text-white text-center">
+                    Ma diyaar u tahay inaad gasho{" "}
+                    <br className="hidden md:block" />
                     <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                        Lead?
+                        Maqaamka? (Lead)
                     </span>
                 </h2>
 
                 {/* Body */}
                 <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-12 leading-relaxed">
-                    Join bold Somali builders turning AI into real online income.
+                    Ku biir dhalinyarada Soomaaliyeed ee dhisaya mustaqbalka AI. 🚀
                 </p>
 
                 {/* Stats */}
@@ -54,8 +55,8 @@ export function ClosingCTA() {
                         <div className="text-4xl md:text-5xl font-black text-white mb-2">
                             500+
                         </div>
-                        <div className="text-sm text-slate-400 uppercase tracking-wider font-bold">
-                            Active Builders
+                        <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-bold">
+                            Builders Tartamay
                         </div>
                     </div>
                     <div className="hidden sm:block w-px h-16 bg-slate-700" />
@@ -63,8 +64,8 @@ export function ClosingCTA() {
                         <div className="text-4xl md:text-5xl font-black text-white mb-2">
                             $50K+
                         </div>
-                        <div className="text-sm text-slate-400 uppercase tracking-wider font-bold">
-                            Revenue Generated
+                        <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-bold">
+                            Dakhli la Abuuray
                         </div>
                     </div>
                     <div className="hidden sm:block w-px h-16 bg-slate-700" />
@@ -72,8 +73,8 @@ export function ClosingCTA() {
                         <div className="text-4xl md:text-5xl font-black text-white mb-2">
                             5 Weeks
                         </div>
-                        <div className="text-sm text-slate-400 uppercase tracking-wider font-bold">
-                            To Your First SaaS
+                        <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-bold">
+                            Ilaa SaaS-kaaga
                         </div>
                     </div>
                 </div>
@@ -84,7 +85,7 @@ export function ClosingCTA() {
                     className="group relative inline-flex items-center gap-3 px-10 py-5 bg-primary hover:bg-primary/90 text-white text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50"
                 >
                     <Sparkles className="w-6 h-6" />
-                    <span>Launch Your SaaS Journey</span>
+                    <span>Bilow Safarkaaga (Start Journey)</span>
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                 </button>
 
@@ -94,19 +95,19 @@ export function ClosingCTA() {
                         <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        <span>No credit card required</span>
+                        <span>Bilaash ku bilow</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        <span>Start immediately</span>
+                        <span>Is-diiwaangelin degdeg ah</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        <span>Lifetime access</span>
+                        <span>Access nolol-ka-nolol ah</span>
                     </div>
                 </div>
             </div>

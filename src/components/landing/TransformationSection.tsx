@@ -131,7 +131,7 @@ export function TransformationSection() {
                 <div className="text-center mb-16">
                     <div className="inline-block px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
                         <span className="text-sm font-bold text-primary uppercase tracking-wider">
-                            Your Mission
+                            Hadafkaaga | Your Mission
                         </span>
                     </div>
                     <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
@@ -139,6 +139,8 @@ export function TransformationSection() {
                         <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
                             5-Week Transformation
                         </span>
+                        <br />
+                        <span className="text-2xl md:text-3xl">(Isbeddelka 5-ta Toddobaad)</span>
                     </h2>
                     <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
                         Build and Launch Your First AI-Powered SaaS — From Idea to Paying Customers
@@ -152,11 +154,11 @@ export function TransformationSection() {
                             key={week.number}
                             onClick={() => setSelectedWeek(index)}
                             className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 ${selectedWeek === index
-                                    ? "bg-primary text-white shadow-lg shadow-primary/30 scale-105"
-                                    : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                ? "bg-primary text-white shadow-lg shadow-primary/30 scale-105"
+                                : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                                 }`}
                         >
-                            Week {week.number}
+                            Toddobaadka {week.number}
                         </button>
                     ))}
                 </div>
@@ -198,7 +200,7 @@ export function TransformationSection() {
                                 <Target className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                                 <div>
                                     <h4 className="font-bold text-lg mb-2 text-slate-900 dark:text-white">
-                                        Your Weekly Win
+                                        Guusha Toddobaadka (Weekly Win)
                                     </h4>
                                     <p className="text-slate-700 dark:text-slate-300 text-lg">
                                         {currentWeek.win}
@@ -211,7 +213,7 @@ export function TransformationSection() {
                         <div className="mb-8">
                             <h4 className="font-bold text-lg mb-4 text-slate-900 dark:text-white flex items-center gap-2">
                                 <Zap className="w-5 h-5 text-primary" />
-                                What You'll Master
+                                Maxaad Baran doontaa? (Skills)
                             </h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {currentWeek.skills.map((skill, index) => (
@@ -232,7 +234,7 @@ export function TransformationSection() {
                         <div>
                             <h4 className="font-bold text-lg mb-4 text-slate-900 dark:text-white flex items-center gap-2">
                                 <ArrowRight className="w-5 h-5 text-primary" />
-                                Your Weekly Action Plan
+                                Qorsha Hawleedka (Action Plan)
                             </h4>
                             <div className="space-y-3">
                                 {currentWeek.actions.map((action, index) => (
@@ -260,8 +262,8 @@ export function TransformationSection() {
                             <div
                                 key={index}
                                 className={`h-2 rounded-full transition-all duration-300 ${index === selectedWeek
-                                        ? "w-12 bg-primary"
-                                        : "w-2 bg-slate-300 dark:bg-slate-700"
+                                    ? "w-12 bg-primary"
+                                    : "w-2 bg-slate-300 dark:bg-slate-700"
                                     }`}
                             />
                         ))}
