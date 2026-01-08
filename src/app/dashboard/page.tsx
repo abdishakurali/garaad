@@ -2,86 +2,57 @@
 
 import React, { useState, useEffect } from "react";
 import { ProgressCard } from "@/components/progress/ProgressCard";
-import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { PracticeSet } from "@/components/practice/PracticeSet";
-import ActivityTracker from "@/components/ActivityTracker";
 import { progressService } from "@/services/progress";
 import { practiceService } from "@/services/practice";
 import type {
   UserProgress,
-  UserReward,
-  LeaderboardEntry,
-  UserRank,
 } from "@/services/progress";
 import type { PracticeSet as PracticeSetType } from "@/services/practice";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 export default function DashboardPage() {
   const [progress, setProgress] = useState<UserProgress[]>([]);
-  const [rewards, setRewards] = useState<UserReward[]>([]);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [userRank, setUserRank] = useState<UserRank>({
-    rank: 0,
-    points: 0,
-    entries_above: [],
-    entries_below: [],
-    user_info: {
-      email: "",
-      first_name: "",
-      last_name: "",
-      stats: {
-        total_points: 0,
-        completed_lessons: 0,
-        enrolled_courses: 0,
-        current_streak: 0,
-        badges_count: 0,
-      },
-      badges: [],
-    },
-  });
   const [practiceSets, setPracticeSets] = useState<PracticeSetType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [
-        progressData,
-        rewardsData,
-        leaderboardData,
-        userRankData,
-        practiceSetsData,
-      ] = await Promise.all([
-        progressService.getUserProgress(),
-        progressService.getUserRewards(),
-        progressService.getLeaderboard(),
-        progressService.getUserRank(),
-        practiceService.getPracticeSets(),
-      ]);
+      try {
+        setIsLoading(true);
+        const [
+          progressData,
+          practiceSetsData,
+        ] = await Promise.all([
+          progressService.getUserProgress(),
+          practiceService.getPracticeSets(),
+        ]);
 
-      setProgress(progressData);
-      setRewards(rewardsData);
-      setLeaderboard(leaderboardData);
-      setUserRank(userRankData);
-      setPracticeSets(practiceSetsData);
+        setProgress(progressData);
+        setPracticeSets(practiceSetsData);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Boorka Shaqada</h1>
 
       <div className="grid gap-8">
-        {/* Activity Tracker */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <ActivityTracker showDetails={true} />
-        </div>
-
-        <ProgressCard progress={progress} rewards={rewards} />
-        <Leaderboard leaderboard={leaderboard} userRank={userRank} />
-
-
+        <ProgressCard progress={progress} />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {practiceSets.map((practiceSet) => (

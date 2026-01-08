@@ -20,16 +20,32 @@ import { PostList } from '@/components/community/PostList';
 import { InlinePostInput } from '@/components/community/InlinePostInput';
 import { UserProfileModal } from '@/components/community/UserProfileModal';
 import { NotificationDropdown } from '@/components/community/NotificationCenter';
-import { AlertCircle, Menu, Bell, GraduationCap } from 'lucide-react';
+import { AlertCircle, Menu, Bell, GraduationCap, Settings2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { SOMALI_UI_TEXT, getUserDisplayName } from '@/types/community';
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription
+} from "@/components/ui/sheet";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription
+} from "@/components/ui/dialog";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
+import PushNotificationSettings from '@/components/PushNotificationSettings';
+import { AuthService } from '@/services/auth';
 
 export default function CommunityPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -52,6 +68,7 @@ export default function CommunityPage() {
     const [pendingScrollPostId, setPendingScrollPostId] = useState<string | null>(null);
     const [pendingScrollReplyId, setPendingScrollReplyId] = useState<string | null>(null);
     const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+    const [isPushSettingsOpen, setIsPushSettingsOpen] = useState(false);
 
     // Logic for handling notification click
     const handleNotificationClick = (notification: any) => {
@@ -111,6 +128,17 @@ export default function CommunityPage() {
         }
     }, [isAuthenticated, router]);
 
+
+    // Proactively ensure token is valid on mount
+    useEffect(() => {
+        const checkAuth = async () => {
+            if (isAuthenticated) {
+                const authService = AuthService.getInstance();
+                await authService.ensureValidToken();
+            }
+        };
+        checkAuth();
+    }, [isAuthenticated]);
 
     // Initialize data (fetch once)
     useEffect(() => {
@@ -219,6 +247,60 @@ export default function CommunityPage() {
             )}
         </div>
     );
+    const actionIcons = (
+        <div className="flex items-center gap-2">
+            {/* Referral Icon */}
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsReferralModalOpen(true)}
+                className="rounded-full w-8 h-8 lg:w-10 lg:h-10 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all active:scale-90"
+                title="Share the Opportunity"
+            >
+                <GraduationCap className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+            </Button>
+
+            {/* Notification Bell */}
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="relative rounded-full w-8 h-8 lg:w-10 lg:h-10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                    >
+                        <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-gray-500 dark:text-gray-400" />
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] lg:text-xs rounded-full w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center font-bold">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0" align="end">
+                    <NotificationDropdown
+                        notifications={notifications}
+                        unreadCount={unreadCount}
+                        onMarkAsRead={(id) => dispatch(markNotificationRead(id))}
+                        onMarkAllAsRead={() => dispatch(markAllNotificationsAsRead())}
+                        onNotificationClick={handleNotificationClick}
+                    />
+                </PopoverContent>
+            </Popover>
+
+            <ThemeToggle />
+
+            {/* Push Notification Settings */}
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsPushSettingsOpen(true)}
+                className="rounded-full w-8 h-8 lg:w-10 lg:h-10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                title="Ogeysiisyada Push"
+            >
+                <Settings2 className="h-4 w-4 lg:h-5 lg:w-5 text-gray-500 dark:text-gray-400" />
+            </Button>
+        </div>
+    );
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
@@ -267,6 +349,7 @@ export default function CommunityPage() {
                             {SOMALI_UI_TEXT.community}
                         </h1>
                     </div>
+                    {actionIcons}
                 </div>
 
                 {selectedCategory ? (
@@ -282,48 +365,7 @@ export default function CommunityPage() {
                                     </p>
                                 </div>
                             </div>
-
-                            <div className="flex items-center gap-2">
-                                {/* Referral Icon */}
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => setIsReferralModalOpen(true)}
-                                    className="rounded-full w-10 h-10 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all active:scale-90"
-                                    title="Share the Opportunity"
-                                >
-                                    <GraduationCap className="h-5 w-5 text-primary" />
-                                </Button>
-
-                                {/* Notification Bell */}
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="relative rounded-full w-10 h-10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
-                                        >
-                                            <Bell className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                                            {unreadCount > 0 && (
-                                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                                </span>
-                                            )}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80 p-0" align="end">
-                                        <NotificationDropdown
-                                            notifications={notifications}
-                                            unreadCount={unreadCount}
-                                            onMarkAsRead={(id) => dispatch(markNotificationRead(id))}
-                                            onMarkAllAsRead={() => dispatch(markAllNotificationsAsRead())}
-                                            onNotificationClick={handleNotificationClick}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-
-                                <ThemeToggle />
-                            </div>
+                            {actionIcons}
                         </div>
 
                         {/* Posts */}
@@ -345,28 +387,45 @@ export default function CommunityPage() {
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex items-center justify-center p-6 text-center">
-                        <div className="max-w-md">
-                            <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
-                                <AlertCircle className="h-8 w-8 text-gray-400" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-2 dark:text-white">Dooro Qaybta</h3>
-                            <p className="text-gray-500 dark:text-gray-400">
-                                Dooro mid ka mid ah qaybaha si aad u aragto qoraallada bulshada.
-                            </p>
+                    <>
+                        {/* Header for No Category Selected */}
+                        <div className="hidden lg:flex h-20 px-8 items-center justify-between border-b border-gray-100 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-md z-10 sticky top-0">
+                            <h2 className="text-xl font-black dark:text-white truncate tracking-tight">{SOMALI_UI_TEXT.community}</h2>
+                            {actionIcons}
                         </div>
-                    </div>
+                        <div className="flex-1 flex items-center justify-center p-6 text-center">
+                            <div className="max-w-md">
+                                <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                                    <AlertCircle className="h-8 w-8 text-gray-400" />
+                                </div>
+                                <h3 className="text-xl font-bold mb-2 dark:text-white">Dooro Qaybta</h3>
+                                <p className="text-gray-500 dark:text-gray-400">
+                                    Dooro mid ka mid ah qaybaha si aad u aragto qoraallada bulshada.
+                                </p>
+                            </div>
+                        </div>
                 )}
+                    </div>
+                <UserProfileModal
+                    isOpen={isProfileModalOpen}
+                    onClose={() => setIsProfileModalOpen(false)}
+                    userId={selectedUserId}
+                />
+                <ReferralModal
+                    isOpen={isReferralModalOpen}
+                    onClose={() => setIsReferralModalOpen(false)}
+                />
+                <Dialog open={isPushSettingsOpen} onOpenChange={setIsPushSettingsOpen}>
+                    <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none">
+                        <DialogHeader className="sr-only">
+                            <DialogTitle>Ogeysiisyada Push</DialogTitle>
+                            <DialogDescription>
+                                Halkaan kaga bixi ama ku xir ogeysiisyada push.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <PushNotificationSettings />
+                    </DialogContent>
+                </Dialog>
             </div>
-            <UserProfileModal
-                isOpen={isProfileModalOpen}
-                onClose={() => setIsProfileModalOpen(false)}
-                userId={selectedUserId}
-            />
-            <ReferralModal
-                isOpen={isReferralModalOpen}
-                onClose={() => setIsReferralModalOpen(false)}
-            />
-        </div>
-    );
+            );
 }

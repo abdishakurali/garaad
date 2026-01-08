@@ -1,10 +1,4 @@
-export type UserIdentity = "explorer" | "builder" | "solver" | "mentor";
 
-export interface NextAction {
-  title: string;
-  action_type: string;
-  priority: "normal" | "high" | "low";
-}
 
 export interface User {
   id: string;
@@ -27,11 +21,6 @@ export interface User {
     theme: string;
     notifications: boolean;
   };
-  stats?: {
-    rank: number;
-    points: number;
-    completed: number;
-  };
   name?: string;
   avatar?: string;
   role?: string;
@@ -43,8 +32,6 @@ export interface User {
   referral_count?: number;
   referred_by?: string | null;
   referred_by_username?: string | null;
-  identity?: UserIdentity;
-  next_action?: NextAction;
 }
 
 export interface Profile {

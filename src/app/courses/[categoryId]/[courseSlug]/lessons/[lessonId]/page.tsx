@@ -29,7 +29,6 @@ import VideoBlock from "@/components/lesson/VideoBlock";
 import CalculatorProblemBlock from "@/components/lesson/CalculatorProblemBlock";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { cn } from "@/lib/utils";
-import RewardSequence from "@/components/Reward";
 import { API_BASE_URL } from "@/lib/constants";
 
 interface ProblemData {
@@ -48,8 +47,6 @@ interface ProblemData {
         format?: string;
         type?: string;
     };
-    xp?: number;
-    xp_value?: number;
 }
 
 interface ProblemOptions {
@@ -59,53 +56,9 @@ interface ProblemOptions {
     };
 }
 
-interface DailyActivity {
-    date: string;
-    day: string;
-    status: "complete" | "none";
-    problems_solved: number;
-    lesson_ids: number[];
-    isToday: boolean;
-}
-
-interface StreakData {
-    userId: string;
-    username: string;
-    current_streak: number;
-    max_streak: number;
-    lessons_completed: number;
-    problems_to_next_streak: number;
-    energy: {
-        current: number;
-        max: number;
-        next_update: string;
-    };
-    dailyActivity: DailyActivity[];
-    xp: number;
-    daily_xp: number;
-}
-
 interface User {
     id: number;
     name: string;
-}
-
-interface Standing {
-    rank: number;
-    user: User;
-    points: number;
-    streak: number;
-}
-
-interface LeaderboardData {
-    time_period: string;
-    league: string;
-    standings: Standing[];
-    my_standing: {
-        rank: number;
-        points: number;
-        streak: number;
-    };
 }
 
 // SWR fetchers
@@ -134,48 +87,6 @@ const authFetcher = async <T = unknown>(
             "Content-Type": "application/json",
         },
         body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-        // Handle 401 Unauthorized error
-        if (response.status === 401) {
-            console.log("401 Unauthorized - clearing session and redirecting to home");
-
-            // Clear all cookies and localStorage
-            authService.logout();
-
-            // Clear localStorage
-            if (typeof window !== 'undefined') {
-                localStorage.clear();
-            }
-
-            // Redirect to home page
-            if (typeof window !== 'undefined') {
-                window.location.href = '/';
-            }
-
-            throw new Error("Session expired. Please log in again.");
-        }
-
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-};
-
-const streakFetcher = async <T = unknown>(url: string): Promise<T> => {
-    const authService = AuthService.getInstance();
-    const token = authService.getToken();
-
-    if (!token) {
-        throw new Error("No authentication token available");
-    }
-
-    const response = await fetch(url, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-        },
     });
 
     if (!response.ok) {
@@ -275,10 +186,8 @@ const ErrorCard = ({
 // Lesson Completion Animation Component
 const LessonCompletionAnimation = ({
     onComplete,
-    totalXp,
 }: {
     onComplete: () => void;
-    totalXp: number;
 }) => {
     const [stage, setStage] = useState(0);
 
@@ -342,22 +251,6 @@ const LessonCompletionAnimation = ({
                     </h2>
                 </div>
 
-                {/* XP display */}
-                <div
-                    className={cn(
-                        "transition-all duration-500 ease-out",
-                        stage >= 2 ? "scale-100 opacity-100" : "scale-90 opacity-0"
-                    )}
-                >
-                    <p className="text-sm text-gray-500 uppercase tracking-wide mb-2">
-                        Dhibcaha Guud
-                    </p>
-                    <div className="flex items-center justify-center space-x-2">
-                        <span className="text-4xl font-bold text-gray-800">{totalXp}</span>
-                        <Sparkles className="w-6 h-6 text-green-500" />
-                    </div>
-                </div>
-
                 {/* Continue button */}
                 <div
                     className={cn(
@@ -386,7 +279,6 @@ const LessonPage = () => {
 
     // Local state
     const [showCompletionAnimation, setShowCompletionAnimation] = useState(false);
-    const [showRewards, setShowRewards] = useState(false);
     const [problemLoading, setProblemLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isCorrect, setIsCorrect] = useState(false);
@@ -408,9 +300,6 @@ const LessonPage = () => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
 
-    const [leagueId, setLeagueId] = useState<number>();
-    const [xp, setXp] = useState<number>();
-    const [totalXp, setTotalXp] = useState<number>();
     const [hasPlayedStartSound, setHasPlayedStartSound] = useState(false);
 
     const { playSound } = useSoundManager();
@@ -446,73 +335,6 @@ const LessonPage = () => {
             dedupingInterval: 300000,
         }
     );
-
-    const {
-        data: streakData,
-        isLoading: isStreakLoading,
-        mutate: refreshStreakData,
-    } = useSWR<StreakData>(
-        `${API_BASE_URL}/api/streaks/`,
-        streakFetcher,
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: true,
-            dedupingInterval: 300000,
-            errorRetryCount: 3,
-            errorRetryInterval: 5000,
-        }
-    );
-
-    const {
-        isLoading: isLeagueLoading,
-        mutate: refreshLeagueData,
-    } = useSWR<LeaderboardData>(
-        `${API_BASE_URL}/api/league/leagues/status/`,
-        streakFetcher,
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: true,
-            dedupingInterval: 300000,
-            errorRetryCount: 3,
-            errorRetryInterval: 5000,
-            onSuccess: () => {
-                setLeagueId(Number(1));
-            },
-        }
-    );
-
-    const {
-        data: leagueLeaderboard,
-        isLoading: isLeaderboardLoading,
-        mutate: refreshLeaderboardData,
-    } = useSWR<LeaderboardData>(
-        `${API_BASE_URL}/api/league/leagues/leaderboard/?time_period=weekly&league=${leagueId ?? 1
-        }`,
-        streakFetcher,
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: true,
-            dedupingInterval: 300000,
-            errorRetryCount: 3,
-            errorRetryInterval: 5000,
-        }
-    );
-
-    // Simulate loading progress
-    useEffect(() => {
-        if (isStreakLoading || isLeagueLoading || isLeaderboardLoading) {
-            const interval = setInterval(() => {
-                // setLoadingProgress((prev) => {
-                //   if (prev >= 90) return prev;
-                //   return prev + Math.random() * 10;
-                // });
-            }, 200);
-
-            return () => clearInterval(interval);
-        } else {
-            // setLoadingProgress(100);
-        }
-    }, [isStreakLoading, isLeagueLoading, isLeaderboardLoading]);
 
     // Memoized derived values
     const currentProblem = useMemo(() => {
@@ -606,7 +428,7 @@ const LessonPage = () => {
                 responses.map((r) => r.json() as Promise<ProblemData>)
             );
 
-            const transformed: ProblemContent[] = datas.map((pd: ProblemData & { xp?: number }) => ({
+            const transformed: ProblemContent[] = datas.map((pd: ProblemData) => ({
                 id: pd.id,
                 question: pd.question_text,
                 which: pd.which,
@@ -628,9 +450,6 @@ const LessonPage = () => {
                     ? (pd.question_type as "code" | "mcq" | "short_input" | "diagram")
                     : undefined,
                 content: pd.content,
-                points: pd.xp,
-                xp: pd.xp,
-                xp_value: pd.xp_value,
             }));
 
             setProblems(transformed);
@@ -768,16 +587,8 @@ const LessonPage = () => {
                         score: isCorrect ? 100 : 0,
                     }
                 );
-
-                // Refresh data
-                await Promise.all([
-                    refreshStreakData(),
-                    refreshLeagueData(),
-                    refreshLeaderboardData(),
-                ]);
             } catch (err) {
                 console.error("Completion error", err);
-                console.error("An error occurred while submitting your progress");
             }
         }
     }, [
@@ -786,15 +597,13 @@ const LessonPage = () => {
         isCorrect,
         playSound,
         sortedBlocks,
-        refreshStreakData,
-        refreshLeagueData,
-        refreshLeaderboardData,
     ]);
 
     const handleCompletionAnimationFinish = useCallback(() => {
         setShowCompletionAnimation(false);
-        setShowRewards(true);
-    }, []);
+        setNavigating(true);
+        router.push(coursePath);
+    }, [router, coursePath]);
 
     useEffect(() => {
         continueRef.current = handleContinue;
@@ -816,12 +625,6 @@ const LessonPage = () => {
         }
     }, [selectedOption, currentProblem, playSound]);
 
-    const handleContinueAfterRewards = useCallback(() => {
-        setShowRewards(false);
-        setNavigating(true);
-        router.push(coursePath);
-    }, [router, coursePath]);
-
     const handleResetAnswer = useCallback(() => {
         dispatch(resetAnswerState());
         setShowFeedback(false);
@@ -840,29 +643,6 @@ const LessonPage = () => {
         if (!block) return null;
 
         const isLastBlock = currentBlockIndex === sortedBlocks.length - 1;
-
-        if (block.block_type === "problem") {
-            const totalPoints = sortedBlocks
-                .filter((b) => b.block_type === "problem")
-                .reduce((sum, block) => {
-                    const points =
-                        typeof block.content === "object" &&
-                            block.content !== null &&
-                            "points" in block.content
-                            ? (block.content as { points?: number }).points || 0
-                            : 0;
-                    return sum + points;
-                }, 0);
-
-            setTotalXp(totalPoints);
-
-            // Get the current problem's XP value
-            const currentProblem = problems.find(p => p.id === block.problem);
-            if (currentProblem) {
-                const experience = currentProblem.xp || currentProblem.xp_value || 0;
-                setXp(experience);
-            }
-        }
 
         switch (block.block_type) {
             case "problem":
@@ -1015,7 +795,7 @@ const LessonPage = () => {
         setCurrentBlock(renderCurrentBlock());
     }, [renderCurrentBlock]);
 
-    // Add this after other useEffect hooks
+    // Fetch course lessons
     useEffect(() => {
         const fetchCourseLessons = async () => {
             if (!courseIdFromSlug) return;
@@ -1028,10 +808,6 @@ const LessonPage = () => {
 
                 const lessons = await response.json();
                 setCourseLessons(lessons);
-
-                // Find current lesson index (for future use if needed)
-                const index = lessons.findIndex((lesson: Lesson) => lesson.id === Number(params.lessonId));
-                console.log('Current lesson index:', index);
             } catch (error) {
                 console.error('Error fetching course lessons:', error);
             }
@@ -1054,33 +830,8 @@ const LessonPage = () => {
         return (
             <LessonCompletionAnimation
                 onComplete={handleCompletionAnimationFinish}
-                totalXp={totalXp ?? 0}
             />
         );
-    }
-
-    // Show rewards after completion
-    if (showRewards) {
-        if (isStreakLoading || isLeagueLoading || isLeaderboardLoading) {
-            return (
-                <LoadingSpinner
-                    message="soo dajinaya abaalmarinaada..."
-                />
-            );
-        }
-
-        if (streakData && leagueLeaderboard) {
-            return (
-                <RewardSequence
-                    onContinue={handleContinueAfterRewards}
-                    streak={streakData}
-                    leaderboard={leagueLeaderboard}
-                    completedLesson={currentLesson.title}
-                />
-            );
-        }
-
-        return null;
     }
 
     // Show navigating state
@@ -1123,7 +874,6 @@ const LessonPage = () => {
                     currentLesson={currentLesson}
                     onResetAnswer={handleResetAnswer}
                     onContinue={handleContinue}
-                    xp={xp ?? 0}
                     explanationData={explanationData}
                 />
             )}

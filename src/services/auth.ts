@@ -45,19 +45,7 @@ export interface OnboardingData {
 export interface DashboardProfile {
   id: number;
   username: string;
-  xp: number;
-  streak: {
-    current: number;
-    max: number;
-    energy: number;
-  };
-  league: {
-    id: number;
-    name: string;
-    min_xp: number;
-  };
   community_profile: {
-    badge_level: string;
     total_posts: number;
   };
   profile_picture: string;
@@ -220,10 +208,10 @@ export class AuthService {
 
     if (this.isTokenExpired(token)) {
       try {
+        console.log("Token expired, refreshing...");
         return await this.refreshAccessToken();
       } catch (error: unknown) {
-        const authError = error as AuthError;
-        console.error("Failed to refresh token:", authError);
+        console.error("Failed to refresh token during ensureValidToken:", error);
         this.logout();
         return null;
       }
@@ -346,7 +334,7 @@ export class AuthService {
 
   public static async refreshAccessToken(): Promise<string> {
     const instance = AuthService.getInstance();
-    return instance._refreshAccessToken();
+    return instance.refreshAccessToken();
   }
 
   public static signOut(): void {
@@ -515,39 +503,52 @@ export class AuthService {
     }
   }
 
-  private async refreshAccessToken() {
+  private async refreshAccessToken(): Promise<string> {
     if (this.isRefreshing) {
-      return new Promise((resolve) => {
-        this.refreshSubscribers.push(resolve);
+      console.log("Refresh already in progress, subscribing to existing promise...");
+      return new Promise((resolve, reject) => {
+        this.refreshSubscribers.push((token) => {
+          if (token) resolve(token);
+          else reject(new Error("Refresh failed"));
+        });
       });
     }
 
+    const refreshToken = this.getCookie("refreshToken");
+    if (!refreshToken) {
+      this.logout();
+      throw new Error("No refresh token available");
+    }
+
     this.isRefreshing = true;
+    console.log("Starting token refresh request...");
 
     try {
-      const refreshToken = this.getCookie("refreshToken");
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
-
+      // The endpoint defined in accounts/urls.py is 'refresh/' 
+      // which is included under 'api/auth/' in garaad/urls.py
       const response = await axios.post(`${this.baseURL}/api/auth/refresh/`, {
         refresh: refreshToken,
       });
 
       const { access } = response.data;
-      this.setCookie("accessToken", access, 1);
+      console.log("Token successfully refreshed");
 
-      // Set up the next refresh
+      this.setCookie("accessToken", access, 1);
+      this.token = access;
+
+      // Set up the next auto-refresh
       this.setupRefreshTimer(access);
 
-      // Notify subscribers
+      // Notify all concurrent subscribers
       this.refreshSubscribers.forEach((callback) => callback(access));
       this.refreshSubscribers = [];
 
       return access;
     } catch (error) {
-      // If refresh fails, log out the user
+      console.error("Token refresh API call failed:", error);
       this.logout();
+      this.refreshSubscribers.forEach((callback) => callback(""));
+      this.refreshSubscribers = [];
       throw error;
     } finally {
       this.isRefreshing = false;
@@ -583,32 +584,7 @@ export class AuthService {
     }
   }
 
-  private async _refreshAccessToken(): Promise<string> {
-    if (!this.refreshToken) {
-      throw new Error("No refresh token available");
-    }
-
-    try {
-      const response = await axios.post(
-        `${this.baseURL}/api/token/refresh/`,
-        { refresh: this.refreshToken },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const newAccessToken = response.data.access;
-      this.setCookie("accessToken", newAccessToken, 1);
-      return newAccessToken;
-    } catch (error) {
-      console.error("Token refresh error:", error);
-      // If refresh fails, clear tokens and force re-authentication
-      this._signOut();
-      throw new Error("Session expired. Please sign in again.");
-    }
-  }
+  // Removed redundant _refreshAccessToken in favor of consolidated refreshAccessToken
 
   initializeAuth() {
     const token = this.getCookie("accessToken");

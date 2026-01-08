@@ -21,7 +21,6 @@ interface AnswerFeedbackProps {
     image: string;
     type: "markdown" | "latex" | string;
   };
-  xp: number;
 }
 
 export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
@@ -31,7 +30,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
     onResetAnswer,
     onContinue,
     explanationData,
-    xp,
   }) => {
     const dispatch = useDispatch();
     const [showExplanation, setShowExplanation] = useState(false);
@@ -133,11 +131,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     </p>
                     <p className="text-xs sm:text-sm">{message}</p>
                   </div>
-                  {isCorrect && (
-                    <div className=" py-2 px-1.5 font-bold text-sm rounded-md bg-[#8ef53f42] flex items-center gap-2">
-                      <Award className="text-green-400" size={17} />+{xp} dhibco
-                    </div>
-                  )}
                 </div>
                 {/* Buttons */}
                 <div className="flex gap-2">

@@ -1,6 +1,5 @@
 "use client";
 
-import { useNotification } from "@/services/gamification";
 import {
   Popover,
   PopoverContent,
@@ -9,13 +8,8 @@ import {
 import {
   Bell,
   X,
-  Flame,
-  Trophy,
-  Target,
-  Zap,
   Heart,
   Clock,
-  Award,
   Users,
   Star,
   BellOff,
@@ -25,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import communityService from "@/services/community";
-import { UserProfile, Notification as CommunityNotification } from "@/types/community";
+import { UserProfile } from "@/types/community";
 import AuthenticatedAvatar from "./ui/authenticated-avatar";
 import { getMediaUrl } from "@/lib/utils";
 import { useSelector, useDispatch } from "react-redux";
@@ -33,65 +27,32 @@ import { RootState, AppDispatch } from "@/store/store";
 import { markNotificationRead, markAllNotificationsAsRead, selectUnreadNotificationCount, fetchNotifications } from "@/store/features/communitySlice";
 import { useRouter } from "next/navigation";
 
-interface Notification {
-  id: number;
-  type:
-  | "streak"
-  | "league"
-  | "milestone"
-  | "energy"
-  | "welcome"
-  | "reminder"
-  | "achievement"
-  | "competition"
-  | "social";
-  title: string;
-  message: string;
-  data: Record<string, unknown>;
-  is_read: boolean;
-  created_at: string;
+interface NotificationType {
+  type: "welcome" | "reminder" | "social";
 }
 
-const getNotificationIcon = (type: Notification["type"]) => {
+const getNotificationIcon = (type: NotificationType["type"]) => {
   const iconMap = {
-    streak: Flame,
-    league: Trophy,
-    milestone: Target,
-    energy: Zap,
     welcome: Heart,
     reminder: Clock,
-    achievement: Award,
-    competition: Users,
     social: Star,
   };
   return iconMap[type] || Bell;
 };
 
-const getNotificationColor = (type: Notification["type"]) => {
+const getNotificationColor = (type: NotificationType["type"]) => {
   const colorMap = {
-    streak: "text-orange-500 bg-orange-50 dark:bg-orange-950",
-    league: "text-yellow-500 bg-yellow-50 dark:bg-yellow-950",
-    milestone: "text-blue-500 bg-blue-50 dark:bg-blue-950",
-    energy: "text-green-500 bg-green-50 dark:bg-green-950",
     welcome: "text-pink-500 bg-pink-50 dark:bg-pink-950",
     reminder: "text-purple-500 bg-purple-50 dark:bg-purple-950",
-    achievement: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950",
-    competition: "text-red-500 bg-red-50 dark:bg-red-950",
     social: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950",
   };
   return colorMap[type];
 };
 
-const getTypeLabel = (type: Notification["type"]) => {
+const getTypeLabel = (type: NotificationType["type"]) => {
   const labelMap = {
-    streak: "Silsilad",
-    league: "Horyaal",
-    milestone: "Yool",
-    energy: "Tamar",
     welcome: "Soo dhawayn",
     reminder: "Xasuusin",
-    achievement: "Guul",
-    competition: "Tartanka",
     social: "Bulshada",
   };
   return labelMap[type];
@@ -119,13 +80,11 @@ const formatTimeAgo = (dateString: string) => {
 export default function NotificationPanel() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const { notification, mutate } = useNotification();
   const isLoading = useSelector((state: RootState) => state.community.loading.notifications);
   const communityNotifications = useSelector((state: RootState) => state.community.notifications);
   const communityUnreadCount = useSelector(selectUnreadNotificationCount);
 
   const [open, setOpen] = useState(false);
-  const [dismissed, setDismissed] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'notifications' | 'users'>('notifications');
   const [enabledUsers, setEnabledUsers] = useState<UserProfile[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -142,7 +101,6 @@ export default function NotificationPanel() {
     }
   };
 
-  // Fetch data on mount for badge accuracy
   useEffect(() => {
     dispatch(fetchNotifications({ reset: true }));
     fetchEnabledUsers();
@@ -151,42 +109,33 @@ export default function NotificationPanel() {
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (newOpen) {
-      // Refresh data when opening to ensure latest
-      mutate(); // gamification
       dispatch(fetchNotifications({ reset: true }));
       fetchEnabledUsers();
     }
   };
 
-  const visibleGamificationNotifications: Notification[] =
-    notification?.filter((n: Notification) => !dismissed.includes(n.id)) || [];
-
-  const gamificationUnreadCount = visibleGamificationNotifications.filter((n) => !n.is_read).length;
-  const communityUnreadCountValue = communityUnreadCount;
-  const totalUnreadCount = gamificationUnreadCount + communityUnreadCountValue;
+  const totalUnreadCount = communityUnreadCount;
 
   // Combine and sort notifications
   const allNotifications = useMemo(() => {
     const combined = [
-      ...visibleGamificationNotifications.map(n => ({ ...n, source: 'gamification' as const })),
-      ...communityNotifications.map(n => ({
-        id: n.id,
-        type: 'social' as const,
-        title: n.title,
-        message: n.message,
-        is_read: n.is_read,
-        created_at: n.created_at,
-        source: 'community' as const,
-        raw: n
-      }))
+      ...communityNotifications
+        // Filter out any invalid notifications without an ID
+        .filter(n => !!n?.id)
+        .map(n => ({
+          id: n.id,
+          type: 'social' as const,
+          title: n.title,
+          message: n.message,
+          is_read: n.is_read,
+          created_at: n.created_at,
+          source: 'community' as const,
+          raw: n
+        }))
     ];
 
     return combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [visibleGamificationNotifications, communityNotifications]);
-
-  const handleDismiss = (id: number) => {
-    setDismissed((prev) => [...prev, id]);
-  };
+  }, [communityNotifications]);
 
   return (
     <div className="relative">
@@ -258,19 +207,21 @@ export default function NotificationPanel() {
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-100 dark:divide-white/5">
-                      {allNotifications.map((notif) => {
-                        const isCommunity = 'source' in notif && notif.source === 'community';
+                      {allNotifications.map((notif, index) => {
+                        const isCommunity = notif.source === 'community';
                         const IconComponent = getNotificationIcon(notif.type);
                         const colorClass = getNotificationColor(notif.type);
 
                         return (
                           <div
-                            key={notif.id}
+                            key={notif.id || `notif-${index}`}
                             className={`p-4 transition-colors hover:bg-muted/50 cursor-pointer relative group ${!notif.is_read ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
                               }`}
                             onClick={() => {
                               if (isCommunity && notif.source === 'community') {
-                                if (!notif.is_read) dispatch(markNotificationRead(notif.id));
+                                if (!notif.is_read && notif.id) {
+                                  dispatch(markNotificationRead(notif.id));
+                                }
                                 setOpen(false);
                                 router.push(`/community?post=${notif.raw.post_id}`);
                               }
@@ -279,10 +230,8 @@ export default function NotificationPanel() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (isCommunity && notif.source === 'community') {
+                                if (isCommunity && notif.source === 'community' && notif.id) {
                                   dispatch(markNotificationRead(notif.id));
-                                } else {
-                                  handleDismiss(Number(notif.id));
                                 }
                               }}
                               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-muted"
@@ -391,7 +340,6 @@ export default function NotificationPanel() {
                   size="sm"
                   className="w-full text-xs font-medium"
                   onClick={() => {
-                    setDismissed(visibleGamificationNotifications.map((n) => n.id));
                     dispatch(markAllNotificationsAsRead());
                   }}
                 >

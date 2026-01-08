@@ -209,11 +209,11 @@ export interface ProblemContent {
   diagram_config?: DiagramConfig | DiagramConfig[];
   diagrams?: DiagramConfig[];
   question_type?:
-    | "code"
-    | "mcq"
-    | "short_input"
-    | "diagram"
-    | "multiple_choice";
+  | "code"
+  | "mcq"
+  | "short_input"
+  | "diagram"
+  | "multiple_choice";
   img?: string;
   alt?: string;
   content: {
@@ -221,9 +221,6 @@ export interface ProblemContent {
     type?: string;
   };
   type?: string;
-  points?: number;
-  xp?: number;
-  xp_value?: number;
 }
 
 export interface Exercise {
@@ -242,7 +239,6 @@ export interface Problem {
   options?: string[];
   correct_answer: string;
   explanation: string;
-  points: number;
   difficulty: "easy" | "medium" | "hard";
   created_at: string;
   hints?: Hint[];

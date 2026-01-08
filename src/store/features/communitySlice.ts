@@ -390,6 +390,9 @@ const communitySlice = createSlice({
       if (post) {
         const { type, isAdding, request_id } = action.payload;
 
+        if (!post.reactions_count) post.reactions_count = {};
+        if (!post.user_reactions) post.user_reactions = [];
+
         if (isAdding) {
           post.reactions_count[type] = (post.reactions_count[type] || 0) + 1;
           if (!post.user_reactions.includes(type)) {
@@ -637,6 +640,11 @@ const communitySlice = createSlice({
 
     // WEBSOCKET: Add new notification in real-time
     addNotification: (state, action: PayloadAction<Notification>) => {
+      // Safety check: ignore notifications without an ID
+      if (!action.payload?.id) {
+        console.warn("Received notification without ID via WebSocket:", action.payload);
+        return;
+      }
       // Check for duplicates
       if (state.notifications.some(n => n.id === action.payload.id)) {
         return;
@@ -969,13 +977,17 @@ const communitySlice = createSlice({
         if (post) {
           const reply = post.replies.find(r => r.id === replyId);
           if (reply) {
+            if (!reply.reactions_count) reply.reactions_count = {};
+            if (!reply.user_reactions) reply.user_reactions = [];
+
             const wasAdding = reply.user_reactions?.includes(type);
             if (wasAdding) {
-              reply.reactions_count[type] = Math.max(0, (reply.reactions_count[type] || 0) - 1);
+              if (reply.reactions_count[type] !== undefined) {
+                reply.reactions_count[type] = Math.max(0, reply.reactions_count[type] - 1);
+              }
               reply.user_reactions = reply.user_reactions.filter(r => r !== type);
             } else {
               reply.reactions_count[type] = (reply.reactions_count[type] || 0) + 1;
-              if (!reply.user_reactions) reply.user_reactions = [];
               reply.user_reactions.push(type);
             }
           }
@@ -1030,7 +1042,14 @@ const communitySlice = createSlice({
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading.notifications = false;
-        const newNotifications = action.payload.data.results || action.payload.data;
+        let newNotifications = action.payload.data.results || action.payload.data;
+
+        // Filter out any notifications without an ID
+        if (Array.isArray(newNotifications)) {
+          newNotifications = newNotifications.filter((n: any) => !!n?.id);
+        } else {
+          newNotifications = [];
+        }
 
         if (action.payload.reset) {
           // Instead of overwriting, merge to preserve notifications added via WebSocket

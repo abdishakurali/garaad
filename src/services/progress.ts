@@ -16,46 +16,6 @@ export interface UserProgress {
   completed_at: string | null;
 }
 
-export interface UserReward {
-  id: number;
-  user: number;
-  reward_type: "points" | "badge" | "streak";
-  reward_name: string;
-  value: number;
-  awarded_at: string;
-}
-
-export interface LeaderboardEntry {
-  id: number;
-  user: number;
-  username: string;
-  streak: number;
-  points: number;
-  time_period: "all_time" | "weekly" | "monthly";
-  last_updated: string;
-  user_info: {
-    email: string;
-    first_name: string;
-    last_name: string;
-    stats: {
-      total_points: number;
-      completed_lessons: number;
-      enrolled_courses: number;
-      current_streak: number;
-      badges_count: number;
-    };
-    badges: UserReward[];
-  };
-}
-
-export interface UserRank {
-  rank: number;
-  points: number;
-  entries_above: Array<{ user__username: string; points: number }>;
-  entries_below: Array<{ user__username: string; points: number }>;
-  user_info: LeaderboardEntry["user_info"];
-}
-
 export const progressService = {
   // User Progress
   async getUserProgress() {
@@ -221,90 +181,6 @@ export const progressService = {
       return (await response.json()) as UserProgress[];
     } catch (error) {
       console.error("Error fetching module progress:", error);
-      throw error;
-    }
-  },
-
-  // User Rewards
-  async getUserRewards() {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
-    try {
-      const response = await fetch(`${baseURL}/api/lms/rewards/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to fetch user rewards");
-      }
-
-      const data = await response.json();
-
-      return data as UserReward[];
-    } catch (error) {
-      console.error("Error fetching user rewards:", error);
-      throw error;
-    }
-  },
-
-  // Leaderboard
-  async getLeaderboard(
-    timePeriod: "all_time" | "weekly" | "monthly" = "all_time"
-  ) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
-    try {
-      const response = await fetch(
-        `${baseURL}/api/lms/leaderboard/?time_period=${timePeriod}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to fetch leaderboard");
-      }
-
-      return (await response.json()) as LeaderboardEntry[];
-    } catch (error) {
-      console.error("Error fetching leaderboard:", error);
-      throw error;
-    }
-  },
-
-  async getUserRank() {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
-    try {
-      const response = await fetch(`${baseURL}/api/lms/leaderboard/my_rank/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to fetch user rank");
-      }
-
-      return (await response.json()) as UserRank;
-    } catch (error) {
-      console.error("Error fetching user rank:", error);
       throw error;
     }
   },

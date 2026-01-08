@@ -7,7 +7,7 @@ const BASE_URL = `${API_BASE_URL}/api/`;
 // Helper function for making authenticated API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const authService = AuthService.getInstance();
-  const token = authService.getToken();
+  const token = await authService.ensureValidToken();
 
   if (!token) {
     throw new Error("Authentication required");

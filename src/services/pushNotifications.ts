@@ -109,10 +109,22 @@ export const subscribeToPushNotifications = async (): Promise<boolean> => {
                 return false;
             }
 
-            subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as any,
-            });
+            console.log('Subscribing with VAPID key:', VAPID_PUBLIC_KEY);
+            try {
+                const convertedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+                console.log('Converted key length:', convertedKey.length);
+
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: convertedKey as any,
+                });
+            } catch (subscribeError: any) {
+                console.error('PushManager.subscribe failed:', subscribeError);
+                if (subscribeError.name === 'AbortError') {
+                    console.error('AbortError details: The registration failed. This can happen if the VAPID key is invalid or the push service is unreachable.');
+                }
+                throw subscribeError;
+            }
 
             console.log('Push subscription created');
         }

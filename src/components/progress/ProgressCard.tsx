@@ -1,9 +1,8 @@
 import React from "react";
-import { UserProgress, UserReward } from "@/services/progress";
+import { UserProgress } from "@/services/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Trophy, Star, Flame, Book, Folder, Layers, FileText } from "lucide-react";
+import { Book, Folder, Layers, FileText } from "lucide-react";
 
 interface LessonProgress {
     id: number;
@@ -36,19 +35,9 @@ interface ProgressHierarchy {
 
 interface ProgressCardProps {
     progress: UserProgress[];
-    rewards: UserReward[];
 }
 
-export const ProgressCard: React.FC<ProgressCardProps> = ({ progress, rewards }) => {
-    const totalPoints = rewards
-        .filter((reward) => reward.reward_type === "points")
-        .reduce((sum, reward) => sum + reward.value, 0);
-
-    const badges = rewards.filter((reward) => reward.reward_type === "badge");
-    const currentStreak = rewards
-        .filter((reward) => reward.reward_type === "streak")
-        .reduce((max, reward) => Math.max(max, reward.value), 0);
-
+export const ProgressCard: React.FC<ProgressCardProps> = ({ progress }) => {
     // Group progress hierarchically
     const progressHierarchy = progress.reduce<ProgressHierarchy>((acc, p) => {
         if (!acc[p.course_title]) {
@@ -96,31 +85,27 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({ progress, rewards })
         return acc;
     }, {});
 
+    if (progress.length === 0) {
+        return (
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Horumarka Af-Garad</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground text-center py-8">
+                        Weli ma jiro horumar la diiwaangeliyey.
+                    </p>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Horumarka Af-Garad</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-                {/* Overall Stats */}
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="flex flex-col items-center space-y-1">
-                        <Trophy className="h-6 w-6 text-yellow-500" />
-                        <span className="text-2xl font-bold">{totalPoints}</span>
-                        <span className="text-sm text-muted-foreground">Dhibco</span>
-                    </div>
-                    <div className="flex flex-col items-center space-y-1">
-                        <Star className="h-6 w-6 text-blue-500" />
-                        <span className="text-2xl font-bold">{badges.length}</span>
-                        <span className="text-sm text-muted-foreground">Bilado</span>
-                    </div>
-                    <div className="flex flex-col items-center space-y-1">
-                        <Flame className="h-6 w-6 text-orange-500" />
-                        <span className="text-2xl font-bold">{currentStreak}</span>
-                        <span className="text-sm text-muted-foreground">Istriigga Maalmaha</span>
-                    </div>
-                </div>
-
                 {/* Hierarchical Progress */}
                 <div className="space-y-6">
                     {Object.entries(progressHierarchy).map(([courseName, courseData]) => (
@@ -196,26 +181,7 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({ progress, rewards })
                         </div>
                     ))}
                 </div>
-
-                {/* Recent Badges */}
-                {badges.length > 0 && (
-                    <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Biladihii u dambeeyay</h3>
-                        <div className="flex flex-wrap gap-2">
-                            {badges.slice(0, 3).map((badge) => (
-                                <Badge
-                                    key={badge.id}
-                                    variant="secondary"
-                                    className="flex items-center gap-1"
-                                >
-                                    <Star className="h-3 w-3" />
-                                    {badge.reward_name}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
-                )}
             </CardContent>
         </Card>
     );
-}; 
+};

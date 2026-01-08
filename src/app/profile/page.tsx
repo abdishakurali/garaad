@@ -290,13 +290,13 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* Community Badge */}
+                {/* Community Stats */}
                 {dashboardProfile?.community_profile && (
-                  <div className="mx-6 mb-6 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-                    <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Heerka Bulshada</div>
-                    <div className="text-lg font-bold flex items-center justify-between">
-                      {dashboardProfile.community_profile.badge_level}
-                      <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-0">
+                  <div className="mx-6 mb-6 p-4 rounded-xl bg-white dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600">
+                    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">Waxqabadka Bulshada</div>
+                    <div className="text-lg font-bold flex items-center justify-between text-gray-900 dark:text-white">
+                      <span>Bulshada Garaad</span>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-0">
                         {dashboardProfile.community_profile.total_posts} qoraal
                       </Badge>
                     </div>

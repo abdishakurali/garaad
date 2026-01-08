@@ -5,17 +5,13 @@ import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/store/features/authSlice";
 import { usePathname, useRouter } from "next/navigation";
-import { FolderDot, Home, X, Users, Menu, User, LogOut, LogIn, Gift, GraduationCap } from "lucide-react";
+import { FolderDot, Home, X, Users, Menu, User, LogOut, LogIn, GraduationCap } from "lucide-react";
 import clsx from "clsx";
-import StreakDisplay from "./StreakDisplay";
 import { useMemo, useCallback, useState, useEffect } from "react";
 import AuthService from "@/services/auth";
-import useSWR from "swr";
 import NotificationPanel from "./Notifications";
 import Logo from "./ui/Logo";
-import { API_BASE_URL } from "@/lib/constants";
 import { ThemeToggle } from "./ThemeToggle";
-import { Button } from "./ui/button";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
 import ReferralModal from "./referrals/ReferralModal";
 
@@ -29,86 +25,12 @@ const AuthDialog = dynamic(
   }
 );
 
-interface DailyActivity {
-  date: string;
-  day: string;
-  status: "complete" | "none";
-  problems_solved: number;
-  lesson_ids: number[];
-  isToday: boolean;
-}
-
-interface StreakData {
-  userId: string;
-  username: string;
-  current_streak: number;
-  max_streak: number;
-  lessons_completed: number;
-  problems_to_next_streak: number;
-  energy: {
-    current: number;
-    max: number;
-    next_update: string;
-  };
-  dailyActivity: DailyActivity[];
-  xp: number;
-  daily_xp: number;
-}
-
-const streakFetcher = async (url: string): Promise<StreakData> => {
-  const authService = AuthService.getInstance();
-  const token = authService.getToken();
-
-  if (!token) {
-    throw new Error("No authentication token available");
-  }
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      authService.logout();
-      if (typeof window !== "undefined") {
-        localStorage.clear();
-        window.location.href = "/";
-      }
-      throw new Error("Session expired. Please log in again.");
-    }
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
-};
-
 export function Header() {
   const user = useSelector(selectCurrentUser);
   const pathname = usePathname();
-  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
-
-  const {
-    data: streakData,
-    error,
-    isLoading: loading,
-  } = useSWR<StreakData>(
-    user ? `${API_BASE_URL}/api/streaks/` : null,
-    streakFetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 300000,
-      errorRetryCount: 3,
-      errorRetryInterval: 5000,
-      shouldRetryOnError: (error) => !error.message.includes("Session expired"),
-    }
-  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -154,10 +76,6 @@ export function Header() {
     (href: string) => pathname === href || pathname.startsWith(`${href}/`),
     [pathname]
   );
-
-  const errorMessage = error
-    ? "Lagu guuldaraaystay in la soo raro xogta streak-ga."
-    : null;
 
   const handleLogout = () => {
     const authService = AuthService.getInstance();
@@ -217,16 +135,6 @@ export function Header() {
 
           {/* Desktop Right Side */}
           <div className="flex items-center gap-4">
-            {user && (
-              <div className="hidden lg:block">
-                <StreakDisplay
-                  loading={loading}
-                  error={errorMessage}
-                  streakData={streakData || null}
-                />
-              </div>
-            )}
-
             <div className="hidden md:flex items-center gap-3">
               {user && (
                 <>
@@ -369,17 +277,6 @@ export function Header() {
                 />
               )}
             </div>
-
-            {/* Streak Display for logged-in users */}
-            {user && streakData && (
-              <div className="px-6 pb-6">
-                <StreakDisplay
-                  loading={loading}
-                  error={errorMessage}
-                  streakData={streakData}
-                />
-              </div>
-            )}
           </div>
         </div>
       )}

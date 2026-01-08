@@ -103,7 +103,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     const filteredNotifications = filterNotifications(notifications);
 
     const handleNotificationClick = (notification: Notification) => {
-        if (!notification.is_read) {
+        if (!notification.is_read && notification.id) {
             onMarkAsRead(notification.id);
         }
         if (onNotificationClick) {
@@ -173,9 +173,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     </div>
                 ) : filteredNotifications.length > 0 ? (
                     <div className="space-y-2">
-                        {filteredNotifications.map((notification) => (
+                        {filteredNotifications.map((notification, index) => (
                             <div
-                                key={notification.id}
+                                key={notification.id || `notif-center-${index}`}
                                 className={`flex space-x-3 p-3 rounded-lg cursor-pointer transition-all hover:shadow-md ${notification.is_read
                                     ? 'bg-gray-50 dark:bg-gray-800'
                                     : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
@@ -238,7 +238,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                                                     size="sm"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        onMarkAsRead(notification.id);
+                                                        if (notification.id) onMarkAsRead(notification.id);
                                                     }}
                                                     title="Ku calaamadee akhrisay"
                                                 >
@@ -340,13 +340,13 @@ export const NotificationDropdown: React.FC<{
                 <div className="max-h-64 overflow-y-auto">
                     {recentNotifications.length > 0 ? (
                         <div>
-                            {recentNotifications.map((notification) => (
+                            {recentNotifications.map((notification, index) => (
                                 <div
-                                    key={notification.id}
+                                    key={notification.id || `notif-drop-${index}`}
                                     className={`p-3 border-b border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 ${!notification.is_read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                                         }`}
                                     onClick={() => {
-                                        if (!notification.is_read) {
+                                        if (!notification.is_read && notification.id) {
                                             onMarkAsRead(notification.id);
                                         }
                                         if (onNotificationClick) {
