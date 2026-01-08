@@ -319,7 +319,7 @@ export const profileService = {
 
   // Get other user profile for community interactions
   getOtherUserProfile: async (userId: string) => {
-    return apiCall(`community/profile/${userId}/`);
+    return apiCall(`community/profiles/${userId}/`);
   },
 
   // Get users who have enabled notifications

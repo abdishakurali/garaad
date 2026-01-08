@@ -9,25 +9,24 @@ import { WhatsAppFloat } from "@/components/landing/WhatsAppFloat";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Tartanka Tech-ga ee Ugu Horreeya & Ugu Fiican | 5-Week SaaS Challenge - Garaad",
+    title: "Bilow Safarkaaga Tech-ga | 5-toddobaad ee Tartanka SaaS - Garaad",
     description:
-        "Ka qaybgal tartanka tech-ga ee ugu horreeya Soomaaliya. Baro sida loo dhisayo meherad SaaS ah oo faa'iido leh 5 toddobaad gudahood. Join the first and best Somali tech challenge to build your first SaaS business.",
+        "Ku soo biir tartanka ugu horreeya ee dhisidda software-ka Soomaaliya. Baro sida loo abuuro meherad SaaS ah oo faa'iido leh 5 toddobaad gudahood. Build and launch your first SaaS business.",
     keywords: [
-        "Tartanka tech-ga Soomaaliya",
-        "Barashada IT-ga ugu fiican",
-        "Dhisidda SaaS Soomaaliya",
-        "Ganacsiga online-ka",
-        "Somali tech entrepreneurship",
-        "First Somali SaaS course",
-        "Best web development challenge Somalia",
-        "Dhallinyarada iyo Tech-ga",
-        "Garaad Academy challenge",
-        "AI business Somalia",
+        "Tartanka dhisidda software-ka",
+        "Barashada IT-ga casriga ah",
+        "Dhisidda SaaS iyo AI",
+        "Ganacsiga digital-ka ah",
+        "Somali tech builders",
+        "SaaS development Somalia",
+        "First Somali SaaS challenge",
+        "Garaad Academy",
+        "AI for business Somalia",
     ],
     openGraph: {
-        title: "Tartanka Tech-ga ee Ugu Horreeya & Ugu Fiican Soomaaliya",
+        title: "Bilow Safarkaaga Tech-ga ee Garaad",
         description:
-            "Halkan ka bilow safarkaaga tech-ga. Dhis oo iibi software-kaaga koowaad 5 toddobaad gudahood. The #1 tech challenge for Somali builders.",
+            "Dhis oo daabac software-kaaga ugu horreeya 5 toddobaad gudahood. Ku soo biir bahda wax dhisidda Soomaaliya.",
         type: "website",
         locale: "so_SO",
         url: "https://garaad.org/challenge",

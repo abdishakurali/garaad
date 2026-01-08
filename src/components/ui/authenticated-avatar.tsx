@@ -42,6 +42,7 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
         }
 
         let isMounted = true;
+        const controller = new AbortController();
         const authService = AuthService.getInstance();
         const token = authService.getToken();
 
@@ -72,15 +73,11 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
         if (token && isProtectedMedia) {
             console.log('AuthenticatedAvatar: Fetching with token', {
                 src: normalizedSrc,
-                hasToken: !!token,
-                tokenLength: token.length,
-                tokenStart: token.substring(0, 20) + '...',
-                tokenParts: token.split('.').length
             });
 
             // Check if token looks valid (basic check)
             if (token.split('.').length !== 3) {
-                console.error('AuthenticatedAvatar: Invalid token format - should have 3 parts');
+                console.error('AuthenticatedAvatar: Invalid token format');
                 setError(true);
                 setIsLoading(false);
                 return;
@@ -90,11 +87,6 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const isExpired = payload.exp * 1000 < Date.now();
-                console.log('AuthenticatedAvatar: Token payload', {
-                    exp: payload.exp,
-                    currentTime: Date.now() / 1000,
-                    isExpired
-                });
 
                 if (isExpired) {
                     console.error('AuthenticatedAvatar: Token is expired');
@@ -106,18 +98,13 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
                 console.error('AuthenticatedAvatar: Could not decode token payload', error);
             }
 
-            console.log('AuthenticatedAvatar: Making request with headers', {
-                'Authorization': `Bearer ${token.substring(0, 20)}...`
-            });
-
             fetch(normalizedSrc, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
+                signal: controller.signal
             })
                 .then(response => {
-                    console.log('AuthenticatedAvatar: Response status', response.status, response.statusText);
-                    console.log('AuthenticatedAvatar: Response headers', Object.fromEntries(response.headers));
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
@@ -127,16 +114,18 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
                     const url = URL.createObjectURL(blob);
                     if (isMounted) {
                         currentBlobUrl.current = url;
-                        console.log('AuthenticatedAvatar: Created blob URL', url);
                         setImageUrl(url);
                         setError(false);
                         setIsLoading(false);
                     } else {
-                        // Cleanup if component unmounted during fetch
                         URL.revokeObjectURL(url);
                     }
                 })
                 .catch(err => {
+                    if (err.name === 'AbortError') {
+                        console.log('AuthenticatedAvatar: Fetch aborted');
+                        return;
+                    }
                     console.error('Failed to load authenticated avatar:', err);
                     if (isMounted) {
                         setError(true);
@@ -145,11 +134,6 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
                     }
                 });
         } else {
-            console.log('AuthenticatedAvatar: Using direct URL or no token', {
-                src: normalizedSrc,
-                hasToken: !!token,
-                token: token ? token.substring(0, 20) + '...' : 'none'
-            });
             // For non-authenticated URLs, use directly
             setImageUrl(normalizedSrc);
             setIsLoading(false);
@@ -158,6 +142,7 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
 
         return () => {
             isMounted = false;
+            controller.abort();
         };
     }, [src]);
 

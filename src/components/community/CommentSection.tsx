@@ -6,8 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Comment, CreateCommentData } from '@/types/community';
+import { Comment, CreateCommentData, getUserDisplayName } from '@/types/community';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
+import { UserProfileModal } from './UserProfileModal';
 import {
     Heart,
     Reply,
@@ -67,6 +68,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
     const [submittingReply, setSubmittingReply] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(comment.content);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
@@ -127,19 +129,27 @@ const CommentItem: React.FC<CommentItemProps> = ({
         <div className={`${depth > 0 ? 'ml-8 border-l border-gray-200 dark:border-gray-700 pl-4' : ''}`}>
             <div className="flex space-x-3">
                 <div className="flex items-start space-x-3">
-                    <AuthenticatedAvatar
-                        src={getMediaUrl(comment.user.profile_picture, 'profile_pics')}
-                        alt={comment.user.username}
-                        fallback={comment.user.username[0].toUpperCase()}
-                        size="md"
-                    />
+                    <div
+                        className="cursor-pointer transition-transform hover:scale-110 active:scale-95"
+                        onClick={() => setIsProfileModalOpen(true)}
+                    >
+                        <AuthenticatedAvatar
+                            src={getMediaUrl(comment.user.profile_picture, 'profile_pics')}
+                            alt={getUserDisplayName(comment.user)}
+                            fallback={comment.user.first_name?.[0] || comment.user.username?.[0] || "?"}
+                            size="md"
+                        />
+                    </div>
                 </div>
 
                 <div className="flex-1 min-w-0">
                     {/* Comment Header */}
                     <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-medium text-sm text-gray-900 dark:text-white">
-                            {comment.user.username}
+                        <span
+                            className="font-bold text-sm text-primary cursor-pointer hover:underline transition-all"
+                            onClick={() => setIsProfileModalOpen(true)}
+                        >
+                            {getUserDisplayName(comment.user)}
                         </span>
                         <span className="text-xs text-gray-500">
                             {formatTimeAgo(comment.created_at)}
@@ -331,6 +341,12 @@ const CommentItem: React.FC<CommentItemProps> = ({
                     )}
                 </div>
             </div>
+
+            <UserProfileModal
+                userId={comment.user.id}
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+            />
         </div>
     );
 };

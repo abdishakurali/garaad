@@ -10,6 +10,7 @@ import { LeaderboardEntry, Campus, BADGE_LEVELS } from '@/types/community';
 import { Trophy, Medal, Crown, Star, Users, MessageCircle, Heart, TrendingUp } from 'lucide-react';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import { getMediaUrl } from '@/lib/utils';
+import { UserProfileModal } from './UserProfileModal';
 
 interface LeaderboardProps {
     entries: LeaderboardEntry[];
@@ -31,6 +32,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     maxEntries = 10
 }) => {
     const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('week');
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+    const handleOpenProfile = (userId: string) => {
+        setSelectedUserId(userId);
+        setIsProfileModalOpen(true);
+    };
 
     const getRankIcon = (position: number) => {
         switch (position) {
@@ -150,7 +158,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                                     </div>
 
                                     {/* User Avatar */}
-                                    <div className="flex items-center space-x-3">
+                                    <div
+                                        className="flex items-center space-x-3 cursor-pointer transition-transform hover:scale-110"
+                                        onClick={() => handleOpenProfile(entry.user.id)}
+                                    >
                                         <AuthenticatedAvatar
                                             src={getMediaUrl(entry.user.profile_picture, 'profile_pics')}
                                             alt={entry.user.username}
@@ -162,7 +173,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                                     {/* User Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center space-x-2">
-                                            <h4 className="font-semibold text-gray-900 dark:text-white truncate">
+                                            <h4
+                                                className="font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:underline"
+                                                onClick={() => handleOpenProfile(entry.user.id)}
+                                            >
                                                 {entry.user.username}
                                             </h4>
                                             <div
@@ -256,74 +270,88 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     </div>
                 )}
             </CardContent>
+
+            <UserProfileModal
+                userId={selectedUserId}
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+            />
         </Card>
     );
 };
 
 // Mini leaderboard for sidebars
-export const MiniLeaderboard: React.FC<{
-    entries: LeaderboardEntry[];
-    title?: string;
-    maxEntries?: number;
-}> = ({
+export const MiniLeaderboard = ({
     entries,
     title = "Tartanka",
-    maxEntries = 5
+    maxEntries = 5,
+    onOpenProfile
+}: {
+    entries: any[];
+    title?: string;
+    maxEntries?: number;
+    onOpenProfile?: (userId: string) => void;
 }) => {
-        const getBadgeInfo = (level: string) => {
-            return BADGE_LEVELS[level] || BADGE_LEVELS.dhalinyaro;
-        };
+    const getBadgeInfo = (level: string) => {
+        return BADGE_LEVELS[level] || BADGE_LEVELS.dhalinyaro;
+    };
 
-        return (
-            <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                    <Trophy className="h-4 w-4 mr-2 text-yellow-500" />
-                    {title}
-                </h3>
-                <div className="space-y-2">
-                    {entries.slice(0, maxEntries).map((entry, index) => {
-                        const badge = getBadgeInfo(entry.badge_level);
+    return (
+        <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                <Trophy className="h-4 w-4 mr-2 text-yellow-500" />
+                {title}
+            </h3>
+            <div className="space-y-2">
+                {entries.slice(0, maxEntries).map((entry, index) => {
+                    const badge = getBadgeInfo(entry.badge_level);
 
-                        return (
-                            <div key={entry.user.id} className="flex items-center space-x-2">
-                                <div className="flex-shrink-0 w-6 text-center">
-                                    {index === 0 && <span className="text-lg">🥇</span>}
-                                    {index === 1 && <span className="text-lg">🥈</span>}
-                                    {index === 2 && <span className="text-lg">🥉</span>}
-                                    {index > 2 && (
-                                        <span className="text-sm font-medium text-gray-500">
-                                            {index + 1}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <div className="flex items-center space-x-3">
-                                    <AuthenticatedAvatar
-                                        src={getMediaUrl(entry.user.profile_picture, 'profile_pics')}
-                                        alt={entry.user.username}
-                                        fallback={entry.user.username[0].toUpperCase()}
-                                        size="md"
-                                    />
-                                </div>
-
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center space-x-1">
-                                        <span className="text-sm font-medium truncate">
-                                            {entry.user.username}
-                                        </span>
-                                        <span className="text-xs">{badge.emoji}</span>
-                                    </div>
-                                </div>
-
-                                <div className="text-right">
-                                    <span className="text-sm font-bold" style={{ color: badge.color }}>
-                                        {entry.community_points.toLocaleString()}
+                    return (
+                        <div key={entry.user.id} className="flex items-center space-x-2">
+                            <div className="flex-shrink-0 w-6 text-center">
+                                {index === 0 && <span className="text-lg">🥇</span>}
+                                {index === 1 && <span className="text-lg">🥈</span>}
+                                {index === 2 && <span className="text-lg">🥉</span>}
+                                {index > 2 && (
+                                    <span className="text-sm font-medium text-gray-500">
+                                        {index + 1}
                                     </span>
+                                )}
+                            </div>
+
+                            <div
+                                className="flex items-center space-x-3 cursor-pointer transition-transform hover:scale-110"
+                                onClick={() => onOpenProfile?.(entry.user.id)}
+                            >
+                                <AuthenticatedAvatar
+                                    src={getMediaUrl(entry.user.profile_picture, 'profile_pics')}
+                                    alt={entry.user.username}
+                                    fallback={entry.user.username[0].toUpperCase()}
+                                    size="md"
+                                />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center space-x-1">
+                                    <span
+                                        className="text-sm font-medium truncate cursor-pointer hover:underline"
+                                        onClick={() => onOpenProfile?.(entry.user.id)}
+                                    >
+                                        {entry.user.username}
+                                    </span>
+                                    <span className="text-xs">{badge.emoji}</span>
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
+
+                            <div className="text-right">
+                                <span className="text-sm font-bold" style={{ color: badge.color }}>
+                                    {entry.community_points.toLocaleString()}
+                                </span>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
-        );
-    }; 
+        </div>
+    );
+}; 

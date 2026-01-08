@@ -51,23 +51,20 @@ export function TechChallengeHero() {
 
                 {/* Main Headline */}
                 <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up">
-                    <span className="text-white">Bilow SaaS-kaaga</span>
+                    <span className="text-white text-[0.8em] sm:text-[0.7em]">Dhis Ganacsigaaga</span>
                     <br />
                     <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                        Online Business
+                        SaaS & AI Business
                     </span>
                     <br />
-                    <span className="text-white">in 5 Weeks</span>
+                    <span className="text-white text-[0.8em] sm:text-[0.7em]">5 Toddobaad Gudahood</span>
                 </h1>
 
                 {/* Sub-headline */}
                 <p className="text-lg sm:text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto mb-12 leading-relaxed animate-fade-in-up delay-200">
-                    Ma diyaar u tahay inaad fikradahaaga u beddesho dakhli adigoo dhisaya SaaS?
-                    We give you clear steps, expert guidance, and a proven plan—
-                    <span className="text-white font-semibold">tallaabo tallaabo ah (step-by-step)</span>.
+                    Ma diyaar u tahay inaad fikradahaaga u beddesho meherad faa'iido leh adigoo dhisaya software?
+                    Waxaan ku siinaynaa hage cad, tallaabo-tallaabo ah, iyo qorshe la xaqiijiyay oo aad ku guulaysato.
                 </p>
-
-
 
                 {/* CTAs */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up delay-400">
@@ -75,14 +72,14 @@ export function TechChallengeHero() {
                         onClick={handlePrimaryCTA}
                         className="group relative px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50 flex items-center gap-2"
                     >
-                        <span>Ku Biir Hadda (Join Today)</span>
+                        <span>Bilow Safarkaaga</span>
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
                     <button
                         onClick={handleSecondaryCTA}
                         className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 transition-all duration-300 hover:scale-105"
                     >
-                        Sidee u Shaqaynayaa?
+                        Baro Sida uu u Shaqeeyo
                     </button>
                 </div>
 

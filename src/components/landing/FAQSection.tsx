@@ -10,28 +10,28 @@ interface FAQ {
 
 const faqs: FAQ[] = [
     {
-        question: "Do I need any experience with computers?",
-        answer: "You need basic computer skills and willingness to learn. If you can browse the web and use social media, you have enough to start. We'll teach you everything else step by step, from coding basics to advanced SaaS development.",
+        question: "Ma u baahanahay aqoon coding ah si aan u bilaabo?",
+        answer: "Maya, waxaad u baahan tahay oo kaliya aqoonta aasaasiga ah ee isticmaalka kombuyuutarka iyo rabitaan barasho. Haddii aad taqaanid isticmaalka baraha bulshada iyo internet-ka, intaas ayaa kuugu filan. Wax kasta oo kale, laga bilaabo aasaaska coding-ka ilaa dhisidda SaaS, tallaabo-tallaabo ayaan kuu bari doonnaa.",
     },
     {
-        question: "Is this only for Somalis?",
-        answer: "While our founder's story is rooted in the Somali experience and we're passionate about empowering Somali youth, this challenge is open to anyone worldwide who wants to build a profitable SaaS business. The principles and strategies work regardless of your background.",
+        question: "Yaa ka qaybgali kara tartankan?",
+        answer: "Tartankan waxaa loogu talagalay qof kasta oo raba inuu dhiso ganacsi software dhab ah. In kasta oo aan xoogga saarno dhiirigelinta dhallinyarada Soomaaliyeed, haddana qof kasta oo dunida ku nool oo raba inuu barto dhisidda SaaS wuu ku soo biiri karaa. Qorshayaashan waxay u shaqaynayaan qof kasta, meel kasta oo uu joogo.",
     },
     {
-        question: "How fast will I see results?",
-        answer: "You'll have a working prototype by Week 2, launch to real users by Week 4, and aim for your first paying customer by Week 5. However, building a sustainable business takes time beyond these 5 weeks. This challenge gives you the foundation and momentum to continue growing.",
+        question: "Goormaan arki doonaa natiijooyin dhab ah?",
+        answer: "Toddobaadka 2-aad waxaad haysan doontaa prototype shaqeynaya, Toddobaadka 4-aad waxaad u soo bandhigi doontaa macaamiil dhab ah, Toddobaadka 5-aadna hadafkeenu waa inaad hesho macmiilkii ugu horreeyay ee lacag bixiya. Garaad wuxuu ku siinayaa dhammaan agabkii aad ku bilaabi lahayd oo aad ku guulaysan lahayd.",
     },
     {
-        question: "What if I don't have much time?",
-        answer: "The program is designed for busy people. Each week requires 10-18 hours of focused work. You can spread this across evenings and weekends. The key is consistency—even 2 hours a day will get you there. We provide clear priorities so you focus on what matters most.",
+        question: "Haddaanan waqti badan haysan, ma maareyn karaa?",
+        answer: "Haa, barnaamijkan waxaa loogu talagalay dadka mashquulka ah. Mid kasta oo ka mid ah 5-ta toddobaad wuxuu u baahan yahay 10-18 saacadood oo shaqo xooggan ah. Waxaad u qaybin kartaa habeenkii iyo maalmaha fasaxa. Furaha guushu waa joogteyn—xitaa 2 saacadood maalintii way ku gaarsiin karaan hadafkaba.",
     },
     {
-        question: "What tools will I learn?",
-        answer: "You'll master modern web development (Next.js, React, TypeScript), AI integration (OpenAI API), databases (PostgreSQL/Supabase), authentication (NextAuth), payments (Stripe), and deployment (Vercel). All industry-standard tools used by successful SaaS companies.",
+        question: "Waa kuwee agabka ama (tools-ka) aan baran doono?",
+        answer: "Waxaad baran doontaa wax kasta oo looga baahan yahay dhisidda SaaS casri ah sida: Next.js, React, TypeScript, AI Integration (OpenAI API), Database-yada (Supabase), Payments (Stripe), iyo Deploy-gareynta. Kuwani waa kuwa ay isticmaalaan shirkadaha software-ka ee ugu guulaha badan caalamka.",
     },
     {
-        question: "Can I really make money from this?",
-        answer: "Yes, if you execute. By Week 5, you'll have the skills and product to start generating revenue. Many students land their first paying customer within the challenge period. Your success depends on your commitment, the problem you solve, and how well you serve your customers. We provide the roadmap—you provide the hustle.",
+        question: "Runtii lacag ma ka samayn karaa ganacsigan?",
+        answer: "Haa, haddii aad si dhab ah u shaqayso. Toddobaadka 5-aad, waxaad haysan doontaa xirfadda iyo software-ka aad ku bilaabi lahayd dakhli samayn. Macaamiil badan ayaa hesha macmiilkoodii ugu horreeyay tartanka gudihiisa. Success-kaaga wuxuu ku xiran yahay sida aad u xalliso dhibaatada macaamiisha iyo dadaalkaaga.",
     },
 ];
 

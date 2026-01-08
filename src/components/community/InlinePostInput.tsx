@@ -7,7 +7,7 @@ import {
     createPost,
     addOptimisticPost,
 } from "@/store/features/communitySlice";
-import { CommunityPost, SOMALI_UI_TEXT } from "@/types/community";
+import { CommunityPost, SOMALI_UI_TEXT, getUserDisplayName } from "@/types/community";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Loader2, Image as ImageIcon, AlertCircle, Smile, Paperclip, Video, Film, File } from "lucide-react";
@@ -16,7 +16,8 @@ import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { EmojiPicker } from "./EmojiPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { Globe } from "lucide-react";
+import { Share2, Globe, GraduationCap } from "lucide-react";
+import { UserProfileModal } from "./UserProfileModal";
 
 interface InlinePostInputProps {
     categoryId: string;
@@ -39,6 +40,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
     const [isFocused, setIsFocused] = useState(false);
     const [showVideoInput, setShowVideoInput] = useState(false);
     const [isPublic, setIsPublic] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
@@ -172,8 +174,17 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
         )}>
             <div className="flex gap-4">
                 <div className="flex-shrink-0 pt-1">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/5 flex items-center justify-center">
-                        <img src="/favicon.ico" alt="Garaad" className="w-5 h-5" />
+                    <div
+                        className="cursor-pointer transition-transform hover:scale-110 active:scale-95"
+                        onClick={() => setIsProfileModalOpen(true)}
+                    >
+                        <AuthenticatedAvatar
+                            src={getMediaUrl(userProfile?.profile_picture, 'profile_pics')}
+                            alt={getUserDisplayName(userProfile)}
+                            size="sm"
+                            fallback={userProfile?.first_name?.[0] || userProfile?.username?.[0] || "?"}
+                            className="ring-2 ring-gray-50 dark:ring-white/5"
+                        />
                     </div>
                 </div>
 
@@ -343,6 +354,11 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                     )}
                 </div>
             </div>
+            <UserProfileModal
+                userId={userProfile?.id || null}
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+            />
         </div>
     );
 }

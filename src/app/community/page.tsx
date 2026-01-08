@@ -296,7 +296,7 @@ export default function CommunityPage() {
                 size="icon"
                 onClick={() => setIsPushSettingsOpen(true)}
                 className="rounded-full w-8 h-8 lg:w-10 lg:h-10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
-                title="Ogeysiisyada Push"
+                title="Habaynta Ogeysiisyada"
             >
                 <Settings2 className="h-4 w-4 lg:h-5 lg:w-5 text-gray-500 dark:text-gray-400" />
             </Button>
@@ -310,7 +310,7 @@ export default function CommunityPage() {
                     <div className="relative w-32 h-12 pl-0 px-8  overflow-hidden flex-shrink-0">
                         <Image
                             src="/logo.png"
-                            alt="Astaanta Garaad"
+                            alt="Garaad"
                             fill
                             sizes="128px"
                             className="object-contain"
@@ -340,7 +340,7 @@ export default function CommunityPage() {
                                         {SOMALI_UI_TEXT.community}
                                     </SheetTitle>
                                     <SheetDescription className="sr-only">
-                                        Dooro qaybta aad rabto inaad ku biirto.
+                                        Fadlan dooro golaha aad xiisaynayso.
                                     </SheetDescription>
                                 </SheetHeader>
                                 {categoryList}
@@ -399,9 +399,9 @@ export default function CommunityPage() {
                                 <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
                                     <AlertCircle className="h-8 w-8 text-gray-400" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-2 dark:text-white">Dooro Qaybta</h3>
+                                <h3 className="text-xl font-bold mb-2 dark:text-white">Doorashada Golaha</h3>
                                 <p className="text-gray-500 dark:text-gray-400">
-                                    Dooro mid ka mid ah qaybaha si aad u aragto qoraallada bulshada.
+                                    Fadlan dooro mid ka mid ah golayaasha si aad u akhrisato doodaha ugu dambeeyay.
                                 </p>
                             </div>
                         </div>
@@ -420,9 +420,9 @@ export default function CommunityPage() {
             <Dialog open={isPushSettingsOpen} onOpenChange={setIsPushSettingsOpen}>
                 <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none">
                     <DialogHeader className="sr-only">
-                        <DialogTitle>Ogeysiisyada Push</DialogTitle>
+                        <DialogTitle>Ogeysiisyada Mobilka</DialogTitle>
                         <DialogDescription>
-                            Halkaan kaga bixi ama ku xir ogeysiisyada push.
+                            Habayso qaabka aad u helayso ogeysiisyada tooska ah.
                         </DialogDescription>
                     </DialogHeader>
                     <PushNotificationSettings />

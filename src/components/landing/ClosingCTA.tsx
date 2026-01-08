@@ -37,16 +37,16 @@ export function ClosingCTA() {
 
                 {/* Headline */}
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 text-white text-center">
-                    Ma diyaar u tahay inaad gasho{" "}
+                    Ma diyaar u tahay inaad dhisid{" "}
                     <br className="hidden md:block" />
                     <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                        Maqaamka? (Lead)
+                        mustaqbalkaaga?
                     </span>
                 </h2>
 
                 {/* Body */}
                 <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-12 leading-relaxed">
-                    Ku biir dhalinyarada Soomaaliyeed ee dhisaya mustaqbalka AI. 🚀
+                    Ku biir dhalinyarada Soomaaliyeed ee hormuudka u ah dhisidda SaaS iyo AI. 🚀
                 </p>
 
                 {/* Stats */}
@@ -56,7 +56,7 @@ export function ClosingCTA() {
                             500+
                         </div>
                         <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-bold">
-                            Builders Tartamay
+                            Arday Wax Baratay
                         </div>
                     </div>
                     <div className="hidden sm:block w-px h-16 bg-slate-700" />
@@ -65,7 +65,7 @@ export function ClosingCTA() {
                             $50K+
                         </div>
                         <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-bold">
-                            Dakhli la Abuuray
+                            Dakhli La Sameeyay
                         </div>
                     </div>
                     <div className="hidden sm:block w-px h-16 bg-slate-700" />
@@ -74,7 +74,7 @@ export function ClosingCTA() {
                             5 Weeks
                         </div>
                         <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-bold">
-                            Ilaa SaaS-kaaga
+                            Ilaa Software-kaaga
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@ export function ClosingCTA() {
                     className="group relative inline-flex items-center gap-3 px-10 py-5 bg-primary hover:bg-primary/90 text-white text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50"
                 >
                     <Sparkles className="w-6 h-6" />
-                    <span>Bilow Safarkaaga (Start Journey)</span>
+                    <span>Halkan ka billow Safarkaaga</span>
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                 </button>
 
@@ -95,7 +95,7 @@ export function ClosingCTA() {
                         <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        <span>Bilaash ku bilow</span>
+                        <span>Bilaash ku billow</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -107,7 +107,7 @@ export function ClosingCTA() {
                         <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        <span>Access nolol-ka-nolol ah</span>
+                        <span>Helitaan abadi ah (Lifetime)</span>
                     </div>
                 </div>
             </div>

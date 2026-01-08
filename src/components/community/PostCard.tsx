@@ -20,7 +20,7 @@ import {
 import { getMediaUrl, cn, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Loader2, Plus, Smile, Play, Globe } from "lucide-react";
+import { MessageSquare, Trash2, Loader2, Plus, Smile, Play, Globe, Share2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { ReplyList } from "./ReplyList";
 import { AttachmentDisplay } from "./AttachmentDisplay";
@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { UserProfileModal } from "./UserProfileModal";
+import { SharePostModal } from "./SharePostModal";
 
 interface PostCardProps {
     post: CommunityPost;
@@ -54,6 +55,7 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
 
     const [isDeleting, setIsDeleting] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(post.content);
     const [editPublic, setEditPublic] = useState(post.is_public);
@@ -387,19 +389,30 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                 </div>
 
                 {/* Reply Toggle */}
-                <button
-                    onClick={() => !isReadOnly && setShowReplies(!showReplies)}
-                    className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ml-auto outline-none",
-                        showReplies
-                            ? "bg-primary text-white shadow-lg shadow-primary/25"
-                            : "bg-gray-50/50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10",
-                        isReadOnly && "opacity-75 cursor-default"
-                    )}
-                >
-                    <MessageSquare className={cn("h-4 w-4", showReplies ? "fill-current" : "")} />
-                    <span>{post.replies_count} {SOMALI_UI_TEXT.posts_count_label}</span>
-                </button>
+                <div className="flex items-center gap-2 ml-auto">
+                    <button
+                        onClick={() => setIsShareModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50/50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all outline-none text-xs font-bold"
+                        title={SOMALI_UI_TEXT.share}
+                    >
+                        <Share2 className="h-4 w-4" />
+                        <span>{SOMALI_UI_TEXT.share}</span>
+                    </button>
+
+                    <button
+                        onClick={() => !isReadOnly && setShowReplies(!showReplies)}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all outline-none",
+                            showReplies
+                                ? "bg-primary text-white shadow-lg shadow-primary/25"
+                                : "bg-gray-50/50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10",
+                            isReadOnly && "opacity-75 cursor-default"
+                        )}
+                    >
+                        <MessageSquare className={cn("h-4 w-4", showReplies ? "fill-current" : "")} />
+                        <span>{post.replies_count} {SOMALI_UI_TEXT.posts_count_label}</span>
+                    </button>
+                </div>
             </div>
 
             {/* Replies */}
@@ -417,6 +430,12 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                 userId={post.author?.id || null}
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
+            />
+
+            <SharePostModal
+                post={post}
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
             />
         </div>
     );
