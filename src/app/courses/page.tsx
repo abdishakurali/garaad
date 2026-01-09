@@ -179,15 +179,15 @@ export default function CoursesPage() {
               const sortedCourses = isLoading
                 ? Array(4).fill(null)
                 : [...category.courses].sort((a, b) => {
-                  // Primary sort: sequence descending
+                  // Primary sort: sequence ascending
                   const seqA = a?.sequence ?? 0;
                   const seqB = b?.sequence ?? 0;
-                  if (seqA !== seqB) return seqB - seqA;
+                  if (seqA !== seqB) return seqA - seqB;
 
-                  // Secondary sort: created_at descending (newest first)
+                  // Secondary sort: created_at ascending (oldest first)
                   const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
                   const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
-                  return dateB - dateA;
+                  return dateA - dateB;
                 });
 
               return (
@@ -204,30 +204,23 @@ export default function CoursesPage() {
                         </div>
                       )}
                       <div>
-                        <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
+                        <div className="text-2xl md:text-3xl font-black tracking-tight mb-1">
                           {isLoading ? (
-                            <Skeleton className="w-56 h-10" />
+                            <Skeleton className="w-56 h-8" />
                           ) : (
                             category.title
                           )}
-                        </h2>
-                        <p className="text-lg text-slate-500 dark:text-slate-400 font-bold tracking-wide">
+                        </div>
+                        <div className="text-lg text-slate-500 dark:text-slate-400 font-bold tracking-wide">
                           {isLoading ? (
                             <Skeleton className="w-72 h-6" />
                           ) : (
                             category.description
                           )}
-                        </p>
+                        </div>
                       </div>
                     </div>
 
-                    {!isLoading && (
-                      <div className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 backdrop-blur-sm">
-                        <span className="text-sm font-black text-primary">
-                          {category.courses.length} KOORSO
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Courses Grid */}

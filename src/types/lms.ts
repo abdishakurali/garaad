@@ -22,6 +22,7 @@ export interface Course {
   author_id: string;
   is_published: boolean;
   module_count: number;
+  sequence?: number;
   created_at: string;
   updated_at: string;
 }
