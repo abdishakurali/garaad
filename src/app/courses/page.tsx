@@ -177,8 +177,8 @@ export default function CoursesPage() {
           {(isLoading ? Array(3).fill(null) : (categories ?? [])
             .filter(cat => cat.courses && cat.courses.length > 0)
             .sort((a, b) => {
-              const seqA = a?.sequence && a.sequence > 0 ? a.sequence : Infinity;
-              const seqB = b?.sequence && b.sequence > 0 ? b.sequence : Infinity;
+              const seqA = (a?.sequence && a.sequence > 0) ? a.sequence : Infinity;
+              const seqB = (b?.sequence && b.sequence > 0) ? b.sequence : Infinity;
               return seqA - seqB;
             })
           ).map(
@@ -187,8 +187,8 @@ export default function CoursesPage() {
                 ? Array(4).fill(null)
                 : [...category.courses].sort((a, b) => {
                   // Primary sort: sequence ascending (treat 0 as Infinity to put at end)
-                  const seqA = a?.sequence && a.sequence > 0 ? a.sequence : Infinity;
-                  const seqB = b?.sequence && b.sequence > 0 ? b.sequence : Infinity;
+                  const seqA = (a?.sequence && a.sequence > 0) ? a.sequence : Infinity;
+                  const seqB = (b?.sequence && b.sequence > 0) ? b.sequence : Infinity;
                   if (seqA !== seqB) return seqA - seqB;
 
                   // Secondary sort: created_at ascending (oldest first)
