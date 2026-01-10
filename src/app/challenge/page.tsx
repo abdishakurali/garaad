@@ -1,3 +1,6 @@
+import { Header as SiteHeader } from "@/components/Header";
+import { ChallengeHero } from "@/components/landing/ChallengeHero";
+import { FooterSection } from "@/components/sections/FooterSection";
 import { Suspense } from "react";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
@@ -7,10 +10,6 @@ const TransformationSection = dynamic(() => import("@/components/landing/Transfo
 const FAQSection = dynamic(() => import("@/components/landing/FAQSection").then(mod => mod.FAQSection), { ssr: true });
 const ClosingCTA = dynamic(() => import("@/components/landing/ClosingCTA").then(mod => mod.ClosingCTA), { ssr: true });
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
-
-import { ChallengeHero } from "@/components/landing/ChallengeHero";
-import { FooterSection } from "@/components/sections/FooterSection";
-import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
     title: "Tartanka SaaS - 5 Toddobaad",
@@ -67,7 +66,7 @@ export default function ChallengePage() {
                 }}
             />
 
-            <Header />
+            <SiteHeader />
 
             <main>
                 <ChallengeHero />
