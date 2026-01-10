@@ -26,23 +26,30 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
   // Memoize paragraph splitting
   const paragraphs = useMemo<string[]>(() => {
     let texts: string[];
+    const explanation = content.explanation;
+
+    // Detect HTML
+    if (typeof explanation === "string" && explanation.includes('<') && explanation.includes('>')) {
+      return [explanation];
+    }
+
     // Normalize to array of strings
-    if (typeof content.explanation === "string") {
+    if (typeof explanation === "string") {
       try {
-        const obj = JSON.parse(content.explanation) as ExplanationText;
+        const obj = JSON.parse(explanation) as ExplanationText;
         texts = Object.values(obj).filter(
           (t): t is string => typeof t === "string" && Boolean(t.trim())
         );
       } catch {
-        texts = content.explanation
+        texts = explanation
           .replace(/\\n\\n/g, "\n\n")
           .split(/\n{2,}/g)
           .filter((t) => t.trim());
       }
-    } else if (Array.isArray(content.explanation)) {
-      texts = content.explanation.filter((t) => t.trim());
+    } else if (Array.isArray(explanation)) {
+      texts = explanation.filter((t) => t.trim());
     } else {
-      texts = Object.values(content.explanation).filter(
+      texts = Object.values(explanation).filter(
         (t): t is string => typeof t === "string" && Boolean(t.trim())
       );
     }
@@ -82,6 +89,8 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
           <Suspense fallback={<p>La soo rarayo...</p>}>
             {content.type === "latex" ? (
               <Latex>{paragraphs[currentIdx]}</Latex>
+            ) : paragraphs[currentIdx]?.includes('<') ? (
+              <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: paragraphs[currentIdx] }} />
             ) : (
               <ReactMarkdown>{paragraphs[currentIdx]}</ReactMarkdown>
             )}
@@ -108,8 +117,8 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
               onClick={handlePrev}
               disabled={isFirst}
               className={`p-1 rounded-full transition-colors ${isFirst
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:bg-gray-200"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-600 hover:bg-gray-200"
                 }`}
             >
               &#x276E;
@@ -130,8 +139,8 @@ const ExplanationModal: React.FC<ExplanationModalProps> = ({
               onClick={handleNext}
               disabled={isLast}
               className={`p-1 rounded-full transition-colors ${isLast
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:bg-gray-200"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-600 hover:bg-gray-200"
                 }`}
             >
               &#x276F;

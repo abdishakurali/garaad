@@ -30,17 +30,24 @@ const renderMDList = (input: string[] | string | undefined) => {
     }
   }
 
-  return Array.isArray(input) ? (
-    <ul className="mb-4 !pl-0 !list-none not-prose [&>li]:before:content-['•'] [&>li]:before:text-xl [&>li]:before:mr-2 [&>li]:before:inline-block">
-      {input.map((item, index) => (
-        <li className="mb-2" key={index}>
-          {item}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p>{input}</p>
-  );
+  if (Array.isArray(input)) {
+    return (
+      <ul className="mb-4 !pl-0 !list-none not-prose [&>li]:before:content-['•'] [&>li]:before:text-xl [&>li]:before:mr-2 [&>li]:before:inline-block">
+        {input.map((item, index) => (
+          <li className="mb-2" key={index}>
+            {item}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  // Check if content is HTML from TipTap
+  if (input.includes('<') && input.includes('>')) {
+    return <div dangerouslySetInnerHTML={{ __html: input }} />;
+  }
+
+  return <ReactMarkdown>{input}</ReactMarkdown>;
 };
 
 const TextBlock: React.FC<{
@@ -76,7 +83,11 @@ const TextBlock: React.FC<{
         <CardContent className="flex flex-col items-center text-left justify-center p-3 md:p-2 space-y-6 md:space-y-10">
           {content.title && (
             <div className="prose prose-lg dark:prose-invert max-w-none text-lg md:text-lg font-bold text-center">
-              <ReactMarkdown>{content.title}</ReactMarkdown>
+              {content.title.includes('<') ? (
+                <div dangerouslySetInnerHTML={{ __html: content.title }} />
+              ) : (
+                <ReactMarkdown>{content.title}</ReactMarkdown>
+              )}
             </div>
           )}
 
@@ -151,7 +162,11 @@ const TextBlock: React.FC<{
                         {feature.title}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
-                        {feature.text}
+                        {feature.text && feature.text.includes('<') ? (
+                          <div dangerouslySetInnerHTML={{ __html: feature.text }} />
+                        ) : (
+                          feature.text
+                        )}
                       </td>
                     </tr>
                   ))}

@@ -169,12 +169,20 @@ const ProblemBlock: React.FC<{
                 </>
               ) : (
                 <>
-                  <CardTitle className="text-md font-normal text-gray-600">
-                    {content.which}
-                  </CardTitle>
-                  <CardTitle className="text-md font-medium">
-                    {content.question}
-                  </CardTitle>
+                  <div className="text-md font-normal text-gray-600 prose prose-sm max-w-none">
+                    {content.which && content.which.includes('<') ? (
+                      <div dangerouslySetInnerHTML={{ __html: content.which }} />
+                    ) : (
+                      content.which
+                    )}
+                  </div>
+                  <div className="text-md font-medium prose prose-sm max-w-none">
+                    {content.question && content.question.includes('<') ? (
+                      <div dangerouslySetInnerHTML={{ __html: content.question }} />
+                    ) : (
+                      content.question
+                    )}
+                  </div>
                 </>
               )}
             </CardHeader>
