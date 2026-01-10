@@ -25,8 +25,14 @@ const VideoBlock: React.FC<{
   const optimizedUrl = React.useMemo(() => {
     if (!videoUrl) return "";
     if (videoUrl.includes("res.cloudinary.com") && videoUrl.includes("/video/upload/")) {
+      const isMov = videoUrl.toLowerCase().endsWith(".mov") || videoUrl.includes(".mov?");
       if (!videoUrl.includes("q_auto") && !videoUrl.includes("f_auto")) {
-        return videoUrl.replace("/video/upload/", "/video/upload/q_auto,f_auto/");
+        // For .mov files, we avoid f_auto to prevent conversion issues
+        const params = isMov ? "q_auto" : "q_auto,f_auto";
+        return videoUrl.replace("/video/upload/", `/video/upload/${params}/`);
+      } else if (isMov && videoUrl.includes("f_auto")) {
+        // Remove f_auto if it's already there for a .mov file
+        return videoUrl.replace("f_auto,", "").replace(",f_auto", "").replace("f_auto", "");
       }
     }
     return videoUrl;

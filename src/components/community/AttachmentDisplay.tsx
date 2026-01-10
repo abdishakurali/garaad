@@ -146,7 +146,16 @@ export const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({ attachment
                                 )}
                                 {previewAttachment.file_type?.startsWith('video/') && (
                                     <video
-                                        src={getMediaUrl(previewAttachment.file, 'community_attachments')}
+                                        src={(() => {
+                                            const url = getMediaUrl(previewAttachment.file, 'community_attachments') || '';
+                                            if (url.includes("res.cloudinary.com") && url.includes("/video/upload/")) {
+                                                const isMov = url.toLowerCase().endsWith(".mov") || url.includes(".mov?");
+                                                if (isMov && url.includes("f_auto")) {
+                                                    return url.replace("f_auto,", "").replace(",f_auto", "").replace("f_auto", "");
+                                                }
+                                            }
+                                            return url;
+                                        })()}
                                         controls
                                         className="max-w-full max-h-full rounded-lg shadow-lg"
                                         autoPlay
