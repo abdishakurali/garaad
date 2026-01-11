@@ -7,6 +7,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import type { RootState, AppDispatch } from "@/store";
 import { fetchLesson, resetAnswerState } from "@/store/features/learningSlice";
+import { useLesson, useCourse, useCategories, useProblem } from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
 import {
     ChevronRight,
@@ -60,61 +61,6 @@ interface User {
     id: number;
     name: string;
 }
-
-// SWR fetchers
-const publicFetcher = async <T = unknown>(url: string): Promise<T> => {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
-    return response.json();
-};
-
-const authFetcher = async <T = unknown>(
-    url: string,
-    method: "get" | "post" = "get",
-    body?: Record<string, unknown>
-): Promise<T> => {
-    const authService = AuthService.getInstance();
-    const token = authService.getToken();
-
-    if (!token) {
-        throw new Error("No authentication token available");
-    }
-
-    const response = await fetch(url, {
-        method: method.toUpperCase(),
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-        },
-        body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-        // Handle 401 Unauthorized error
-        if (response.status === 401) {
-            console.log("401 Unauthorized - clearing session and redirecting to home");
-
-            // Clear all cookies and localStorage
-            authService.logout();
-
-            // Clear localStorage
-            if (typeof window !== 'undefined') {
-                localStorage.clear();
-            }
-
-            // Redirect to home page
-            if (typeof window !== 'undefined') {
-                window.location.href = '/';
-            }
-
-            throw new Error("Session expired. Please log in again.");
-        }
-
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-};
 
 // Enhanced Loading Component with smooth animations
 const LoadingSpinner = ({
@@ -272,14 +218,20 @@ const LessonPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const dispatch = useDispatch<AppDispatch>();
-    const { answerState, currentLesson } = useSelector(
+    const { answerState, currentLesson: reduxLesson } = useSelector(
         (state: RootState) => state.learning
     );
-    const isLoading = useSelector((state: RootState) => state.learning.isLoading);
+
+    // useLesson hook
+    const { lesson: swrLesson, isLoading: lessonLoading, isError: lessonError } = useLesson(params.lessonId as string);
+    const currentLesson = swrLesson || reduxLesson;
+    const isLoading = lessonLoading || useSelector((state: RootState) => state.learning.isLoading);
+
+    // useCourse for breadcrumbs/info
+    const { course: currentCourse } = useCourse(params.categoryId as string, params.courseSlug as string);
 
     // Local state
     const [showCompletionAnimation, setShowCompletionAnimation] = useState(false);
-    const [problemLoading, setProblemLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isCorrect, setIsCorrect] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
@@ -293,13 +245,10 @@ const LessonPage = () => {
         type: "",
     });
     const [navigating, setNavigating] = useState(false);
-    const [problems, setProblems] = useState<ProblemContent[]>([]);
     const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
     const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
-    const [currentBlock, setCurrentBlock] = useState<React.ReactNode>(null);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
-
     const [hasPlayedStartSound, setHasPlayedStartSound] = useState(false);
 
     const { playSound } = useSoundManager();
@@ -324,22 +273,19 @@ const LessonPage = () => {
         return false;
     }, [searchParams, currentLesson?.id]);
 
-    // SWR hooks for data fetching
-    const { data: courses } = useSWR<Course[]>(
-        `${API_BASE_URL}/api/lms/courses/`,
-        publicFetcher,
-        {
-            revalidateOnFocus: false,
-            dedupingInterval: 300000,
-        }
-    );
+    // Breadcrumbs courses (already handled by useCategories in useApi if needed, 
+    // but breadcrumbs often need all categories/courses)
+    const { categories } = useCategories();
+    const courses = useMemo(() => {
+        return categories?.flatMap(cat => cat.courses || []);
+    }, [categories]);
 
     // Memoized derived values
-    const currentProblem = useMemo(() => {
-        return problems.length > 0 && currentProblemIndex < problems.length
-            ? problems[currentProblemIndex]
-            : null;
-    }, [problems, currentProblemIndex]);
+    const currentProblemBlock = useMemo(() => {
+        if (!sortedBlocks) return null;
+        const problemBlocks = sortedBlocks.filter(b => b.block_type === 'problem');
+        return problemBlocks[currentProblemIndex];
+    }, [sortedBlocks, currentProblemIndex]);
 
     const coursePath = useMemo(
         () => `/courses/${params.categoryId}/${params.courseSlug}`,
@@ -360,12 +306,19 @@ const LessonPage = () => {
         setDisabledOptions([]);
     }, [currentBlockIndex]);
 
-    // Fetch lesson data
+    // Sync lesson to Redux for other components
     useEffect(() => {
-        if (params.lessonId) {
+        if (swrLesson) {
+            dispatch(setCurrentLesson(swrLesson));
+        }
+    }, [swrLesson, dispatch]);
+
+    // Initial fetch if REDUX is still used/needed
+    useEffect(() => {
+        if (params.lessonId && !swrLesson) {
             dispatch(fetchLesson(params.lessonId as string));
         }
-    }, [dispatch, params.lessonId]);
+    }, [dispatch, params.lessonId, swrLesson]);
 
     // Play start lesson sound when lesson is loaded and ready
     useEffect(() => {
@@ -630,65 +583,17 @@ const LessonPage = () => {
 
         switch (block.block_type) {
             case "problem":
-                const problemId = block.problem;
-                const problemIndex = problems.findIndex((p) => p.id === problemId);
-
-                if (problemIndex !== -1) {
-                    const currentProblem = problems[problemIndex];
-
-                    if (
-                        currentProblem.content &&
-                        currentProblem.content.type === "calculator"
-                    ) {
-                        const options = currentProblem.options as unknown as ProblemOptions;
-                        return (
-                            <CalculatorProblemBlock
-                                question={currentProblem.question}
-                                which={currentProblem?.which}
-                                view={options?.view}
-                                onContinue={handleContinue}
-                            />
-                        );
-                    }
-                    setCurrentProblemIndex(problemIndex);
-                }
-
-                return (
-                    <ProblemBlock
-                        onContinue={handleContinue}
-                        selectedOption={selectedOption}
-                        answerState={answerState}
-                        onOptionSelect={handleOptionSelect}
-                        onCheckAnswer={handleCheckAnswer}
-                        isLoading={problemLoading}
-                        error={error}
-                        content={currentProblem}
-                        isCorrect={isCorrect}
-                        isLastInLesson={isLastBlock}
-                        disabledOptions={disabledOptions}
-                    />
-                );
-
             case "diagram":
-                const diagramProblemId = block.problem;
-                const diagramProblemIndex = problems.findIndex(
-                    (p) => p.id === diagramProblemId
-                );
-
-                if (diagramProblemIndex !== -1) {
-                    setCurrentProblemIndex(diagramProblemIndex);
-                }
-
                 return (
                     <ProblemBlock
+                        problemId={block.problem}
                         onContinue={handleContinue}
                         selectedOption={selectedOption}
                         answerState={answerState}
                         onOptionSelect={handleOptionSelect}
                         onCheckAnswer={handleCheckAnswer}
-                        isLoading={problemLoading}
+                        isLoading={isLoading}
                         error={error}
-                        content={currentProblem}
                         isCorrect={isCorrect}
                         isLastInLesson={isLastBlock}
                         disabledOptions={disabledOptions}

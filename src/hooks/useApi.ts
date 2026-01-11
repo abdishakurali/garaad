@@ -104,31 +104,14 @@ export function useModule(courseId: string, moduleId: string) {
 }
 
 // Lessons
-export function useLesson(moduleId: string, lessonId: string) {
+export function useLesson(lessonId: string | undefined) {
   const { data, error, isLoading, mutate } = useSWR<Lesson>(
-    moduleId && lessonId
-      ? `${API_BASE_URL}/api/lms/modules/${moduleId}/lessons/${lessonId}/`
-      : null,
+    lessonId ? `${API_BASE_URL}/api/lms/lessons/${lessonId}/` : null,
     fetcher
   );
 
   return {
     lesson: data,
-    isLoading,
-    isError: error,
-    mutate,
-  };
-}
-
-// User Progress
-export function useUserProgress() {
-  const { data, error, isLoading, mutate } = useSWR(
-    `${API_BASE_URL}/api/lms/user/progress/`,
-    fetcher
-  );
-
-  return {
-    progress: data,
     isLoading,
     isError: error,
     mutate,
@@ -184,6 +167,21 @@ export function useUserRewards(lessonId?: string) {
   };
 }
 
+// Problems
+export function useProblem(problemId: number | string | undefined | null) {
+  const { data, error, isLoading, mutate } = useSWR(
+    problemId ? `${API_BASE_URL}/api/lms/problems/${problemId}/` : null,
+    fetcher
+  );
+
+  return {
+    problem: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
 // User Streak
 export function useUserStreak() {
   const { data, error, isLoading, mutate } = useSWR(
@@ -191,10 +189,46 @@ export function useUserStreak() {
     fetcher
   );
 
-  console.log("streak:", data);
-
   return {
     streak: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+// Enrollments
+export function useEnrollments() {
+  const { data, error, isLoading, mutate } = useSWR(
+    `${API_BASE_URL}/api/lms/enrollments/`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 600000, // 10 minutes
+    }
+  );
+
+  return {
+    enrollments: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+// User Progress
+export function useUserProgress() {
+  const { data, error, isLoading, mutate } = useSWR(
+    `${API_BASE_URL}/api/lms/user-progress/`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 600000, // 10 minutes
+    }
+  );
+
+  return {
+    progress: data,
     isLoading,
     isError: error,
     mutate,

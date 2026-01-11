@@ -1,0 +1,79 @@
+"use client";
+
+import type React from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import useSWR from "swr";
+import type { RootState, AppDispatch } from "@/store";
+import { fetchLesson, resetAnswerState } from "@/store/features/learningSlice";
+import { useLesson, useCourse, useCategories, useProblem } from "@/hooks/useApi";
+import { Button } from "@/components/ui/button";
+import {
+    ChevronRight,
+    RefreshCw,
+    Home,
+    Loader,
+    Sparkles,
+} from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import type { ExplanationText, TextContent, DiagramConfig, ProblemContent } from "@/types/learning";
+import LessonHeader from "@/components/LessonHeader";
+import { AnswerFeedback } from "@/components/AnswerFeedback";
+import type { Course, Lesson } from "@/types/lms";
+import AuthService from "@/services/auth";
+import "katex/dist/katex.min.css";
+import ProblemBlock from "@/components/lesson/ProblemBlock";
+import TextBlock from "@/components/lesson/TextBlock";
+import ImageBlock from "@/components/lesson/ImageBlock";
+import VideoBlock from "@/components/lesson/VideoBlock";
+import CalculatorProblemBlock from "@/components/lesson/CalculatorProblemBlock";
+import { useSoundManager } from "@/hooks/use-sound-effects";
+import { cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
+
+interface ProblemData {
+    id: number;
+    question_text: string;
+    which: string;
+    options: { text: string }[];
+    correct_answer: { text: string }[];
+    explanation?: string;
+    diagram_config?: DiagramConfig;
+    diagrams?: DiagramConfig[];
+    question_type: string;
+    img?: string;
+    alt?: string;
+    content: {
+        format?: string;
+        type?: string;
+    };
+}
+
+interface ProblemOptions {
+    view?: {
+        type: string;
+        config: Record<string, unknown>;
+    };
+}
+
+interface User {
+    id: number;
+    name: string;
+}
+
+// Enhanced Loading Component with smooth animations
+const LoadingSpinner = ({
+    message,
+}: {
+    message: string;
+}) => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-8 p-8">
+            <Loader className="animate-spin w-16 h-16" />
+            <div className="text-center space-y-2">
+                <p className="text-gray-700 font-medium text-xl">{message}</p>
+            </div>
+        </div>
+    </div>
+);

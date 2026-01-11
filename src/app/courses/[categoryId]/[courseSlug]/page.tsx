@@ -12,11 +12,10 @@ import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
 
-import { useCourse } from "@/hooks/useApi";
+import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
 import { API_BASE_URL } from "@/lib/constants";
 import AuthService from "@/services/auth";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
-import useSWR from "swr";
 import { UserProgress } from "@/services/progress";
 
 interface EnrollmentProgress {
@@ -38,11 +37,6 @@ const CourseProgress = dynamic(() =>
     )
 );
 
-const authFetcher = async <T,>(url: string): Promise<T> => {
-    const service = AuthService.getInstance();
-    return await service.makeAuthenticatedRequest<T>("get", url);
-};
-
 const defaultCourseImage = "/images/placeholder-course.svg";
 
 export default function CourseDetailPage() {
@@ -50,25 +44,24 @@ export default function CourseDetailPage() {
     const { categoryId, courseSlug } = useParams();
     const {
         course: currentCourse,
-        isLoading,
-        error,
+        isLoading: isCourseLoading,
+        error: courseError,
     } = useCourse(String(categoryId), String(courseSlug));
 
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
     const {
-        data: enrollments,
-    } = useSWR<EnrollmentProgress[]>(isAuthenticated ? `${API_BASE_URL}/api/lms/enrollments/` : null, authFetcher, {
-        revalidateOnFocus: false,
-        dedupingInterval: 600000,
-    });
+        enrollments,
+        isLoading: isEnrollmentsLoading,
+    } = useEnrollments();
 
     const {
-        data: progress,
-    } = useSWR<UserProgress[]>(isAuthenticated ? `${API_BASE_URL}/api/lms/user-progress/` : null, authFetcher, {
-        revalidateOnFocus: false,
-        dedupingInterval: 600000,
-    });
+        progress,
+        isLoading: isProgressLoading,
+    } = useUserProgress();
+
+    const isLoading = isCourseLoading || isEnrollmentsLoading || isProgressLoading;
+    const error = courseError;
 
     const enrollmentProgress = useMemo(() => {
         if (!enrollments) return 0;

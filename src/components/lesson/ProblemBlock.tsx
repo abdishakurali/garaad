@@ -17,6 +17,7 @@ import Latex from "react-latex-next";
 import { ProblemContent } from "@/types/learning";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
+import { useProblem } from "@/hooks/useApi";
 
 // Dynamically import the diagram component
 const DiagramScale = dynamic(() => import("../DiagramScale"), {
@@ -32,6 +33,7 @@ const isVideoFile = (url: string): boolean => {
 };
 
 const ProblemBlock: React.FC<{
+  problemId?: number | null;
   onContinue: () => void;
   selectedOption: string | null;
   answerState: {
@@ -41,24 +43,63 @@ const ProblemBlock: React.FC<{
   };
   onOptionSelect: (option: string) => void;
   onCheckAnswer: () => void;
-  isLoading: boolean;
-  error: string | null;
-  content: ProblemContent | null;
+  isLoading?: boolean;
+  error?: string | null;
+  content?: ProblemContent | null;
   isCorrect: boolean;
   isLastInLesson: boolean;
   disabledOptions: string[];
 }> = ({
+  problemId,
   onContinue,
   selectedOption,
   answerState,
   onOptionSelect,
   onCheckAnswer,
-  isLoading,
-  error,
-  content,
+  isLoading: externalLoading,
+  error: externalError,
+  content: externalContent,
   isCorrect,
   disabledOptions = [],
 }) => {
+    // Internal fetching if problemId is provided
+    const { problem: fetchedData, isLoading: internalLoading, isError: internalError } = useProblem(problemId);
+
+    // Transform internal data to ProblemContent if needed
+    const content = useMemo(() => {
+      if (externalContent) return externalContent;
+      if (!fetchedData) return null;
+
+      // Transform ProblemData to ProblemContent (logic from LessonPage.tsx)
+      const pd = fetchedData as any;
+      return {
+        id: pd.id,
+        question: pd.question_text,
+        which: pd.which,
+        options: Array.isArray(pd.options)
+          ? pd.options.map((opt: any) => typeof opt === 'string' ? opt : opt.text)
+          : pd?.options,
+        correct_answer: pd.correct_answer.map((ans: any, index: number) => ({
+          id: `answer-${index}`,
+          text: ans.text,
+        })),
+        img: pd.img,
+        alt: pd.alt,
+        explanation: pd.explanation || "No explanation available",
+        diagram_config: pd.diagram_config,
+        diagrams: pd.diagrams,
+        question_type: ["code", "mcq", "short_input", "diagram"].includes(
+          pd.question_type
+        )
+          ? (pd.question_type as any)
+          : undefined,
+        content: pd.content || {},
+      } as ProblemContent;
+    }, [externalContent, fetchedData]);
+
+    const isLoading = externalLoading || internalLoading;
+    const error = externalError || (internalError ? "Failed to load problem" : null);
+
     const hasAnswered = answerState.isCorrect !== null;
     const [imgLoading, setImgLoading] = useState(false);
     const [imgSrc, setImgSrc] = useState(content?.img);
@@ -148,6 +189,19 @@ const ProblemBlock: React.FC<{
             </Button>
           </CardContent>
         </Card>
+      );
+    }
+
+    // Handle Calculator type
+    if (content.content?.type === "calculator") {
+      const options = content.options as any;
+      return (
+        <CalculatorProblemBlock
+          question={content.question}
+          which={content.which}
+          view={options?.view}
+          onContinue={onContinue}
+        />
       );
     }
 
