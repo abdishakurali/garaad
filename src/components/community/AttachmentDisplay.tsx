@@ -44,6 +44,7 @@ export const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({ attachment
 
     const handleDownload = (attachment: CommunityAttachment) => {
         const url = getMediaUrl(attachment.file, 'community_attachments');
+        if (!url) return;
         const link = document.createElement('a');
         link.href = url;
         link.download = attachment.name || 'download';
@@ -150,9 +151,11 @@ export const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({ attachment
                                         controls
                                         className="max-w-full max-h-full rounded-lg shadow-lg"
                                         autoPlay
+                                        onError={(e) => {
+                                            console.error("Attachment Video error:", e);
+                                            console.error("URL:", getMediaUrl(previewAttachment.file, 'community_attachments'));
+                                        }}
                                     >
-                                        <source src={getMediaUrl(previewAttachment.file, 'community_attachments')} type="video/mp4" />
-                                        <source src={getMediaUrl(previewAttachment.file, 'community_attachments')} type="video/quicktime" />
                                         Your browser does not support the video tag.
                                     </video>
                                 )}

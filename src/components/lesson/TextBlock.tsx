@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { ChevronRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { cn } from "@/lib/utils";
 
 const renderMDList = (input: string[] | string | undefined) => {
   if (!input) return null;
@@ -78,11 +79,11 @@ const TextBlock: React.FC<{
   }, [content.url]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[40vh] max-w-2xl mx-auto px-4">
-      <Card className="w-full max-w-full shadow-lg rounded-2xl border border-gray-100 bg-white">
-        <CardContent className="flex flex-col items-center text-left justify-center p-3 md:p-2 space-y-6 md:space-y-10">
+    <div className="w-full max-w-2xl mx-auto px-4">
+      <div className="w-full bg-white/5 dark:bg-black/40 backdrop-blur-sm rounded-3xl border border-black/5 dark:border-white/5 overflow-hidden transition-all duration-500 hover:bg-black/5 dark:hover:bg-black/50">
+        <div className="flex flex-col items-center text-left justify-center p-8 md:p-10 space-y-6 md:space-y-8">
           {content.title && (
-            <div className="prose prose-lg dark:prose-invert max-w-none text-lg md:text-lg font-bold text-center">
+            <div className="prose prose-lg dark:prose-invert max-w-none text-xl md:text-2xl font-bold text-center text-foreground leading-tight">
               {content.title.includes('<') ? (
                 <div dangerouslySetInnerHTML={{ __html: content.title }} />
               ) : (
@@ -104,34 +105,36 @@ const TextBlock: React.FC<{
           )}
 
           {content.type !== "2_hovers" && content.text && (
-            <div className="prose prose-base mt-1 text-muted-foreground text-left text-md">
+            <div className="prose prose-base dark:prose-invert mt-1 text-slate-700 dark:text-slate-300 text-left text-lg leading-relaxed font-medium">
               {renderMDList(content.text)}
             </div>
           )}
 
           {content.url && (
             <div className="flex justify-center w-full">
-              <div className="relative w-full max-w-[500px] aspect-[16/7] my-6">
+              <div className="relative w-full max-w-[550px] aspect-[16/9] my-4 rounded-2xl overflow-hidden border border-white/5 bg-black/20">
                 {imgLoading && (
-                  <div className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse rounded-lg z-10" />
+                  <div className="absolute inset-0 w-full h-full bg-white/5 animate-pulse z-10" />
                 )}
                 <Image
                   key={imgSrc}
                   src={imgSrc || ""}
                   alt={content.alt || "lesson image"}
                   fill
-                  objectFit="contain"
+                  style={{
+                    objectFit: "contain",
+                    opacity: imgLoading ? 0 : 1,
+                    transition: "opacity 0.5s ease-in-out"
+                  }}
                   onLoad={() => setImgLoading(false)}
                   onError={() => setImgLoading(false)}
                   priority
-                  style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.2s" }}
                 />
               </div>
             </div>
           )}
 
           {additionalTexts.map((text, index) => {
-            // Only render if text is a non-empty string or a string[] with at least one non-empty item
             if (
               (typeof text === "string" && text.trim() !== "") ||
               (Array.isArray(text) && text.some((item) => typeof item === "string" && (item as string).trim() !== ""))
@@ -139,7 +142,7 @@ const TextBlock: React.FC<{
               return (
                 <div
                   key={index}
-                  className="prose prose-base mt-1 text-muted-foreground text-left text-md"
+                  className="prose prose-base dark:prose-invert mt-1 text-slate-600 dark:text-slate-400 text-left text-lg leading-relaxed"
                 >
                   {renderMDList(text as string | string[])}
                 </div>
@@ -149,19 +152,22 @@ const TextBlock: React.FC<{
           })}
 
           {content.type === "table" && (content.features?.length ?? 0) > 0 && (
-            <div className="overflow-x-auto mb-6">
-              <table className="min-w-full bg-white border border-gray-200 shadow rounded-lg border-separate overflow-hidden">
+            <div className="w-full overflow-hidden rounded-2xl border border-white/5 mb-6">
+              <table className="min-w-full border-collapse">
                 <tbody>
                   {content.features?.map((feature, idx) => (
                     <tr
                       key={idx}
-                      className={`border-b last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        } hover:bg-blue-50 transition-colors`}
+                      className={cn(
+                        "border-b border-black/5 dark:border-white/5 last:border-0 transition-colors",
+                        idx % 2 === 0 ? "bg-black/5 dark:bg-white/5" : "bg-transparent",
+                        "hover:bg-primary/5"
+                      )}
                     >
-                      <td className="px-6 py-4 text-sm font-bold text-gray-800">
+                      <td className="px-6 py-5 text-sm font-bold text-slate-800 dark:text-slate-200 w-1/3">
                         {feature.title}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-6 py-5 text-sm text-slate-600 dark:text-slate-400">
                         {feature.text && feature.text.includes('<') ? (
                           <div dangerouslySetInnerHTML={{ __html: feature.text }} />
                         ) : (
@@ -178,15 +184,15 @@ const TextBlock: React.FC<{
           {content.type === "table-grid" &&
             content.table?.rows?.length &&
             content.table.rows.length > 0 && (
-              <div className="overflow-x-auto mb-6 w-full">
-                <table className="min-w-full bg-white border border-gray-200 shadow rounded-lg">
+              <div className="w-full overflow-hidden rounded-2xl border border-white/5 mb-6">
+                <table className="min-w-full border-separate border-spacing-0">
                   {content.table.header && (
-                    <thead>
-                      <tr className="bg-gray-100 text-gray-700 text-sm">
+                    <thead className="bg-black/5 dark:bg-white/5">
+                      <tr>
                         {content.table.header.map((headerCell, index) => (
                           <th
                             key={index}
-                            className="px-6 py-3 text-left font-semibold border-b border-gray-300"
+                            className="px-6 py-4 text-left font-bold text-xs uppercase tracking-wider text-primary border-b border-black/5 dark:border-white/5"
                           >
                             {headerCell}
                           </th>
@@ -198,14 +204,16 @@ const TextBlock: React.FC<{
                     {content.table.rows.map((row, rowIndex) => (
                       <tr
                         key={rowIndex}
-                        className={
-                          rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        }
+                        className={cn(
+                          "transition-colors",
+                          rowIndex % 2 === 0 ? "bg-transparent" : "bg-black/5 dark:bg-white/5",
+                          "hover:bg-primary/5"
+                        )}
                       >
                         {row.map((cell, cellIndex) => (
                           <td
                             key={cellIndex}
-                            className="px-6 py-4 text-sm text-gray-800 border-b border-gray-200"
+                            className="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 border-b border-black/5 dark:border-white/5 last:border-b-0"
                           >
                             {cell || ""}
                           </td>
@@ -216,19 +224,18 @@ const TextBlock: React.FC<{
                 </table>
               </div>
             )}
+        </div>
+      </div>
 
-          <div className="flex justify-center w-full pt-2">
-            <Button
-              onClick={handleContinue}
-              className="w-full bg-primary hover:bg-primary/90"
-              size="lg"
-            >
-              {isLastBlock ? "Dhamee" : "Sii wado"}
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mt-8">
+        <Button
+          onClick={handleContinue}
+          className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
+        >
+          {isLastBlock ? "Dhamee" : "Sii wado"}
+          <ChevronRight className="ml-2 h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };

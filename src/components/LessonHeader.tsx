@@ -5,6 +5,7 @@ import LessonStreak from "./LessonStreak";
 import AuthService from "@/services/auth";
 import axios from "axios";
 import { API_BASE_URL } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 interface LessonHeaderProps {
   currentQuestion: number;
@@ -79,30 +80,30 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
   const progress = (currentQuestion / totalQuestions) * 100;
 
   return (
-    <div className="fixed z-50 bg-white top-0 inset-x-0">
+    <div className="fixed z-50 bg-white dark:bg-black/80 backdrop-blur-md top-0 inset-x-0 border-b border-black/5 dark:border-white/5">
       {/* Progress Bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-gray-200">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-white/5">
         <div
-          className="h-full bg-primary/80 transition-all duration-300 ease-out"
+          className="h-full bg-primary/80 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(16,185,129,0.3)]"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       {/* Header Content */}
-      <div className="flex items-center justify-between px-4 py-2 mt-2">
+      <div className="flex items-center justify-between px-6 py-3 mt-1">
         {/* Back Button */}
         <div className="flex-shrink-0">
           <Button
             onClick={() => router.push(coursePath)}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all border-none bg-transparent text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white"
             aria-label="Go back"
-            variant="outline"
+            variant="ghost"
           >
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
               viewBox="0 0 24 24"
             >
               <path
@@ -118,7 +119,7 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
         <div className="flex-1 mx-4 overflow-x-auto scrollbar-hide">
           <div
             ref={containerRef}
-            className="flex flex-nowrap items-center gap-2 snap-x snap-mandatory scroll-px-4 justify-center"
+            className="flex flex-nowrap items-center gap-1.5 snap-x snap-mandatory scroll-px-4 justify-center"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {Array.from({ length: totalQuestions }).map((_, idx) => {
@@ -129,12 +130,12 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
                   key={idx}
                   ref={isActive ? activeDotRef : null}
                   onClick={() => onDotClick?.(idx)}
-                  className={`
-                  flex-shrink-0 w-3 h-3 rounded-full transition-all duration-300 snap-center cursor-pointer
-                  ${isCompleted ? "bg-green-500" : idx < currentQuestion - 1 ? "bg-primary" : "bg-gray-200"}
-                  ${isActive ? "scale-150 ring-2 ring-primary" : "scale-100"}
-                  hover:scale-110 hover:ring-1 hover:ring-primary/50
-                `}
+                  className={cn(
+                    "flex-shrink-0 rounded-full transition-all duration-300 snap-center cursor-pointer",
+                    isActive ? "w-6 h-1.5 bg-primary" : "w-1.5 h-1.5",
+                    !isActive && (isCompleted ? "bg-green-500/50" : idx < currentQuestion - 1 ? "bg-primary/50" : "bg-white/10"),
+                    "hover:bg-primary/80"
+                  )}
                 />
               );
             })}

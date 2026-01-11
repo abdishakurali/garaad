@@ -97,62 +97,66 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
           <div
             key="answer-feedback-banner"
             className={cn(
-              "fixed inset-x-0 bottom-0 z-40 flex justify-center p-2 sm:p-4"
+              "fixed inset-x-0 bottom-0 z-40 flex justify-center p-4"
             )}
           >
             <div
               className={cn(
-                "w-full max-w-2xl p-4 sm:p-6 rounded-2xl shadow-xl border-2",
+                "w-full max-w-2xl p-6 rounded-3xl backdrop-blur-xl border shadow-2xl transition-all duration-500 animate-in fade-in slide-in-from-bottom-5",
                 isCorrect
-                  ? "bg-[#D7FFB8] border-[#58CC02]"
-                  : "bg-red-50 border-red-200"
+                  ? "bg-green-500/10 border-green-500/30 shadow-green-500/5"
+                  : "bg-red-500/10 border-red-500/30 shadow-red-500/5"
               )}
             >
-              <div className="flex flex-col md:flex-row items-left justify-between gap-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 {/* Icon + Text */}
-                <div className="flex items-left text-left gap-3">
+                <div className="flex items-center text-left gap-4">
                   <div
                     className={cn(
-                      "w-8 h-8 flex items-center justify-center rounded-full border-2",
+                      "w-12 h-12 flex items-center justify-center rounded-2xl border transition-colors",
                       isCorrect
-                        ? "bg-[#58CC02] border-[#58CC02]"
-                        : "bg-red-500 border-red-500"
+                        ? "bg-green-500/20 border-green-500/40 text-green-400"
+                        : "bg-red-500/20 border-red-500/40 text-red-400"
                     )}
                   >
                     {isCorrect ? (
-                      <Check className="h-5 w-5 text-white" />
+                      <Check className="h-6 w-6" />
                     ) : (
-                      <X className="h-5 w-5 text-white" />
+                      <X className="h-6 w-6" />
                     )}
                   </div>
-                  <div className="flex flex-col gap-1 text-left">
-                    <p className="font-semibold text-sm sm:text-base">
+                  <div className="flex flex-col gap-0.5">
+                    <p className={cn(
+                      "font-bold text-lg",
+                      isCorrect ? "text-green-400" : "text-red-400"
+                    )}>
                       {title}
                     </p>
-                    <p className="text-xs sm:text-sm">{message}</p>
+                    <p className="text-slate-300 text-sm font-medium">
+                      {message}
+                    </p>
                   </div>
                 </div>
                 {/* Buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-3 w-full md:w-auto">
                   {isCorrect && (
                     <Button
                       size="lg"
-                      variant="outline"
+                      variant="ghost"
                       onClick={handleWhyClick}
-                      className="rounded-full border-gray-300 hover:border-gray-400 text-base sm:text-sm"
+                      className="flex-1 md:flex-none rounded-xl border border-white/10 hover:bg-white/5 text-white bg-transparent font-bold"
                     >
                       Sharaxaad
                     </Button>
                   )}
                   <Button
                     size="lg"
-                    variant={isCorrect ? "default" : "secondary"}
                     onClick={buttonAction}
                     className={cn(
-                      "rounded-full gap-1 text-base sm:text-sm",
+                      "flex-1 md:flex-none rounded-xl gap-2 text-white font-bold transition-all active:scale-[0.98]",
                       isCorrect
-                        ? "border-[#58CC02] hover:border-[#58CC02]/80"
-                        : "border-red-200 hover:border-red-300"
+                        ? "bg-green-600 hover:bg-green-500 shadow-lg shadow-green-500/20"
+                        : "bg-red-600 hover:bg-red-500 shadow-lg shadow-red-500/20"
                     )}
                   >
                     {buttonText}

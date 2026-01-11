@@ -92,8 +92,8 @@ export function Header() {
         className={clsx(
           "sticky top-0 z-50 transition-all duration-300",
           isScrolled
-            ? "py-2 glassmorphism mx-4 mt-4 rounded-2xl"
-            : "py-5 bg-background/80 backdrop-blur-md"
+            ? "py-2 glassmorphism mx-4 mt-4 rounded-2xl bg-white/90 dark:bg-black/80 border border-black/5 dark:border-white/10"
+            : "py-5 bg-white dark:bg-black/95 backdrop-blur-md border-b border-black/5 dark:border-white/5"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -114,7 +114,7 @@ export function Header() {
                       "group relative flex items-center gap-2 text-xs font-bold transition-colors",
                       active
                         ? "text-primary"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-slate-600 dark:text-gray-300 hover:text-black dark:hover:text-white"
                     )}
                   >
                     <Icon
@@ -185,16 +185,16 @@ export function Header() {
           />
 
           {/* Menu Panel */}
-          <div className="absolute inset-x-0 top-0 bg-background border-b border-border shadow-xl animate-in slide-in-from-top duration-300">
+          <div className="absolute inset-x-0 top-0 bg-white dark:bg-black/95 border-b border-black/10 dark:border-white/10 shadow-xl animate-in slide-in-from-bottom duration-300 md:animate-in md:slide-in-from-top">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <Logo priority={false} loading="lazy" />
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-muted transition-colors"
+                className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 aria-label="Close menu"
               >
-                <X size={24} className="text-foreground" />
+                <X size={24} className="text-slate-800 dark:text-white" />
               </button>
             </div>
 
@@ -210,8 +210,8 @@ export function Header() {
                     className={clsx(
                       "flex items-center gap-4 px-4 py-3 rounded-xl transition-all",
                       active
-                        ? "bg-primary/10 text-primary font-bold"
-                        : "text-foreground hover:bg-muted"
+                        ? "bg-primary/10 dark:bg-primary/20 text-primary font-bold"
+                        : "text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
                     )}
                   >
                     <Icon className="w-5 h-5" />
@@ -222,7 +222,7 @@ export function Header() {
             </nav>
 
             {/* Divider */}
-            <div className="mx-6 border-t border-border" />
+            <div className="mx-6 border-t border-black/10 dark:border-white/10" />
 
             {/* User Section */}
             <div className="px-6 py-4 space-y-1">
@@ -233,14 +233,14 @@ export function Header() {
                       setIsMobileMenuOpen(false);
                       setIsReferralModalOpen(true);
                     }}
-                    className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary hover:from-primary/20 hover:to-primary/10 transition-all w-full text-left border border-primary/20 shadow-sm"
+                    className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary hover:from-primary/30 hover:to-primary/20 transition-all w-full text-left border border-primary/30 shadow-sm"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-primary/20 flex items-center justify-center shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shadow-sm">
                       <GraduationCap className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-black">Casuun Saaxiibbadaada</span>
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-green-600 dark:text-green-400">Hel 20% Commission</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-green-400">Hel 20% Commission</span>
                     </div>
                     <div className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                   </button>
@@ -248,7 +248,7 @@ export function Header() {
                   <Link
                     href="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-4 px-4 py-3 rounded-xl text-foreground hover:bg-muted transition-all"
+                    className="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                   >
                     <User className="w-4 h-4" />
                     <span className="text-base">Akoonkaaga</span>
@@ -258,7 +258,7 @@ export function Header() {
                       setIsMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="flex items-center gap-4 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-all w-full text-left"
+                    className="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400 hover:bg-red-400/10 transition-all w-full text-left"
                   >
                     <LogOut className="w-5 h-5" />
                     <span className="text-base">Ka bax</span>

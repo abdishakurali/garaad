@@ -85,15 +85,12 @@ const ProblemBlock: React.FC<{
         disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
       const buttonClass = cn(
-        "w-full p-3 text-sm rounded-xl border-2 relative text-left",
-        !isSelected &&
-        !hasAnswered &&
-        "border-gray-200 hover:border-primary/50 hover:bg-primary/5",
-        isSelected && !hasAnswered && "border-primary bg-primary/10 shadow-md",
-        isOptionCorrect && "border-green-500 bg-green-50 shadow-md",
-        isOptionIncorrect && "border-gray-300 bg-gray-50 text-gray-400",
-        isDisabled &&
-        "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
+        "w-full p-4 text-sm rounded-xl border transition-all duration-300 relative text-left outline-none",
+        !isSelected && !hasAnswered && "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:border-primary/50 hover:bg-primary/5 text-slate-700 dark:text-slate-200",
+        isSelected && !hasAnswered && "border-primary bg-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.2)] text-primary dark:text-white scale-[1.02]",
+        isOptionCorrect && "border-green-500 bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]",
+        isOptionIncorrect && "border-black/5 dark:border-white/5 bg-transparent text-slate-400 dark:text-slate-600",
+        isDisabled && !isOptionCorrect && "border-black/5 dark:border-white/5 bg-transparent text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"
       );
 
       return (
@@ -112,7 +109,7 @@ const ProblemBlock: React.FC<{
             <span
               className={cn(
                 "font-normal",
-                isOptionIncorrect ? "text-gray-400" : "text-gray-800"
+                isOptionIncorrect ? "text-slate-400 dark:text-slate-600" : "text-slate-800 dark:text-slate-200"
               )}
             >
               {content?.content.type === "latex" ? (
@@ -155,142 +152,144 @@ const ProblemBlock: React.FC<{
     }
 
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="space-y-8">
-          <Card className="border-none shadow-xl">
-            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 pb-2">
-              {content.content.type === "latex" ? (
-                <>
-                  <CardTitle className="text-md font-normal text-gray-600">
-                    <Latex>{content.which}</Latex>
-                  </CardTitle>
-                  <CardTitle className="text-md font-medium">
-                    <Latex>{content.question}</Latex>
-                  </CardTitle>
-                </>
-              ) : (
-                <>
-                  <div className="text-md font-normal text-gray-600 prose prose-sm max-w-none">
-                    {content.which && content.which.includes('<') ? (
-                      <div dangerouslySetInnerHTML={{ __html: content.which }} />
+      <div className="w-full max-w-2xl mx-auto px-4">
+        <div className="space-y-6">
+          <div className="overflow-hidden rounded-3xl bg-white/5 dark:bg-black/40 backdrop-blur-sm border border-black/5 dark:border-white/5 transition-all duration-500 hover:bg-black/5 dark:hover:bg-black/50">
+            <div className="p-8 md:p-10 space-y-6">
+              <div className="space-y-3">
+                {content.content.type === "latex" ? (
+                  <>
+                    <div className="text-sm font-bold text-primary/80 uppercase tracking-widest">
+                      <Latex>{content.which}</Latex>
+                    </div>
+                    <div className="text-xl md:text-2xl font-bold text-foreground leading-tight">
+                      <Latex>{content.question}</Latex>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-sm font-bold text-primary/80 uppercase tracking-widest prose-sm max-w-none">
+                      {content.which && content.which.includes('<') ? (
+                        <div dangerouslySetInnerHTML={{ __html: content.which }} />
+                      ) : (
+                        content.which
+                      )}
+                    </div>
+                    <div className="text-xl md:text-2xl font-bold text-foreground leading-tight prose dark:prose-invert max-w-none">
+                      {content.question && content.question.includes('<') ? (
+                        <div dangerouslySetInnerHTML={{ __html: content.question }} />
+                      ) : (
+                        content.question
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {content.img && (
+                <div className="flex justify-center py-4">
+                  <div className="relative w-full max-w-[500px] aspect-[16/9] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 bg-black/5 dark:bg-black/20">
+                    {imgLoading && (
+                      <div className="absolute inset-0 w-full h-full bg-white/5 animate-pulse z-10" />
+                    )}
+                    {isVideoFile(content.img) ? (
+                      <video
+                        key={imgSrc}
+                        src={imgSrc || ""}
+                        controls
+                        className="w-full h-full object-contain"
+                        onLoadStart={() => setImgLoading(true)}
+                        onCanPlay={() => setImgLoading(false)}
+                        onError={() => setImgLoading(false)}
+                        style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.5s" }}
+                      >
+                        Browser-kaagu ma taageerayo video-ga.
+                      </video>
                     ) : (
-                      content.which
+                      <Image
+                        key={imgSrc}
+                        src={imgSrc || ""}
+                        alt={content.alt || "lesson image"}
+                        fill
+                        loading="lazy"
+                        className="object-contain"
+                        sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
+                        quality={75}
+                        priority={false}
+                        onLoad={() => setImgLoading(false)}
+                        onError={() => setImgLoading(false)}
+                        style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.5s" }}
+                      />
                     )}
                   </div>
-                  <div className="text-md font-medium prose prose-sm max-w-none">
-                    {content.question && content.question.includes('<') ? (
-                      <div dangerouslySetInnerHTML={{ __html: content.question }} />
-                    ) : (
-                      content.question
-                    )}
-                  </div>
-                </>
+                </div>
               )}
-            </CardHeader>
 
-            {content.img && (
-              <CardContent className="flex justify-center py-2">
-                <div className="relative w-full max-w-[500px] h-[250px]">
-                  {imgLoading && (
-                    <div className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse rounded-xl z-10" />
-                  )}
-                  {isVideoFile(content.img) ? (
-                    <video
-                      key={imgSrc}
-                      src={imgSrc || ""}
-                      controls
-                      className="rounded-xl shadow-lg object-contain bg-black w-full h-full"
-                      onLoadStart={() => setImgLoading(true)}
-                      onCanPlay={() => setImgLoading(false)}
-                      onError={() => setImgLoading(false)}
-                      style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.2s" }}
-                    >
-                      Browser-kaagu ma taageerayo video-ga.
-                    </video>
-                  ) : (
-                    <Image
-                      key={imgSrc}
-                      src={imgSrc || ""}
-                      alt={content.alt || "lesson image"}
-                      fill
-                      loading="lazy"
-                      className="rounded-xl shadow-lg object-contain bg-white"
-                      sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
-                      quality={75}
-                      priority={false}
-                      onLoad={() => setImgLoading(false)}
-                      onError={() => setImgLoading(false)}
-                      style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.2s" }}
-                    />
-                  )}
+              {content.question_type === "diagram" && (content.diagram_config || content.diagrams) && (
+                <div className="py-6 max-w-full overflow-hidden">
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center w-full max-w-full overflow-hidden">
+                    {(() => {
+                      const diagramCount = content.diagrams?.length ||
+                        (Array.isArray(content.diagram_config) ? content.diagram_config.length : 1);
+                      const isMultiple = diagramCount > 1;
+
+                      if (content.diagrams) {
+                        return content.diagrams.map((cfg, i) => (
+                          <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
+                            <DiagramScale config={cfg} isMultiple={isMultiple} />
+                          </div>
+                        ));
+                      } else if (Array.isArray(content.diagram_config)) {
+                        return content.diagram_config.map((cfg, i) => (
+                          <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
+                            <DiagramScale config={cfg} isMultiple={isMultiple} />
+                          </div>
+                        ));
+                      } else if (content.diagram_config) {
+                        return (
+                          <div className="flex-shrink min-w-0 w-full max-w-full">
+                            <DiagramScale config={content.diagram_config} isMultiple={isMultiple} />
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                 </div>
-              </CardContent>
-            )}
+              )}
 
-            {content.question_type === "diagram" && (content.diagram_config || content.diagrams) && (
-              <CardContent className="p-6 max-w-full overflow-hidden">
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center w-full max-w-full overflow-hidden">
-                  {(() => {
-                    // Determine if there are multiple diagrams
-                    const diagramCount = content.diagrams?.length ||
-                      (Array.isArray(content.diagram_config) ? content.diagram_config.length : 1);
-                    const isMultiple = diagramCount > 1;
-
-                    if (content.diagrams) {
-                      // Handle new diagrams array format
-                      return content.diagrams.map((cfg, i) => (
-                        <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
-                          <DiagramScale config={cfg} isMultiple={isMultiple} />
-                        </div>
-                      ));
-                    } else if (Array.isArray(content.diagram_config)) {
-                      // Handle existing diagram_config array format
-                      return content.diagram_config.map((cfg, i) => (
-                        <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
-                          <DiagramScale config={cfg} isMultiple={isMultiple} />
-                        </div>
-                      ));
-                    } else if (content.diagram_config) {
-                      // Handle existing single diagram_config format
-                      return (
-                        <div className="flex-shrink min-w-0 w-full max-w-full">
-                          <DiagramScale config={content.diagram_config} isMultiple={isMultiple} />
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
-                </div>
-              </CardContent>
-            )}
-
-            <CardContent className="p-4">
               <div
                 className={cn(
-                  content.question_type === "diagram"
-                    ? "grid grid-cols-2 gap-4 w-full max-w-xl mx-auto"
-                    : "flex flex-col gap-4 w-full max-w-xl mx-auto"
+                  "gap-4 w-full max-w-xl mx-auto",
+                  content.question_type === "diagram" ? "grid grid-cols-2" : "flex flex-col"
                 )}
               >
                 {content.options.map(renderOption)}
               </div>
-            </CardContent>
+            </div>
 
-            <CardFooter className="pt-2 pb-4 px-6">
-              <div className="w-full space-y-2">
+            <div className="px-8 pb-8 pt-2">
+              <div className="w-full">
                 {answerState.isCorrect === null && !hasAnswered && (
-                  <Button onClick={onCheckAnswer} className="w-full">
+                  <Button
+                    onClick={onCheckAnswer}
+                    className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+                    disabled={!selectedOption}
+                  >
                     Hubi Jawaabta
                   </Button>
                 )}
                 {hasAnswered && (
-                  <Button onClick={onContinue} className="w-full">
-                    SiiWado Qaybta Kale
+                  <Button
+                    onClick={onContinue}
+                    className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+                  >
+                    Sii wado
                   </Button>
                 )}
               </div>
-            </CardFooter>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );

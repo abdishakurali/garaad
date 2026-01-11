@@ -10,7 +10,6 @@ const SocialProof = dynamic(() => import("./SocialProof").then(mod => mod.Social
 export function OverlayElements() {
     return (
         <>
-            <WhatsAppFloat />
             <SocialProof />
         </>
     );

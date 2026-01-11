@@ -103,7 +103,7 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             const txt = dg
               .textvar(String(obj.weight_value))
               .move_origin_text("center-center")
-              .textfill("black")
+              .textfill("#FFFFFF") // White text
               .fontsize(fontSize);
             shape = dg.diagram_combine(shape, txt);
           }
@@ -154,8 +154,8 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             const beamHeight = isMultiple ? 6 : 8;
             const beam = dg
               .rectangle(beamWidth, beamHeight)
-              .fill("#AAAAAA")
-              .stroke("#888888")
+              .fill("#333333") // Darker beam
+              .stroke("#444444")
               .strokewidth(1)
               .position(V2(0, beamY));
 
@@ -163,8 +163,8 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             const leftPlatform = dg
               .rectangle(platformWidth, platformHeight)
               .apply(dg.mod.round_corner(3))
-              .fill("#CCCCCC")
-              .stroke("#999999")
+              .fill("#222222") // Darker platform
+              .stroke("#444444")
               .strokewidth(1)
               .position(V2(-platformOffset, platformY));
 
@@ -172,87 +172,83 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
             const rightPlatform = dg
               .rectangle(platformWidth, platformHeight)
               .apply(dg.mod.round_corner(3))
-              .fill("#CCCCCC")
-              .stroke("#999999")
+              .fill("#222222") // Darker platform
+              .stroke("#444444")
               .strokewidth(1)
               .position(V2(platformOffset, platformY));
 
-            // Support chains connecting platforms to beam (platforms now below beam)
+            // Support chains connecting platforms to beam
             const chainHeight = platformY - beamY - platformHeight / 2;
             const leftChain = dg
               .rectangle(isMultiple ? 4 : 6, chainHeight)
-              .fill("#555555")
-              .stroke("#333333")
+              .fill("#444444")
+              .stroke("#555555")
               .strokewidth(1)
               .position(V2(-platformOffset, beamY + beamHeight / 2 + chainHeight / 2));
 
             const rightChain = dg
               .rectangle(isMultiple ? 4 : 6, chainHeight)
-              .fill("#555555")
-              .stroke("#333333")
+              .fill("#444444")
+              .stroke("#555555")
               .strokewidth(1)
               .position(V2(platformOffset, beamY + beamHeight / 2 + chainHeight / 2));
 
-            // Central fulcrum (triangle pointing down at the top)
+            // Central fulcrum
             const fulcrum = dg
               .regular_polygon(3, isMultiple ? 24 : 32)
-              .fill("#777777")
-              .stroke("#555555")
+              .fill("#555555")
+              .stroke("#666666")
               .strokewidth(1)
-              .rotate(Math.PI) // Point down
+              .rotate(Math.PI)
               .position(V2(0, fulcrumY));
 
-            // Fulcrum base/support (above the fulcrum)
+            // Fulcrum base
             const fulcrumBase = dg
               .rectangle(isMultiple ? 60 : 80, isMultiple ? 12 : 16)
               .apply(dg.mod.round_corner(3))
-              .fill("#666666")
+              .fill("#444444")
               .position(V2(0, fulcrumY - (isMultiple ? 28 : 36)));
 
-            // Add connection points for better visibility
             const connectionRadius = isMultiple ? 2 : 3;
 
             // Left connection points
             const leftBeamConnection = dg
               .circle(connectionRadius)
-              .fill("#333333")
+              .fill("#666666")
               .position(V2(-platformOffset, beamY + beamHeight / 2));
 
             const leftPlatformConnection = dg
               .circle(connectionRadius)
-              .fill("#333333")
+              .fill("#666666")
               .position(V2(-platformOffset, platformY - platformHeight / 2));
 
             // Right connection points
             const rightBeamConnection = dg
               .circle(connectionRadius)
-              .fill("#333333")
+              .fill("#666666")
               .position(V2(platformOffset, beamY + beamHeight / 2));
 
             const rightPlatformConnection = dg
               .circle(connectionRadius)
-              .fill("#333333")
+              .fill("#666666")
               .position(V2(platformOffset, platformY - platformHeight / 2));
 
             baseElements = [fulcrumBase, beam, leftChain, rightChain, leftPlatform, rightPlatform, fulcrum,
               leftBeamConnection, leftPlatformConnection, rightBeamConnection, rightPlatformConnection];
           } else {
-            // Original scale layout - adjusted for vertical centering
-            const scaleBaseY = isMultiple ? 15 : 20; // Match platform beam position
-
-            // Base shape and accent line should have the same width for consistency
-            const scaleWidth = isMultiple ? 380 : 500; // Increased width to make beam longer
+            const scaleBaseY = isMultiple ? 15 : 20;
+            const scaleWidth = isMultiple ? 380 : 500;
 
             const baseAccent = dg
-              .rectangle(scaleWidth, isMultiple ? 5 : 6) // Accent line matches base shape width
+              .rectangle(scaleWidth, isMultiple ? 5 : 6)
               .position(V2(0, scaleBaseY))
-              .stroke("#777777")
+              .stroke("#444444")
               .strokewidth(isMultiple ? 5 : 6);
 
             const displayBg = dg
               .rectangle(isMultiple ? 40 : 50, isMultiple ? 28 : 35)
               .apply(dg.mod.round_corner(4))
-              .fill("#1a1a1a")
+              .fill("#000000") // Full black display
               .position(V2(0, scaleBaseY - (isMultiple ? 29 : 35)));
 
             const displayText = dg
@@ -266,15 +262,15 @@ const DiagramScale: React.FC<{ config: DiagramConfig; isMultiple?: boolean }> = 
               .rectangle(isMultiple ? 70 : 90, isMultiple ? 10 : 12)
               .apply(dg.mod.round_corner(5))
               .position(V2(0, scaleBaseY + (isMultiple ? 5 : 8)))
-              .fill("#444444")
-              .stroke("#333333")
+              .fill("#333333")
+              .stroke("#444444")
               .strokewidth(1);
 
             const baseShape = dg
-              .rectangle(scaleWidth, isMultiple ? 56 : 70) // Base shape uses consistent width
+              .rectangle(scaleWidth, isMultiple ? 56 : 70)
               .apply(dg.mod.round_corner(8))
-              .fill("#555555")
-              .stroke("#333333")
+              .fill("#222222") // Darker base
+              .stroke("#444444")
               .strokewidth(2)
               .position(V2(0, scaleBaseY - (isMultiple ? 25 : 30)));
 

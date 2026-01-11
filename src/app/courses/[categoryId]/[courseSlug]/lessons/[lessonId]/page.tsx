@@ -846,7 +846,7 @@ const LessonPage = () => {
 
     // Render the main lesson page
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="min-h-screen bg-background">
             <LessonHeader
                 currentQuestion={currentBlockIndex + 1}
                 totalQuestions={sortedBlocks.length}
@@ -855,21 +855,23 @@ const LessonPage = () => {
                 completedLessons={[]}
             />
 
-            <main className="pt-20 pb-32 mt-4">
-                <div className="container mx-auto transition-all duration-300">
+            <main className="pt-20 pb-32">
+                <div className="container mx-auto">
                     {/* Review Mode Indicator */}
                     {isReviewMode && (
                         <div className="max-w-2xl mx-auto px-4 mb-4">
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                <span className="text-green-700 text-sm font-medium">
+                            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-2">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span className="text-green-400 text-sm font-bold">
                                     Muraajacee - Casharkan waa la dhammeeyay, waxaad ku celcelaysaa
                                 </span>
                             </div>
                         </div>
                     )}
 
-                    {currentBlock}
+                    <div className="flex flex-col items-center">
+                        {currentBlock}
+                    </div>
                 </div>
             </main>
 

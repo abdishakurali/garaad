@@ -30,9 +30,20 @@ const VideoBlock: React.FC<{
   // Generate a poster URL for cleaner loading
   const posterUrl = React.useMemo(() => {
     if (!videoUrl || !videoUrl.includes("res.cloudinary.com")) return undefined;
-    return videoUrl
-      .replace("/video/upload/", "/video/upload/q_auto,f_auto,so_0/")
-      .replace(/\.[^/.]+$/, ".jpg");
+
+    // Check if it already has transformations
+    if (videoUrl.includes("/upload/v")) {
+      // It has no transformations, just the version
+      return videoUrl
+        .replace("/video/upload/", "/video/upload/q_auto,f_auto,so_0/")
+        .replace(/\.[^/.]+$/, ".jpg");
+    } else {
+      // It likely already has transformations like q_auto/f_auto
+      // We want to add so_0 and change extension to .jpg
+      return videoUrl
+        .replace("/video/upload/", "/video/upload/so_0/")
+        .replace(/\.[^/.]+$/, ".jpg");
+    }
   }, [videoUrl]);
 
   const togglePlay = useCallback(() => {
@@ -46,94 +57,80 @@ const VideoBlock: React.FC<{
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[40vh] max-w-2xl mx-auto px-4">
-      <Card className="w-full shadow-2xl rounded-[2rem] border-0 overflow-hidden bg-white dark:bg-slate-900 group">
-        <CardContent className="p-0 relative">
-          {optimizedUrl ? (
-            <div
-              className="relative aspect-video bg-black cursor-pointer group/video"
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
-              onClick={togglePlay}
+    <div className="w-full max-w-2xl mx-auto px-4">
+      <div className="relative group overflow-hidden rounded-3xl bg-black/5 dark:bg-black/40 backdrop-blur-sm border border-black/5 dark:border-white/5 transition-all duration-500 hover:bg-black/10 dark:hover:bg-black/60">
+        {optimizedUrl ? (
+          <div
+            className="relative aspect-video cursor-pointer"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+            onClick={togglePlay}
+          >
+            <video
+              ref={videoRef}
+              src={optimizedUrl}
+              poster={posterUrl}
+              playsInline
+              preload="metadata"
+              className="w-full h-full object-contain"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+              onError={(e) => {
+                console.error("Video error:", e);
+              }}
             >
-              <video
-                ref={videoRef}
-                poster={posterUrl}
-                playsInline
-                preload="metadata"
-                className="w-full h-full object-contain"
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
-                onError={(e) => {
-                  console.error("Video error:", e);
-                  console.error("Video URL:", optimizedUrl);
-                }}
-              >
-                <source src={optimizedUrl} type="video/mp4" />
-                <source src={optimizedUrl} type="video/quicktime" />
-                <source src={optimizedUrl} />
-                Browser-kaagu ma taageerayo video-ga.
-              </video>
+              Browser-kaagu ma taageerayo video-ga.
+            </video>
 
-              {/* Centered Play Button Overlay */}
+            {/* Centered Play Button Overlay - Ultra Minimal */}
+            <div className={cn(
+              "absolute inset-0 flex items-center justify-center transition-all duration-300",
+              isPlaying && !isHovering ? "opacity-0 invisible" : "opacity-100 visible bg-black/5 dark:bg-black/10"
+            )}>
               <div className={cn(
-                "absolute inset-0 flex items-center justify-center transition-all duration-300 bg-black/20",
-                isPlaying && !isHovering ? "opacity-0 invisible" : "opacity-100 visible"
+                "w-12 h-12 rounded-full bg-black/10 dark:bg-white/10 backdrop-blur-md border border-black/10 dark:border-white/20 flex items-center justify-center transition-all duration-300",
+                "hover:scale-110 active:scale-95 group-hover:bg-black/20 dark:group-hover:bg-white/20"
               )}>
-                <div className={cn(
-                  "w-20 h-20 rounded-full bg-white/90 dark:bg-primary/90 flex items-center justify-center shadow-2xl transform transition-transform duration-300",
-                  "group-hover/video:scale-110 active:scale-95"
-                )}>
-                  {isPlaying ? (
-                    <Pause className="w-10 h-10 text-black fill-black" />
-                  ) : (
-                    <Play className="w-10 h-10 text-black fill-black ml-1" />
-                  )}
-                </div>
+                {isPlaying ? (
+                  <Pause className="w-5 h-5 text-slate-800 dark:text-white fill-current" />
+                ) : (
+                  <Play className="w-5 h-5 text-slate-800 dark:text-white fill-current ml-0.5" />
+                )}
               </div>
-
-              {/* Progress Bar (Subtle) */}
-              {isPlaying && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                  <div
-                    className="h-full bg-primary transition-all duration-100"
-                    style={{
-                      width: videoRef.current ? `${(videoRef.current.currentTime / videoRef.current.duration) * 100}%` : '0%'
-                    }}
-                  />
-                </div>
-              )}
             </div>
-          ) : (
-            <div className="aspect-video w-full flex items-center justify-center text-gray-500 bg-slate-100">
-              Muuqaalka lama helin
-            </div>
-          )}
+          </div>
+        ) : (
+          <div className="aspect-video w-full flex items-center justify-center text-slate-500 bg-slate-900/50">
+            Muuqaalka lama helin
+          </div>
+        )}
 
-          <div className="p-8 space-y-4">
+        {(content.title || content.description) && (
+          <div className="p-5 border-t border-black/5 dark:border-white/5">
             {content.title && (
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+              <h3 className="text-md font-bold text-foreground mb-1">
                 {content.title}
               </h3>
             )}
             {content.description && (
-              <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                 {content.description}
               </p>
             )}
           </div>
-        </CardContent>
-        <CardFooter className="px-8 pb-8 pt-0">
-          <Button
-            onClick={onContinue}
-            className="w-full h-14 rounded-2xl text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:-translate-y-1"
-          >
-            {isLastBlock ? "Dhamee" : "Sii wado"}
-            <ChevronRight className="ml-2 h-6 w-6" />
-          </Button>
-        </CardFooter>
-      </Card>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <Button
+          onClick={onContinue}
+          className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
+        >
+          {isLastBlock ? "Dhamee" : "Sii wado"}
+          <ChevronRight className="ml-2 h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };
