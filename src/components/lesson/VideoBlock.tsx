@@ -24,27 +24,36 @@ const VideoBlock: React.FC<{
   // Use the video URL as-is from the backend
   // The backend now handles format optimization correctly
   const optimizedUrl = React.useMemo(() => {
-    return videoUrl || "";
+    if (!videoUrl) return "";
+
+    // Force .mp4 for Cloudinary videos to ensure accept-ranges: bytes support
+    // and better browser compatibility.
+    if (videoUrl.includes("res.cloudinary.com") && videoUrl.includes("/video/upload/")) {
+      return videoUrl.replace(/\.[^/.]+$/, ".mp4");
+    }
+
+    return videoUrl;
   }, [videoUrl]);
 
   // Generate a poster URL for cleaner loading
   const posterUrl = React.useMemo(() => {
     if (!videoUrl || !videoUrl.includes("res.cloudinary.com")) return undefined;
 
-    // Check if it already has transformations
-    if (videoUrl.includes("/upload/v")) {
-      // It has no transformations, just the version
+    // Change extension to .jpg and add so_0 for a poster frame at the start
+    // We use /video/upload/so_0/ to insert so_0 safely
+    if (videoUrl.includes("/video/upload/v")) {
+      // Raw URL without transformations
       return videoUrl
-        .replace("/video/upload/", "/video/upload/q_auto,f_auto,so_0/")
+        .replace("/video/upload/", "/video/upload/f_auto,q_auto,so_0/")
         .replace(/\.[^/.]+$/, ".jpg");
     } else {
-      // It likely already has transformations like q_auto/f_auto
-      // We want to add so_0 and change extension to .jpg
+      // Already has transformations, just insert so_0
       return videoUrl
         .replace("/video/upload/", "/video/upload/so_0/")
         .replace(/\.[^/.]+$/, ".jpg");
     }
   }, [videoUrl]);
+
 
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
