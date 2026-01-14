@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCategories } from "@/hooks/useApi";
+import { Category, Course } from "@/types/lms";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, ChevronRight, CheckCircle2 } from "lucide-react";
@@ -60,20 +61,6 @@ const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string
   );
 };
 
-interface Course {
-  id: string;
-  is_published: boolean;
-  thumbnail?: string;
-  title: string;
-  is_new: boolean;
-  slug: string;
-  description?: string;
-  lesson_count?: number;
-  estimatedHours?: number;
-  sequence?: number;
-  created_at?: string;
-  updated_at?: string;
-}
 
 export default function CoursesPage() {
   const { categories, isLoading, isError } = useCategories();
@@ -118,13 +105,13 @@ export default function CoursesPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ItemList",
-            "itemListElement": categories?.flatMap(cat => cat.courses || []).map((course, index) => ({
+            "itemListElement": categories?.flatMap(cat => cat?.courses || []).map((course, index) => ({
               "@type": "ListItem",
               "position": index + 1,
               "item": {
                 "@type": "Course",
-                "name": course.title,
-                "description": course.description,
+                "name": course?.title,
+                "description": course?.description,
                 "provider": {
                   "@type": "EducationalOrganization",
                   "name": "Garaad STEM",
@@ -180,26 +167,27 @@ export default function CoursesPage() {
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
         <div className="space-y-32">
           {(isLoading ? Array(3).fill(null) : (categories ?? [])
-            .filter(cat => cat.courses && cat.courses.length > 0)
+            .filter(cat => cat?.courses && cat.courses.length > 0)
             .sort((a, b) => {
-              const seqA = (a?.sequence && a.sequence > 0) ? a.sequence : Number.MAX_SAFE_INTEGER;
-              const seqB = (b?.sequence && b.sequence > 0) ? b.sequence : Number.MAX_SAFE_INTEGER;
+              const seqA = (a?.sequence !== undefined && a.sequence !== null) ? a.sequence : Number.MAX_SAFE_INTEGER;
+              const seqB = (b?.sequence !== undefined && b.sequence !== null) ? b.sequence : Number.MAX_SAFE_INTEGER;
               return seqA - seqB;
             })
           ).map(
-            (category, idx) => {
+            (category: Category | null, idx) => {
               const sortedCourses = isLoading
                 ? Array(4).fill(null)
-                : [...category.courses].sort((a, b) => {
-                  // Primary sort: sequence ascending (treat 0 as MAX_SAFE_INTEGER to put at end)
-                  const seqA = (a?.sequence && a.sequence > 0) ? a.sequence : Number.MAX_SAFE_INTEGER;
-                  const seqB = (b?.sequence && b.sequence > 0) ? b.sequence : Number.MAX_SAFE_INTEGER;
+                : [...(category?.courses || [])].sort((a, b) => {
+                  // Primary sort: sequence ascending
+                  const seqA = (a?.sequence !== undefined && a.sequence !== null) ? a.sequence : Number.MAX_SAFE_INTEGER;
+                  const seqB = (b?.sequence !== undefined && b.sequence !== null) ? b.sequence : Number.MAX_SAFE_INTEGER;
+
                   if (seqA !== seqB) return seqA - seqB;
 
                   // Secondary sort: created_at ascending (oldest first)
                   const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
                   const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
-                  return dateB - dateA;
+                  return dateA - dateB;
                 });
 
               return (
@@ -218,15 +206,15 @@ export default function CoursesPage() {
                       ) : (
                         <>
                           <div className="relative p-5 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-md transition-all duration-500 group-hover/header:scale-110 group-hover/header:rotate-3 group-hover/header:shadow-primary/30">
-                            <CategoryImage src={category.image} alt={category.title} />
+                            <CategoryImage src={category?.image} alt={category?.title || 'Category'} />
                             <div className="absolute -inset-2 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-[3rem] opacity-0 group-hover/header:opacity-100 blur-xl transition-opacity duration-500" />
                           </div>
                           <div>
                             <h2 className="text-3xl md:text-5xl font-black tracking-tighter mb-3 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent group-hover/header:translate-x-2 transition-transform duration-300">
-                              {category.title}
+                              {category?.title}
                             </h2>
                             <p className="text-lg md:text-xl text-slate-500 dark:text-slate-500 font-medium tracking-wide max-w-xl group-hover/header:translate-x-3 transition-transform duration-500">
-                              {category.description}
+                              {category?.description}
                             </p>
                           </div>
                         </>
@@ -286,7 +274,7 @@ export default function CoursesPage() {
                         return (
                           <Link
                             key={course.id}
-                            href={`/courses/${category.id}/${course.slug}`}
+                            href={`/courses/${category?.id}/${course.slug}`}
                             className="group h-full"
                           >
                             <Card
