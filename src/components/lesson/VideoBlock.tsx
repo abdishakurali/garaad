@@ -21,19 +21,44 @@ const VideoBlock: React.FC<{
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
 
+  // Debug logging
+  console.log("VideoBlock content:", { content, videoUrl });
+
   // Use the video URL as-is from the backend
   // The backend now handles format optimization correctly
   const optimizedUrl = React.useMemo(() => {
     if (!videoUrl) return "";
 
-    // Force .mp4 for Cloudinary videos to ensure accept-ranges: bytes support
-    // and better browser compatibility.
+    // For Cloudinary videos, we need to ensure MP4 format for browser compatibility
     if (videoUrl.includes("res.cloudinary.com") && videoUrl.includes("/video/upload/")) {
-      return videoUrl.replace(/\.[^/.]+$/, ".mp4");
+      // Remove the file extension first
+      const urlWithoutExt = videoUrl.replace(/\.[^/.]+$/, "");
+
+      // Check if there are already transformations
+      if (urlWithoutExt.includes("/q_auto/") || urlWithoutExt.includes("/f_auto/")) {
+        // Add f_mp4 transformation if not already present
+        if (!urlWithoutExt.includes("f_mp4")) {
+          // Insert f_mp4 after /video/upload/
+          return urlWithoutExt.replace(
+            "/video/upload/",
+            "/video/upload/f_mp4/"
+          ) + ".mp4";
+        }
+        return urlWithoutExt + ".mp4";
+      } else {
+        // No transformations - add f_mp4 transformation
+        return urlWithoutExt.replace(
+          "/video/upload/",
+          "/video/upload/f_mp4/"
+        ) + ".mp4";
+      }
     }
 
     return videoUrl;
   }, [videoUrl]);
+
+  // Debug logging for optimized URL
+  console.log("VideoBlock optimizedUrl:", { videoUrl, optimizedUrl });
 
   // Generate a poster URL for cleaner loading
   const posterUrl = React.useMemo(() => {
@@ -86,7 +111,16 @@ const VideoBlock: React.FC<{
               onPause={() => setIsPlaying(false)}
               onEnded={() => setIsPlaying(false)}
               onError={(e) => {
-                console.error("Video error:", e);
+                const videoElement = e.currentTarget;
+                const error = videoElement.error;
+                console.error("Video error details:", {
+                  attemptedUrl: optimizedUrl,
+                  originalUrl: videoUrl,
+                  errorCode: error?.code,
+                  errorMessage: error?.message,
+                  networkState: videoElement.networkState,
+                  readyState: videoElement.readyState,
+                });
               }}
             >
               Browser-kaagu ma taageerayo video-ga.

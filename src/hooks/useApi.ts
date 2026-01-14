@@ -182,18 +182,18 @@ export function useProblem(problemId: number | string | undefined | null) {
   };
 }
 
-// User Streak
+// User Streak - DISABLED (API endpoint not available)
 export function useUserStreak() {
-  const { data, error, isLoading, mutate } = useSWR(
-    `${API_BASE_URL}/api/streaks/`,
-    fetcher
-  );
+  // const { data, error, isLoading, mutate } = useSWR(
+  //   `${API_BASE_URL}/api/streaks/`,
+  //   fetcher
+  // );
 
   return {
-    streak: data,
-    isLoading,
-    isError: error,
-    mutate,
+    streak: null,
+    isLoading: false,
+    isError: null,
+    mutate: () => { },
   };
 }
 
