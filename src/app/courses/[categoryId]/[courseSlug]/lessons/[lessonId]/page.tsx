@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import type { RootState, AppDispatch } from "@/store";
-import { fetchLesson, resetAnswerState } from "@/store/features/learningSlice";
+import { fetchLesson, resetAnswerState, setCurrentLesson } from "@/store/features/learningSlice";
 import { useLesson, useCourse, useCategories, useProblem } from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
 import {
@@ -250,6 +250,8 @@ const LessonPage = () => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
     const [hasPlayedStartSound, setHasPlayedStartSound] = useState(false);
+    const [problems, setProblems] = useState<ProblemContent[]>([]);
+    const [problemLoading, setProblemLoading] = useState(false);
 
     const { playSound } = useSoundManager();
     const continueRef = useRef<() => void>(() => { });
@@ -280,6 +282,19 @@ const LessonPage = () => {
         return categories?.flatMap(cat => cat.courses || []);
     }, [categories]);
 
+    const sortedBlocks = useMemo(() => {
+        if (!currentLesson?.content_blocks) return [];
+        return [...currentLesson.content_blocks]
+            .filter((b) => !(b.block_type === "problem" && !b.problem))
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+    }, [currentLesson?.content_blocks]);
+
+    // Current problem derived from problems state and index
+    const currentProblem = useMemo(() => {
+        if (!problems || problems.length === 0) return null;
+        return problems[currentProblemIndex];
+    }, [problems, currentProblemIndex]);
+
     // Memoized derived values
     const currentProblemBlock = useMemo(() => {
         if (!sortedBlocks) return null;
@@ -292,13 +307,6 @@ const LessonPage = () => {
         [params]
     );
 
-    const sortedBlocks = useMemo(() => {
-        if (!currentLesson?.content_blocks) return [];
-        return [...currentLesson.content_blocks]
-            .filter((b) => !(b.block_type === "problem" && !b.problem))
-            .sort((a, b) => (a.order || 0) - (b.order || 0));
-    }, [currentLesson?.content_blocks]);
-
 
     // Reset state when block changes
     useEffect(() => {
@@ -309,7 +317,7 @@ const LessonPage = () => {
     // Sync lesson to Redux for other components
     useEffect(() => {
         if (swrLesson) {
-            dispatch(setCurrentLesson(swrLesson));
+            dispatch(setCurrentLesson(swrLesson as any));
         }
     }, [swrLesson, dispatch]);
 
@@ -680,9 +688,6 @@ const LessonPage = () => {
         disabledOptions,
     ]);
 
-    useEffect(() => {
-        setCurrentBlock(renderCurrentBlock());
-    }, [renderCurrentBlock]);
 
     const courseIdFromSlug = useMemo(() => {
         if (!courses || !params.courseSlug || !params.categoryId) return null;
@@ -775,7 +780,7 @@ const LessonPage = () => {
                     )}
 
                     <div className="flex flex-col items-center">
-                        {currentBlock}
+                        {renderCurrentBlock()}
                     </div>
                 </div>
             </main>

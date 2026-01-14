@@ -1,8 +1,8 @@
-import React, { useState, useRef, useCallback } from "react";
-import { ChevronRight, Play, Pause } from "lucide-react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { ChevronRight, Play, Pause, RotateCcw } from "lucide-react";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardFooter } from "../ui/card";
 import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 
 const VideoBlock: React.FC<{
   content: {
@@ -20,9 +20,10 @@ const VideoBlock: React.FC<{
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-
-  // Debug logging
-  console.log("VideoBlock content:", { content, videoUrl });
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isEnded, setIsEnded] = useState(false);
 
   // Robustly handle Cloudinary optimized URLs
   const optimizedUrl = React.useMemo(() => {
@@ -30,21 +31,16 @@ const VideoBlock: React.FC<{
 
     // For Cloudinary videos, we need to ensure MP4 format and proper transformations
     if (videoUrl.includes("res.cloudinary.com") && videoUrl.includes("/video/upload/")) {
-      // 1. Remove any existing extension and specific file extensions that might cause issues
       let cleanUrl = videoUrl.replace(/\.[^/.]+$/, "");
-
-      // 2. Extract parts
       const [before, after] = cleanUrl.split("/video/upload/");
 
-      // 3. Rebuild with consistent transformation segment
-      // Use f_mp4 for video delivery and q_auto for optimization
-      // We remove existing transformations from the 'after' part if they exist to start fresh
+      const versionMatch = after.match(/(v\d+\/.*)/);
       let finalAfter = after;
-      if (after.match(/^v\d+\//)) {
-        // It's just a version number, keep it
+
+      if (versionMatch) {
+        finalAfter = versionMatch[1];
       } else if (after.includes("/")) {
-        // It has transformations like 'q_auto/f_auto/', strip them
-        finalAfter = after.substring(after.lastIndexOf("/") + 1);
+        finalAfter = after;
       }
 
       return `${before}/video/upload/f_mp4,q_auto/${finalAfter}.mp4`;
@@ -53,109 +49,170 @@ const VideoBlock: React.FC<{
     return videoUrl;
   }, [videoUrl]);
 
-  // Debug logging for optimized URL
-  console.log("VideoBlock optimizedUrl:", { videoUrl, optimizedUrl });
-
-  // Generate a poster URL for cleaner loading
   const posterUrl = React.useMemo(() => {
     if (!videoUrl || !videoUrl.includes("res.cloudinary.com")) return undefined;
+    const cleanUrl = videoUrl.replace(/\.[^/.]+$/, "");
+    const [before, after] = cleanUrl.split("/video/upload/");
 
-    // Use a similar approach to rebuild the URL for an image poster
-    const [before, after] = videoUrl.replace(/\.[^/.]+$/, "").split("/video/upload/");
+    const versionMatch = after.match(/(v\d+\/.*)/);
     let finalAfter = after;
-    if (!after.match(/^v\d+\//) && after.includes("/")) {
-      finalAfter = after.substring(after.lastIndexOf("/") + 1);
-    }
 
-    // so_0 is for start offset 0 (first frame)
+    if (versionMatch) {
+      finalAfter = versionMatch[1];
+    }
     return `${before}/video/upload/f_auto,q_auto,so_0/${finalAfter}.jpg`;
   }, [videoUrl]);
-
 
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
-        videoRef.current.play();
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Play prevented:", error);
+            setIsPlaying(false);
+          });
+        }
+        setIsEnded(false);
       } else {
         videoRef.current.pause();
       }
     }
   }, []);
 
+  const formatTime = (timeInSeconds: number) => {
+    if (isNaN(timeInSeconds)) return "00:00";
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current && videoRef.current.duration) {
+      const current = videoRef.current.currentTime;
+      const total = videoRef.current.duration;
+      setCurrentTime(current);
+      setDuration(total);
+      setProgress((current / total) * 100);
+    }
+  }, []);
+
+  const handleSeek = useCallback((value: number[]) => {
+    if (videoRef.current && videoRef.current.duration) {
+      const newTime = (value[0] / 100) * videoRef.current.duration;
+      videoRef.current.currentTime = newTime;
+      setProgress(value[0]);
+      setCurrentTime(newTime);
+    }
+  }, []);
+
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
-      <div className="relative group overflow-hidden rounded-3xl bg-black/5 dark:bg-black/40 backdrop-blur-sm border border-black/5 dark:border-white/5 transition-all duration-500 hover:bg-black/10 dark:hover:bg-black/60">
+      <div
+        className="relative group overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800 shadow-sm"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         {optimizedUrl ? (
-          <div
-            className="relative aspect-video cursor-pointer"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-            onClick={togglePlay}
-          >
+          <div className="relative w-full">
             <video
               ref={videoRef}
               src={optimizedUrl}
               poster={posterUrl}
               playsInline
-              preload="metadata"
-              className="w-full h-full object-contain"
+              preload="auto"
+              className="w-full h-auto max-h-[70vh] object-contain rounded-xl bg-black"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
-              onError={(e) => {
-                const videoElement = e.currentTarget;
-                const error = videoElement.error;
-                console.error("Video error details:", {
-                  attemptedUrl: optimizedUrl,
-                  originalUrl: videoUrl,
-                  errorCode: error?.code,
-                  errorMessage: error?.message,
-                  networkState: videoElement.networkState,
-                  readyState: videoElement.readyState,
-                });
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
+              onEnded={() => {
+                setIsPlaying(false);
+                setIsEnded(true);
               }}
-            >
-              Browser-kaagu ma taageerayo video-ga.
-            </video>
+              onError={(e) => {
+                const el = e.currentTarget;
+                if (el.src !== videoUrl && videoUrl) {
+                  console.warn("Optimized source failed, switching to fallback:", videoUrl);
+                  el.src = videoUrl;
+                } else {
+                  console.error("Video load error (both sources failed):", el.error);
+                }
+              }}
+            />
 
-            {/* Centered Play Button Overlay - Ultra Minimal */}
+            <div
+              className="absolute inset-0 z-10 cursor-pointer"
+              onClick={togglePlay}
+            />
+
             <div className={cn(
-              "absolute inset-0 flex items-center justify-center transition-all duration-300",
-              isPlaying && !isHovering ? "opacity-0 invisible" : "opacity-100 visible bg-black/5 dark:bg-black/10"
+              "absolute inset-0 flex flex-col justify-end transition-opacity duration-300 pointer-events-none z-20",
+              isPlaying && !isHovering ? "opacity-0" : "opacity-100"
             )}>
-              <div className={cn(
-                "w-12 h-12 rounded-full bg-black/10 dark:bg-white/10 backdrop-blur-md border border-black/10 dark:border-white/20 flex items-center justify-center transition-all duration-300",
-                "hover:scale-110 active:scale-95 group-hover:bg-black/20 dark:group-hover:bg-white/20"
-              )}>
-                {isPlaying ? (
-                  <Pause className="w-5 h-5 text-slate-800 dark:text-white fill-current" />
-                ) : (
-                  <Play className="w-5 h-5 text-slate-800 dark:text-white fill-current ml-0.5" />
-                )}
+              {/* Center Play Button */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className={cn(
+                  "w-16 h-16 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-transform duration-200 pointer-events-auto cursor-pointer hover:scale-110",
+                  isPlaying && !isHovering ? "opacity-0 scale-90" : "opacity-100 scale-100"
+                )} onClick={togglePlay}>
+                  {isEnded ? (
+                    <RotateCcw className="w-7 h-7 text-white" />
+                  ) : isPlaying ? (
+                    <Pause className="w-7 h-7 text-white fill-current" />
+                  ) : (
+                    <Play className="w-7 h-7 text-white fill-current ml-1" />
+                  )}
+                </div>
+              </div>
+
+              {/* Bottom Controls */}
+              <div className="bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-12 pb-4 px-4 pointer-events-auto">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono font-medium text-white/90 min-w-[35px]">
+                      {formatTime(currentTime)}
+                    </span>
+
+                    <div className="flex-1 group/slider relative h-5 flex items-center">
+                      <Slider
+                        value={[progress]}
+                        max={100}
+                        step={0.1}
+                        onValueChange={handleSeek}
+                        className="cursor-pointer"
+                      />
+                    </div>
+
+                    <span className="text-xs font-mono font-medium text-white/60 min-w-[35px] text-right">
+                      {formatTime(duration)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="aspect-video w-full flex items-center justify-center text-slate-500 bg-slate-900/50">
+          <div className="w-full aspect-video flex items-center justify-center text-slate-500 bg-slate-100 dark:bg-slate-800">
             Muuqaalka lama helin
           </div>
         )}
-
-        {(content.title || content.description) && (
-          <div className="p-5 border-t border-black/5 dark:border-white/5">
-            {content.title && (
-              <h3 className="text-md font-bold text-foreground mb-1">
-                {content.title}
-              </h3>
-            )}
-            {content.description && (
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                {content.description}
-              </p>
-            )}
-          </div>
-        )}
       </div>
+
+      {(content.title || content.description) && (
+        <div className="mt-4 px-2">
+          {content.title && (
+            <h3 className="text-md font-bold text-foreground mb-1">
+              {content.title}
+            </h3>
+          )}
+          {content.description && (
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+              {content.description}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-8">
         <Button
