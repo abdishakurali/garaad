@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { ChevronRight, Play, Pause, RotateCcw } from "lucide-react";
+import { ChevronRight, Play, Pause, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const VideoBlock: React.FC<{
   content: {
@@ -24,6 +25,7 @@ const VideoBlock: React.FC<{
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isEnded, setIsEnded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Robustly handle Cloudinary optimized URLs
   const optimizedUrl = React.useMemo(() => {
@@ -94,6 +96,7 @@ const VideoBlock: React.FC<{
       setCurrentTime(current);
       setDuration(total);
       setProgress((current / total) * 100);
+      setIsLoading(false); // Ensure loading is false when time updates
     }
   }, []);
 
@@ -109,12 +112,23 @@ const VideoBlock: React.FC<{
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       <div
-        className="relative group overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800 shadow-sm"
+        className="relative group overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800 shadow-sm min-h-[200px]"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
         {optimizedUrl ? (
           <div className="relative w-full">
+
+            {isLoading && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <Skeleton className="w-full h-full absolute inset-0 rounded-xl" />
+                <div className="z-40 flex flex-col items-center gap-2">
+                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                  <p className="text-xs text-muted-foreground font-medium">Video-ga ayaa soo degaya...</p>
+                </div>
+              </div>
+            )}
+
             <video
               ref={videoRef}
               src={optimizedUrl}
@@ -126,6 +140,9 @@ const VideoBlock: React.FC<{
               onPause={() => setIsPlaying(false)}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
+              onCanPlay={() => setIsLoading(false)}
+              onWaiting={() => setIsLoading(true)}
+              onPlaying={() => setIsLoading(false)}
               onEnded={() => {
                 setIsPlaying(false);
                 setIsEnded(true);
@@ -137,6 +154,7 @@ const VideoBlock: React.FC<{
                   el.src = videoUrl;
                 } else {
                   console.error("Video load error (both sources failed):", el.error);
+                  setIsLoading(false); // Stop loading if error
                 }
               }}
             />
@@ -152,18 +170,20 @@ const VideoBlock: React.FC<{
             )}>
               {/* Center Play Button */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className={cn(
-                  "w-16 h-16 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-transform duration-200 pointer-events-auto cursor-pointer hover:scale-110",
-                  isPlaying && !isHovering ? "opacity-0 scale-90" : "opacity-100 scale-100"
-                )} onClick={togglePlay}>
-                  {isEnded ? (
-                    <RotateCcw className="w-7 h-7 text-white" />
-                  ) : isPlaying ? (
-                    <Pause className="w-7 h-7 text-white fill-current" />
-                  ) : (
-                    <Play className="w-7 h-7 text-white fill-current ml-1" />
-                  )}
-                </div>
+                {!isLoading && (
+                  <div className={cn(
+                    "w-16 h-16 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-transform duration-200 pointer-events-auto cursor-pointer hover:scale-110",
+                    isPlaying && !isHovering ? "opacity-0 scale-90" : "opacity-100 scale-100"
+                  )} onClick={togglePlay}>
+                    {isEnded ? (
+                      <RotateCcw className="w-7 h-7 text-white" />
+                    ) : isPlaying ? (
+                      <Pause className="w-7 h-7 text-white fill-current" />
+                    ) : (
+                      <Play className="w-7 h-7 text-white fill-current ml-1" />
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Bottom Controls */}
