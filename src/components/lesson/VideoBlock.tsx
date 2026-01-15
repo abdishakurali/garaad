@@ -59,7 +59,12 @@ const VideoBlock: React.FC<{
   const posterUrl = React.useMemo(() => {
     if (!videoUrl || !videoUrl.includes("res.cloudinary.com")) return undefined;
     const cleanUrl = videoUrl.replace(/\.[^/.]+$/, "");
-    const [before, after] = cleanUrl.split("/video/upload/");
+    const parts = cleanUrl.split("/video/upload/");
+
+    if (parts.length < 2 || !parts[1]) return undefined;
+
+    const before = parts[0];
+    const after = parts[1];
 
     const versionMatch = after.match(/(v\d+\/.*)/);
     let finalAfter = after;

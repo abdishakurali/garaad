@@ -1,31 +1,27 @@
 "use client";
-import React, { memo, useState, useEffect } from "react";
+import React, { memo, useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { Check, X } from "lucide-react";
+import { Check, X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Latex from "react-latex-next";
-// import { ProblemContent } from "@/types/lms";
 import { ProblemContent } from "@/types/learning";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { useProblem } from "@/hooks/useApi";
 
-// Dynamically import the diagram component
+import CalculatorProblemBlock from "./CalculatorProblemBlock";
+
 const DiagramScale = dynamic(() => import("../DiagramScale"), {
   ssr: false,
-  loading: () => <div>Loading diagram...</div>,
+  loading: () => <div className="animate-pulse bg-muted rounded-xl h-40 w-full" />,
 });
 
-// Helper function to check if URL is a video file
 const isVideoFile = (url: string): boolean => {
   const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.m4v'];
   const lowerUrl = url.toLowerCase();
@@ -62,15 +58,12 @@ const ProblemBlock: React.FC<{
   isCorrect,
   disabledOptions = [],
 }) => {
-    // Internal fetching if problemId is provided
     const { problem: fetchedData, isLoading: internalLoading, isError: internalError } = useProblem(problemId);
 
-    // Transform internal data to ProblemContent if needed
     const content = useMemo(() => {
       if (externalContent) return externalContent;
       if (!fetchedData) return null;
 
-      // Transform ProblemData to ProblemContent (logic from LessonPage.tsx)
       const pd = fetchedData as any;
       return {
         id: pd.id,
@@ -78,11 +71,13 @@ const ProblemBlock: React.FC<{
         which: pd.which,
         options: Array.isArray(pd.options)
           ? pd.options.map((opt: any) => typeof opt === 'string' ? opt : opt.text)
-          : pd?.options,
-        correct_answer: pd.correct_answer.map((ans: any, index: number) => ({
-          id: `answer-${index}`,
-          text: ans.text,
-        })),
+          : [],
+        correct_answer: Array.isArray(pd.correct_answer)
+          ? pd.correct_answer.map((ans: any, index: number) => ({
+            id: `answer-${ans.id || index}`,
+            text: ans.text || "",
+          }))
+          : [],
         img: pd.img,
         alt: pd.alt,
         explanation: pd.explanation || "No explanation available",
@@ -113,25 +108,38 @@ const ProblemBlock: React.FC<{
     }, [content?.img]);
 
     const handleOptionSelect = (option: string) => {
-      // Play toggle-on sound when an option is selected
+      if (hasAnswered && isCorrect) return;
       playSound("toggle-on");
       onOptionSelect(option);
     };
 
     const renderOption = (option: string, idx: number) => {
+      const letters = ["A", "B", "C", "D", "E", "F"];
       const isSelected = selectedOption === option;
       const isOptionCorrect = hasAnswered && isSelected && isCorrect;
       const isOptionIncorrect = hasAnswered && isSelected && !isCorrect;
-      const isDisabled =
-        disabledOptions.includes(option) || (hasAnswered && isCorrect);
+      const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
       const buttonClass = cn(
-        "w-full p-4 text-sm rounded-xl border transition-all duration-300 relative text-left outline-none",
-        !isSelected && !hasAnswered && "border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:border-primary/50 hover:bg-primary/5 text-slate-700 dark:text-slate-200",
-        isSelected && !hasAnswered && "border-primary bg-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.2)] text-primary dark:text-white scale-[1.02]",
-        isOptionCorrect && "border-green-500 bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]",
-        isOptionIncorrect && "border-black/5 dark:border-white/5 bg-transparent text-slate-400 dark:text-slate-600",
-        isDisabled && !isOptionCorrect && "border-black/5 dark:border-white/5 bg-transparent text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"
+        "group w-full p-5 text-sm md:text-md rounded-2xl border-2 transition-all duration-300 relative text-left outline-none flex items-center gap-4",
+        // Default state
+        !isSelected && !hasAnswered && "border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] hover:border-primary/40 hover:bg-primary/[0.04] text-foreground/80",
+        // Selected state (not answered yet)
+        isSelected && !hasAnswered && "border-primary bg-primary/10 shadow-[0_0_20px_rgba(209,143,253,0.15)] dark:shadow-[0_0_20px_rgba(16,185,129,0.1)] text-primary font-semibold scale-[1.01]",
+        // Correct state
+        isOptionCorrect && "border-green-500 bg-green-500/10 text-green-600 dark:text-green-400 shadow-[0_0_20px_rgba(34,197,94,0.15)] font-semibold",
+        // Incorrect/Disabled state
+        isOptionIncorrect && "border-red-500/50 bg-red-500/5 text-red-500/70",
+        isDisabled && !isSelected && "border-black/[0.03] dark:border-white/[0.03] bg-transparent text-foreground/30 cursor-not-allowed opacity-40"
+      );
+
+      const indicatorClass = cn(
+        "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors shrink-0",
+        !isSelected && !hasAnswered && "border-black/[0.1] dark:border-white/[0.1] text-foreground/40 group-hover:border-primary/50 group-hover:text-primary",
+        isSelected && !hasAnswered && "bg-primary border-primary text-white",
+        isOptionCorrect && "bg-green-500 border-green-500 text-white",
+        isOptionIncorrect && "bg-red-500 border-red-500 text-white",
+        isDisabled && !isSelected && "border-black/[0.05] dark:border-white/[0.05] text-foreground/20"
       );
 
       return (
@@ -141,29 +149,19 @@ const ProblemBlock: React.FC<{
           disabled={isDisabled}
           className={buttonClass}
         >
-          {(isOptionIncorrect || isDisabled) && (
-            <span className="absolute top-2 right-2 text-gray-400">
-              <X className="h-5 w-5" />
-            </span>
-          )}
-          <div className="flex items-center justify-between">
-            <span
-              className={cn(
-                "font-normal",
-                isOptionIncorrect ? "text-slate-400 dark:text-slate-600" : "text-slate-800 dark:text-slate-200"
-              )}
-            >
-              {content?.content.type === "latex" ? (
+          <div className={indicatorClass}>
+            {isOptionCorrect ? <Check className="h-4 w-4" /> :
+              isOptionIncorrect ? <X className="h-4 w-4" /> :
+                letters[idx] || (idx + 1)}
+          </div>
+          <div className="flex-1">
+            <span className="leading-snug">
+              {content?.content?.type === "latex" ? (
                 <Latex>{option}</Latex>
               ) : (
                 option
               )}
             </span>
-            {isOptionCorrect && (
-              <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center">
-                <Check className="h-4 w-4 text-white" />
-              </div>
-            )}
           </div>
         </button>
       );
@@ -171,28 +169,29 @@ const ProblemBlock: React.FC<{
 
     if (isLoading) {
       return (
-        <div className="flex justify-center items-center py-20">
-          <div className="rounded-full h-12 w-12 border-b-2 border-primary animate-spin"></div>
+        <div className="flex flex-col justify-center items-center py-24 gap-4">
+          <div className="rounded-full h-14 w-14 border-4 border-primary/20 border-t-primary animate-spin"></div>
+          <p className="text-muted-foreground animate-pulse font-medium">Soo dejinaya...</p>
         </div>
       );
     }
 
     if (error || !content) {
       return (
-        <Card className="max-w-3xl mx-auto">
-          <CardContent className="p-6 text-center">
-            <p className="text-red-500">
-              {error || "Problem content could not be loaded"}
+        <Card className="max-w-xl mx-auto border-destructive/20 bg-destructive/5 backdrop-blur-sm">
+          <CardContent className="p-10 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
+            <p className="text-destructive font-semibold text-lg">
+              {error || "Khalad ayaa dhacay markii la soo dejinayay su'aasha"}
             </p>
-            <Button onClick={onContinue} className="mt-2">
-              SiiWado Qaybta Kale
+            <Button onClick={onContinue} variant="outline" className="mt-4 rounded-xl px-8">
+              Sii soco
             </Button>
           </CardContent>
         </Card>
       );
     }
 
-    // Handle Calculator type
     if (content.content?.type === "calculator") {
       const options = content.options as any;
       return (
@@ -206,45 +205,43 @@ const ProblemBlock: React.FC<{
     }
 
     return (
-      <div className="w-full max-w-2xl mx-auto px-4">
-        <div className="space-y-6">
-          <div className="overflow-hidden rounded-3xl bg-white/5 dark:bg-black/40 backdrop-blur-sm border border-black/5 dark:border-white/5 transition-all duration-500 hover:bg-black/5 dark:hover:bg-black/50">
-            <div className="p-8 md:p-10 space-y-6">
-              <div className="space-y-3">
-                {content.content.type === "latex" ? (
-                  <>
-                    <div className="text-sm font-bold text-primary/80 uppercase tracking-widest">
+      <div className="w-full max-w-3xl mx-auto px-4 pb-12">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {/* Question Card */}
+          <div className="overflow-hidden rounded-[2.5rem] bg-white dark:bg-zinc-900 shadow-[0_20px_50px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.05] dark:border-white/[0.05] relative">
+            {/* Top accent line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50 opacity-40" />
+
+            <div className="p-8 md:p-12 space-y-8">
+              <div className="space-y-4">
+                {content.which && (
+                  <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest">
+                    {content.content?.type === "latex" ? (
                       <Latex>{content.which}</Latex>
-                    </div>
-                    <div className="text-xl md:text-2xl font-bold text-foreground leading-tight">
-                      <Latex>{content.question}</Latex>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-sm font-bold text-primary/80 uppercase tracking-widest prose-sm max-w-none">
-                      {content.which && content.which.includes('<') ? (
+                    ) : (
+                      content.which.includes('<') ? (
                         <div dangerouslySetInnerHTML={{ __html: content.which }} />
-                      ) : (
-                        content.which
-                      )}
-                    </div>
-                    <div className="text-xl md:text-2xl font-bold text-foreground leading-tight prose dark:prose-invert max-w-none">
-                      {content.question && content.question.includes('<') ? (
-                        <div dangerouslySetInnerHTML={{ __html: content.question }} />
-                      ) : (
-                        content.question
-                      )}
-                    </div>
-                  </>
+                      ) : content.which
+                    )}
+                  </div>
                 )}
+
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight">
+                  {content.content?.type === "latex" ? (
+                    <Latex>{content.question}</Latex>
+                  ) : (
+                    content.question.includes('<') ? (
+                      <div dangerouslySetInnerHTML={{ __html: content.question }} />
+                    ) : content.question
+                  )}
+                </h2>
               </div>
 
               {content.img && (
-                <div className="flex justify-center py-4">
-                  <div className="relative w-full max-w-[500px] aspect-[16/9] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 bg-black/5 dark:bg-black/20">
+                <div className="flex justify-center group">
+                  <div className="relative w-full max-w-[600px] aspect-[16/10] rounded-[2rem] overflow-hidden border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-black/40 shadow-inner">
                     {imgLoading && (
-                      <div className="absolute inset-0 w-full h-full bg-white/5 animate-pulse z-10" />
+                      <div className="absolute inset-0 w-full h-full bg-muted animate-pulse z-10" />
                     )}
                     {isVideoFile(content.img) ? (
                       <video
@@ -255,7 +252,7 @@ const ProblemBlock: React.FC<{
                         onLoadStart={() => setImgLoading(true)}
                         onCanPlay={() => setImgLoading(false)}
                         onError={() => setImgLoading(false)}
-                        style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.5s" }}
+                        style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.6s ease" }}
                       >
                         Browser-kaagu ma taageerayo video-ga.
                       </video>
@@ -266,13 +263,12 @@ const ProblemBlock: React.FC<{
                         alt={content.alt || "lesson image"}
                         fill
                         loading="lazy"
-                        className="object-contain"
-                        sizes="(max-width: 900px) 100vw, (max-width: 1200px) 50vw, 500px"
-                        quality={75}
-                        priority={false}
+                        className="object-contain p-4 transition-transform duration-700 group-hover:scale-[1.02]"
+                        sizes="(max-width: 900px) 100vw, 600px"
+                        quality={90}
                         onLoad={() => setImgLoading(false)}
                         onError={() => setImgLoading(false)}
-                        style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.5s" }}
+                        style={{ opacity: imgLoading ? 0 : 1, transition: "opacity 0.6s ease" }}
                       />
                     )}
                   </div>
@@ -280,68 +276,54 @@ const ProblemBlock: React.FC<{
               )}
 
               {content.question_type === "diagram" && (content.diagram_config || content.diagrams) && (
-                <div className="py-6 max-w-full overflow-hidden">
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center w-full max-w-full overflow-hidden">
-                    {(() => {
-                      const diagramCount = content.diagrams?.length ||
-                        (Array.isArray(content.diagram_config) ? content.diagram_config.length : 1);
-                      const isMultiple = diagramCount > 1;
+                <div className="py-2 overflow-hidden">
+                  {(() => {
+                    const diagrams = content.diagrams || (Array.isArray(content.diagram_config) ? content.diagram_config : [content.diagram_config]);
+                    const diagramCount = diagrams.length;
+                    const isMultiple = diagramCount > 1;
 
-                      if (content.diagrams) {
-                        return content.diagrams.map((cfg, i) => (
-                          <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
+                    return (
+                      <div className={cn("grid gap-6 justify-center items-center w-full",
+                        diagramCount === 2 ? "grid-cols-1 md:grid-cols-2" :
+                          diagramCount >= 3 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+                      )}>
+                        {diagrams.map((cfg: any, i: number) => (
+                          <div key={cfg.diagram_id || i} className="w-full bg-black/[0.02] dark:bg-white/[0.02] rounded-3xl p-6 border border-black/[0.04] dark:border-white/[0.04] shadow-sm">
                             <DiagramScale config={cfg} isMultiple={isMultiple} />
                           </div>
-                        ));
-                      } else if (Array.isArray(content.diagram_config)) {
-                        return content.diagram_config.map((cfg, i) => (
-                          <div key={cfg.diagram_id || i} className="flex-shrink min-w-0 w-full max-w-full">
-                            <DiagramScale config={cfg} isMultiple={isMultiple} />
-                          </div>
-                        ));
-                      } else if (content.diagram_config) {
-                        return (
-                          <div className="flex-shrink min-w-0 w-full max-w-full">
-                            <DiagramScale config={content.diagram_config} isMultiple={isMultiple} />
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-                  </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
+              {/* Options Grid */}
               <div
                 className={cn(
-                  "gap-4 w-full max-w-xl mx-auto",
-                  content.question_type === "diagram" ? "grid grid-cols-2" : "flex flex-col"
+                  "grid gap-4 w-full",
+                  content.question_type === "diagram" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
                 )}
               >
                 {content.options.map(renderOption)}
               </div>
             </div>
 
-            <div className="px-8 pb-8 pt-2">
-              <div className="w-full">
-                {answerState.isCorrect === null && !hasAnswered && (
-                  <Button
-                    onClick={onCheckAnswer}
-                    className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
-                    disabled={!selectedOption}
-                  >
-                    Hubi Jawaabta
-                  </Button>
-                )}
-                {hasAnswered && (
-                  <Button
-                    onClick={onContinue}
-                    className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
-                  >
-                    Sii wado
-                  </Button>
-                )}
-              </div>
+            {/* Bottom Actions */}
+            <div className="px-8 md:px-12 pb-10 flex flex-col items-center">
+              {!hasAnswered && (
+                <Button
+                  onClick={onCheckAnswer}
+                  disabled={!selectedOption}
+                  size="xl"
+                  className={cn(
+                    "w-full max-w-sm font-black transition-all duration-300 shadow-xl active:scale-[0.97]",
+                    selectedOption ? "shadow-primary/30 transform -translate-y-1" : "shadow-none"
+                  )}
+                >
+                  Hubi Jawaabta
+                </Button>
+              )}
             </div>
           </div>
         </div>

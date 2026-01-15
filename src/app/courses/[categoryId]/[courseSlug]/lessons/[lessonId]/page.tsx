@@ -225,7 +225,8 @@ const LessonPage = () => {
     // useLesson hook
     const { lesson: swrLesson, isLoading: lessonLoading, isError: lessonError } = useLesson(params.lessonId as string);
     const currentLesson = swrLesson || reduxLesson;
-    const isLoading = lessonLoading || useSelector((state: RootState) => state.learning.isLoading);
+    const reduxLoading = useSelector((state: RootState) => state.learning.isLoading);
+    const isLoading = lessonLoading || reduxLoading;
 
     // useCourse for breadcrumbs/info
     const { course: currentCourse } = useCourse(params.categoryId as string, params.courseSlug as string);
@@ -283,24 +284,24 @@ const LessonPage = () => {
     }, [categories]);
 
     const sortedBlocks = useMemo(() => {
-        if (!currentLesson?.content_blocks) return [];
+        if (!currentLesson?.content_blocks || !Array.isArray(currentLesson.content_blocks)) return [];
         return [...currentLesson.content_blocks]
             .filter((b) => !(b.block_type === "problem" && !b.problem))
             .sort((a, b) => (a.order || 0) - (b.order || 0));
     }, [currentLesson?.content_blocks]);
 
-    // Current problem derived from problems state and index
+    // Current problem derived from problems state and current block
     const currentProblem = useMemo(() => {
-        if (!problems || problems.length === 0) return null;
-        return problems[currentProblemIndex];
-    }, [problems, currentProblemIndex]);
+        if (!problems || (problems?.length || 0) === 0) return null;
+        const problemId = sortedBlocks[currentBlockIndex]?.problem;
+        return problems.find(p => p.id === problemId) || problems[0];
+    }, [problems, sortedBlocks, currentBlockIndex]);
 
     // Memoized derived values
     const currentProblemBlock = useMemo(() => {
         if (!sortedBlocks) return null;
-        const problemBlocks = sortedBlocks.filter(b => b.block_type === 'problem');
-        return problemBlocks[currentProblemIndex];
-    }, [sortedBlocks, currentProblemIndex]);
+        return sortedBlocks[currentBlockIndex]?.block_type === 'problem' ? sortedBlocks[currentBlockIndex] : null;
+    }, [sortedBlocks, currentBlockIndex]);
 
     const coursePath = useMemo(
         () => `/courses/${params.categoryId}/${params.courseSlug}`,
@@ -330,20 +331,22 @@ const LessonPage = () => {
 
     // Play start lesson sound when lesson is loaded and ready
     useEffect(() => {
-        if (currentLesson && !isLoading && sortedBlocks.length > 0 && !hasPlayedStartSound) {
+        if (currentLesson && !isLoading && (sortedBlocks?.length || 0) > 0 && !hasPlayedStartSound) {
             playSound("start-lesson");
             setHasPlayedStartSound(true);
         }
-    }, [currentLesson, isLoading, sortedBlocks.length, playSound, hasPlayedStartSound]);
+    }, [currentLesson, isLoading, sortedBlocks?.length, playSound, hasPlayedStartSound]);
+
+    // Use derived indices for problems
 
     // Fetch all problems
     const fetchAllProblems = useCallback(async () => {
-        if (!currentLesson?.content_blocks) {
+        if (!currentLesson?.content_blocks || !Array.isArray(currentLesson.content_blocks)) {
             setProblems([]);
             return;
         }
 
-        const problemBlocks = sortedBlocks.filter(
+        const problemBlocks = (sortedBlocks || []).filter(
             (b) => b.block_type === "problem" && b.problem !== null
         );
 
@@ -378,12 +381,14 @@ const LessonPage = () => {
                 question: pd.question_text,
                 which: pd.which,
                 options: Array.isArray(pd.options)
-                    ? pd.options.map((opt) => opt.text)
-                    : pd?.options,
-                correct_answer: pd.correct_answer.map((ans, index) => ({
-                    id: `answer-${index}`,
-                    text: ans.text,
-                })),
+                    ? pd.options.map((opt: any) => typeof opt === 'string' ? opt : opt.text)
+                    : [],
+                correct_answer: Array.isArray(pd.correct_answer)
+                    ? pd.correct_answer.map((ans: any, index: number) => ({
+                        id: `answer-${ans.id || index}`,
+                        text: ans.text || "",
+                    }))
+                    : [],
                 img: pd.img,
                 alt: pd.alt,
                 explanation: pd.explanation || "No explanation available",
@@ -401,9 +406,9 @@ const LessonPage = () => {
 
             if (transformed.length > 0) {
                 setExplanationData({
-                    explanation: transformed[0].explanation || "",
+                    explanation: transformed[0]?.explanation || "",
                     image: "",
-                    type: transformed[0].content.type || "",
+                    type: transformed[0]?.content?.type || "",
                 });
             }
 
@@ -443,8 +448,8 @@ const LessonPage = () => {
                     const { blockIndex } = JSON.parse(savedProgress);
                     if (
                         blockIndex >= 0 &&
-                        sortedBlocks &&
-                        blockIndex < sortedBlocks.length
+                        blockIndex >= 0 &&
+                        blockIndex < (sortedBlocks?.length || 0)
                     ) {
                         setCurrentBlockIndex(blockIndex);
                     }
@@ -489,9 +494,9 @@ const LessonPage = () => {
     );
 
     const handleContinue = useCallback(async () => {
-        if (sortedBlocks.length === 0) return;
+        if ((sortedBlocks?.length || 0) === 0) return;
 
-        const lastIndex = sortedBlocks.length - 1;
+        const lastIndex = (sortedBlocks?.length || 0) - 1;
         const isLastBlock = currentBlockIndex === lastIndex;
 
         playSound("continue");
@@ -538,10 +543,12 @@ const LessonPage = () => {
         }
     }, [
         currentBlockIndex,
-        currentLesson,
+        dispatch,
         isCorrect,
         playSound,
-        sortedBlocks,
+        sortedBlocks?.length,
+        router,
+        params,
     ]);
 
     const handleCompletionAnimationFinish = useCallback(() => {
@@ -582,12 +589,12 @@ const LessonPage = () => {
 
     // Block rendering
     const renderCurrentBlock = useCallback(() => {
-        if (!sortedBlocks || sortedBlocks.length === 0) return null;
+        if (!sortedBlocks || (sortedBlocks?.length || 0) === 0) return null;
 
         const block = sortedBlocks[currentBlockIndex];
         if (!block) return null;
 
-        const isLastBlock = currentBlockIndex === sortedBlocks.length - 1;
+        const isLastBlock = currentBlockIndex === (sortedBlocks?.length || 0) - 1;
 
         switch (block.block_type) {
             case "problem":
@@ -719,7 +726,9 @@ const LessonPage = () => {
                 const lessons = await response.json();
 
                 // Extra safety: Filter lessons by course ID if the API returns more than expected
-                const filteredLessons = lessons.filter((l: Lesson) => l.course_id === courseIdFromSlug || l.module_id === courseIdFromSlug || true);
+                const filteredLessons = Array.isArray(lessons)
+                    ? lessons.filter((l: Lesson) => l.course_id === courseIdFromSlug || l.module_id === courseIdFromSlug || true)
+                    : [];
                 // Note: since backend doesn't have modules, course_id or module_id might be used.
 
                 setCourseLessons(lessons);
@@ -759,7 +768,7 @@ const LessonPage = () => {
         <div className="min-h-screen bg-background">
             <LessonHeader
                 currentQuestion={currentBlockIndex + 1}
-                totalQuestions={sortedBlocks.length}
+                totalQuestions={sortedBlocks?.length || 0}
                 coursePath={coursePath}
                 onDotClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
                 completedLessons={[]}
