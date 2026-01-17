@@ -261,12 +261,18 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
         )}
 
         {authView === 'forgot-password' && (
-          <div className="space-y-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-              Geli email-kaaga si aan kuugu soo dirno linkiga dib loogu soo celiyo sirta.
-            </p>
+          <div className="space-y-6 px-1">
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <Lock className="w-6 h-6 text-primary" />
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Geli email-kaaga si aan kuugu soo dirno linkigo dib loogu soo celiyo sirta.
+              </p>
+            </div>
+
             <Form {...form}>
-              <form onSubmit={onForgotPassword} className="space-y-6">
+              <form onSubmit={onForgotPassword} className="space-y-5">
                 <FormField
                   control={form.control}
                   name="email"
@@ -280,29 +286,31 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
                           placeholder="tusaale@example.com"
                           {...field}
                           disabled={isLoading}
-                          className="h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/50 border-input bg-background text-foreground"
+                          className="h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/50 border-input bg-background/50 text-foreground"
                         />
                       </FormControl>
                       <FormMessage className="text-red-500 dark:text-red-400" />
                     </FormItem>
                   )}
                 />
-                <div className="flex flex-col space-y-3">
+
+                <div className="flex items-center gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setAuthView('login')}
+                    className="flex-1 h-12 border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    disabled={isLoading}
+                  >
+                    Dib u laabo
+                  </Button>
                   <Button
                     type="submit"
-                    className="w-full h-12 text-base font-medium"
+                    className="flex-[2] h-12 text-base font-medium shadow-sm hover:shadow-md transition-all"
                     disabled={isLoading}
                   >
                     {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
                     Dir Linkiga
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setAuthView('login')}
-                    disabled={isLoading}
-                  >
-                    Dib u laabo
                   </Button>
                 </div>
               </form>
