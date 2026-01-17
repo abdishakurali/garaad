@@ -28,12 +28,13 @@ import {
   selectAuthLoading,
 } from "@/store/features/authSlice";
 import type { AppDispatch, RootState } from "@/store";
+import AuthService from "@/services/auth";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { SignUpData } from "@/types/auth";
-import { EyeOff } from "lucide-react";
+import { EyeOff, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { validateEmail } from "@/lib/email-validation";
 
@@ -60,6 +61,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
   const authState = useSelector((state: RootState) => state.auth);
   const { error } = authState;
   const [showPassword, setIsShowPassword] = useState(false);
+  const [authView, setAuthView] = useState<'login' | 'forgot-password' | 'success'>('login');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,6 +76,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
     if (!isOpen) {
       form.reset();
       dispatch(setError(null));
+      setAuthView('login');
     }
   }, [isOpen, form, dispatch]);
 
@@ -86,58 +89,37 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (isLogin) {
+      if (authView === 'login') {
         const response = await dispatch(
           login({ email: values.email, password: values.password })
         ).unwrap();
 
         if (response?.user) {
-          // Successfully logged in - close dialog and let middleware handle routing
           setIsOpen(false);
-
-          // Show success message
-          console.log("Waad mahadsantahay! Si guul leh ayaad u soo gashay.");
-
-          // Let the middleware handle routing based on verification and premium status
-          // No manual redirects here - middleware will do it correctly
-          window.location.href = '/courses'; // This will be intercepted by middleware
-        }
-      } else {
-        const signupData: SignUpData = {
-          email: values.email,
-          password: values.password,
-          name: values.email.split("@")[0],
-          age: 18, // Default age
-          onboarding_data: {
-            goal: "learn_math", // Default goal
-            preferred_study_time: "self_paced", // Default preferred study time
-            topic: "general_math", // Default topic
-            math_level: "beginner", // Default math level
-            minutes_per_day: 30, // Default minutes per day
-          },
-        };
-
-        const result = await dispatch(signUp(signupData)).unwrap();
-
-        if (result?.user) {
-          // Successfully signed up - close dialog and let middleware handle routing
-          setIsOpen(false);
-
-          // Show success message
-          console.log("Waad mahadsantahay! Si guul leh ayaad u isdiiwaangelisay.");
-
-          // Let the middleware handle routing based on verification status
-          window.location.href = '/courses'; // This will be intercepted by middleware
+          window.location.href = '/courses';
         }
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      // Handle various error formats safely
-      const errorMessage =
-        error?.message ||
-        (typeof error === 'string' ? error : "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
-
+      const errorMessage = error?.message || (typeof error === 'string' ? error : "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
       dispatch(setError(errorMessage));
+    }
+  };
+
+  const onForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = form.getValues('email');
+    if (!email || !validateEmail(email).isValid) {
+      dispatch(setError("Fadlan geli email sax ah"));
+      return;
+    }
+
+    try {
+      await AuthService.getInstance().forgotPassword(email);
+      setAuthView('success');
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      dispatch(setError(error.message || "Khalad ayaa dhacay. Fadlan xaqiiji email-kaaga."));
     }
   };
   // console.log("Auth error waa kan:", error); // Remove this or move it inside catch if needed, strictly it's out of scope here
@@ -169,11 +151,11 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
         )}
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
-            Soo gal
+            {authView === 'login' ? 'Soo gal' : authView === 'forgot-password' ? 'Soo celinta sirta' : 'Email ayaa la diray'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        {authView === 'login' && (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {error && (
@@ -216,8 +198,15 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700 dark:text-gray-300">
-                      Lambarka sirta ah
+                    <FormLabel className="flex justify-between items-center text-gray-700 dark:text-gray-300">
+                      <span>Lambarka sirta ah</span>
+                      <button
+                        type="button"
+                        onClick={() => setAuthView('forgot-password')}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        waan ilaabay password
+                      </button>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
@@ -269,8 +258,76 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
               </Button>
             </form>
           </Form>
+        )}
 
-          {/* Sign up link */}
+        {authView === 'forgot-password' && (
+          <div className="space-y-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+              Geli email-kaaga si aan kuugu soo dirno linkiga dib loogu soo celiyo sirta.
+            </p>
+            <Form {...form}>
+              <form onSubmit={onForgotPassword} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Email-kaaga
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="tusaale@example.com"
+                          {...field}
+                          disabled={isLoading}
+                          className="h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/50 border-input bg-background text-foreground"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-500 dark:text-red-400" />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex flex-col space-y-3">
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base font-medium"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                    Dir Linkiga
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setAuthView('login')}
+                    disabled={isLoading}
+                  >
+                    Dib u laabo
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        )}
+
+        {authView === 'success' && (
+          <div className="space-y-6 text-center">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+            </div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Haddii email-kaas uu nala diiwaangashan yahay, waxaan ku soo dirnay linkigii aad sirta ku bedelan lahayd.
+            </p>
+            <Button
+              onClick={() => setAuthView('login')}
+              className="w-full"
+            >
+              Ku laabo Soo gal
+            </Button>
+          </div>
+        )}
+
+        {authView === 'login' && (
           <div className="text-center pt-4 border-t flex space-x-3 border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               Hore umaan isticmaalin Garaad?            </p>
@@ -282,7 +339,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
               Isdiiwaangeli
             </Link>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );

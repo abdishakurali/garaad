@@ -252,6 +252,18 @@ export class AuthService {
     }
   }
 
+  public async forgotPassword(email: string): Promise<any> {
+    try {
+      const response = await axios.post(
+        `${this.baseURL}/api/auth/forgot-password/`,
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   public async signIn(data: SignInData): Promise<SignInResponse> {
     try {
       console.log("SignIn attempt with data:", {
