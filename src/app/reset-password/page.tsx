@@ -110,9 +110,9 @@ export default function ResetPasswordPage() {
             <Card className="w-full max-w-md shadow-lg border-0">
                 <CardHeader className="text-center space-y-4">
                     <div className="flex justify-center">
-                        <div className="w-16 h-16 relative">
+                        <div className="w-32 h-12 relative">
                             <Image
-                                src="https://www.garaad.org/favicon.ico"
+                                src="/logo.png"
                                 alt="Garaad Logo"
                                 fill
                                 className="object-contain"
