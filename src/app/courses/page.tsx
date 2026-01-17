@@ -171,33 +171,6 @@ export default function CoursesPage() {
               </p>
             </div>
 
-            {/* Right Content: Optional Visual Element / Stat Card */}
-            <div className="hidden md:flex flex-1 justify-end animate-fade-in-up delay-300">
-              <div className="relative group">
-                <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="relative bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 backdrop-blur-xl shadow-2xl space-y-6 min-w-[320px]">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Progress</span>
-                      <span className="text-xl font-black text-primary">68%</span>
-                    </div>
-                    <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full w-[68%] bg-gradient-to-r from-primary to-blue-500 rounded-full" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">CASHARADA</p>
-                      <p className="text-2xl font-black">124+</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">ARDAYDA</p>
-                      <p className="text-2xl font-black">2.5k</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

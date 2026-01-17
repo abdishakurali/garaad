@@ -563,8 +563,9 @@ export class AuthService {
     try {
       const decoded = jwtDecode<JWTPayload>(token);
       const expiresIn = decoded.exp * 1000 - Date.now();
-      // Refresh 5 minutes before expiration
-      const refreshTime = Math.max(0, expiresIn - 5 * 60 * 1000);
+      // IMPROVED: Refresh 15 minutes before expiration (was 5 minutes)
+      // This provides more buffer for the interceptor to work
+      const refreshTime = Math.max(0, expiresIn - 15 * 60 * 1000);
 
       this.refreshTimeout = setTimeout(() => {
         this.refreshAccessToken();
