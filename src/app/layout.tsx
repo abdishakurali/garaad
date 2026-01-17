@@ -3,6 +3,7 @@ import "./globals.css";
 import { inter } from "@/lib/fonts";
 import ClientLayout from "./client-layout";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Providers } from "./providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Suspense } from "react";
@@ -80,7 +81,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-import { Toaster } from "@/components/ui/Toaster";
+import { Toaster } from "@/components/ui/toaster";
 import { OverlayElements } from "@/components/landing/OverlayElements";
 
 export default function RootLayout({
@@ -126,6 +127,7 @@ export default function RootLayout({
             </ClientLayout>
             <Toaster />
             <Analytics />
+            <SpeedInsights />
           </Providers>
         </ErrorBoundary>
       </body>
