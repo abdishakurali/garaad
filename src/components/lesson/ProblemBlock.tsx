@@ -121,25 +121,27 @@ const ProblemBlock: React.FC<{
       const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
       const buttonClass = cn(
-        "group w-full p-5 text-sm md:text-md rounded-2xl border-2 transition-all duration-300 relative text-left outline-none flex items-center gap-4",
+        "group w-full p-4 md:p-5 text-sm md:text-md rounded-2xl border-2 transition-all duration-300 relative text-left outline-none flex items-center gap-4",
+        "border-b-4 active:translate-y-[2px] active:border-b-2",
         // Default state
-        !isSelected && !hasAnswered && "border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] hover:border-primary/40 hover:bg-primary/[0.04] text-foreground/80",
+        !isSelected && !hasAnswered && "border-black/[0.1] dark:border-white/[0.1] bg-white dark:bg-zinc-800/50 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] hover:border-primary/40 text-foreground/80",
         // Selected state (not answered yet)
-        isSelected && !hasAnswered && "border-primary bg-primary/10 shadow-[0_0_20px_rgba(209,143,253,0.15)] dark:shadow-[0_0_20px_rgba(16,185,129,0.1)] text-primary font-semibold scale-[1.01]",
+        isSelected && !hasAnswered && "border-primary bg-primary/5 dark:bg-primary/10 border-b-primary shadow-lg ring-2 ring-primary/20 text-primary font-bold scale-[1.02]",
         // Correct state
-        isOptionCorrect && "border-green-500 bg-green-500/10 text-green-600 dark:text-green-400 shadow-[0_0_20px_rgba(34,197,94,0.15)] font-semibold",
-        // Incorrect/Disabled state
-        isOptionIncorrect && "border-red-500/50 bg-red-500/5 text-red-500/70",
-        isDisabled && !isSelected && "border-black/[0.03] dark:border-white/[0.03] bg-transparent text-foreground/30 cursor-not-allowed opacity-40"
+        isOptionCorrect && "border-[#58CC02] bg-[#D7FFB8]/30 dark:bg-[#58CC02]/10 text-[#2e6b01] dark:text-[#58CC02] border-b-[#46a302] font-bold ring-2 ring-[#58CC02]/20",
+        // Incorrect state
+        isOptionIncorrect && "border-red-500 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-b-red-700 opacity-80",
+        // Disabled/Not selected state
+        isDisabled && !isSelected && "border-black/[0.05] dark:border-white/[0.05] bg-transparent text-foreground/20 cursor-not-allowed grayscale opacity-40"
       );
 
       const indicatorClass = cn(
-        "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors shrink-0",
-        !isSelected && !hasAnswered && "border-black/[0.1] dark:border-white/[0.1] text-foreground/40 group-hover:border-primary/50 group-hover:text-primary",
-        isSelected && !hasAnswered && "bg-primary border-primary text-white",
-        isOptionCorrect && "bg-green-500 border-green-500 text-white",
-        isOptionIncorrect && "bg-red-500 border-red-500 text-white",
-        isDisabled && !isSelected && "border-black/[0.05] dark:border-white/[0.05] text-foreground/20"
+        "w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black border-2 transition-all duration-300 shrink-0 shadow-sm",
+        !isSelected && !hasAnswered && "border-black/[0.1] dark:border-white/[0.1] bg-black/[0.02] dark:bg-white/[0.05] text-foreground/40 group-hover:bg-primary/10 group-hover:border-primary/50 group-hover:text-primary",
+        isSelected && !hasAnswered && "bg-primary border-primary text-white rotate-6 scale-110",
+        isOptionCorrect && "bg-[#58CC02] border-[#58CC02] text-white rotate-0",
+        isOptionIncorrect && "bg-red-500 border-red-500 text-white rotate-0",
+        isDisabled && !isSelected && "border-black/[0.05] dark:border-white/[0.05] bg-transparent text-foreground/20"
       );
 
       return (
@@ -150,12 +152,12 @@ const ProblemBlock: React.FC<{
           className={buttonClass}
         >
           <div className={indicatorClass}>
-            {isOptionCorrect ? <Check className="h-4 w-4" /> :
-              isOptionIncorrect ? <X className="h-4 w-4" /> :
+            {isOptionCorrect ? <Check className="h-6 w-6 stroke-[3]" /> :
+              isOptionIncorrect ? <X className="h-6 w-6 stroke-[3]" /> :
                 letters[idx] || (idx + 1)}
           </div>
           <div className="flex-1">
-            <span className="leading-snug">
+            <span className="leading-snug text-base md:text-lg">
               {content?.content?.type === "latex" ? (
                 <Latex>{option}</Latex>
               ) : (
@@ -163,6 +165,11 @@ const ProblemBlock: React.FC<{
               )}
             </span>
           </div>
+          {isSelected && !hasAnswered && (
+            <div className="absolute right-4 animate-in fade-in zoom-in duration-300">
+              <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+            </div>
+          )}
         </button>
       );
     };

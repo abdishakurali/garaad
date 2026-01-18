@@ -228,6 +228,9 @@ export interface ProblemContent {
     type?: string;
   };
   type?: string;
+  xp?: number;
+  points?: number;
+  xp_value?: number;
 }
 
 export interface Exercise {

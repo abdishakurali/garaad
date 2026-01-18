@@ -262,6 +262,7 @@ const LessonPage = () => {
     const [hasPlayedStartSound, setHasPlayedStartSound] = useState(false);
     const [problems, setProblems] = useState<ProblemContent[]>([]);
     const [problemLoading, setProblemLoading] = useState(false);
+    const [currentXp, setCurrentXp] = useState(10);
 
     const { streak, leaderboard, mutateAll } = useGamificationData();
 
@@ -442,6 +443,8 @@ const LessonPage = () => {
                     ? (pd.question_type as "code" | "mcq" | "short_input" | "diagram")
                     : undefined,
                 content: pd.content,
+                xp: pd.xp || pd.points || pd.xp_value,
+                points: pd.points || pd.xp || pd.xp_value,
             }));
 
             setProblems(transformed);
@@ -622,6 +625,10 @@ const LessonPage = () => {
 
         const correctAnswer = currentProblem.correct_answer?.map((ans) => ans.text);
         const isCorrect = correctAnswer?.includes(selectedOption) || false;
+
+        if (isCorrect) {
+            setCurrentXp(currentProblem.xp || currentProblem.points || 10);
+        }
 
         setIsCorrect(isCorrect);
         setShowFeedback(true);
@@ -824,6 +831,7 @@ const LessonPage = () => {
                     onResetAnswer={handleResetAnswer}
                     onContinue={handleContinue}
                     explanationData={explanationData}
+                    xp={currentXp}
                 />
             )}
         </div>
