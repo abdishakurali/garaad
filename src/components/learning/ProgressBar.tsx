@@ -12,7 +12,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
             {/* Progress bar background */}
             <div className="h-2 bg-gray-200 rounded-full">
                 <div
-                    className="h-full bg-green-500 rounded-full"
+                    className="h-full bg-purple-500 rounded-full"
                 />
             </div>
 
@@ -26,7 +26,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
                         <div
                             key={index}
                             className={`w-8 h-8 rounded-full flex items-center justify-center ${isCompleted
-                                ? "bg-green-500 text-white"
+                                ? "bg-purple-500 text-white"
                                 : isCurrent
                                     ? "bg-blue-500 text-white"
                                     : "bg-white border-2 border-gray-300"

@@ -158,17 +158,17 @@ const LessonCompletionAnimation = ({
                     {/* Top sparkles */}
                     <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
                         <div className="flex space-x-2">
-                            <Sparkles className="w-4 h-4 text-green-400" />
-                            <Sparkles className="w-3 h-3 text-green-300" />
+                            <Sparkles className="w-4 h-4 text-purple-400" />
+                            <Sparkles className="w-3 h-3 text-purple-300" />
                         </div>
                     </div>
 
                     {/* Side sparkles */}
                     <div className="absolute top-4 -right-8">
-                        <Sparkles className="w-3 h-3 text-green-300" />
+                        <Sparkles className="w-3 h-3 text-purple-300" />
                     </div>
                     <div className="absolute top-8 -left-6">
-                        <Sparkles className="w-4 h-4 text-green-400" />
+                        <Sparkles className="w-4 h-4 text-purple-400" />
                     </div>
 
                     {/* Main diamond icon */}
@@ -179,7 +179,7 @@ const LessonCompletionAnimation = ({
                         )}
                     >
                         <div className="relative w-20 h-20 mx-auto mb-6">
-                            <div className="w-20 h-20 bg-green-500 transform rotate-45 rounded-lg flex items-center justify-center">
+                            <div className="w-20 h-20 bg-purple-500 transform rotate-45 rounded-lg flex items-center justify-center">
                                 <div className="w-4 h-4 bg-black rounded-sm transform -rotate-45"></div>
                             </div>
                         </div>

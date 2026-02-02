@@ -148,21 +148,21 @@ export default function ModuleZigzag({
                                     <div className="relative">
                                         {/* Colored gradient rings based on status */}
                                         <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
-                                            ? 'bg-gradient-to-br from-green-400 to-green-600 scale-100'
+                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
                                             : isActive || isSelected
                                                 ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
                                                 : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
                                             }`}>
                                             <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
                                                 <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
-                                                    ? 'bg-gradient-to-br from-green-400 to-green-600'
+                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600'
                                                     : isActive || isSelected
                                                         ? 'bg-gradient-to-br from-purple-400 to-purple-600'
                                                         : 'bg-gradient-to-br from-gray-300 to-gray-400'
                                                     }`}>
                                                     <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
                                                         {isCompleted && (
-                                                            <CheckCircle className="w-4 h-4 text-green-600 transition-all duration-300" />
+                                                            <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
                                                         )}
                                                         {(isActive || isSelected) && !isCompleted && (
                                                             <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
@@ -181,21 +181,21 @@ export default function ModuleZigzag({
                                     <div className="relative">
                                         {/* Colored gradient rings based on status */}
                                         <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
-                                            ? 'bg-gradient-to-br from-green-400 to-green-600 scale-100'
+                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
                                             : isActive || isSelected
                                                 ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
                                                 : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
                                             }`}>
                                             <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
                                                 <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
-                                                    ? 'bg-gradient-to-br from-green-400 to-green-600'
+                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600'
                                                     : isActive || isSelected
                                                         ? 'bg-gradient-to-br from-purple-400 to-purple-600'
                                                         : 'bg-gradient-to-br from-gray-300 to-gray-400'
                                                     }`}>
                                                     <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
                                                         {isCompleted && (
-                                                            <CheckCircle className="w-4 h-4 text-green-600 transition-all duration-300" />
+                                                            <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
                                                         )}
                                                         {(isActive || isSelected) && !isCompleted && (
                                                             <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
@@ -234,7 +234,7 @@ export default function ModuleZigzag({
                         <div className={`w-full rounded-2xl p-4 shadow-lg ${!canStartLesson
                             ? 'bg-gradient-to-r from-blue-500 to-blue-600'
                             : selectedModuleCompleted
-                                ? 'bg-gradient-to-r from-green-500 to-green-600'
+                                ? 'bg-gradient-to-r from-purple-500 to-purple-600'
                                 : selectedModuleProgress
                                     ? 'bg-gradient-to-r from-blue-500 to-blue-600'
                                     : 'bg-gradient-to-r from-purple-500 to-purple-600'
@@ -257,7 +257,7 @@ export default function ModuleZigzag({
                                 : !canStartLesson
                                     ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
                                     : selectedModuleCompleted
-                                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
+                                        ? 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
                                         : selectedModuleProgress
                                             ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
                                             : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'

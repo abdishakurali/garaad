@@ -34,8 +34,8 @@ export default function ModulePopup({
         <Button
           onClick={onStartLesson}
           variant="default"
-          className="w-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 
-            text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-600/25 
+          className="w-full bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 
+            text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-600/25 
             transition-all duration-300 rounded-2xl py-6 text-lg font-medium"
         >
           {isInProgress ? (
