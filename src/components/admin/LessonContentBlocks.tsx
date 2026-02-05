@@ -822,10 +822,15 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                                 </div>
 
                                 <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-4">
-                                    {['multiple_choice', 'single_choice'].includes(content.question_type || '') && (
+                                    {['multiple_choice', 'single_choice', 'matching'].includes(content.question_type || '') && (
                                         <div className="space-y-3">
                                             <div className="flex items-center justify-between px-1">
-                                                <h5 className="text-xs font-black text-gray-900 uppercase tracking-tight">Doorashooyinka</h5>
+                                                <div className="flex flex-col">
+                                                    <h5 className="text-xs font-black text-gray-900 uppercase tracking-tight">Doorashooyinka</h5>
+                                                    {content.question_type === 'matching' && (
+                                                        <span className="text-[9px] text-blue-500 font-bold uppercase mt-0.5 italic">Format: Left ||| Right</span>
+                                                    )}
+                                                </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => setContent({ ...content, options: [...(content.options || []), { id: Math.random().toString(36).substr(2, 9), text: '' }] })}
@@ -858,6 +863,18 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                                                     </div>
                                                 ))}
                                             </div>
+                                        </div>
+                                    )}
+                                    {['fill_blank', 'open_ended', 'math_expression', 'code'].includes(content.question_type || '') && (
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">Jawaabta Saxda ah</label>
+                                            <input
+                                                type="text"
+                                                value={content.correct_answer?.[0]?.text || ''}
+                                                onChange={e => setContent({ ...content, correct_answer: [{ id: 'answer', text: e.target.value }] })}
+                                                className="w-full p-3 bg-white rounded-xl border border-gray-200 text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-100 focus:border-emerald-200"
+                                                placeholder={content.question_type === 'code' ? 'Geli koodhka saxda ah...' : 'Geli jawaabta saxda ah...'}
+                                            />
                                         </div>
                                     )}
                                 </div>
