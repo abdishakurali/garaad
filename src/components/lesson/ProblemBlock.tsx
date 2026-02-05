@@ -126,7 +126,7 @@ const ProblemBlock: React.FC<{
       const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
       const buttonClass = cn(
-        "group w-full p-5 md:p-6 text-sm md:text-md rounded-2xl border-2 transition-all duration-300 relative text-left outline-none flex items-center gap-5",
+        "group w-full p-3.5 md:p-4.5 text-xs md:text-sm rounded-2xl border-2 transition-all duration-300 relative text-left outline-none flex items-center gap-4",
         // Default state
         !isSelected && !hasAnswered && "border-slate-200/60 dark:border-white/10 bg-white dark:bg-zinc-800/50 hover:border-primary/40 text-slate-700 dark:text-slate-300 shadow-sm hover:shadow-md hover:-translate-y-0.5",
         // Selected state (not answered yet) - Premium Lavender/Purple
@@ -140,7 +140,7 @@ const ProblemBlock: React.FC<{
       );
 
       const indicatorClass = cn(
-        "w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black border-2 transition-all duration-300 shrink-0",
+        "w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black border-2 transition-all duration-300 shrink-0",
         !isSelected && !hasAnswered && "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 text-slate-400 group-hover:bg-primary/10 group-hover:border-primary/40 group-hover:text-primary",
         isSelected && !hasAnswered && "bg-primary border-primary text-white shadow-lg shadow-primary/20",
         isOptionCorrect && "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20",
@@ -161,7 +161,7 @@ const ProblemBlock: React.FC<{
                 letters[idx] || (idx + 1)}
           </div>
           <div className="flex-1">
-            <span className="leading-snug text-base md:text-lg tracking-tight">
+            <span className="leading-snug text-sm md:text-base tracking-tight">
               {content?.question_type === "code" || option.startsWith("```") ? (
                 <ShikiCode code={option.replace(/```[a-z]*\n?|```/g, "")} language={option.match(/```([a-z]+)/)?.[1] || "javascript"} />
               ) : content?.content?.type === "latex" ? (

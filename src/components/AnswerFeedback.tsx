@@ -97,11 +97,11 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                 {!isReportingBug && (
                     <div
                         key="answer-feedback-banner"
-                        className="fixed inset-x-0 bottom-6 z-50 flex justify-center p-4 sm:p-6"
+                        className="fixed inset-x-0 bottom-0 z-50 flex justify-center"
                     >
                         <div
                             className={cn(
-                                "w-full max-w-3xl p-4 md:p-6 rounded-2xl shadow-xl border transition-all duration-300",
+                                "w-full max-w-3xl p-6 md:p-8 rounded-t-[2rem] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border-t border-x transition-all duration-300",
                                 isCorrect
                                     ? "bg-white/95 dark:bg-zinc-900/95 border-emerald-500/25 backdrop-blur-xl"
                                     : "bg-white/95 dark:bg-zinc-900/95 border-slate-200 dark:border-white/10 backdrop-blur-xl"
