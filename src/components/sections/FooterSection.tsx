@@ -14,9 +14,8 @@ export function FooterSection() {
       { name: "Macalimiin", href: "#" },
     ],
     legal: [
-      { name: "Shuruudaha adeegga", href: "#" },
-      { name: "Siyaasadda sirta", href: "#" },
-      { name: "Siyaasadda sirta ", href: "#" },
+      { name: "Shuruudaha Isticmaalka", href: "/terms" },
+      { name: "Siyaasadda Sirta", href: "/privacy" },
     ],
   };
 

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { Header } from '@/components/Header';
 
 export const metadata: Metadata = {
   title: 'About Us | Garaad',
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <Header />
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
