@@ -54,7 +54,7 @@ export function StudentDashboard() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center max-w-7xl mx-auto justify-center min-h-[400px]">
                 <div className="relative">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -66,7 +66,7 @@ export function StudentDashboard() {
     }
 
     return (
-        <div className="space-y-8 pb-12 animate-in fade-in duration-500">
+        <div className="space-y-8 pb-12 animate-in fade-in duration-500  max-w-7xl mx-auto">
             {/* Hero Welcome Section */}
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/95 to-primary/80 p-8 md:p-12 text-white shadow-2xl shadow-primary/20">
                 <div className="relative z-10 max-w-2xl">
