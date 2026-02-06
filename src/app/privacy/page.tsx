@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { Header } from '@/components/Header';
 
 export const metadata: Metadata = {
     title: 'Privacy Policy | Garaad',
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
     return (
         <div className="min-h-screen bg-background">
+            <Header />
             <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-12">
@@ -191,7 +193,7 @@ export default function PrivacyPage() {
                                 <strong>Support:</strong> <a href="mailto:support@garaad.org" className="text-primary hover:underline">support@garaad.org</a>
                             </p>
                             <p className="text-foreground/80 mt-2">
-                                <strong>Address:</strong> Garaad, San Francisco, CA
+                                <strong>Address:</strong> London, UK
                             </p>
                         </div>
                     </section>

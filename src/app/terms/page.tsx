@@ -175,7 +175,7 @@ export default function TermsPage() {
                                 <strong>Email:</strong> <a href="mailto:support@garaad.org" className="text-primary hover:underline">support@garaad.org</a>
                             </p>
                             <p className="text-foreground/80 mt-2">
-                                <strong>Address:</strong> Garaad, San Francisco, CA
+                                <strong>Address:</strong> London, UK
                             </p>
                         </div>
                     </section>
