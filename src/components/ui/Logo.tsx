@@ -42,6 +42,7 @@ export function Logo({
             className={cn(
                 "w-auto object-contain transition-all duration-300",
                 "h-20 sm:h-24 md:h-28 lg:h-32 max-w-[200px] sm:max-w-[240px] md:max-w-[280px]",
+                !isDarkMode && "scale-[1.2]",
                 className
             )}
             priority={priority}
