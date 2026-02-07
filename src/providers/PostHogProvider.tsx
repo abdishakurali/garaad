@@ -7,13 +7,20 @@ import { useEffect } from 'react'
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (typeof window !== 'undefined' && !posthog.__loaded) {
-            console.log('PostHog initializing from Provider...')
-            posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-                api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-                person_profiles: 'identified_only',
-                capture_pageview: true,
-                capture_pageleave: true,
-            })
+            const initPostHog = () => {
+                posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+                    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+                    person_profiles: 'identified_only',
+                    capture_pageview: true,
+                    capture_pageleave: true,
+                })
+            };
+
+            if ('requestIdleCallback' in window) {
+                (window as any).requestIdleCallback(initPostHog);
+            } else {
+                setTimeout(initPostHog, 2000);
+            }
         }
     }, [])
 

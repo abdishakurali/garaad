@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { AuthService } from '@/services/auth';
+import AuthService from '@/services/auth';
 import { API_BASE_URL } from '@/lib/constants';
 
 // Create axios instance with base configuration
@@ -118,14 +118,9 @@ axiosInstance.interceptors.response.use(
             processQueue(refreshError as Error, null);
             isRefreshing = false;
 
-            // Refresh failed - this is a hard logout scenario
+            // Refresh failed - let the caller handle redirection
             const authService = AuthService.getInstance();
             authService.logout();
-
-            // Redirect to sign-in page
-            if (typeof window !== 'undefined') {
-                window.location.href = '/sign-in';
-            }
 
             return Promise.reject(refreshError);
         }

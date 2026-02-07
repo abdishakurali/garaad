@@ -19,8 +19,7 @@ import {
     Loader2,
     Camera
 } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store/store";
+import { useCommunityStore } from "@/store/useCommunityStore";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import communityService from "@/services/community";
@@ -56,7 +55,7 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
         setLoading(true);
         setError(null);
         try {
-            const data = await communityService.profile.getOtherUserProfile(userId);
+            const data = await communityService.profile.getOtherUserProfile(userId) as UserProfile;
             setProfile(data);
         } catch (err: any) {
             console.error("Failed to fetch user profile:", err);
@@ -67,11 +66,10 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
     };
 
     // Check if viewing own profile
-    const { userProfile: currentUser } = useSelector((state: RootState) => state.community);
+    const { userProfile: currentUser, setUserProfile } = useCommunityStore();
     const isCurrentUser = profile && currentUser && (profile.id === currentUser.id);
 
     const [uploadingImage, setUploadingImage] = useState(false);
-    const dispatch = useDispatch();
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -84,10 +82,8 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
             await fetchProfile();
             // Also refresh global user profile state if it's the current user
             if (isCurrentUser) {
-                // We might need to dispatch an action to refresh the global profile, 
-                // but since we don't have that handy, assume the page checks on mount or we just rely on local state for now.
-                // Or better, re-fetch for the app:
-                // dispatch(fetchUserProfile()); -- Assuming this action is available
+                const updatedProfile = await communityService.profile.getUserProfile() as UserProfile;
+                setUserProfile(updatedProfile);
             }
             toast.success("Sawirka waa la beddelay!");
         } catch (err) {

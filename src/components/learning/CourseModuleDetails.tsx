@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const FollowChart = dynamic(() => import("./FollowChart").then(mod => mod.FollowChart), {
     loading: () => <Skeleton className="w-[300px] h-[300px] rounded-full" />,
@@ -34,6 +35,8 @@ export function CourseModuleDetails({
 }: CourseModuleDetailsProps) {
     const [activeTab, setActiveTab] = useState("overview");
     const [chartState, setChartState] = useState("initial");
+    const { user } = useAuthStore();
+    const isAuthenticated = !!user;
 
     const handleStateChange = (state: string) => {
         setChartState(state);
@@ -104,7 +107,7 @@ export function CourseModuleDetails({
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full">Bilow Darsiga</Button>
+                            <Button className="w-full">{isAuthenticated ? "Bilow Darsiga" : "KU SOO BIIR"}</Button>
                         </CardFooter>
                     </Card>
 
@@ -161,7 +164,7 @@ export function CourseModuleDetails({
                                                         </p>
                                                     </div>
                                                     <Button variant={index < completedLessons ? "outline" : "default"}>
-                                                        {index < completedLessons ? "Dib u eeg" : "Bilow"}
+                                                        {index < completedLessons ? "Dib u eeg" : (isAuthenticated ? "Bilow" : "KU SOO BIIR")}
                                                     </Button>
                                                 </div>
                                             </div>

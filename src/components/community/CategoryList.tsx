@@ -1,15 +1,12 @@
+import React from "react";
 import { CommunityCategory } from "@/types/community";
-import { useEffect } from "react";
-import { loadPinnedCategoriesFromStorage } from "@/store/features/communitySlice";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
-import { BookOpen, MessageSquare, Pin, PinOff } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store/store";
-import { togglePinCategory, togglePinCategoryOptimistic } from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
 import { toast } from "sonner";
 import { SOMALI_UI_TEXT } from "@/types/community";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { BookOpen, MessageSquare, Pin, PinOff } from "lucide-react";
 
 interface CategoryListProps {
     categories: CommunityCategory[];
@@ -24,20 +21,7 @@ export function CategoryList({
     onSelectCategory,
     loading,
 }: CategoryListProps) {
-    const dispatch = useDispatch<AppDispatch>();
-    const { pinnedCategoryIds } = useSelector((state: RootState) => state.community);
-
-    // Load persisted pinned categories on mount
-    useEffect(() => {
-        dispatch(loadPinnedCategoriesFromStorage());
-    }, [dispatch]);
-
-    // Persist pinned categories to localStorage whenever they change
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem("pinnedCategoryIds", JSON.stringify(pinnedCategoryIds));
-        }
-    }, [pinnedCategoryIds]);
+    const { pinnedCategoryIds, togglePinCategory } = useCommunityStore();
 
     if (loading) {
         return (
@@ -69,16 +53,8 @@ export function CategoryList({
                         const handlePinClick = (e: React.MouseEvent) => {
                             e.stopPropagation();
 
-                            if (!isPinned && pinnedCategoryIds.length >= 3) {
-                                toast.error("Ma biin garayn kartid in ka badan 3 qaybood.");
-                                return;
-                            }
-
-                            // Optimistic update
-                            dispatch(togglePinCategoryOptimistic(category.id));
-
-                            // Backend sync
-                            dispatch(togglePinCategory(category.id));
+                            // Toggle pin category
+                            togglePinCategory(String(category.id));
                         };
 
                         return (

@@ -21,13 +21,28 @@ const publicPaths = [
   "/favicon.ico",
   "/logo.png",
   "/admin",
+  "/courses",
+  "/challenge",
+  "/community-preview",
+  "/communitypreview",
+  "/terms",
+  "/privacy",
+  "/about",
+  "/wargeys",
 ];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public paths
-  if (publicPaths.some((path) => pathname.startsWith(path))) {
+  const isPublicPath = publicPaths.some((path) => {
+    if (path === "/") return pathname === "/";
+    // Lessons are never public by default
+    if (pathname.includes("/lessons/")) return false;
+    return pathname.startsWith(path);
+  });
+
+  if (isPublicPath) {
     return NextResponse.next();
   }
 
@@ -53,24 +68,27 @@ export async function middleware(request: NextRequest) {
   try {
     // Parse user data from cookie
     const user = JSON.parse(userCookie.value);
-    console.log("Current user status from cookie:", {
-      email: user.email,
-      is_email_verified: user.is_email_verified,
-      is_premium: user.is_premium,
-    });
 
     // Check if user's email is verified
-    if (!user.is_email_verified && !pathname.startsWith("/verify-email")) {
+    if (!user?.is_email_verified && !pathname.startsWith("/verify-email")) {
       console.log("User email not verified, redirecting to email verification");
       const verifyUrl = new URL("/verify-email", request.url);
-      verifyUrl.searchParams.set("email", user.email || "");
+      if (user?.email) {
+        verifyUrl.searchParams.set("email", user.email);
+      }
       return NextResponse.redirect(verifyUrl);
     }
 
     // If user is premium, allow access to all pages
-    if (user.is_premium) {
+    if (user?.is_premium) {
       console.log("User is premium, allowing access");
       return NextResponse.next();
+    }
+
+    // If user is verified but trying to access subscribe page and is already premium, redirect to courses
+    if (pathname.startsWith("/subscribe") && user?.is_premium) {
+      console.log("Premium user trying to access subscribe, redirecting to courses");
+      return NextResponse.redirect(new URL("/courses", request.url));
     }
 
     // Check if the path requires premium access
@@ -80,7 +98,7 @@ export async function middleware(request: NextRequest) {
     console.log("Is premium path:", isPremiumPath);
 
     // If path requires premium and user is not premium, redirect to subscribe
-    if (isPremiumPath) {
+    if (isPremiumPath && !user?.is_premium) {
       console.log("User is not premium, redirecting to subscribe");
       const subscribeUrl = new URL("/subscribe", request.url);
       subscribeUrl.searchParams.set("redirect", pathname);

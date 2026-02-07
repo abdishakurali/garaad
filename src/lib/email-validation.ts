@@ -147,10 +147,15 @@ export class EmailValidator {
     "yahoo.it",
     "yahoo.co.jp",
     "googlemail.com",
-    "edu", // Educational institutions
-    "gov", // Government
-    "org", // Organizations
-    "mil", // Military
+    "garaad.org",
+    "garaad.so",
+    ".edu", // Educational institutions
+    ".gov", // Government
+    ".org", // Organizations
+    ".mil", // Military
+    ".com",
+    ".net",
+    ".so",
   ];
 
   // Enhanced email regex that's more strict
@@ -236,15 +241,11 @@ export class EmailValidator {
       /^spam\d*$/i, // Starts with "spam" with optional numbers
       /^noreply$/i, // Exact "noreply"
       /^no-reply$/i, // Exact "no-reply"
-      /^admin\d*$/i, // Starts with "admin" with optional numbers
-      /^support\d*$/i, // Starts with "support" with optional numbers
-      /^info\d*$/i, // Starts with "info" with optional numbers
-      /^webmaster$/i, // Exact "webmaster"
       /^[a-z]{1,2}$/i, // Too short (1-2 characters)
       /^[a-z]{35,}$/i, // Too long (35+ characters)
       /^[a-z]+[0-9]{10,}$/i, // Letters followed by 10+ numbers (very long numbers are suspicious)
       /^[0-9]{10,}[a-z]*$/i, // 10+ numbers followed by letters (very long numbers are suspicious)
-      /^(test|fake|temp|spam|admin|support|info|webmaster|noreply|no-reply)\d*$/i, // Common suspicious words
+      /^(test|fake|temp|spam|webmaster|noreply|no-reply)\d*$/i, // Common suspicious words
     ];
 
     return suspiciousPatterns.some((pattern) => pattern.test(localPart));

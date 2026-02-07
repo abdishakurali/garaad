@@ -1,8 +1,5 @@
 "use client";
 
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "@/store";
 
 import { ThemeProvider } from "next-themes";
 import { SWRConfig } from "swr";
@@ -12,18 +9,14 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <SWRConfig value={swrConfig}>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            <LanguageProvider>
-              <PostHogProvider>
-                {children}
-              </PostHogProvider>
-            </LanguageProvider>
-          </ThemeProvider>
-        </SWRConfig>
-      </PersistGate>
-    </Provider>
+    <SWRConfig value={swrConfig}>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <PostHogProvider>
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
+        </PostHogProvider>
+      </ThemeProvider>
+    </SWRConfig>
   );
 }

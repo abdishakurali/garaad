@@ -1,19 +1,9 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '@/store/store';
-import {
-    fetchCategories,
-    fetchUserProfile,
-    fetchCategoryPosts,
-    setSelectedCategory,
-    selectSortedCategories,
-    fetchNotifications,
-    markNotificationRead,
-    markAllNotificationsAsRead,
-    selectUnreadNotificationCount,
-} from '@/store/features/communitySlice';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { useCommunityStore } from '@/store/useCommunityStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import communityService from '@/services/community';
 import CommunityWebSocket from '@/services/communityWebSocket';
 import { CategoryList } from '@/components/community/CategoryList';
 import { PostList } from '@/components/community/PostList';
@@ -46,22 +36,33 @@ import Image from 'next/image';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
-import { AuthService } from '@/services/auth';
+import AuthService from '@/services/auth';
 
 export default function CommunityPage() {
-    const dispatch = useDispatch<AppDispatch>();
-    const categories = useSelector(selectSortedCategories);
     const {
         posts,
         selectedCategory,
         userProfile,
-        loading,
-        errors,
         notifications,
-    } = useSelector((state: RootState) => state.community);
+        setSelectedCategory,
+        setPosts,
+        setUserProfile,
+        setNotifications,
+        markNotificationRead: markNotificationReadLocal,
+        markAllNotificationsRead: markAllNotificationsReadLocal
+    } = useCommunityStore();
 
-    const unreadCount = useSelector(selectUnreadNotificationCount);
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const [allCategories, setAllCategories] = useState<any[]>([]);
+
+    // Sort categories logic
+    const categories = useMemo(() => {
+        return [...allCategories].sort((a, b) => (b.order || 0) - (a.order || 0));
+    }, [allCategories]);
+
+    const unreadCount = useMemo(() => notifications.filter(n => !n.is_read).length, [notifications]);
+    const { user, isAuthenticated } = useAuthStore();
+    const [loading, setLoading] = useState({ categories: false, posts: false, profile: false });
+    const [errors, setErrors] = useState({ posts: null });
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -72,17 +73,22 @@ export default function CommunityPage() {
     const [isPushSettingsOpen, setIsPushSettingsOpen] = useState(false);
 
     // Logic for handling notification click
-    const handleNotificationClick = (notification: any) => {
+    const handleNotificationClick = async (notification: any) => {
         // 1. Mark as read
         if (!notification.is_read) {
-            dispatch(markNotificationRead(notification.id));
+            try {
+                await communityService.notification.markNotificationRead(notification.id);
+                markNotificationReadLocal(notification.id);
+            } catch (err) {
+                console.error("Failed to mark read:", err);
+            }
         }
 
         // 2. Navigate to category and post
         if (notification.category_id) {
-            const category = categories.find(c => c.id === notification.category_id);
+            const category = allCategories.find(c => c.id === notification.category_id);
             if (category) {
-                dispatch(setSelectedCategory(category));
+                setSelectedCategory(category);
                 if (notification.post_id) {
                     setPendingScrollPostId(notification.post_id);
                 }
@@ -134,8 +140,8 @@ export default function CommunityPage() {
     useEffect(() => {
         const checkAuth = async () => {
             if (isAuthenticated) {
-                const authService = AuthService.getInstance();
-                await authService.ensureValidToken();
+                // api.ts handles refresh automatically, so we just do a dummy call if we want to trigger refresh
+                // but usually it's not needed here.
             }
         };
         checkAuth();
@@ -145,52 +151,73 @@ export default function CommunityPage() {
     useEffect(() => {
         if (!isAuthenticated) return;
 
-        dispatch(fetchCategories());
-        dispatch(fetchUserProfile());
-        dispatch(fetchNotifications({ reset: true }));
-    }, [dispatch, isAuthenticated]);
+        const initData = async () => {
+            try {
+                setLoading(prev => ({ ...prev, categories: true, profile: true }));
+                const [cats, profile, notifs] = await Promise.all([
+                    communityService.category.getCategories(),
+                    communityService.profile.getUserProfile(),
+                    communityService.notification.getNotifications()
+                ]);
+                setAllCategories(((cats as any).results || cats) as any[]);
+                setUserProfile(profile as any);
+                setNotifications(((notifs as any).results || notifs) as any[]);
+            } catch (err) {
+                console.error("Failed to init community data:", err);
+            } finally {
+                setLoading(prev => ({ ...prev, categories: false, profile: false }));
+            }
+        };
+
+        initData();
+    }, [isAuthenticated]);
 
     // Select first category by default when categories load
     useEffect(() => {
-        if (categories.length > 0 && !selectedCategory) {
-            const firstCategory = categories[0];
-            dispatch(setSelectedCategory(firstCategory));
-            // Pre-fetch immediately for better UX
-            dispatch(fetchCategoryPosts({ categoryId: firstCategory.id }));
+        if (allCategories.length > 0 && !selectedCategory) {
+            const firstCategory = allCategories[0];
+            setSelectedCategory(firstCategory);
+            // Fetch posts for first category
+            fetchPostsForCategory(firstCategory.id);
         }
-    }, [categories, selectedCategory, dispatch]);
+    }, [allCategories, selectedCategory]);
+
+    const fetchPostsForCategory = async (categoryId: string) => {
+        try {
+            setLoading(prev => ({ ...prev, posts: true }));
+            const postsData = await communityService.post.getPosts(categoryId) as any;
+            setPosts(postsData.results || postsData);
+        } catch (err: any) {
+            console.error("Failed to fetch posts:", err);
+            setErrors(prev => ({ ...prev, posts: err.message }));
+        } finally {
+            setLoading(prev => ({ ...prev, posts: false }));
+        }
+    };
 
     // Manage WebSocket connection for active category
     useEffect(() => {
         if (!isAuthenticated) return;
 
-        const connectToCategory = async () => {
-            const { default: CommunityWebSocket } = await import('@/services/communityWebSocket');
-            // Backend broadcasts to "community_<categoryId>" so we connect to "categoryId"
-            // The consumer adds "community_" prefix to the group name automatically
+        const connectToCategory = () => {
             const roomId = selectedCategory ? selectedCategory.id : 'global';
-            CommunityWebSocket.getInstance().connect(roomId, dispatch);
+            CommunityWebSocket.getInstance().connect(roomId);
         };
 
         connectToCategory();
-    }, [dispatch, selectedCategory, isAuthenticated]);
+    }, [selectedCategory, isAuthenticated]);
 
-    // Revert to global channel when leaving community page
     useEffect(() => {
         return () => {
-            const revertToGlobal = async () => {
-                const { default: CommunityWebSocket } = await import('@/services/communityWebSocket');
-                CommunityWebSocket.getInstance().connect('global', dispatch);
-            };
-            revertToGlobal();
+            CommunityWebSocket.getInstance().connect('global');
         };
-    }, [dispatch]);
+    }, []);
 
     // Fetch posts when category changes
     useEffect(() => {
         if (!selectedCategory) return;
-        dispatch(fetchCategoryPosts({ categoryId: selectedCategory.id }));
-    }, [dispatch, selectedCategory]);
+        fetchPostsForCategory(selectedCategory.id);
+    }, [selectedCategory]);
 
     if (loading.categories || loading.profile) {
         return (
@@ -209,10 +236,10 @@ export default function CommunityPage() {
         <div className="flex flex-col h-full bg-gray-50/50 dark:bg-black/50">
             <div className="flex-1 overflow-y-auto py-2">
                 <CategoryList
-                    categories={categories}
+                    categories={allCategories}
                     selectedCategory={selectedCategory}
                     onSelectCategory={(cat) => {
-                        dispatch(setSelectedCategory(cat));
+                        setSelectedCategory(cat);
                         setIsMobileMenuOpen(false);
                     }}
                     loading={loading.categories}
@@ -281,8 +308,22 @@ export default function CommunityPage() {
                     <NotificationDropdown
                         notifications={notifications}
                         unreadCount={unreadCount}
-                        onMarkAsRead={(id) => dispatch(markNotificationRead(id))}
-                        onMarkAllAsRead={() => dispatch(markAllNotificationsAsRead())}
+                        onMarkAsRead={async (id) => {
+                            try {
+                                await communityService.notification.markNotificationRead(id);
+                                markNotificationReadLocal(id);
+                            } catch (err) {
+                                console.error("Failed to mark read:", err);
+                            }
+                        }}
+                        onMarkAllAsRead={async () => {
+                            try {
+                                await communityService.notification.markAllNotificationsRead();
+                                markAllNotificationsReadLocal();
+                            } catch (err) {
+                                console.error("Failed to mark all read:", err);
+                            }
+                        }}
                         onNotificationClick={handleNotificationClick}
                     />
                 </PopoverContent>
@@ -378,7 +419,7 @@ export default function CommunityPage() {
                             <PostList
                                 posts={posts}
                                 loading={loading.posts}
-                                isRefreshing={loading.refreshingPosts}
+                                isRefreshing={false}
                                 error={errors.posts}
                                 userProfile={userProfile}
                                 categoryId={selectedCategory.id}

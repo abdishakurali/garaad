@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Bell, BellOff, AlertCircle, CheckCircle2 } from "lucide-react";
 import pushNotificationService from "@/services/pushNotifications";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function PushNotificationSettings() {
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { user } = useAuthStore();
+    const isAuthenticated = !!user;
     const [isSupported, setIsSupported] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [permission, setPermission] = useState<NotificationPermission>("default");

@@ -114,6 +114,8 @@ export interface CampusRoom {
   slug: string;
   description?: string;
   posts_count?: number;
+  min_badge_level?: string;
+  name_somali?: string;
 }
 
 // Helper to format user display name with "Garaad" prefix

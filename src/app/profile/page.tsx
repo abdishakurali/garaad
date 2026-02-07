@@ -40,8 +40,7 @@ import {
 import { Header } from "@/components/Header";
 import { getMediaUrl } from "@/lib/utils";
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
-import { useDispatch } from "react-redux";
-import { setUser } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/lib/constants";
 import { getReferralDashboard, type ReferralDashboard } from "@/services/referral";
 
@@ -64,7 +63,7 @@ export default function ProfilePage() {
   const [editForm, setEditForm] = useState<Partial<ExtendedUser>>({});
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dispatch = useDispatch();
+  const { setUser } = useAuthStore();
   const [dashboardProfile, setDashboardProfile] = useState<DashboardProfile | null>(null);
   const [referralData, setReferralData] = useState<ReferralDashboard | null>(null);
 
@@ -177,12 +176,12 @@ export default function ProfilePage() {
 
       // Update user state
       if (data.user) {
-        dispatch(setUser(data.user));
+        setUser(data.user);
         setUserState(data.user as ExtendedUser);
         AuthService.getInstance().setCurrentUser(data.user);
       } else if (data.profile_picture && user) {
         const updatedUser = { ...user, profile_picture: data.profile_picture };
-        dispatch(setUser(updatedUser));
+        setUser(updatedUser);
         setUserState(updatedUser);
         AuthService.getInstance().setCurrentUser(updatedUser);
       }

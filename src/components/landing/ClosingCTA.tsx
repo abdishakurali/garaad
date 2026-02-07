@@ -1,13 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Rocket } from "lucide-react";
 
 export function ClosingCTA() {
     const router = useRouter();
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { user } = useAuthStore();
+    const isAuthenticated = !!user;
 
     const handleCTA = () => {
         if (isAuthenticated) {
@@ -53,7 +53,7 @@ export function ClosingCTA() {
                     onClick={handleCTA}
                     className="group relative px-10 py-5 bg-primary hover:bg-primary/90 text-white text-xl font-black rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50"
                 >
-                    <span>BILOW HADDA</span>
+                    <span>{isAuthenticated ? "BILOW HADDA" : "KU SOO BIIR"}</span>
                 </button>
             </div>
         </section>

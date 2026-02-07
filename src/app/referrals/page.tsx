@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useAuthStore } from '@/store/useAuthStore';
 import { getReferralDashboard, type ReferralDashboard } from '@/services/referral';
 import { Copy, Users, DollarSign, TrendingUp, GraduationCap, Share2, ArrowRight, Banknote, Star, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +14,7 @@ import clsx from 'clsx';
 export default function ReferralsPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { isAuthenticated } = useAuthStore();
     const [dashboard, setDashboard] = useState<ReferralDashboard | null>(null);
     const [loading, setLoading] = useState(true);
     const [copying, setCopying] = useState(false);

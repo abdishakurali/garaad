@@ -1,5 +1,5 @@
-import axios from "axios";
-import { baseURL } from "@/config";
+import { api } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/constants";
 
 export interface ContentBlock {
   id: number;
@@ -70,7 +70,7 @@ class LessonService {
   private baseUrl: string;
 
   private constructor() {
-    this.baseUrl = `${baseURL}/api/lms/lessons`;
+    this.baseUrl = "/api/lms/lessons";
   }
 
   public static getInstance(): LessonService {
@@ -82,8 +82,7 @@ class LessonService {
 
   async getLesson(lessonId: string): Promise<Lesson> {
     try {
-      const response = await axios.get(`${this.baseUrl}/${lessonId}/`);
-      return response.data;
+      return await api.get<Lesson>(`${this.baseUrl}/${lessonId}/`);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Failed to fetch lesson: ${error.message}`);
@@ -94,8 +93,7 @@ class LessonService {
 
   async getLessonsByCourse(courseId: string): Promise<Lesson[]> {
     try {
-      const response = await axios.get(`${this.baseUrl}/course/${courseId}`);
-      return response.data;
+      return await api.get<Lesson[]>(`${this.baseUrl}/course/${courseId}`);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Failed to fetch lessons: ${error.message}`);
@@ -106,7 +104,7 @@ class LessonService {
 
   async completeLesson(lessonId: string): Promise<void> {
     try {
-      await axios.post(`${this.baseUrl}/${lessonId}/complete/`);
+      await api.post(`${this.baseUrl}/${lessonId}/complete/`);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Failed to complete lesson: ${error.message}`);

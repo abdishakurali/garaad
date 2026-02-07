@@ -22,9 +22,7 @@ import communityService from "@/services/community";
 import { UserProfile } from "@/types/community";
 import AuthenticatedAvatar from "./ui/authenticated-avatar";
 import { getMediaUrl } from "@/lib/utils";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "@/store/store";
-import { markNotificationRead, markAllNotificationsAsRead, selectUnreadNotificationCount, fetchNotifications } from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
 import { useRouter } from "next/navigation";
 
 interface NotificationType {
@@ -78,11 +76,18 @@ const formatTimeAgo = (dateString: string) => {
 };
 
 export default function NotificationPanel() {
-  const dispatch = useDispatch<AppDispatch>();
+  const {
+    notifications: communityNotifications,
+    setNotifications,
+    markNotificationRead: markNotificationReadLocal,
+    markAllNotificationsRead: markAllNotificationsReadLocal
+  } = useCommunityStore();
   const router = useRouter();
-  const isLoading = useSelector((state: RootState) => state.community.loading.notifications);
-  const communityNotifications = useSelector((state: RootState) => state.community.notifications);
-  const communityUnreadCount = useSelector(selectUnreadNotificationCount);
+  const [isLoading, setIsLoading] = useState(false);
+  const communityUnreadCount = useMemo(() =>
+    communityNotifications.filter(n => !n.is_read).length,
+    [communityNotifications]
+  );
 
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'notifications' | 'users'>('notifications');
@@ -101,15 +106,27 @@ export default function NotificationPanel() {
     }
   };
 
+  const fetchAllNotifications = async () => {
+    try {
+      setIsLoading(true);
+      const response = await communityService.notification.getNotifications();
+      setNotifications(response.results || response);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    dispatch(fetchNotifications({ reset: true }));
+    fetchAllNotifications();
     fetchEnabledUsers();
-  }, [dispatch]);
+  }, []);
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (newOpen) {
-      dispatch(fetchNotifications({ reset: true }));
+      fetchAllNotifications();
       fetchEnabledUsers();
     }
   };
@@ -217,10 +234,15 @@ export default function NotificationPanel() {
                             key={notif.id || `notif-${index}`}
                             className={`p-4 transition-colors hover:bg-muted/50 cursor-pointer relative group ${!notif.is_read ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
                               }`}
-                            onClick={() => {
+                            onClick={async () => {
                               if (isCommunity && notif.source === 'community') {
                                 if (!notif.is_read && notif.id) {
-                                  dispatch(markNotificationRead(notif.id));
+                                  try {
+                                    await communityService.notification.markNotificationRead(notif.id);
+                                    markNotificationReadLocal(notif.id);
+                                  } catch (err) {
+                                    console.error("Failed to mark read:", err);
+                                  }
                                 }
                                 setOpen(false);
                                 router.push(`/community?post=${notif.raw.post_id}`);
@@ -228,10 +250,15 @@ export default function NotificationPanel() {
                             }}
                           >
                             <button
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
                                 if (isCommunity && notif.source === 'community' && notif.id) {
-                                  dispatch(markNotificationRead(notif.id));
+                                  try {
+                                    await communityService.notification.markNotificationRead(notif.id);
+                                    markNotificationReadLocal(notif.id);
+                                  } catch (err) {
+                                    console.error("Failed to mark read:", err);
+                                  }
                                 }
                               }}
                               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-muted"
@@ -339,8 +366,13 @@ export default function NotificationPanel() {
                   variant="ghost"
                   size="sm"
                   className="w-full text-xs font-medium"
-                  onClick={() => {
-                    dispatch(markAllNotificationsAsRead());
+                  onClick={async () => {
+                    try {
+                      await communityService.notification.markAllNotificationsRead();
+                      markAllNotificationsReadLocal();
+                    } catch (err) {
+                      console.error("Failed to mark all read:", err);
+                    }
                   }}
                 >
                   Dhammaan ka saar / Akhri

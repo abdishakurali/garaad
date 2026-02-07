@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Phone, CreditCard, Globe, MapPin } from "lucide-react";
-import { useDispatch, useSelector } from 'react-redux';
-import { setUser, selectCurrentUser } from '@/store/features/authSlice';
+import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
 import StripeService from "@/services/stripe";
 import LocationService, { type LocationData } from "@/services/location";
@@ -46,8 +45,7 @@ function translateError(error: string) {
 
 export default function SubscribePage() {
     const router = useRouter();
-    const dispatch = useDispatch();
-    const currentUser = useSelector(selectCurrentUser);
+    const { user: currentUser, setUser } = useAuthStore();
     const { getWalletTypes } = useWaafiPayConfig();
     const WALLET_TYPES = getWalletTypes();
     const [loading, setLoading] = useState(false);
@@ -228,7 +226,7 @@ export default function SubscribePage() {
                     if (successData.success) {
                         // Update Redux user state with the new premium status
                         if (currentUser) {
-                            dispatch(setUser(successData.data.user));
+                            setUser(successData.data.user);
                         }
                         router.push("/courses?order=" + order.id);
                     } else {
@@ -432,7 +430,7 @@ export default function SubscribePage() {
                                     <Input
                                         placeholder="Magaca buuxa"
                                         className="w-full h-12 text-base bg-white"
-                                        value={currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name}` : ""}
+                                        value={currentUser?.name || currentUser?.username || (currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "")}
                                         disabled
                                     />
                                 </div>

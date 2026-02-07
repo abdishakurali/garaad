@@ -27,14 +27,13 @@ import {
 import { Header } from "@/components/Header";
 import OrderService from "@/services/orders";
 import { Order, OrderItem } from "@/types/order";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function OrderDetailPage() {
     const router = useRouter();
     const params = useParams();
     const orderId = params.id as string;
-    const currentUser = useSelector(selectCurrentUser);
+    const { user: currentUser } = useAuthStore();
 
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
@@ -134,10 +133,19 @@ export default function OrderDetailPage() {
         return orderService.getPaymentMethodName(method, "so");
     };
 
-    // If user is not authenticated, redirect to login
-    if (!currentUser) {
-        router.push("/");
-        return null;
+    // Use useEffect for redirection to avoid SSR issues and render-cycle redirects
+    useEffect(() => {
+        if (!loading && !currentUser) {
+            router.push("/");
+        }
+    }, [currentUser, loading, router]);
+
+    if (loading && !order) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        );
     }
 
     return (

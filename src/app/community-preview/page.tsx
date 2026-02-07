@@ -8,12 +8,11 @@ import Image from "next/image";
 import { Users, MessageSquare, Flame, Trophy, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function CommunityPreview() {
     const router = useRouter();
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { isAuthenticated } = useAuthStore();
 
     const handleJoin = () => {
         if (isAuthenticated) {
@@ -130,7 +129,7 @@ export default function CommunityPreview() {
                                         onClick={handleJoin}
                                         className="w-full sm:w-auto px-10 py-5 bg-white text-primary font-black rounded-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
                                     >
-                                        Hadda Ku Biir
+                                        KU SOO BIIR
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                     <Link

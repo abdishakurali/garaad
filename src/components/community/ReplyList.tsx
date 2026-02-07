@@ -1,24 +1,8 @@
 import { useState } from "react";
+import { CommunityPost, CommunityReply, UserProfile, ReactionType, SOMALI_UI_TEXT, REACTION_ICONS, getUserDisplayName } from "@/types/community";
 import { LinkifiedText } from "@/components/ui/linkified-text";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store";
-import {
-    CommunityReply,
-    UserProfile,
-    SOMALI_UI_TEXT,
-    getUserDisplayName,
-    ReactionType,
-    REACTION_ICONS
-} from "@/types/community";
-import {
-    createReply,
-    addOptimisticReply,
-    deleteReply,
-    removeOptimisticReply,
-    reactToReply,
-    updateReply,
-    toggleReplyReactionOptimistic
-} from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
+import communityService from "@/services/community";
 import { getMediaUrl, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
@@ -41,7 +25,7 @@ interface ReplyListProps {
 }
 
 export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
-    const dispatch = useDispatch<AppDispatch>();
+    const { addReply, removeReply, updateReply, toggleReplyReaction } = useCommunityStore();
     const [replyContent, setReplyContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -65,20 +49,9 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
         const isAdding = !reply.user_reactions?.includes(type);
         const requestId = `req_react_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-        dispatch(toggleReplyReactionOptimistic({
-            postId,
-            replyId,
-            type,
-            isAdding,
-            request_id: requestId
-        }));
+        toggleReplyReaction(postId, replyId, type, isAdding);
 
-        dispatch(reactToReply({
-            postId,
-            replyId,
-            type,
-            requestId
-        }));
+        communityService.reply.reactToReply(replyId, type, requestId);
     };
 
     const handleEditClick = (reply: CommunityReply) => {
@@ -89,7 +62,10 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const handleUpdateReply = async (replyId: string) => {
         if (!editContent.trim()) return;
         try {
-            await dispatch(updateReply({ replyId, content: editContent })).unwrap();
+            const response = await communityService.reply.updateReply(replyId, editContent);
+            if (response) {
+                updateReply(postId, response);
+            }
             setEditingReplyId(null);
         } catch (error) {
             console.error("Failed to update reply:", error);
@@ -112,7 +88,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
         };
 
         // 1. Immediately add to UI
-        dispatch(addOptimisticReply({ postId, reply: optimisticReply }));
+        addReply(postId, optimisticReply);
 
         const currentContent = replyContent;
         const currentVideoUrl = videoUrl;
@@ -125,16 +101,16 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
 
         // 2. Send to server
         try {
-            await dispatch(createReply({
-                postId,
-                replyData: {
-                    content: currentContent,
-                    video_url: currentVideoUrl || undefined,
-                    attachments: currentAttachments,
-                    requestId
-                },
-                tempId,
-            })).unwrap();
+            const response = await communityService.reply.createReply(postId, {
+                content: currentContent,
+                video_url: currentVideoUrl || undefined,
+                attachments: currentAttachments,
+                requestId
+            });
+
+            if (response && response.id) {
+                // update with real data if needed
+            }
         } catch (error) {
             console.error("Failed to create reply:", error);
             // On failure, we could restore the content or just let it be
@@ -168,11 +144,11 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
 
         const requestId = `req_del_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         // 1. Instantly remove from UI for better UX
-        dispatch(removeOptimisticReply({ postId, tempId: replyId, request_id: requestId }));
+        removeReply(postId, replyId);
 
         // 2. Sync with server in background
         try {
-            await dispatch(deleteReply({ postId, replyId, requestId })).unwrap();
+            await communityService.reply.deleteReply(replyId, requestId);
         } catch (error) {
             console.error("Failed to delete reply:", error);
         }

@@ -2,9 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { logoutAction } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Menu, User, Settings, LogOut, Home, FolderDot, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,14 +16,11 @@ import AuthService from "@/services/auth";
 
 export const ProfileDropdown: React.FC = () => {
   const [open, setOpen] = React.useState(false);
-  const dispatch = useDispatch();
+  const { logout } = useAuthStore();
   const router = useRouter();
 
   const handleLogout = () => {
-    const authService = AuthService.getInstance();
-
-    authService.logout();
-    dispatch(logoutAction());
+    logout();
     router.push("/");
     setOpen(false);
     // Force reload after logout

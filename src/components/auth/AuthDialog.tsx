@@ -20,14 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Eye, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  login,
-  signUp,
-  setError,
-  selectAuthLoading,
-} from "@/store/features/authSlice";
-import type { AppDispatch, RootState } from "@/store";
+import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -54,12 +47,13 @@ interface AuthDialogProps {
 }
 
 export function AuthDialog({ trigger }: AuthDialogProps) {
-  const dispatch = useDispatch<AppDispatch>();
-  const [isLogin] = useState(true);
+  const {
+    login,
+    isLoading,
+    error,
+    setError
+  } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-  const isLoading = useSelector(selectAuthLoading);
-  const authState = useSelector((state: RootState) => state.auth);
-  const { error } = authState;
   const [showPassword, setIsShowPassword] = useState(false);
   const [authView, setAuthView] = useState<'login' | 'forgot-password' | 'success'>('login');
 
@@ -75,10 +69,10 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
   useEffect(() => {
     if (!isOpen) {
       form.reset();
-      dispatch(setError(null));
+      setError(null);
       setAuthView('login');
     }
-  }, [isOpen, form, dispatch]);
+  }, [isOpen, form, setError]);
 
   // Auto-hide error functionality removed to ensure user sees the error
   // until they try again or dismiss it manually.
@@ -90,19 +84,14 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (authView === 'login') {
-        const response = await dispatch(
-          login({ email: values.email, password: values.password })
-        ).unwrap();
-
-        if (response?.user) {
-          setIsOpen(false);
-          window.location.href = '/courses';
-        }
+        await login({ email: values.email, password: values.password });
+        setIsOpen(false);
+        window.location.href = '/courses';
       }
     } catch (error: any) {
       console.error("Auth error:", error);
       const errorMessage = error?.message || (typeof error === 'string' ? error : "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
-      dispatch(setError(errorMessage));
+      setError(errorMessage);
     }
   };
 
@@ -110,7 +99,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
     e.preventDefault();
     const email = form.getValues('email');
     if (!email || !validateEmail(email).isValid) {
-      dispatch(setError("Fadlan geli email sax ah"));
+      setError("Fadlan geli email sax ah");
       return;
     }
 
@@ -119,7 +108,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
       setAuthView('success');
     } catch (error: any) {
       console.error("Forgot password error:", error);
-      dispatch(setError(error.message || "Khalad ayaa dhacay. Fadlan xaqiiji email-kaaga."));
+      setError(error.message || "Khalad ayaa dhacay. Fadlan xaqiiji email-kaaga.");
     }
   };
   // console.log("Auth error waa kan:", error); // Remove this or move it inside catch if needed, strictly it's out of scope here
@@ -163,7 +152,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
                   <span>{error}</span>
                   <button
                     type="button"
-                    onClick={() => dispatch(setError(null))}
+                    onClick={() => setError(null)}
                     className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                     disabled={isLoading}
                   >

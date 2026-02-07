@@ -4,15 +4,17 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import AuthService from "@/services/auth";
-import { useDispatch } from "react-redux";
-import { setUser, logout } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useCommunityStore } from "@/store/useCommunityStore";
+import communityService from "@/services/community";
 
 export default function ClientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const dispatch = useDispatch();
+  const { setUser, logout, isAuthenticated } = useAuthStore();
+  const { setNotifications, setUserProfile } = useCommunityStore();
 
   const pathname = usePathname();
 
@@ -24,27 +26,33 @@ export default function ClientLayout({
       if (isValid) {
         const user = authService.getCurrentUser();
         if (user) {
-          dispatch(setUser(user));
+          setUser(user);
 
-          // Fetch initial community data
-          const { fetchNotifications, fetchUserProfile } = await import("@/store/features/communitySlice");
-          dispatch(fetchNotifications({ reset: true }) as any);
-          dispatch(fetchUserProfile() as any);
+          try {
+            const [profile, notifs] = await Promise.all([
+              communityService.profile.getUserProfile(),
+              communityService.notification.getNotifications()
+            ]);
+            setUserProfile(profile as any);
+            setNotifications(((notifs as any).results || notifs) as any[]);
+          } catch (err) {
+            console.error("Failed to fetch initial community data:", err);
+          }
 
           // Initialize Global WebSocket for real-time notifications
           // Skip if on community page, as that page handles its own connection logic
           if (!pathname?.startsWith('/community')) {
-            const { CommunityWebSocket } = await import("@/services/communityWebSocket");
-            CommunityWebSocket.getInstance().connect(null, dispatch as any); // Connect to 'global' room
+            const { default: CommunityWebSocket } = await import("@/services/communityWebSocket");
+            CommunityWebSocket.getInstance().connect(null); // Connect to 'global' room
           }
         }
-      } else {
-        dispatch(logout());
+      } else if (isAuthenticated) {
+        logout();
       }
     };
 
     init();
-  }, [dispatch, pathname]);
+  }, [setUser, logout, isAuthenticated, setNotifications, setUserProfile, pathname]);
 
   // Just render children - no Providers here
   return (

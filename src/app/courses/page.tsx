@@ -11,8 +11,7 @@ import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store";
+import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
@@ -63,10 +62,17 @@ const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string
 
 
 export default function CoursesPage() {
-  const { categories, isLoading, isError } = useCategories();
+  const { categories, isLoading: isSWRLoading, isError } = useCategories();
   const searchParams = useSearchParams();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useAuthStore();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  const isLoading = !hasMounted || isSWRLoading;
 
   useEffect(() => {
     const success = searchParams.get("success");
@@ -99,29 +105,31 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
       {/* Course Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "ItemList",
-            "itemListElement": categories?.flatMap(cat => cat?.courses || []).map((course, index) => ({
-              "@type": "ListItem",
-              "position": index + 1,
-              "item": {
-                "@type": "Course",
-                "name": course?.title,
-                "description": course?.description,
-                "provider": {
-                  "@type": "EducationalOrganization",
-                  "name": "Garaad STEM",
-                  "sameAs": "https://garaad.so"
+      {hasMounted && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              "itemListElement": categories?.flatMap(cat => cat?.courses || []).map((course, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "item": {
+                  "@type": "Course",
+                  "name": course?.title,
+                  "description": course?.description,
+                  "provider": {
+                    "@type": "EducationalOrganization",
+                    "name": "Garaad STEM",
+                    "sameAs": "https://garaad.so"
+                  }
                 }
-              }
-            })) || []
-          })
-        }}
-      />
+              })) || []
+            })
+          }}
+        />
+      )}
       <Header />
 
       {/* Hero Section */}
@@ -353,7 +361,7 @@ export default function CoursesPage() {
 
                                   <div className="flex items-center justify-between pt-5 border-t border-slate-100 dark:border-slate-800 mt-1">
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                                      BILOW BARASHADA
+                                      {isAuthenticated ? "BILOW BARASHADA" : "KU SOO BIIR"}
                                     </span>
                                     <div className="w-9 h-9 rounded-2xl bg-slate-50 dark:bg-black flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300 group-hover:rotate-12">
                                       <ChevronRight size={16} />

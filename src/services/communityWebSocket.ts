@@ -1,20 +1,9 @@
 import AuthService from "@/services/auth";
-import type { AppDispatch } from "@/store/store";
-import {
-    handleWebSocketPost,
-    handleWebSocketPostDeleted,
-    handleWebSocketReactionUpdate,
-    handleWebSocketReply,
-    addNotification,
-    handleWebSocketNotificationRead,
-    handleWebSocketAllNotificationsRead,
-    handleWebSocketReplyReactionUpdate,
-} from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
 
 export class CommunityWebSocket {
     private static instance: CommunityWebSocket | null = null;
     private ws: WebSocket | null = null;
-    private dispatch: AppDispatch | null = null;
     private currentCategoryId: string | null = null;
     private reconnectAttempts = 0;
     private maxReconnectAttempts = 5;
@@ -29,7 +18,7 @@ export class CommunityWebSocket {
         return CommunityWebSocket.instance;
     }
 
-    async connect(categoryId: string | null = null, dispatch: AppDispatch) {
+    async connect(categoryId: string | null = null) {
         if (typeof window === "undefined") return;
 
         const authService = AuthService.getInstance();
@@ -63,7 +52,6 @@ export class CommunityWebSocket {
             this.ws.close();
         }
 
-        this.dispatch = dispatch;
         this.currentCategoryId = categoryId;
 
         try {
@@ -102,78 +90,55 @@ export class CommunityWebSocket {
 
 
     private handleMessage(event: MessageEvent) {
-        if (!this.dispatch) return;
+        const store = useCommunityStore.getState();
 
         try {
             const data = JSON.parse(event.data);
 
             switch (data.type) {
                 case "post_created":
-                    this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
+                    store.handleWebSocketPost({ ...data.post, request_id: data.request_id });
                     break;
 
                 case "post_updated":
-                    this.dispatch(handleWebSocketPost({ ...data.post, request_id: data.request_id }));
+                    store.handleWebSocketPost({ ...data.post, request_id: data.request_id });
                     break;
 
                 case "post_deleted":
-                    this.dispatch(handleWebSocketPostDeleted({ post_id: data.post_id, request_id: data.request_id }));
+                    store.handleWebSocketPostDeleted(data.post_id);
                     break;
 
                 case "reaction_updated":
-                    this.dispatch(handleWebSocketReactionUpdate({
-                        post_id: data.post_id,
-                        reactions_count: data.reactions_count,
-                        request_id: data.request_id
-                    }));
+                    store.handleWebSocketReactionUpdate(data.post_id, data.reactions_count);
                     break;
 
                 case "reply_reaction_updated":
-                    this.dispatch(handleWebSocketReplyReactionUpdate({
-                        post_id: data.post_id,
-                        reply_id: data.reply_id,
-                        reactions_count: data.reactions_count,
-                        request_id: data.request_id
-                    }));
+                    store.handleWebSocketReplyReactionUpdate(data.post_id, data.reply_id, data.reactions_count);
                     break;
 
                 case "reply_created":
-                    this.dispatch(handleWebSocketReply({
-                        postId: data.post_id,
-                        reply: data.reply,
-                        replies_count: data.replies_count,
-                        request_id: data.request_id
-                    }));
+                    store.handleWebSocketReply(data.post_id, data.reply, data.replies_count);
                     break;
 
                 case "reply_updated":
-                    this.dispatch(handleWebSocketReply({
-                        postId: data.post_id,
-                        reply: data.reply,
-                        request_id: data.request_id
-                    }));
+                    store.handleWebSocketReply(data.post_id, data.reply);
                     break;
 
                 case "reply_deleted":
-                    this.dispatch(handleWebSocketReply({
-                        postId: data.post_id,
-                        reply_id: data.reply_id,
-                        replies_count: data.replies_count,
-                        request_id: data.request_id
-                    }));
+                    store.handleWebSocketReplyDeleted(data.post_id, data.reply_id, data.replies_count);
                     break;
 
                 case "notification_created":
                     // New notification for the current user
-                    this.dispatch(addNotification(data.notification));
+                    store.handleWebSocketNotification(data.notification);
                     break;
 
                 case "notification_read":
-                    this.dispatch(handleWebSocketNotificationRead({ notification_id: data.notification_id }));
+                    store.handleWebSocketNotificationRead(data.notification_id);
                     break;
 
                 case "all_notifications_read":
-                    this.dispatch(handleWebSocketAllNotificationsRead());
+                    store.handleWebSocketAllNotificationsRead();
                     break;
 
                 default:
@@ -185,13 +150,13 @@ export class CommunityWebSocket {
     }
 
     private attemptReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts && this.dispatch) {
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
             setTimeout(() => {
                 console.log(
                     `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
                 );
-                this.connect(this.currentCategoryId, this.dispatch!);
+                this.connect(this.currentCategoryId);
             }, this.reconnectDelay * this.reconnectAttempts);
         }
     }
@@ -204,7 +169,6 @@ export class CommunityWebSocket {
             this.ws.close();
             this.ws = null;
         }
-        this.dispatch = null;
         this.currentCategoryId = null;
         this.reconnectAttempts = 0;
     }

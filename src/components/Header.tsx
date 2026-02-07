@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import { usePathname, useRouter } from "next/navigation";
 import { FolderDot, Home, X, Users, Menu, User, LogOut, LogIn, GraduationCap } from "lucide-react";
 import clsx from "clsx";
@@ -28,7 +27,7 @@ const AuthDialog = dynamic(
 );
 
 export function Header() {
-  const user = useSelector(selectCurrentUser);
+  const { user } = useAuthStore();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

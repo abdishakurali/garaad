@@ -1,4 +1,4 @@
-import { baseURL } from "@/config";
+import { API_BASE_URL } from "@/lib/constants";
 import AuthService from "@/services/auth";
 
 export interface UserProgress {
@@ -63,7 +63,7 @@ export const progressService = {
     if (!token) throw new Error("Authentication required");
 
     try {
-      const response = await fetch(`${baseURL}/api/lms/user-progress/`, {
+      const response = await fetch(`${API_BASE_URL}/api/lms/user-progress/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +88,7 @@ export const progressService = {
     if (!token) throw new Error("Authentication required");
 
     try {
-      const response = await fetch(`${baseURL}/api/lms/user-progress/`, {
+      const response = await fetch(`${API_BASE_URL}/api/lms/user-progress/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/user-progress/${progressId}/`,
+        `${API_BASE_URL}/api/lms/user-progress/${progressId}/`,
         {
           method: "PATCH",
           headers: {
@@ -147,7 +147,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/user-progress/by_course?course_id=${courseId}`,
+        `${API_BASE_URL}/api/lms/user-progress/by_course/?course_id=${courseId}`,
         {
           method: "GET",
           headers: {
@@ -175,7 +175,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/user-progress/by_category/?category_id=${categoryId}`,
+        `${API_BASE_URL}/api/lms/user-progress/by_category/?category_id=${categoryId}`,
         {
           method: "GET",
           headers: {
@@ -203,7 +203,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/user-progress/by_module/?module_id=${moduleId}`,
+        `${API_BASE_URL}/api/lms/user-progress/by_module/?module_id=${moduleId}`,
         {
           method: "GET",
           headers: {
@@ -231,7 +231,7 @@ export const progressService = {
     if (!token) throw new Error("Authentication required");
 
     try {
-      const response = await fetch(`${baseURL}/api/lms/rewards/`, {
+      const response = await fetch(`${API_BASE_URL}/api/lms/rewards/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -262,7 +262,7 @@ export const progressService = {
 
     try {
       const response = await fetch(
-        `${baseURL}/api/lms/leaderboard/?time_period=${timePeriod}`,
+        `${API_BASE_URL}/api/lms/leaderboard/?time_period=${timePeriod}`,
         {
           method: "GET",
           headers: {
@@ -289,7 +289,7 @@ export const progressService = {
     if (!token) throw new Error("Authentication required");
 
     try {
-      const response = await fetch(`${baseURL}/api/lms/leaderboard/my_rank/`, {
+      const response = await fetch(`${API_BASE_URL}/api/lms/leaderboard/my_rank/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -314,7 +314,7 @@ export const progressService = {
     if (!token) throw new Error("Authentication required");
 
     try {
-      const response = await fetch(`${baseURL}/api/gamification/status/`, {
+      const response = await fetch(`${API_BASE_URL}/api/gamification/status/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

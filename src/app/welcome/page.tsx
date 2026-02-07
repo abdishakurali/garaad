@@ -8,14 +8,8 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectAuthError,
-  setError as setAuthError,
-  setUser,
-} from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
-import type { AppDispatch } from "@/store";
 import { validateEmail } from "@/lib/email-validation";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,9 +78,9 @@ export default function Page() {
   const steps = [goals, topics, null, learningGoals];
   const progress = (currentStep / (steps.length + 1)) * 100;
 
-  // Redux hooks
-  const dispatch = useDispatch<AppDispatch>();
-  const authError = useSelector(selectAuthError);
+  // Redux hooks replacement with Zustand
+  const { user, error: authStoreError, setError: setAuthStoreError, setUser: setAuthStoreUser } = useAuthStore();
+  const authError = authStoreError;
 
   // Load saved data from localStorage on mount
   useEffect(() => {
@@ -235,7 +229,7 @@ export default function Page() {
     // Clear any existing errors and set loading state
     setActualError("");
     setIsLoading(true);
-    dispatch(setAuthError(null));
+    setAuthStoreError(null);
 
     try {
       // Validate all data
@@ -287,9 +281,9 @@ export default function Page() {
       const result = await AuthService.getInstance().signUp(signUpData);
 
 
-      // Update Redux state with the successful result
+      // Update state with the successful result
       if (result?.user) {
-        dispatch(setUser({
+        setAuthStoreUser({
           ...result.user,
           is_premium: result.user.is_premium || false,
           referral_code: result.user.referral_code,
@@ -297,7 +291,7 @@ export default function Page() {
           referral_count: result.user.referral_count,
           referred_by: result.user.referred_by,
           referred_by_username: result.user.referred_by_username,
-        }));
+        });
       }
 
       // Only redirect if signup was successful
@@ -375,9 +369,9 @@ export default function Page() {
   // Clear Redux error when component mounts or when user starts over
   useEffect(() => {
     if (authError) {
-      dispatch(setAuthError(null));
+      setAuthStoreError(null);
     }
-  }, [authError, dispatch]);
+  }, [authError]);
 
   const handleStartOver = () => {
     // Clear all localStorage data and reset the form

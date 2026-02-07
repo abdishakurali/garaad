@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export function ChallengeHero() {
     const router = useRouter();
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { user } = useAuthStore();
+    const isAuthenticated = !!user;
 
     useEffect(() => {
         // Load Vimeo player script
@@ -75,7 +75,7 @@ export function ChallengeHero() {
                         className="group relative px-12 py-5 bg-primary text-white font-black rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)] overflow-hidden"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                        <span className="relative">BILOW HADDA</span>
+                        <span className="relative">{isAuthenticated ? "BILOW HADDA" : "KU SOO BIIR"}</span>
                     </button>
                     <button
                         onClick={handleSecondaryCTA}

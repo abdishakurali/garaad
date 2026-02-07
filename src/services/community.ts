@@ -1,187 +1,36 @@
-import AuthService from "@/services/auth";
-import { API_BASE_URL } from "@/lib/constants";
+import { api } from "@/lib/api";
 import type { CreatePostData, CreateReplyData, ReactionType } from "@/types/community";
-
-const BASE_URL = `${API_BASE_URL}/api/`;
-
-// Helper function for making authenticated API calls
-const apiCall = async (endpoint: string, options: RequestInit = {}, retryCount = 0) => {
-  const authService = AuthService.getInstance();
-  const token = await authService.ensureValidToken();
-
-  if (!token) {
-    throw new Error("Authentication required");
-  }
-
-  const isFormData = options.body instanceof FormData;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
-    ...options.headers,
-  };
-
-  const config: RequestInit = {
-    ...options,
-    headers,
-  };
-
-  const url = `${BASE_URL}${endpoint}`;
-  try {
-    const response = await fetch(url, config);
-
-    // If 401 and we haven't retried yet, try refreshing the token
-    if (response.status === 401 && retryCount === 0) {
-      console.log(`401 Unauthorized for ${url}, attempting token refresh...`);
-      try {
-        const newToken = await authService.refreshAccessToken();
-        if (newToken) {
-          console.log("Token refreshed successfully, retrying request...");
-          return apiCall(endpoint, options, retryCount + 1);
-        }
-      } catch (refreshError) {
-        console.error("Token refresh failed during 401 retry:", refreshError);
-        // propagate original 401 error or the refresh error?
-        // Let it fall through to existing error handling
-      }
-    }
-
-    if (!response.ok) {
-      const responseText = await response.text();
-      let errorData = {};
-      try {
-        errorData = JSON.parse(responseText);
-      } catch (e) {
-        errorData = { raw: responseText };
-      }
-
-      console.error(`API Error [${response.status}] ${url}:`, JSON.stringify(errorData, null, 2));
-
-      throw {
-        status: response.status,
-        message: response.statusText || "Request failed",
-        data: errorData,
-      };
-    }
-
-    // Check for empty response (e.g. 204 No Content)
-    const contentType = response.headers.get("content-type");
-    if (response.status === 204 || !contentType || contentType.indexOf("application/json") === -1) {
-      return {};
-    }
-
-    try {
-      const text = await response.text();
-      const data = text ? JSON.parse(text) : {};
-
-      // DEBUG: Log posts response to see if replies are included
-      if (typeof url === 'string' && url.includes('/posts')) {
-        console.log(`[API] Response from ${url}:`, JSON.stringify(data, null, 2));
-      }
-
-      return data;
-    } catch (e) {
-      console.warn(`Failed to parse JSON response from ${url}:`, e);
-      return {};
-    }
-  } catch (error: any) {
-    if (error.status) throw error; // Re-throw structured API errors
-
-    console.error(`Network Error ${url}:`, error);
-    throw {
-      status: 0,
-      message: error.message || "Network request failed",
-      data: error,
-    };
-  }
-};
-
-// Helper for public (unauthenticated) API calls
-const publicApiCall = async (endpoint: string, options: RequestInit = {}) => {
-  const isFormData = options.body instanceof FormData;
-  const headers = {
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
-    ...options.headers,
-  };
-
-  const config: RequestInit = {
-    ...options,
-    headers,
-  };
-
-  const url = `${BASE_URL}${endpoint}`;
-  try {
-    const response = await fetch(url, config);
-
-    if (!response.ok) {
-      const responseText = await response.text();
-      let errorData = {};
-      try {
-        errorData = JSON.parse(responseText);
-      } catch (e) {
-        errorData = { raw: responseText };
-      }
-
-      console.error(`Public API Error [${response.status}] ${url}:`, JSON.stringify(errorData, null, 2));
-
-      throw {
-        status: response.status,
-        message: response.statusText || "Request failed",
-        data: errorData,
-      };
-    }
-
-    const contentType = response.headers.get("content-type");
-    if (response.status === 204 || !contentType || contentType.indexOf("application/json") === -1) {
-      return {};
-    }
-
-    const text = await response.text();
-    return text ? JSON.parse(text) : {};
-  } catch (error: any) {
-    if (error.status) throw error;
-    console.error(`Public Network Error ${url}:`, error);
-    throw {
-      status: 0,
-      message: error.message || "Network request failed",
-      data: error,
-    };
-  }
-};
 
 // Category Management APIs
 export const categoryService = {
   // Get all categories (Campuses)
   getCategories: async () => {
-    return apiCall("community/categories/");
+    return api.get("/api/community/categories/");
   },
 
   getPublicCategories: async () => {
-    return publicApiCall("community/categories/");
+    return api.get("/api/community/categories/");
   },
 
   // Get category details (Optional, but keeping for completeness)
   getCategoryDetails: async (categoryId: string) => {
-    return apiCall(`community/categories/${categoryId}/`);
+    return api.get(`/api/community/categories/${categoryId}/`);
   },
 
   // Toggle pin status
   togglePinCategory: async (categoryId: string) => {
-    return apiCall(`community/categories/${categoryId}/toggle_pin/`, {
-      method: "POST",
-    });
+    return api.post(`/api/community/categories/${categoryId}/toggle_pin/`);
   },
 };
 
 // Post Management APIs
 export const postService = {
   getPosts: async (categoryId: string, page?: number) => {
-    const params = page ? `?page=${page}` : "";
-    return apiCall(`community/categories/${categoryId}/posts/${params}`);
+    return api.get(`/api/community/categories/${categoryId}/posts/`, page ? { page: page.toString() } : undefined);
   },
 
   getPublicPosts: async (page?: number) => {
-    const params = page ? `?page=${page}` : "";
-    return publicApiCall(`community/posts/public/${params}`);
+    return api.get(`/api/community/posts/public/`, page ? { page: page.toString() } : undefined);
   },
 
   // Create post
@@ -216,16 +65,10 @@ export const postService = {
         });
       }
 
-      return apiCall(`community/posts/`, {
-        method: "POST",
-        body: formData,
-      });
+      return api.post(`/api/community/posts/`, formData);
     } else {
       const { images, attachments, ...jsonData } = postData;
-      return apiCall(`community/posts/`, {
-        method: "POST",
-        body: JSON.stringify(jsonData),
-      });
+      return api.post(`/api/community/posts/`, jsonData);
     }
   },
 
@@ -235,29 +78,22 @@ export const postService = {
     if (content !== undefined) body.content = content;
     if (is_public !== undefined) body.is_public = is_public;
 
-    return apiCall(`community/posts/${postId}/`, {
-      method: "PATCH",
-      body: JSON.stringify(body),
-    });
+    return api.patch(`/api/community/posts/${postId}/`, body);
   },
 
   // Delete post
   deletePost: async (postId: string, requestId?: string) => {
-    const params = requestId ? `?requestId=${requestId}` : "";
-    return apiCall(`community/posts/${postId}/${params}`, {
-      method: "DELETE",
+    return api.delete(`/api/community/posts/${postId}/`, {
+      params: requestId ? { requestId } : undefined
     });
   },
 
   // React to post (toggle)
   reactToPost: async (postId: string, type: ReactionType, requestId?: string) => {
-    return apiCall(`community/posts/${postId}/react/`, {
-      method: "POST",
-      body: JSON.stringify({
-        type,
-        reaction: type, // Mirror for compatibility
-        requestId
-      }),
+    return api.post(`/api/community/posts/${postId}/react/`, {
+      type,
+      reaction: type, // Mirror for compatibility
+      requestId
     });
   },
 };
@@ -285,44 +121,31 @@ export const replyService = {
         });
       }
 
-      return apiCall(`community/posts/${postId}/reply/`, {
-        method: "POST",
-        body: formData,
-      });
+      return api.post(`/api/community/posts/${postId}/reply/`, formData);
     } else {
       const { attachments, ...jsonData } = replyData;
-      return apiCall(`community/posts/${postId}/reply/`, {
-        method: "POST",
-        body: JSON.stringify(jsonData),
-      });
+      return api.post(`/api/community/posts/${postId}/reply/`, jsonData);
     }
   },
 
   // Update reply
   updateReply: async (replyId: string, content: string) => {
-    return apiCall(`community/replies/${replyId}/`, {
-      method: "PATCH",
-      body: JSON.stringify({ content }),
-    });
+    return api.patch(`/api/community/replies/${replyId}/`, { content });
   },
 
   // Delete reply
   deleteReply: async (replyId: string, requestId?: string) => {
-    const params = requestId ? `?requestId=${requestId}` : "";
-    return apiCall(`community/replies/${replyId}/${params}`, {
-      method: "DELETE",
+    return api.delete(`/api/community/replies/${replyId}/`, {
+      params: requestId ? { requestId } : undefined
     });
   },
 
   // React to reply (toggle)
   reactToReply: async (replyId: string, type: ReactionType, requestId?: string) => {
-    return apiCall(`community/replies/${replyId}/react/`, {
-      method: "POST",
-      body: JSON.stringify({
-        type,
-        reaction: type,
-        requestId
-      }),
+    return api.post(`/api/community/replies/${replyId}/react/`, {
+      type,
+      reaction: type,
+      requestId
     });
   },
 };
@@ -330,17 +153,17 @@ export const replyService = {
 // User Profile APIs
 export const profileService = {
   getUserProfile: async () => {
-    return apiCall("community/profiles/me/");
+    return api.get("/api/community/profiles/me/");
   },
 
   // Get other user profile for community interactions
   getOtherUserProfile: async (userId: string) => {
-    return apiCall(`community/profiles/${userId}/`);
+    return api.get(`/api/community/profiles/${userId}/`);
   },
 
   // Get users who have enabled notifications
   getNotificationEnabledUsers: async () => {
-    return apiCall('community/profiles/notification_enabled/');
+    return api.get('/api/community/profiles/notification_enabled/');
   },
 
   // Update profile settings
@@ -366,16 +189,10 @@ export const profileService = {
       // Append the file properly
       formData.append('profile_picture', profileData.profile_picture);
 
-      return apiCall("community/profiles/me/", {
-        method: "PATCH",
-        body: formData,
-      });
+      return api.patch("/api/community/profiles/me/", formData);
     } else {
       // Standard JSON update
-      return apiCall("community/profiles/me/", {
-        method: "PATCH",
-        body: JSON.stringify(profileData),
-      });
+      return api.patch("/api/community/profiles/me/", profileData);
     }
   },
 };
@@ -384,23 +201,17 @@ export const profileService = {
 export const notificationService = {
   // List notifications
   getNotifications: async (page?: number) => {
-    const params = page ? `?page=${page}` : "";
-    const path = `community/notifications/${params}`.replace(/\/+/g, '/');
-    return apiCall(path);
+    return api.get("/api/community/notifications/", page ? { page: page.toString() } : undefined);
   },
 
   // Mark notification as read
   markNotificationRead: async (notificationId: string) => {
-    return apiCall(`community/notifications/${notificationId}/mark_as_read/`, {
-      method: "POST",
-    });
+    return api.post(`/api/community/notifications/${notificationId}/mark_as_read/`);
   },
 
   // Mark all notifications as read
   markAllNotificationsRead: async () => {
-    return apiCall("community/notifications/mark_all_as_read/", {
-      method: "POST",
-    });
+    return api.post("/api/community/notifications/mark_all_as_read/");
   },
 };
 

@@ -14,9 +14,7 @@ import {
     PinOff,
     GraduationCap,
 } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store/store";
-import { togglePinCategoryOptimistic as togglePinCategory } from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LockedRoomDialog } from "./LockedRoomDialog";
@@ -43,15 +41,14 @@ export function ChannelSidebar({
     onSelectCampus: (campus: CommunityCategory) => void;
     onClearCampus: () => void;
 }) {
-    const dispatch = useDispatch<AppDispatch>();
-    const { pinnedCategoryIds: pinnedRoomIds } = useSelector((state: RootState) => state.community);
+    const { pinnedCategoryIds: pinnedRoomIds, togglePinCategory } = useCommunityStore();
     const [lockedRoomTarget, setLockedRoomTarget] = useState<CommunityCategory | null>(null);
     const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     const handlePinClick = (e: React.MouseEvent, roomId: string) => {
         e.stopPropagation();
-        dispatch(togglePinCategory(roomId));
+        togglePinCategory(roomId);
     };
 
     const pinnedRooms = rooms?.filter(r => pinnedRoomIds.includes(r.id)) || [];
@@ -230,7 +227,7 @@ export function ChannelSidebar({
             <LockedRoomDialog
                 isOpen={!!lockedRoomTarget}
                 onClose={() => setLockedRoomTarget(null)}
-                room={lockedRoomTarget}
+                room={lockedRoomTarget as any}
                 userProfile={userProfile}
             />
 

@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import { ProgressCard } from "@/components/progress/ProgressCard";
 import { progressService } from "@/services/progress";
 import type { UserProgress } from "@/services/progress";
@@ -13,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
 export function StudentDashboard() {
-    const user = useSelector(selectCurrentUser);
+    const { user } = useAuthStore();
     const [progress, setProgress] = useState<UserProgress[]>([]);
     const [gamification, setGamification] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

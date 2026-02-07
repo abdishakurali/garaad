@@ -1,22 +1,8 @@
 import React, { useState, useMemo } from "react";
+import { CommunityPost, UserProfile, ReactionType, SOMALI_UI_TEXT, REACTION_ICONS, getUserDisplayName } from "@/types/community";
 import { LinkifiedText } from "@/components/ui/linkified-text";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store";
-import {
-    CommunityPost,
-    UserProfile,
-    ReactionType,
-    REACTION_ICONS,
-    SOMALI_UI_TEXT,
-    getUserDisplayName,
-} from "@/types/community";
-import {
-    reactToPost,
-    toggleReactionOptimistic,
-    deletePost,
-    removeOptimisticPost,
-    updatePost
-} from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
+import communityService from "@/services/community";
 import { getMediaUrl, cn, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
@@ -43,7 +29,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, userProfile, initiallyShowReplies = false, targetReplyId = null, isReadOnly = false }: PostCardProps) {
-    const dispatch = useDispatch<AppDispatch>();
+    const { toggleReaction, removePost, updatePost } = useCommunityStore();
     const [showReplies, setShowReplies] = useState(initiallyShowReplies);
 
     // Update showReplies if prop changes
@@ -85,19 +71,19 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
         // If switching reaction (e.g. was 'like', now 'fire'), remove the old one first
         const requestId = `req_react_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         if (activeReaction) {
-            dispatch(toggleReactionOptimistic({ postId: post.id, type: activeReaction, isAdding: false, request_id: requestId }));
+            toggleReaction(post.id, activeReaction, false);
         }
 
         const isAdding = !post.user_reactions.includes(type);
 
         // 1. Immediately update UI (Toggle the clicked one)
-        dispatch(toggleReactionOptimistic({ postId: post.id, type, isAdding, request_id: requestId }));
+        toggleReaction(post.id, type, isAdding);
 
         // 2. Send to server (will sync via WebSocket)
         if (activeReaction) {
-            dispatch(reactToPost({ postId: post.id, type: activeReaction, requestId })); // Toggle off old
+            communityService.post.reactToPost(post.id, activeReaction, requestId); // Toggle off old
         }
-        dispatch(reactToPost({ postId: post.id, type, requestId })); // Toggle on new
+        communityService.post.reactToPost(post.id, type, requestId); // Toggle on new
     };
 
     const handleDelete = async () => {
@@ -106,11 +92,11 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
 
         const requestId = `req_del_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         // 1. Instantly remove from UI for better UX
-        dispatch(removeOptimisticPost({ postId: post.id, request_id: requestId }));
+        removePost(post.id);
 
         // 2. Sync with server in background
         try {
-            await dispatch(deletePost({ postId: post.id, requestId })).unwrap();
+            await communityService.post.deletePost(post.id, requestId);
         } catch (error) {
             console.error("Failed to delete post:", error);
             // On failure, the user might see it again on refresh, 
@@ -127,7 +113,10 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
     const handleUpdatePost = async () => {
         if (!editContent.trim()) return;
         try {
-            await dispatch(updatePost({ postId: post.id, content: editContent, is_public: editPublic })).unwrap();
+            const response = await communityService.post.updatePost(post.id, editContent, editPublic);
+            if (response) {
+                updatePost(response);
+            }
             setIsEditing(false);
         } catch (error) {
             console.error("Failed to update post:", error);

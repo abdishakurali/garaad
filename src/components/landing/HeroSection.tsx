@@ -2,14 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Sparkles, Download, Play } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 export function HeroSection() {
     const router = useRouter();
-    const user = useSelector(selectCurrentUser);
+    const { user } = useAuthStore();
     const isAuthenticated = !!user;
 
     return (
@@ -54,35 +53,28 @@ export function HeroSection() {
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 glassmorphism animate-in fade-in slide-in-from-top-4 duration-1000">
                             <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                             <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary">
-                                Ku baro Sameyn                            </span>
+                                Jiilka Cusub ee STEM
+                            </span>
                         </div>
                     </Reveal>
 
                     {/* Headline */}
                     <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-foreground leading-[1.1] tracking-tight">
-                        <span className="block">Baro, Tartan,</span>
-                        <span className="block mt-2">
-                            oo{" "}
+                        <span className="block">Hogaami Berri:</span>
+                        <span className="block mt-2 font-black transition-all duration-500">
+                            Baro STEM iyo{" "}
                             <span className="relative inline-block">
                                 <span className="absolute -inset-4 blur-3xl bg-gradient-to-r from-primary/40 to-blue-600/40 opacity-40" />
                                 <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-primary via-emerald-500 to-primary">
-                                    Guulayso!
+                                    Coding-ka
                                 </span>
                             </span>
                         </span>
                     </h1>
 
                     {/* Description */}
-                    <p className="text-base sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium px-4">
-                        Garaad waa hoyga aqoonta casriga ah. Baro{" "}
-                        <span className="text-foreground font-bold">Xisaabta, Fiisigiska,</span>{" "}
-                        iyo{" "}
-                        <span className="text-foreground font-bold">Tiknoolajiyada</span> adiga oo
-                        isticmaalaya{" "}
-                        <span className="text-primary font-bold underline decoration-primary/30 decoration-4 underline-offset-4">
-                            Af-Soomaali hufan
-                        </span>
-                        —macalin la&apos;aan iyo tartan furan.
+                    <p className="text-base sm:text-xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium px-4">
+                        Ku baro luuqadaada hooyo <span className="text-foreground font-bold">HTML, JS, AI,</span> iyo <span className="text-foreground font-bold">Crypto Math.</span> Garaad wuxuu kuu sahlayaa inaad aqoon heer caalami ah ku barato Af-Soomaali. Is-tijaabi, la tartan dhalinyarada kale, oo dhis mustaqbalkaaga—<span className="text-primary font-bold">macalin la&apos;aan.</span>
                     </p>
                 </div>
 
@@ -94,7 +86,7 @@ export function HeroSection() {
                         onClick={() => router.push(isAuthenticated ? "/courses" : "/welcome")}
                     >
                         <Play className="w-5 h-5 mr-3 group-hover:animate-pulse" />
-                        <span>{isAuthenticated ? "Sii wad Barashada" : "Hadda Bilow"}</span>
+                        <span>{isAuthenticated ? "Sii wad Barashada" : "KU SOO BIIR"}</span>
                     </Button>
                 </div>
             </div>

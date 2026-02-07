@@ -2,6 +2,7 @@
 
 import { Brain, Gamepad2, Layers, Cpu, ChevronRight } from "lucide-react";
 import clsx from "clsx";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const courseLevels = [
   {
@@ -35,6 +36,9 @@ const courseLevels = [
 ];
 
 export function LearningLevelsSection() {
+  const { user } = useAuthStore();
+  const isAuthenticated = !!user;
+
   return (
     <section className="py-32 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 relative">
@@ -83,7 +87,7 @@ export function LearningLevelsSection() {
                   </div>
 
                   <div className="flex items-center text-primary font-black text-sm uppercase tracking-widest transition-all duration-300">
-                    <span className="mr-1">Bilow Hadda</span>
+                    <span className="mr-1">{isAuthenticated ? "Bilow Hadda" : "KU SOO BIIR"}</span>
                     <ChevronRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>

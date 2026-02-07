@@ -3,10 +3,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Loader2, Eye, EyeOff, X } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { signUp, selectAuthLoading, selectAuthError, setError } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
-import type { AppDispatch } from "@/store";
 import type { SignUpData } from "@/types/auth";
 import { cn } from "@/lib/utils";
 import { validateEmail } from "@/lib/email-validation";
@@ -17,10 +15,7 @@ interface SignupFormProps {
 
 // Signup form component for collecting user information
 export function SignupForm({ onClose }: SignupFormProps) {
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
-  const isLoading = useSelector(selectAuthLoading);
-  const authError = useSelector(selectAuthError);
+  const { signUp, isLoading, error: authError, setError } = useAuthStore();
 
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -123,7 +118,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
       };
 
       // Attempt signup - the backend will handle existing user scenarios
-      const result = await dispatch(signUp(signupData)).unwrap();
+      const result = await signUp(signupData);
 
       // Only redirect if signup was successful and no auth error
       if (result && !authError) {
@@ -159,12 +154,12 @@ export function SignupForm({ onClose }: SignupFormProps) {
     }
   };
 
-  // Handle auth error from Redux
+  // Handle auth error from Zustand
   React.useEffect(() => {
     if (authError) {
-      dispatch(setError(null));
+      setError(null);
     }
-  }, [authError, dispatch]);
+  }, [authError, setError]);
 
   return (
     <div
@@ -303,7 +298,7 @@ export function SignupForm({ onClose }: SignupFormProps) {
                     id="promoCode"
                     name="promoCode"
                     type="text"
-                    placeholder="Garaad#2026"
+                    placeholder="Garaad@2026"
                     className="w-full p-3 md:p-4 border border-input bg-background rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-base md:text-lg transition-all"
                     style={{ fontSize: '16px' }}
                     value={formData.promoCode}

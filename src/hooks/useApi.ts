@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import useSWR from "swr";
 import { Category, Course, Lesson } from "@/types/lms";
-import axios from "axios";
 import { Module } from "@/types/learning";
 import { API_BASE_URL } from "@/lib/constants";
 import AuthService from "@/services/auth";

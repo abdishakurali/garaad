@@ -84,6 +84,8 @@ export const viewport: Viewport = {
 import { Toaster } from "@/components/ui/ToasterUI";
 import { OverlayElements } from "@/components/landing/OverlayElements";
 
+import Script from "next/script";
+
 export default function RootLayout({
   children,
 }: {
@@ -113,6 +115,15 @@ export default function RootLayout({
               }
             }),
           }}
+        />
+        {/* Performance Optimization: Move scripts to next/script with lazyOnload */}
+        <Script
+          src="https://js.stripe.com/v3/"
+          strategy="lazyOnload"
+        />
+        <Script
+          src="https://cdn.shakebugs.com/browser/shake.javascript"
+          strategy="lazyOnload"
         />
       </head>
       <body className={inter.className}>

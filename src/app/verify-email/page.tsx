@@ -36,20 +36,41 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
-    if (emailParam) {
+    if (emailParam && emailParam.trim()) {
       setEmail(emailParam);
     } else {
+      // Try localStorage first
       const storedEmail = localStorage.getItem("user");
       if (storedEmail) {
         try {
           const parsedEmail = JSON.parse(storedEmail);
-          setEmail(parsedEmail.email);
+          if (parsedEmail.email) {
+            setEmail(parsedEmail.email);
+            return;
+          }
         } catch (e) {
           console.error("Failed to parse stored email", e);
         }
       }
+
+      // Try to get email from AuthService as last resort
+      const checkAuthService = async () => {
+        const { default: AuthService } = await import('@/services/auth');
+        const authService = AuthService.getInstance();
+        const currentUser = authService.getCurrentUser();
+
+        if (currentUser?.email) {
+          setEmail(currentUser.email);
+        } else {
+          // No email found anywhere, redirect to welcome
+          console.log("No email found, redirecting to welcome");
+          router.push('/welcome');
+        }
+      };
+
+      checkAuthService();
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   // Auto-send verification email when page loads and email is available
   useEffect(() => {
@@ -204,6 +225,48 @@ export default function VerifyEmailPage() {
       );
 
       const data = await response.json();
+
+      // Check if email is already verified - treat this as success
+      if (!response.ok && (data.error === "Email-kan mar hore ayaa la xaqiijiyay." || data.error === "Email is already verified")) {
+        console.log("Emailkaaga horey ayaa la xaqiijiyay - redirecting...");
+
+        // Clear localStorage data
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('welcome_user_data');
+          localStorage.removeItem('welcome_selections');
+          localStorage.removeItem('welcome_current_step');
+          localStorage.removeItem('welcome_topic_levels');
+          localStorage.removeItem('welcome_selected_topic');
+          localStorage.removeItem('user');
+        }
+
+        // Fetch user data and redirect based on premium status
+        try {
+          const { default: AuthService } = await import('@/services/auth');
+          const authService = AuthService.getInstance();
+          const accessToken = localStorage.getItem('accessToken') || '';
+          const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
+
+          if (updatedUserData) {
+            if (updatedUserData.is_premium) {
+              router.push("/courses");
+            } else {
+              router.push("/subscribe");
+            }
+          } else {
+            authService.updateEmailVerificationStatus(true);
+            router.push("/subscribe");
+          }
+        } catch (userError) {
+          console.error("Error fetching user data:", userError);
+          const { default: AuthService } = await import('@/services/auth');
+          const authService = AuthService.getInstance();
+          authService.updateEmailVerificationStatus(true);
+          router.push("/subscribe");
+        }
+        return;
+      }
+
       if (!response.ok) throw new Error(data.error || "Verification failed");
 
       // Success state - update user's email verification status and check premium status

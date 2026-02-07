@@ -117,118 +117,120 @@ export default function ModuleZigzag({
     return (
         <div className="max-w-md mx-auto p-4 pb-32">
             {/* Course Modules - Zigzag Pattern */}
-            {uniqueModules.map((module, index) => {
-                const isCompleted = isModuleCompleted(module.title);
-                const isActive = activeModuleId === module.id;
-                const isSelected = selectedModule?.id === module.id;
-                const isRightAligned = index % 2 === 1;
+            <ul className="list-none p-0 m-0">
+                {uniqueModules.map((module, index) => {
+                    const isCompleted = isModuleCompleted(module.title);
+                    const isActive = activeModuleId === module.id;
+                    const isSelected = selectedModule?.id === module.id;
+                    const isRightAligned = index % 2 === 1;
 
-                return (
-                    <div
-                        key={module.id}
-                        className={`flex items-center mb-12 cursor-pointer transition-all duration-200 ${isRightAligned ? 'justify-end mr-4' : 'ml-4'
-                            } hover:opacity-80`}
-                        onClick={() => handleModuleClick(module)}
-                    >
-                        {isRightAligned ? (
-                            <>
-                                {/* Text on the left */}
-                                <div className="text-right">
-                                    <h3 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                        }`}>
-                                        {module.title.split(' ').slice(0, -1).join(' ')}
-                                    </h3>
-                                    <h4 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                        }`}>
-                                        {module.title.split(' ').slice(-1).join(' ')}
-                                    </h4>
-                                </div>
-                                {/* Icon on the right */}
-                                <div className="ml-6">
-                                    <div className="relative">
-                                        {/* Colored gradient rings based on status */}
-                                        <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
-                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
-                                            : isActive || isSelected
-                                                ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
-                                                : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
+                    return (
+                        <li
+                            key={module.id}
+                            className={`flex items-center mb-12 cursor-pointer transition-all duration-200 ${isRightAligned ? 'justify-end mr-4' : 'ml-4'
+                                } hover:opacity-80`}
+                            onClick={() => handleModuleClick(module)}
+                        >
+                            {isRightAligned ? (
+                                <>
+                                    {/* Text on the left */}
+                                    <div className="text-right">
+                                        <h3 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
                                             }`}>
-                                            <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
-                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
-                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                    : isActive || isSelected
+                                            {module.title.split(' ').slice(0, -1).join(' ')}
+                                        </h3>
+                                        <h4 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
+                                            }`}>
+                                            {module.title.split(' ').slice(-1).join(' ')}
+                                        </h4>
+                                    </div>
+                                    {/* Icon on the right */}
+                                    <div className="ml-6">
+                                        <div className="relative">
+                                            {/* Colored gradient rings based on status */}
+                                            <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
+                                                ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
+                                                : isActive || isSelected
+                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
+                                                    : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
+                                                }`}>
+                                                <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
+                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
                                                         ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                        : 'bg-gradient-to-br from-gray-300 to-gray-400'
-                                                    }`}>
-                                                    <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
-                                                        {isCompleted && (
-                                                            <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                        )}
-                                                        {(isActive || isSelected) && !isCompleted && (
-                                                            <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                        )}
+                                                        : isActive || isSelected
+                                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600'
+                                                            : 'bg-gradient-to-br from-gray-300 to-gray-400'
+                                                        }`}>
+                                                        <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
+                                                            {isCompleted && (
+                                                                <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
+                                                            )}
+                                                            {(isActive || isSelected) && !isCompleted && (
+                                                                <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                {/* Icon on the left */}
-                                <div className="mr-6">
-                                    <div className="relative">
-                                        {/* Colored gradient rings based on status */}
-                                        <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
-                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
-                                            : isActive || isSelected
-                                                ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
-                                                : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
-                                            }`}>
-                                            <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
-                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
-                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                    : isActive || isSelected
+                                </>
+                            ) : (
+                                <>
+                                    {/* Icon on the left */}
+                                    <div className="mr-6">
+                                        <div className="relative">
+                                            {/* Colored gradient rings based on status */}
+                                            <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
+                                                ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
+                                                : isActive || isSelected
+                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
+                                                    : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
+                                                }`}>
+                                                <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
+                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
                                                         ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                        : 'bg-gradient-to-br from-gray-300 to-gray-400'
-                                                    }`}>
-                                                    <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
-                                                        {isCompleted && (
-                                                            <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                        )}
-                                                        {(isActive || isSelected) && !isCompleted && (
-                                                            <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                        )}
+                                                        : isActive || isSelected
+                                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600'
+                                                            : 'bg-gradient-to-br from-gray-300 to-gray-400'
+                                                        }`}>
+                                                        <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
+                                                            {isCompleted && (
+                                                                <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
+                                                            )}
+                                                            {(isActive || isSelected) && !isCompleted && (
+                                                                <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                {/* Text on the right */}
-                                <div>
-                                    <h3 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                        }`}>
-                                        {module.title.split(' ').slice(0, -1).join(' ')}
-                                    </h3>
-                                    <h4 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                        }`}>
-                                        {module.title.split(' ').slice(-1).join(' ')}
-                                    </h4>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                );
-            })}
+                                    {/* Text on the right */}
+                                    <div>
+                                        <h3 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
+                                            }`}>
+                                            {module.title.split(' ').slice(0, -1).join(' ')}
+                                        </h3>
+                                        <h4 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
+                                            }`}>
+                                            {module.title.split(' ').slice(-1).join(' ')}
+                                        </h4>
+                                    </div>
+                                </>
+                            )}
+                        </li>
+                    );
+                })}
+            </ul>
 
             {/* Fixed Bottom Action Bar */}
             {uniqueModules.length > 0 && (
                 <div className="fixed bottom-0 md:w-96 left-4 right-4 md:left-auto md:right-1/3 md:transform md:translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 shadow-lg border-t border-gray-100 dark:border-slate-800 z-50" style={{ maxWidth: '40rem' }}>
-                    <h1 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-4">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-4">
                         {selectedModule?.title || uniqueModules[0]?.title || 'Select a module'}
-                    </h1>
+                    </h2>
 
                     {isLoading ? (
                         <div className={`w-full rounded-2xl p-4 shadow-lg ${!canStartLesson

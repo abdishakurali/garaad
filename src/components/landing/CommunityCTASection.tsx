@@ -1,14 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Users, MessageCircle, Sparkles, ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 export function CommunityCTASection() {
     const router = useRouter();
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { user } = useAuthStore();
+    const isAuthenticated = !!user;
 
     const handleJoin = () => {
         if (isAuthenticated) {

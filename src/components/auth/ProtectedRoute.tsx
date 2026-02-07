@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store";
+import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
 import { Loader } from "lucide-react";
 
@@ -22,8 +21,8 @@ export function ProtectedRoute({
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
 
-    // Get user from Redux store
-    const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+    // Get user from Zustand store
+    const { user, isAuthenticated } = useAuthStore();
 
     useEffect(() => {
         const checkAuth = () => {

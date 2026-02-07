@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Users, Rocket, Coins, CheckCircle2, GraduationCap, Heart } from "lucide-react";
 import { baseURL } from "@/config";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
+import { useAuthStore } from "@/store/useAuthStore";
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface BackendSignup {
@@ -43,7 +42,7 @@ const SESSION_LIMIT_KEY = "garaad_social_proof_count";
 const MAX_NOTIFICATIONS_PER_SESSION = 10;
 
 export function SocialProof() {
-    const user = useSelector(selectCurrentUser);
+    const { user } = useAuthStore();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [signups, setSignups] = useState<BackendSignup[]>([]);

@@ -1,12 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store/store";
-import {
-    createPost,
-    addOptimisticPost,
-} from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
+import communityService from "@/services/community";
 import { CommunityPost, SOMALI_UI_TEXT, getUserDisplayName } from "@/types/community";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,8 +23,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 export function InlinePostInput({ categoryId }: InlinePostInputProps) {
-    const dispatch = useDispatch<AppDispatch>();
-    const { userProfile } = useSelector((state: RootState) => state.community);
+    const { userProfile, addPost: addOptimisticPost, updatePost } = useCommunityStore();
 
     const [content, setContent] = useState("");
     const [images, setImages] = useState<File[]>([]);
@@ -125,7 +120,7 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
             request_id: requestId,
         };
 
-        dispatch(addOptimisticPost(optimisticPost));
+        addOptimisticPost(optimisticPost);
 
         const contentToSend = content;
         const imagesToSend = [...images];
@@ -144,19 +139,19 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
         setIsFocused(false);
 
         try {
-            await dispatch(createPost({
-                categoryId,
-                postData: {
-                    category: categoryId,
-                    content: contentToSend,
-                    images: imagesToSend.length > 0 ? imagesToSend : undefined,
-                    attachments: attachmentsToSend.length > 0 ? attachmentsToSend : undefined,
-                    video_url: videoUrlToSend || undefined,
-                    is_public: isPublic,
-                    requestId,
-                },
-                tempId,
-            })).unwrap();
+            const response = await communityService.post.createPost(categoryId, {
+                category: categoryId,
+                content: contentToSend,
+                images: imagesToSend.length > 0 ? imagesToSend : undefined,
+                attachments: attachmentsToSend.length > 0 ? attachmentsToSend : undefined,
+                video_url: videoUrlToSend || undefined,
+                is_public: isPublic,
+                requestId,
+            }) as any;
+
+            if (response && response.id) {
+                // updatePost(response);
+            }
         } catch (error) {
             console.error("Failed to create post:", error);
         } finally {

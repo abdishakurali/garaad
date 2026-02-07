@@ -1,7 +1,6 @@
 "use client";
 import React, { memo, useState, useMemo, useCallback, Suspense } from "react";
-import { useDispatch } from "react-redux";
-import { resetAnswerState, revealAnswer } from "@/store/features/learningSlice";
+import { useLearningStore } from "@/store/useLearningStore";
 import { ExplanationText, Lesson } from "@/types/learning";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -33,7 +32,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
         explanationData,
         xp,
     }) => {
-        const dispatch = useDispatch();
+        const { resetAnswerState, revealAnswer } = useLearningStore();
         const [showExplanation, setShowExplanation] = useState(false);
         const [isReportingBug, setIsReportingBug] = useState(false);
 
@@ -47,14 +46,14 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
         }, [currentLesson?.content_blocks]);
 
         const handleWhyClick = useCallback(() => {
-            dispatch(revealAnswer());
+            revealAnswer();
             setShowExplanation(true);
-        }, [dispatch]);
+        }, [revealAnswer]);
 
         const handleContinueClick = useCallback(() => {
-            dispatch(resetAnswerState());
+            resetAnswerState();
             onContinue?.();
-        }, [dispatch, onContinue]);
+        }, [resetAnswerState, onContinue]);
 
         const handleCloseExplanation = useCallback(() => {
             setShowExplanation(false);

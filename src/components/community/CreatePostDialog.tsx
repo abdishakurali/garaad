@@ -1,10 +1,6 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store/store";
-import {
-    createPost,
-    addOptimisticPost,
-} from "@/store/features/communitySlice";
+import { useCommunityStore } from "@/store/useCommunityStore";
+import communityService from "@/services/community";
 import { CommunityPost, SOMALI_UI_TEXT } from "@/types/community";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -24,8 +20,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDialogProps) {
-    const dispatch = useDispatch<AppDispatch>();
-    const { userProfile } = useSelector((state: RootState) => state.community);
+    const { userProfile, addPost: addOptimisticPost, updatePost } = useCommunityStore();
 
     const [content, setContent] = useState("");
     const [images, setImages] = useState<File[]>([]);
@@ -99,7 +94,7 @@ export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDial
         };
 
         // 1. Immediately add to UI
-        dispatch(addOptimisticPost(optimisticPost));
+        addOptimisticPost(optimisticPost);
 
         // Reset form and close
         const contentToSend = content;
@@ -113,16 +108,17 @@ export function CreatePostDialog({ isOpen, onClose, categoryId }: CreatePostDial
 
         // 2. Send to server with FormData
         try {
-            await dispatch(createPost({
-                categoryId,
-                postData: {
-                    category: categoryId,
-                    content: contentToSend,
-                    images: imagesToSend.length > 0 ? imagesToSend : undefined,
-                    requestId,
-                },
-                tempId,
-            })).unwrap();
+            const response = await communityService.post.createPost(categoryId, {
+                category: categoryId,
+                content: contentToSend,
+                images: imagesToSend.length > 0 ? imagesToSend : undefined,
+                requestId,
+            }) as any;
+
+            // update with real data from server if needed, or just let SWR handle it
+            if (response && response.id) {
+                // updatePost(response);
+            }
         } catch (error) {
             console.error("Failed to create post:", error);
         } finally {

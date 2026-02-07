@@ -6,12 +6,10 @@ export function FooterSection() {
     product: [
       { name: "Koorsooyin", href: "/courses" },
       { name: "Wargeys", href: "/wargeys" },
-      { name: "Guriga", href: "/home" },
     ],
     company: [
       { name: "Nagu saabsan", href: "/about" },
       { name: "Shaqo", href: "#" },
-      { name: "Macalimiin", href: "#" },
     ],
     legal: [
       { name: "Shuruudaha Isticmaalka", href: "/terms" },
@@ -169,7 +167,7 @@ export function FooterSection() {
               Soomaaliyeed, isagoo diiradda saaraya STEM.
             </p>
             <p className="font-medium text-gray-300">
-              Made in love in somalia 😊
+              Made with love in somalia 😊
             </p>
           </div>
         </div>

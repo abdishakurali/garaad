@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPublicPosts } from "@/store/features/communitySlice";
-import { AppDispatch, RootState } from "@/store/store";
+import { useCommunityStore } from "@/store/useCommunityStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { PostCard } from "@/components/community/PostCard";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -13,13 +12,12 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export default function CommunityPreviewPage() {
-    const dispatch = useDispatch<AppDispatch>();
-    const { posts, loading, errors } = useSelector((state: RootState) => state.community);
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { posts, loading, errors, fetchPublicPosts } = useCommunityStore();
+    const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {
-        dispatch(fetchPublicPosts());
-    }, [dispatch]);
+        fetchPublicPosts();
+    }, [fetchPublicPosts]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -64,7 +62,7 @@ export default function CommunityPreviewPage() {
                                     <ArrowRight className="h-10 w-10 text-red-500 rotate-180" />
                                 </div>
                                 <p className="text-red-500 font-extrabold text-xl mb-6">{errors.posts}</p>
-                                <Button variant="outline" onClick={() => dispatch(fetchPublicPosts())} className="rounded-full px-10 py-6 text-lg font-bold shadow-lg hover:shadow-xl transition-all">
+                                <Button variant="outline" onClick={() => fetchPublicPosts()} className="rounded-full px-10 py-6 text-lg font-bold shadow-lg hover:shadow-xl transition-all">
                                     Mar kale isku day
                                 </Button>
                             </div>
