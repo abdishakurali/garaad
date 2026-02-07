@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAuthError,

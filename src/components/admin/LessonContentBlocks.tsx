@@ -310,7 +310,9 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 const problemRes = await api.post('lms/problems/', problemData);
                 blockData = {
                     block_type: 'problem',
-                    content: {},
+                    content: {
+                        points: editingContent.xp || editingContent.points || 10
+                    },
                     order: specifiedOrder,
                     lesson: lessonId,
                     problem: problemRes.data.id
@@ -359,9 +361,17 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                     lesson: lessonId
                 };
             } else {
+                // Determine if it should be an image or text block based on content
+                const isImageOnly = editingContent.img_url && !editingContent.text;
+
                 blockData = {
-                    block_type: 'text',
-                    content: editingContent,
+                    block_type: isImageOnly ? 'image' : 'text',
+                    content: {
+                        ...editingContent,
+                        // Map frontend img_url back to backend url if it's an image block
+                        url: isImageOnly ? editingContent.img_url : editingContent.url,
+                        format: editingContent.format || 'markdown'
+                    },
                     order: specifiedOrder,
                     lesson: lessonId
                 };
@@ -381,15 +391,53 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             setAdding(false);
         }
     };
-    const handleEditBlock = (block: ContentBlock) => {
+    const handleEditBlock = async (block: ContentBlock) => {
         setEditingBlock(block);
-        const normalizedType = block.block_type === 'text' ? 'qoraal' : block.block_type;
-        setEditingContent({
+
+        // Normalize types between backend and frontend
+        let normalizedType: any = block.block_type;
+        if (['text', 'image', 'code', 'example', 'qoraal'].includes(block.block_type)) {
+            normalizedType = 'qoraal';
+        }
+
+        const blockContent = (block.content as any) || {};
+        let initialContent: any = {
             ...DEFAULT_CONTENT,
-            type: normalizedType as any,
-            ...(block.content as any),
+            type: normalizedType,
+            ...blockContent,
             id: block.id
-        });
+        };
+
+        // Special mapping for image blocks (backend 'url' -> frontend 'img_url')
+        if (block.block_type === 'image' && blockContent.url) {
+            initialContent.img_url = blockContent.url;
+        }
+
+        // Special mapping for code blocks
+        if ((block.block_type === 'code' || block.block_type === 'example') && blockContent.code) {
+            initialContent.text = blockContent.code; // Or handle code specifically if UI supports it
+        }
+
+        // For problem blocks, we need to fetch the full problem details
+        if (block.block_type === 'problem' && block.problem) {
+            try {
+                setAdding(true); // Show loader during fetch
+                const problemData = await fetchProblemDetails(block.problem);
+                initialContent = {
+                    ...initialContent,
+                    ...problemData,
+                    type: 'problem',
+                    xp: problemData.points || initialContent.xp || 10 // Sync xp/points
+                };
+            } catch (err) {
+                console.error('Failed to fetch problem details for editing:', err);
+                setError('Lama soo saari karin macluumaadka su\'aasha.');
+            } finally {
+                setAdding(false);
+            }
+        }
+
+        setEditingContent(initialContent);
         setShowEditBlock(true);
     };
 
@@ -426,7 +474,9 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
 
             blockData = {
                 block_type: 'problem',
-                content: {},
+                content: {
+                    points: editingContent.xp || editingContent.points || 10
+                },
                 problem: problemId
             };
         } else if (editingContent.type === 'video') {
@@ -441,10 +491,19 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 problem: null // Clear problem if changing from problem to video
             };
         } else {
+            // Determine if it should be an image or text block based on content
+            const isImageOnly = editingContent.img_url && !editingContent.text;
+            const targetType = isImageOnly ? 'image' : 'text';
+
             blockData = {
-                block_type: editingContent.type === 'qoraal' ? 'text' : editingContent.type,
-                content: editingContent,
-                problem: null // Clear problem if changing from problem to text
+                block_type: targetType,
+                content: {
+                    ...editingContent,
+                    // Map frontend img_url back to backend url if it's an image block
+                    url: isImageOnly ? editingContent.img_url : editingContent.url,
+                    format: editingContent.format || 'markdown'
+                },
+                problem: null // Clear problem if changing from problem to text/image
             };
         }
 
@@ -841,27 +900,65 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                                                 </button>
                                             </div>
                                             <div className="space-y-2">
-                                                {(content.options || []).map((option, idx) => (
-                                                    <div key={option.id} className="flex gap-2">
-                                                        <input
-                                                            type="text"
-                                                            value={option.text}
-                                                            onChange={e => {
-                                                                const newOptions = [...(content.options || [])];
-                                                                newOptions[idx].text = e.target.value;
-                                                                setContent({ ...content, options: newOptions });
-                                                            }}
-                                                            className="flex-1 p-2 bg-white rounded-xl border border-gray-200 text-xs font-medium"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setContent({ ...content, options: content.options?.filter(o => o.id !== option.id) })}
-                                                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                ))}
+                                                {(content.options || []).map((option, idx) => {
+                                                    const isCorrect = content.correct_answer?.some(ans => ans.id === option.id);
+                                                    return (
+                                                        <div key={option.id} className="flex gap-2 items-center">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const currentCorrect = content.correct_answer || [];
+                                                                    if (content.question_type === 'single_choice') {
+                                                                        setContent({ ...content, correct_answer: [option] });
+                                                                    } else {
+                                                                        const alreadyCorrect = currentCorrect.some(ans => ans.id === option.id);
+                                                                        if (alreadyCorrect) {
+                                                                            setContent({ ...content, correct_answer: currentCorrect.filter(ans => ans.id !== option.id) });
+                                                                        } else {
+                                                                            setContent({ ...content, correct_answer: [...currentCorrect, option] });
+                                                                        }
+                                                                    }
+                                                                }}
+                                                                className={`p-2 rounded-xl border transition-all ${isCorrect
+                                                                    ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm'
+                                                                    : 'bg-white border-gray-200 text-gray-400 hover:border-blue-200 hover:text-blue-500'
+                                                                    }`}
+                                                                title={isCorrect ? "Jawaabta saxda ah" : "U calaamadee inay sax tahay"}
+                                                            >
+                                                                <CheckCircle className={`w-4 h-4 ${isCorrect ? 'animate-in zoom-in duration-300' : ''}`} />
+                                                            </button>
+                                                            <input
+                                                                type="text"
+                                                                value={option.text}
+                                                                onChange={e => {
+                                                                    const newOptions = [...(content.options || [])];
+                                                                    newOptions[idx].text = e.target.value;
+
+                                                                    // Also update correct_answer if this option was correct
+                                                                    const newCorrect = (content.correct_answer || []).map(ans =>
+                                                                        ans.id === option.id ? { ...ans, text: e.target.value } : ans
+                                                                    );
+
+                                                                    setContent({ ...content, options: newOptions, correct_answer: newCorrect });
+                                                                }}
+                                                                className={`flex-1 p-2 rounded-xl border transition-all text-xs font-medium outline-none ${isCorrect
+                                                                    ? 'bg-emerald-50/30 border-emerald-100 ring-2 ring-emerald-50'
+                                                                    : 'bg-white border-gray-200 focus:ring-2 focus:ring-blue-100'}`}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const newOptions = (content.options || []).filter(o => o.id !== option.id);
+                                                                    const newCorrect = (content.correct_answer || []).filter(ans => ans.id !== option.id);
+                                                                    setContent({ ...content, options: newOptions, correct_answer: newCorrect });
+                                                                }}
+                                                                className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}

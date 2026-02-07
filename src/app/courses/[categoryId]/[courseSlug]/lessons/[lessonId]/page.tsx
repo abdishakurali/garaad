@@ -34,6 +34,12 @@ import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { useGamificationData } from "@/hooks/useGamificationData";
 import RewardSequence from "@/components/RewardSequence";
+import dynamic from "next/dynamic";
+
+const ShikiCode = dynamic(() => import("@/components/lesson/ShikiCode"), {
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-muted rounded-xl h-40 w-full" />,
+});
 
 interface ProblemData {
     id: number;
@@ -259,7 +265,7 @@ const LessonPage = () => {
     const [navigating, setNavigating] = useState(false);
     const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
     const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
-    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [selectedOption, setSelectedOption] = useState<string | string[] | null>(null);
     const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
     const [hasPlayedStartSound, setHasPlayedStartSound] = useState(false);
     const [problems, setProblems] = useState<ProblemContent[]>([]);
@@ -397,7 +403,7 @@ const LessonPage = () => {
         }
 
         const problemBlocks = (sortedBlocks || []).filter(
-            (b) => b.block_type === "problem" && b.problem !== null
+            (b) => b.block_type === "problem" && b.problem !== null && b.problem !== undefined
         );
 
         if (problemBlocks.length === 0) {
@@ -409,24 +415,35 @@ const LessonPage = () => {
         setProblemLoading(true);
 
         try {
-            const fetches = problemBlocks.map((block) =>
-                fetch(
-                    `${API_BASE_URL}/api/lms/problems/${block.problem}/`
-                )
-            );
-            const responses = await Promise.all(fetches);
+            // Fetch all problems with individual error handling
+            const fetchPromises = problemBlocks.map(async (block) => {
+                try {
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/lms/problems/${block.problem}/`
+                    );
 
-            responses.forEach((res) => {
-                if (!res.ok) {
-                    throw new Error(`Failed to fetch problem: ${res.statusText}`);
+                    if (!response.ok) {
+                        console.error(`Failed to fetch problem ${block.problem}: ${response.status} ${response.statusText}`);
+                        return null;
+                    }
+
+                    return await response.json();
+                } catch (err) {
+                    console.error(`Error fetching problem ${block.problem}:`, err);
+                    return null;
                 }
             });
 
-            const datas = await Promise.all(
-                responses.map((r) => r.json() as Promise<ProblemData>)
-            );
+            const datas = await Promise.all(fetchPromises);
 
-            const transformed: ProblemContent[] = datas.map((pd: ProblemData) => ({
+            // Filter out null responses (failed fetches)
+            const validDatas = datas.filter((data): data is ProblemData => data !== null);
+
+            if (validDatas.length === 0) {
+                throw new Error("No valid problems could be loaded");
+            }
+
+            const transformed: ProblemContent[] = validDatas.map((pd: ProblemData) => ({
                 id: pd.id,
                 question: pd.question_text,
                 which: pd.which,
@@ -444,11 +461,11 @@ const LessonPage = () => {
                 explanation: pd.explanation || "No explanation available",
                 diagram_config: pd.diagram_config,
                 diagrams: pd.diagrams,
-                question_type: ["code", "mcq", "short_input", "diagram"].includes(
+                question_type: ["code", "mcq", "short_input", "diagram", "matching", "multiple_choice", "single_choice", "calculator"].includes(
                     pd.question_type
                 )
-                    ? (pd.question_type as "code" | "mcq" | "short_input" | "diagram")
-                    : undefined,
+                    ? (pd.question_type as any)
+                    : pd.question_type,
                 content: pd.content,
                 xp: pd.xp || pd.points || pd.xp_value,
                 points: pd.points || pd.xp || pd.xp_value,
@@ -537,10 +554,10 @@ const LessonPage = () => {
 
     // Event handlers
     const handleOptionSelect = useCallback(
-        (option: string) => {
+        (option: string | string[]) => {
             setShowFeedback(false);
             dispatch(resetAnswerState());
-            setSelectedOption(String(option));
+            setSelectedOption(option);
         },
         [dispatch]
     );
@@ -628,14 +645,26 @@ const LessonPage = () => {
 
         let isCorrect = false;
 
-        if (selectedOption === "matching_success") {
+        // Normalize selectedOption to array for comparison
+        const userSelections = Array.isArray(selectedOption) ? selectedOption : [selectedOption];
+
+        if (selectedOption === "matching_success" || (Array.isArray(selectedOption) && selectedOption[0] === "matching_success")) {
             isCorrect = true;
         } else if (currentProblem.question_type === "short_input") {
             const correctAnswers = currentProblem.correct_answer?.map((ans) => ans.text.toLowerCase().trim()) || [];
-            isCorrect = correctAnswers.includes(selectedOption.toLowerCase().trim());
+            isCorrect = correctAnswers.includes(userSelections[0].toLowerCase().trim());
+        } else if (currentProblem.question_type === "multiple_choice") {
+            // For multiple choice, check if all selected options match the correct answers
+            const correctIds = new Set(currentProblem.correct_answer?.map((ans) => ans.text) || []);
+            const userIds = new Set(userSelections);
+
+            // Exact match: same size and all elements match
+            isCorrect = correctIds.size === userIds.size &&
+                [...correctIds].every(id => userIds.has(id));
         } else {
+            // For single choice and other types
             const correctAnswer = currentProblem.correct_answer?.map((ans) => ans.text);
-            isCorrect = correctAnswer?.includes(selectedOption) || false;
+            isCorrect = correctAnswer?.includes(userSelections[0]) || false;
         }
 
         if (isCorrect) {
@@ -647,8 +676,12 @@ const LessonPage = () => {
         playSound(isCorrect ? "correct" : "incorrect");
 
         if (!isCorrect && currentProblem.question_type !== "short_input") {
-            setDisabledOptions((prev) => [...prev, selectedOption]);
-            setSelectedOption(null);
+            // For single choice, disable the incorrect option
+            if (!Array.isArray(selectedOption)) {
+                setDisabledOptions((prev) => [...prev, selectedOption]);
+                setSelectedOption(null);
+            }
+            // For multiple choice, we don't disable options, just reset
         }
     }, [selectedOption, currentProblem, playSound]);
 
@@ -701,10 +734,13 @@ const LessonPage = () => {
             case "list":
             case "table":
             case "table-grid":
-                const textContent =
+                let textContent =
                     typeof block.content === "string"
                         ? (JSON.parse(block.content) as TextContent)
                         : (block.content as TextContent);
+
+                // Create a copy to avoid mutation error if object is frozen
+                textContent = { ...textContent };
 
                 // Add type to content if not present for correct internal TextBlock rendering
                 if (!textContent.type) {
@@ -745,6 +781,45 @@ const LessonPage = () => {
                         onContinue={handleContinue}
                         isLastBlock={isLastBlock}
                     />
+                );
+
+            case "code":
+                const codeContent = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
+                return (
+                    <div className="max-w-3xl mx-auto px-4 space-y-4">
+                        <div className="bg-zinc-950 rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+                            <ShikiCode code={codeContent.code || ""} language={codeContent.language || "javascript"} />
+                        </div>
+                        {codeContent.explanation && (
+                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/5">
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                                    {codeContent.explanation}
+                                </p>
+                            </div>
+                        )}
+                        <Button onClick={handleContinue} className="w-full h-12 rounded-xl font-bold">
+                            {isLastBlock ? "Dhamee" : "Sii wado"}
+                            <ChevronRight className="ml-2 h-5 w-5" />
+                        </Button>
+                    </div>
+                );
+
+            case "example":
+                const exampleContent = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
+                return (
+                    <div className="max-w-2xl mx-auto px-4">
+                        <div className="bg-amber-50/50 dark:bg-amber-500/10 border border-amber-200/50 dark:border-amber-500/20 rounded-3xl p-8 space-y-4">
+                            <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400 font-bold uppercase tracking-widest text-xs">
+                                <Sparkles className="w-4 h-4" />
+                                Tusaale
+                            </div>
+                            <TextBlock
+                                content={{ ...exampleContent, type: 'text' }}
+                                onContinue={handleContinue}
+                                isLastBlock={isLastBlock}
+                            />
+                        </div>
+                    </div>
                 );
 
             default:

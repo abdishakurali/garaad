@@ -44,7 +44,7 @@ const ProblemBlock: React.FC<{
     showAnswer: boolean;
     lastAttempt: string | null;
   };
-  onOptionSelect: (option: string) => void;
+  onOptionSelect: (option: string | string[]) => void;
   onCheckAnswer: () => void;
   isLoading?: boolean;
   error?: string | null;
@@ -65,39 +65,56 @@ const ProblemBlock: React.FC<{
   isCorrect,
   disabledOptions = [],
 }) => {
+    // Support for multiple selection (multiple_choice)
+    const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+
     const { problem: fetchedData, isLoading: internalLoading, isError: internalError } = useProblem(problemId);
 
     const content = useMemo(() => {
-      const pd = (externalContent || fetchedData) as any;
+      // Prioritize fetchedData if available, otherwise use externalContent
+      const pd = (fetchedData?.id ? fetchedData : externalContent) as any;
       if (!pd) return null;
+
+      // Special case: if pd only contains metadata (like points) but is missing question_text,
+      // and we have fetchedData, we should definitely use fetchedData.
+      const actualData = (fetchedData?.question_text || fetchedData?.question) ? fetchedData : pd;
 
       // Unify field names across API and embedded content
       return {
-        id: pd.id,
-        question: pd.question_text || pd.question,
-        which: pd.which,
-        options: Array.isArray(pd.options)
-          ? pd.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || opt.content || ""))
+        id: actualData.id,
+        question: actualData.question_text || actualData.question,
+        which: actualData.which,
+        options: Array.isArray(actualData.options)
+          ? actualData.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || opt.content || ""))
           : [],
-        correct_answer: Array.isArray(pd.correct_answer)
-          ? pd.correct_answer.map((ans: any, index: number) => ({
+        correct_answer: Array.isArray(actualData.correct_answer)
+          ? actualData.correct_answer.map((ans: any, index: number) => ({
             id: `answer-${ans.id || index}`,
             text: ans.text || (typeof ans === 'string' ? ans : ""),
           }))
           : [],
-        img: pd.img,
-        alt: pd.alt,
-        explanation: pd.explanation || "No explanation available",
-        diagram_config: pd.diagram_config,
-        diagrams: pd.diagrams,
-        question_type: ["code", "mcq", "short_input", "diagram", "matching", "multiple_choice", "calculator"].includes(
-          pd.question_type
+        img: actualData.img,
+        alt: actualData.alt,
+        explanation: actualData.explanation || "No explanation available",
+        diagram_config: actualData.diagram_config,
+        diagrams: actualData.diagrams,
+        question_type: ["code", "mcq", "short_input", "diagram", "matching", "multiple_choice", "calculator", "single_choice"].includes(
+          actualData.question_type
         )
-          ? (pd.question_type as any)
-          : pd.question_type || "mcq", // Default to mcq for safety
-        content: pd.content || {},
+          ? (actualData.question_type as any)
+          : actualData.question_type || "mcq", // Default to mcq for safety
+        content: actualData.content || {},
       } as ProblemContent;
     }, [externalContent, fetchedData]);
+
+    // Sync with parent's selectedOption for backward compatibility
+    useEffect(() => {
+      if (selectedOption && !selectedOptions.includes(selectedOption)) {
+        setSelectedOptions([selectedOption]);
+      }
+    }, [selectedOption]);
+
+    const isMultipleChoice = content?.question_type === 'multiple_choice';
 
     const isLoading = externalLoading || internalLoading;
     const error = externalError || (internalError ? "Failed to load problem" : null);
@@ -118,12 +135,28 @@ const ProblemBlock: React.FC<{
     const handleOptionSelect = (option: string) => {
       if (hasAnswered && isCorrect) return;
       setTextAnswer(option); // Keep for short_input
-      onOptionSelect(option);
+
+      // Handle multiple choice (checkbox behavior)
+      if (isMultipleChoice) {
+        setSelectedOptions(prev => {
+          const newSelections = prev.includes(option)
+            ? prev.filter(o => o !== option) // Deselect if already selected
+            : [...prev, option]; // Add to selections
+
+          // Notify parent with array
+          onOptionSelect(newSelections);
+          return newSelections;
+        });
+      } else {
+        // Handle single choice (radio button behavior)
+        setSelectedOptions([option]);
+        onOptionSelect(option);
+      }
     };
 
     const renderOption = (option: string, idx: number) => {
       const letters = ["A", "B", "C", "D", "E", "F"];
-      const isSelected = selectedOption === option;
+      const isSelected = isMultipleChoice ? selectedOptions.includes(option) : selectedOption === option;
       const isOptionCorrect = hasAnswered && isSelected && isCorrect;
       const isOptionIncorrect = hasAnswered && isSelected && !isCorrect;
       const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
@@ -142,8 +175,11 @@ const ProblemBlock: React.FC<{
         isDisabled && !isSelected && "border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-transparent text-slate-400/40 cursor-not-allowed grayscale opacity-40 shadow-none"
       );
 
+      // For multiple choice, use checkbox style; for single choice, use radio/letter style
       const indicatorClass = cn(
-        "w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black border-2 transition-all duration-300 shrink-0",
+        isMultipleChoice
+          ? "w-6 h-6 rounded-md flex items-center justify-center border-2 transition-all duration-300 shrink-0"
+          : "w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black border-2 transition-all duration-300 shrink-0",
         !isSelected && !hasAnswered && "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 text-slate-400 group-hover:bg-primary/10 group-hover:border-primary/40 group-hover:text-primary",
         isSelected && !hasAnswered && "bg-primary border-primary text-white shadow-lg shadow-primary/20",
         isOptionCorrect && "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20",
@@ -161,7 +197,13 @@ const ProblemBlock: React.FC<{
           <div className={indicatorClass}>
             {isOptionCorrect ? <Check className="h-6 w-6 stroke-[3]" /> :
               isOptionIncorrect ? <X className="h-6 w-6 stroke-[3]" /> :
-                letters[idx] || (idx + 1)}
+                isMultipleChoice ? (
+                  // Checkbox for multiple choice
+                  isSelected ? <Check className="h-4 w-4 stroke-[3]" /> : null
+                ) : (
+                  // Letter for single choice
+                  letters[idx] || (idx + 1)
+                )}
           </div>
           <div className="flex-1">
             <span className="leading-snug text-sm md:text-base tracking-tight">
@@ -400,11 +442,11 @@ const ProblemBlock: React.FC<{
               {!hasAnswered && (
                 <Button
                   onClick={onCheckAnswer}
-                  disabled={!selectedOption}
+                  disabled={isMultipleChoice ? selectedOptions.length === 0 : !selectedOption}
                   size="xl"
                   className={cn(
                     "w-full h-14 rounded-2xl font-bold transition-all duration-300 shadow-lg active:scale-[0.98]",
-                    selectedOption ? "shadow-primary/20" : "shadow-none opacity-50"
+                    (isMultipleChoice ? selectedOptions.length > 0 : selectedOption) ? "shadow-primary/20" : "shadow-none opacity-50"
                   )}
                 >
                   Hubi Jawaabta

@@ -146,6 +146,20 @@ const TextBlock: React.FC<{
 
           {!isImgTop && <RenderImage />}
 
+          {/* Render list_items for list type blocks */}
+          {content.type === "list" && content.list_items && Array.isArray(content.list_items) && content.list_items.length > 0 && (
+            <ul className="mb-4 !pl-0 !list-none not-prose space-y-3">
+              {content.list_items.map((item, index) => (
+                <li key={index} className="flex items-start gap-3 text-slate-700 dark:text-slate-300 text-lg leading-relaxed">
+                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0 mt-0.5">
+                    {index + 1}
+                  </span>
+                  <span className="flex-1">{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
           {additionalTexts.map((text, index) => {
             if (
               (typeof text === "string" && text.trim() !== "") ||
