@@ -15,40 +15,55 @@ export default function PWARegister() {
                 window.location.reload();
             });
 
-            window.addEventListener("load", () => {
+            const registerSW = () => {
                 navigator.serviceWorker
                     .register("/sw.js")
                     .then(registration => {
-                        console.log("PWA Service Worker registered with scope:", registration.scope);
+                        console.log("PWA Service Worker registered");
 
-                        // If there's an updated SW waiting, tell it to skip waiting
+                        // Check for updates immediately
+                        registration.update();
+
                         if (registration.waiting) {
                             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
                         }
 
-                        // Listen for future updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             if (newWorker) {
                                 newWorker.addEventListener('statechange', () => {
                                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        // New service worker is installed, send message to skip waiting
                                         newWorker.postMessage({ type: 'SKIP_WAITING' });
                                     }
                                 });
                             }
                         });
 
-                        // Check for updates every hour
                         setInterval(() => {
                             registration.update();
-                            console.log("Checked for PWA update");
-                        }, 60 * 60 * 1000);
+                        }, 30 * 60 * 1000);
                     })
                     .catch(error => {
                         console.error("PWA Service Worker registration failed:", error);
                     });
-            });
+            };
+
+            if (document.readyState === 'complete') {
+                registerSW();
+            } else {
+                window.addEventListener('load', registerSW);
+            }
+
+            const handleVisibilityChange = () => {
+                if (document.visibilityState === 'visible') {
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                        if (reg) reg.update();
+                    });
+                }
+            };
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
         }
     }, []);
 

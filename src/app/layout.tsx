@@ -9,6 +9,7 @@ import { RootErrorBoundary } from "@/components/ErrorBoundary";
 import { Suspense } from "react";
 import { Loader } from "lucide-react";
 import PWARegister from "@/components/PWARegister";
+import VersionCheck from "@/components/VersionCheck";
 
 export const metadata: Metadata = {
   title: {
@@ -131,6 +132,7 @@ export default function RootLayout({
           <RootErrorBoundary>
             <ClientLayout>
               <PWARegister />
+              <VersionCheck />
               <Suspense fallback={<Loader className="spin " />}>
                 {children}
               </Suspense>

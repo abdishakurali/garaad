@@ -1,17 +1,15 @@
-// Version: 1.0.1 (Internal: garaad-v2)
+// Version: 1.0.2 (Internal: garaad-v3)
 
-const CACHE_NAME = 'garaad-v2';
-const STATIC_CACHE = 'garaad-static-v2';
-const DYNAMIC_CACHE = 'garaad-dynamic-v2';
+const CACHE_VERSION = 'garaad-v3';
+const STATIC_CACHE = `garaad-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `garaad-dynamic-${CACHE_VERSION}`;
 
 // Assets to cache on install (minimal set)
+// DO NOT cache '/' here as it can lead to stale landing pages
 const STATIC_ASSETS = [
-    '/',
     '/manifest.json',
     '/logo.png',
 ];
-
-// ... (skipping to fetch event for clarity in replace, but I'll do a full replace for the logic)
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -32,7 +30,7 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames
-                    .filter((name) => name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
+                    .filter((name) => name.startsWith('garaad-') && name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
                     .map((name) => {
                         console.log('[SW] Deleting old cache:', name);
                         return caches.delete(name);
@@ -55,10 +53,10 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Navigation requests (HTML) - Network First
+    // Navigation requests (HTML) - Network First with no-store bypass
     if (event.request.mode === 'navigate') {
         event.respondWith(
-            fetch(event.request)
+            fetch(event.request, { cache: 'no-store' })
                 .then((response) => {
                     // Update dynamic cache with fresh HTML
                     const responseClone = response.clone();
