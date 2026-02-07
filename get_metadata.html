@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Metadata Tool</title>
+</head>
+<body>
+    <video id="video" src="html&css.mp4" controls></video>
+    <div id="metadata"></div>
+    <script>
+        const video = document.getElementById('video');
+        const metadata = document.getElementById('metadata');
+        
+        video.onloadedmetadata = function() {
+            const data = {
+                duration: video.duration,
+                width: video.videoWidth,
+                height: video.videoHeight
+            };
+            metadata.innerText = JSON.stringify(data);
+            console.log('METADATA:', JSON.stringify(data));
+        };
+        
+        video.onerror = function() {
+            metadata.innerText = 'Error loading video: ' + video.error.message;
+            console.error('Error loading video:', video.error);
+        };
+    </script>
+</body>
+</html>
