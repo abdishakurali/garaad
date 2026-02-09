@@ -26,14 +26,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!course) return { title: 'Koorso lama helin - Garaad' };
 
-    const title = `Barashada ${course.title}: Sida loo dhiso App (Somali)`;
+    const title = `${course.title} | Baro Full-Stack Development | Garaad`;
 
     return {
         title,
-        description: course.description,
+        description: `Baro ${course.title} oo Af-Soomaali ah. Skill-kaaga ${course.category || 'Tech'} ku dhis Garaad—macalin la'aan.`,
         openGraph: {
             title,
-            description: course.description,
+            description: `Baro ${course.title} oo Af-Soomaali ah. Ku biir kumanaan dhalinyaro ah oo baranaya ${course.title}.`,
             images: course.thumbnail ? [{ url: course.thumbnail }] : [],
             type: 'website',
         },
@@ -66,6 +66,11 @@ export default async function Page({ params }: Props) {
         "courseCode": course.slug,
         "educationalLevel": course.level,
         "inLanguage": "so",
+        "hasCourseInstance": {
+            "@type": "CourseInstance",
+            "courseMode": "online",
+            "courseWorkload": "PT10H"
+        },
         "offers": [{
             "@type": "Offer",
             "category": "Free",

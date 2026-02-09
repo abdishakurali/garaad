@@ -5,6 +5,16 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Sparkles, Download, Play } from "lucide-react";
 import { Reveal } from "./Reveal";
+import { Atom, Cpu, Database, Binary, Code2, Layers } from "lucide-react";
+
+const TechIcon = ({ icon: Icon, color, className, delay = "0s" }: any) => (
+    <div
+        className={`absolute opacity-10 dark:opacity-20 animate-float pointer-events-none ${className}`}
+        style={{ animationDelay: delay }}
+    >
+        <Icon size={120} className={color} strokeWidth={0.5} />
+    </div>
+);
 
 export function HeroSection() {
     const router = useRouter();
@@ -43,6 +53,14 @@ export function HeroSection() {
                         style={{ animationDelay: "3s" }}
                     />
                 </div>
+
+                {/* Animated Tech Icons */}
+                <TechIcon icon={Atom} color="text-blue-400" className="top-20 left-[10%]" delay="0s" />
+                <TechIcon icon={Cpu} color="text-emerald-400" className="bottom-40 left-[15%]" delay="1s" />
+                <TechIcon icon={Database} color="text-green-500" className="top-40 right-[15%]" delay="2s" />
+                <TechIcon icon={Binary} color="text-purple-400" className="bottom-20 right-[10%]" delay="3s" />
+                <TechIcon icon={Layers} color="text-primary" className="top-1/2 left-1/4 -translate-y-1/2" delay="4s" />
+                <TechIcon icon={Code2} color="text-blue-500" className="top-2/3 right-1/4" delay="5s" />
             </div>
 
             <div className="relative z-10 max-w-5xl mx-auto py-6 sm:py-10 text-center space-y-8 sm:space-y-12">
@@ -59,22 +77,21 @@ export function HeroSection() {
                     </Reveal>
 
                     {/* Headline */}
-                    <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-foreground leading-[1.1] tracking-tight">
-                        <span className="block">Hogaami Berri:</span>
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-foreground leading-[1.1] tracking-tight">
                         <span className="block mt-2 font-black transition-all duration-500">
-                            Baro STEM iyo{" "}
+                            Noqo Developer{" "}
                             <span className="relative inline-block">
                                 <span className="absolute -inset-4 blur-3xl bg-gradient-to-r from-primary/40 to-blue-600/40 opacity-40" />
                                 <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-primary via-emerald-500 to-primary">
-                                    Coding-ka
+                                    Heer Caalami ah
                                 </span>
                             </span>
                         </span>
                     </h1>
 
                     {/* Description */}
-                    <p className="text-base sm:text-xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium px-4">
-                        Ku baro luuqadaada hooyo <span className="text-foreground font-bold">HTML, JS, AI,</span> iyo <span className="text-foreground font-bold">Crypto Math.</span> Garaad wuxuu kuu sahlayaa inaad aqoon heer caalami ah ku barato Af-Soomaali. Is-tijaabi, la tartan dhalinyarada kale, oo dhis mustaqbalkaaga—<span className="text-primary font-bold">macalin la&apos;aan.</span>
+                    <p className="text-sm sm:text-lg lg:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium px-4">
+                        Ka dhis mustaqbalkaaga Garaad. Baro <span className="text-foreground font-bold">Frontend (React), Backend (Node.js),</span> iyo <span className="text-foreground font-bold">Mobile Apps</span> adiga oo isticmaalaya Af-Soomaali. Ku biir kumanaan dhalinyaro ah oo dhisaya Startups-ka berrito—<span className="text-primary font-bold">macalin la'aan.</span>
                     </p>
                 </div>
 

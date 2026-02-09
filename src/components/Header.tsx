@@ -4,7 +4,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePathname, useRouter } from "next/navigation";
-import { FolderDot, Home, X, Users, Menu, User, LogOut, LogIn, GraduationCap } from "lucide-react";
+import { FolderDot, Home, X, Users, Menu, User, LogOut, LogIn, GraduationCap, Rocket } from "lucide-react";
 import clsx from "clsx";
 import { useMemo, useCallback, useState, useEffect } from "react";
 import AuthService from "@/services/auth";
@@ -65,13 +65,15 @@ export function Header() {
       user
         ? [
           { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
-          { name: "5-Week Challenge", href: "/challenge", icon: Home },
+          { name: " Challenge", href: "/challenge", icon: Home },
           { name: "Bulshada", href: "/community", icon: Users },
+          { name: "Launchpad", href: "/launchpad", icon: Rocket },
         ]
         : [
           { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
-          { name: "5-Week Challenge", href: "/challenge", icon: Home },
+          { name: " Challenge", href: "/challenge", icon: Home },
           { name: "Bulshada", href: "/communitypreview", icon: Users },
+          { name: "Launchpad", href: "/launchpad", icon: Rocket },
         ],
     [user]
   );

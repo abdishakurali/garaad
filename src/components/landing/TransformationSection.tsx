@@ -131,7 +131,7 @@ export function TransformationSection() {
                 <div className="text-center mb-16">
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter">
                         <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
-                            5-Week Transformation
+                            Transformation
                         </span>
                     </h2>
                     <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-bold uppercase tracking-widest">

@@ -4,22 +4,19 @@ import { Metadata } from "next";
 import { HomeContent } from "./home-content";
 
 export const metadata: Metadata = {
-  title: "Garaad | First Somali Platform - SaaS, AI, Tech, Cloud, React, JS",
+  title: "Garaad | Baro Full-Stack Development - #1 First Somali Platform",
   description:
-    "Garaad waa platform-ka ugu horreeya ee Soomaalida (First Somali Platform). Baro SaaS, AI, Tech, Cloud, React, JS, HTML, iyo Science adigoo isticmaalaya Af-Soomaali hufan.",
+    "Garaad waa platform-ka ugu horreeya ee Soomaalida (First Somali Platform). Baro Full-Stack Development, React, Next.js, Node.js, iyo Mobile Apps adiga oo isticmaalaya Af-Soomaali.",
   keywords: [
     "Garaad",
     "First Somali Platform",
+    "Sidee loo bartaa Full-Stack Development?",
+    "Barashada React iyo Next.js oo Soomaali ah",
+    "Sida loo dhiso Mobile App",
     "SaaS",
-    "Somalis",
     "AI",
     "Tech",
-    "Cloud",
-    "React",
-    "JS",
-    "HTML",
-    "STEM Soomaali",
-    "Baro Soomaali",
+    "Founders Soomaali",
   ],
   openGraph: {
     title: "Garaad | First Somali Platform - SaaS, AI, Tech, Cloud",

@@ -14,15 +14,16 @@ import VersionCheck from "@/components/VersionCheck";
 export const metadata: Metadata = {
   title: {
     default:
-      "Garaad - #1 First Somali Platform | SaaS, AI, Tech, Cloud, React, JS, HTML",
-    template: "%s | Garaad - First Somali Tech Education Platform",
+      "Garaad - Baro Full-Stack Development | #1 First Somali Platform",
+    template: "%s | Garaad - First Somali Tech & Startup Academy",
   },
   description:
     "Garaad waa platform-ka waxbarasho ee ugu horreeya ee Soomaalida oo lagu barto STEM: Xisaabta, Physics, iyo Programming. Ku baro afkaaga hooyo casharo tayo leh meel kasta.",
   keywords: [
     "Garaad", "Garaad STEM", "First Somali Platform", "SaaS", "Somalis", "AI", "Tech", "Cloud", "React", "JS", "HTML",
-    "Xisaabta Soomaali", "Baro Coding", "STEM Soomaali", "AI Soomaali", "Physics Soomaali",
-    "Soomaali Education", "Tiknoolajiyad Soomaali", "Somali STEM Education", "Garaad Education"
+    "Sidee loo bartaa Full-Stack Development?", "Barashada React iyo Next.js oo Soomaali ah",
+    "Sida loo dhiso Mobile App", "Halkee laga bartaa Backend horumarsan?",
+    "Baro Coding", "STEM Soomaali", "Somali Tech Builders", "Somali Startups"
   ],
   authors: [{ name: "Garaad Team", url: "https://garaad.so" }],
   creator: "Abdishakur Ali",
@@ -72,6 +73,10 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: "/icons/icon-192x192.png",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

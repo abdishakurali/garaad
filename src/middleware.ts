@@ -31,6 +31,7 @@ const publicPaths = [
   "/communitypreview",
   "/terms",
   "/privacy",
+  "/launchpad",
   "/about",
   "/wargeys",
 ];
