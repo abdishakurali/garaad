@@ -34,6 +34,7 @@ export function CommunityCTASection() {
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 1024px) 100vw, 50vw"
+                                unoptimized={true}
                             />
                             {/* Gradient Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
