@@ -60,8 +60,18 @@ export function useCategories() {
     fetcher
   );
 
+  const categories = useMemo(() => {
+    if (!data) return data;
+    if (Array.isArray(data)) return data;
+    // Handle paginated response
+    if (typeof data === 'object' && 'results' in data && Array.isArray((data as any).results)) {
+      return (data as any).results;
+    }
+    return [];
+  }, [data]);
+
   return {
-    categories: data,
+    categories,
     isLoading,
     isError: error,
     mutate,
