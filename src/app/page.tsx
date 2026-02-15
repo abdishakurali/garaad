@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "Garaad waa platform-ka ugu horreeya ee Soomaalida. Baro SaaS, AI, Tech, Cloud, React, JS, iyo Tiknoolajiyada casriga ah.",
     type: "website",
     locale: "so_SO",
-    url: "https://garaad.org",
+    url: "https://garaad.so",
   },
 };
 
@@ -39,8 +39,8 @@ export default function Home() {
             "@context": "https://schema.org",
             "@type": "EducationalOrganization",
             name: "Garaad STEM",
-            url: "https://garaad.org",
-            logo: "https://garaad.org/logo.png",
+            url: "https://garaad.so",
+            logo: "https://garaad.so/logo.png",
             description:
               "Garaad waa hoyga aqoonta casriga ah. Baro Xisaabta, Fiisigiska, iyo Tiknoolajiyada adiga oo isticmaalaya Af-Soomaali hufan.",
             address: {

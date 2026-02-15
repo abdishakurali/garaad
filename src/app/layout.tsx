@@ -12,23 +12,20 @@ import PWARegister from "@/components/PWARegister";
 import VersionCheck from "@/components/VersionCheck";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://garaad.so"),
   title: {
-    default:
-      "Garaad - Baro Full-Stack Development | #1 First Somali Platform",
-    template: "%s | Garaad - First Somali Tech & Startup Academy",
+    default: "Garaad - Baro STEM iyo Programming",
+    template: "%s | Garaad",
   },
   description:
     "Garaad waa platform-ka waxbarasho ee ugu horreeya ee Soomaalida oo lagu barto STEM: Xisaabta, Physics, iyo Programming. Ku baro afkaaga hooyo casharo tayo leh meel kasta.",
   keywords: [
-    "Garaad", "Garaad STEM", "First Somali Platform", "SaaS", "Somalis", "AI", "Tech", "Cloud", "React", "JS", "HTML",
-    "Sidee loo bartaa Full-Stack Development?", "Barashada React iyo Next.js oo Soomaali ah",
-    "Sida loo dhiso Mobile App", "Halkee laga bartaa Backend horumarsan?",
-    "Baro Coding", "STEM Soomaali", "Somali Tech Builders", "Somali Startups"
+    "Garaad", "STEM", "Somali Tech", "Programming", "Mathematics", "Physics",
+    "Startup", "Launchpad", "Full-Stack Development", "AI Somali"
   ],
   authors: [{ name: "Garaad Team", url: "https://garaad.so" }],
-  creator: "Abdishakur Ali",
-  publisher: "Garaad",
-  metadataBase: new URL("https://garaad.so"),
+  creator: "Garaad STEM",
+  publisher: "Garaad STEM",
   alternates: {
     canonical: "/",
     languages: {
@@ -41,38 +38,23 @@ export const metadata: Metadata = {
     type: "website",
     locale: "so_SO",
     url: "https://garaad.so",
-    title:
-      "Garaad - #1 First Somali Platform | SaaS, AI, Tech, Cloud, React, JS, HTML",
-    description:
-      "Garaad waa platform-ka ugu horreeya ee Soomaalida (First Somali Platform) oo lagu barto SaaS, AI, Tech, Cloud, React, JS, HTML iyo STEM-ka oo dhan.",
-    siteName: "Garaad - First Somali Tech Education Platform",
+    siteName: "Garaad",
+    title: "Garaad - Baro STEM iyo Programming",
+    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM. Ku baro afkaaga hooyo.",
     images: [
       {
-        url: "/images/og-image.jpg",
+        url: "/images/og-main.jpg",
         width: 1200,
         height: 630,
-        alt: "Garaad - #1 Somali STEM Platform | Xisaab, Algebra, Geometry, Physics, AI, Crypto",
+        alt: "Garaad STEM Academy",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "Garaad - #1 First Somali Platform | SaaS, AI, Tech, Cloud, React, JS, HTML",
-    description:
-      "Garaad waa platform-ka ugu horreeya ee Soomaalida (First Somali Platform) oo lagu barto SaaS, AI, Tech, Cloud, React, JS, HTML iyo STEM-ka oo dhan.",
-    images: ["/images/twitter-image.jpg"],
-    creator: "@garaad_so",
-    site: "@garaad_so",
-  },
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Garaad",
-  },
-  icons: {
-    apple: "/icons/icon-192x192.png",
+    title: "Garaad - Baro STEM iyo Programming",
+    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM.",
+    images: ["/images/og-main.jpg"],
   },
   robots: {
     index: true,

@@ -46,6 +46,13 @@ export async function middleware(request: NextRequest) {
   // Specific check for /community (excluding -preview)
   const isProtectedCommunity = pathname === "/community" || (pathname.startsWith("/community/") && !pathname.startsWith("/community-preview"));
 
+  // Paths that should ALWAYS be public (Login pages, etc.)
+  const isAuthPage = pathname === "/admin/login" || pathname === "/welcome" || pathname === "/login";
+
+  if (isAuthPage) {
+    return NextResponse.next();
+  }
+
   if (!isProtectedRoute && !isLessonPath && !isProtectedCommunity) {
     // IT IS PUBLIC. Allow access.
     return NextResponse.next();
@@ -59,7 +66,7 @@ export async function middleware(request: NextRequest) {
   if (!isAuthenticated) {
     // Redirect unauthenticated users
     if (pathname.startsWith("/admin")) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
     return NextResponse.redirect(new URL("/welcome", request.url));
   }
