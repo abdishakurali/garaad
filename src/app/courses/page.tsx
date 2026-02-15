@@ -19,19 +19,19 @@ import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-course.svg";
 
-const isValidUrl = (url: string) => {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+const getAbsoluteImageUrl = (url: string | null | undefined, defaultImage: string) => {
+  if (!url) return defaultImage;
+  if (url.startsWith("http") || url.startsWith("/images/")) return url;
+
+  // Ensure exactly one slash between base URL and path
+  const cleanUrl = url.startsWith("/") ? url.substring(1) : url;
+  return `${API_BASE_URL}/${cleanUrl}`;
 };
 
 const CategoryImage = ({ src, alt }: { src?: string; alt: string }) => (
   <div className="relative w-20 h-20">
     <Image
-      src={src && isValidUrl(src) ? optimizeCloudinaryUrl(src) : defaultCategoryImage}
+      src={optimizeCloudinaryUrl(getAbsoluteImageUrl(src, defaultCategoryImage))}
       alt={alt}
       fill
       className="object-contain"
@@ -40,11 +40,7 @@ const CategoryImage = ({ src, alt }: { src?: string; alt: string }) => (
 );
 
 const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string; priority?: boolean }) => {
-  // Handle both relative and absolute URLs
-  let imageSrc = src || defaultCourseImage;
-  if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('/images/')) {
-    imageSrc = `${API_BASE_URL}${imageSrc}`;
-  }
+  const imageSrc = getAbsoluteImageUrl(src, defaultCourseImage);
 
   return (
     <div className="relative w-full h-40 bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
@@ -54,7 +50,7 @@ const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string
         fill
         priority={priority}
         className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-        sizes="(max-w-768px) 100vw, (max-w-1200px) 50vw, 25vw"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
       />
     </div>
   );
