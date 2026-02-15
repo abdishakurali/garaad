@@ -246,8 +246,17 @@ export function useCourse(categoryId: string, courseSlug: string) {
       ? [`${API_BASE_URL}/api/lms/courses/?category=${categoryId}`, courseSlug]
       : null,
     async ([url]: [string, string]) => {
-      const data = await fetcher(url);
-      const found = data.find((c: Course) => c.slug === courseSlug);
+      const response = await fetcher(url);
+
+      // Normalize response: output might be an array or a paginated object with .results
+      let courses: Course[] = [];
+      if (Array.isArray(response)) {
+        courses = response;
+      } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+        courses = (response as any).results;
+      }
+
+      const found = courses.find((c: Course) => c.slug === courseSlug);
       if (!found) throw new Error("Koorso lama helin");
       return found;
     }
@@ -270,11 +279,18 @@ export function useCourse(categoryId: string, courseSlug: string) {
   const courseWithModules = useMemo(() => {
     if (!courseData) return null;
 
+    // Normalize lessonsData to ensure it's an array
+    const normalizedLessons = Array.isArray(lessonsData)
+      ? lessonsData
+      : (lessonsData && typeof lessonsData === 'object' && 'results' in lessonsData && Array.isArray((lessonsData as any).results))
+        ? (lessonsData as any).results
+        : [];
+
     // Each lesson becomes a module bubble in the zigzag path
-    const syntheticModules = lessonsData
-      ? [...lessonsData]
-        .sort((a, b) => (a.lesson_number || 0) - (b.lesson_number || 0))
-        .map((lesson) => ({
+    const syntheticModules = normalizedLessons.length > 0
+      ? [...normalizedLessons]
+        .sort((a: Lesson, b: Lesson) => (a.lesson_number || 0) - (b.lesson_number || 0))
+        .map((lesson: Lesson) => ({
           id: lesson.id,
           course_id: courseData.id,
           title: lesson.title,
