@@ -34,13 +34,23 @@ export default function AdminLoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
-    const { setTokens, token } = useAdminAuthStore();
+    const { setTokens, token, clearTokens } = useAdminAuthStore();
 
     useEffect(() => {
-        if (token) {
+        // If we have a token but are on the login page, it might mean 
+        // the middleware redirected us back because the session/cookie is invalid.
+        // To prevent a loop, we only redirect if we're "fresh".
+        // If we were just redirected here from /admin, we should clear state.
+        const isFromLoop = typeof window !== "undefined" && document.referrer.includes("/admin") && !document.referrer.includes("/admin/login");
+
+        if (token && !isFromLoop) {
             router.replace("/admin");
+        } else if (token && isFromLoop) {
+            // Probably a loop - clear state to be safe
+            console.warn("Detected possible redirect loop, clearing admin session");
+            clearTokens();
         }
-    }, [token, router]);
+    }, [token, router, clearTokens]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

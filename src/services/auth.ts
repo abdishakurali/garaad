@@ -123,7 +123,9 @@ export class AuthService {
       (window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1");
 
-    if (isLocalhost) {
+    const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+
+    if (isLocalhost || !isHttps) {
       document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Lax`;
     } else {
       document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Strict; Secure`;
