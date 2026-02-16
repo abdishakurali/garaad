@@ -80,23 +80,34 @@ const VideoBlock: React.FC<{
   }, [videoUrl]);
 
   const posterUrl = React.useMemo(() => {
-    if (!videoUrl || !videoUrl.includes("res.cloudinary.com")) return undefined;
-    const cleanUrl = videoUrl.replace(/\.[^/.]+$/, "");
-    const parts = cleanUrl.split("/video/upload/");
+    // 1. Check for explicit thumbnail/img_url in content
+    if ((content as any).thumbnail_url) return (content as any).thumbnail_url;
+    if ((content as any).img_url) return (content as any).img_url;
+    if ((content as any).thumbnail) return (content as any).thumbnail;
 
-    if (parts.length < 2 || !parts[1]) return undefined;
+    if (!videoUrl) return undefined;
 
-    const before = parts[0];
-    const after = parts[1];
+    // 2. Handle Cloudinary auto-poster
+    if (videoUrl.includes("res.cloudinary.com")) {
+      const cleanUrl = videoUrl.replace(/\.[^/.]+$/, "");
+      const parts = cleanUrl.split("/video/upload/");
 
-    const versionMatch = after.match(/(v\d+\/.*)/);
-    let finalAfter = after;
+      if (parts.length < 2 || !parts[1]) return undefined;
 
-    if (versionMatch) {
-      finalAfter = versionMatch[1];
+      const before = parts[0];
+      const after = parts[1];
+
+      const versionMatch = after.match(/(v\d+\/.*)/);
+      let finalAfter = after;
+
+      if (versionMatch) {
+        finalAfter = versionMatch[1];
+      }
+      return `${before}/video/upload/f_auto,q_auto,so_0/${finalAfter}.jpg`;
     }
-    return `${before}/video/upload/f_auto,q_auto,so_0/${finalAfter}.jpg`;
-  }, [videoUrl]);
+
+    return undefined;
+  }, [videoUrl, content]);
 
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
@@ -157,11 +168,17 @@ const VideoBlock: React.FC<{
           <div className={cn("relative w-full", isFullscreen ? "h-full flex items-center justify-center bg-black" : "")}>
 
             {isLoading && (
-              <div className="absolute inset-0 z-30 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                <Skeleton className="w-full h-full absolute inset-0 rounded-xl" />
-                <div className="z-40 flex flex-col items-center gap-2">
-                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                  <p className="text-xs text-muted-foreground font-medium">Video-ga ayaa soo degaya...</p>
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/5 dark:bg-black/20 backdrop-blur-[2px]">
+                <div className="z-40 flex flex-col items-center gap-3 scale-90 sm:scale-100">
+                  <div className="relative">
+                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-1 h-1 bg-primary rounded-full animate-ping" />
+                    </div>
+                  </div>
+                  <div className="bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 shadow-xl">
+                    <p className="text-[10px] sm:text-xs text-white font-bold uppercase tracking-widest">Garaad loading...</p>
+                  </div>
                 </div>
               </div>
             )}
@@ -267,18 +284,11 @@ const VideoBlock: React.FC<{
         )}
       </div>
 
-      {(content.title || content.description) && (
+      {content.description && (
         <div className="mt-4 px-2">
-          {content.title && (
-            <h3 className="text-md font-bold text-foreground mb-1">
-              {content.title}
-            </h3>
-          )}
-          {content.description && (
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-              {content.description}
-            </p>
-          )}
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+            {content.description}
+          </p>
         </div>
       )}
 
