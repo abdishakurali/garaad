@@ -53,15 +53,31 @@ function CasharadaContent() {
     const [deleteError, setDeleteError] = useState("");
 
     useEffect(() => {
+        if (courseFilter) {
+            setActiveCourseId(parseInt(courseFilter));
+        } else {
+            setActiveCourseId('all');
+        }
+    }, [courseFilter]);
+
+    useEffect(() => {
         fetchData();
-    }, []);
+    }, [activeCourseId]);
 
     const fetchData = async () => {
         try {
             setLoading(true);
+
+            // Construct query parameters
+            const lessonParams = new URLSearchParams();
+            lessonParams.append('page_size', '1000');
+            if (activeCourseId !== 'all' && activeCourseId !== 'none') {
+                lessonParams.append('course', activeCourseId.toString());
+            }
+
             const [lessonsRes, coursesRes] = await Promise.all([
-                api.get("lms/lessons/"),
-                api.get("lms/courses/")
+                api.get(`lms/lessons/?${lessonParams.toString()}`),
+                api.get("lms/courses/?page_size=1000")
             ]);
 
             // Handle both paginated and non-paginated responses robustly

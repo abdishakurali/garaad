@@ -56,7 +56,7 @@ export default function QaybahaPage() {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const res = await api.get("lms/categories/");
+            const res = await api.get("lms/categories/?page_size=1000");
             // Handle both paginated and non-paginated responses robustly
             const rawData = res.data;
             const data = Array.isArray(rawData)

@@ -72,8 +72,8 @@ function KoorsooyinkaContent() {
         try {
             setLoading(true);
             const [coursesRes, categoriesRes] = await Promise.all([
-                api.get("lms/courses/"),
-                api.get("lms/categories/")
+                api.get("lms/courses/?page_size=1000"),
+                api.get("lms/categories/?page_size=1000")
             ]);
 
             // Handle both paginated and non-paginated responses robustly
