@@ -42,7 +42,6 @@ export default function AdminLoginPage() {
         // More robust loop detection using sessionStorage
         const lastRedirectTime = sessionStorage.getItem("admin_redirect_loop_check");
         const now = Date.now();
-        const isFromAdmin = document.referrer.includes("/admin") && !document.referrer.includes("/admin/login");
 
         let isLoop = false;
         if (lastRedirectTime) {
@@ -53,10 +52,10 @@ export default function AdminLoginPage() {
             }
         }
 
-        if (token && !isLoop && !isFromAdmin) {
+        if (token && !isLoop) {
             sessionStorage.setItem("admin_redirect_loop_check", now.toString());
             router.replace("/admin");
-        } else if (token && (isLoop || isFromAdmin)) {
+        } else if (token && isLoop) {
             console.warn("Detected possible redirect loop, clearing admin session to break loop");
             sessionStorage.removeItem("admin_redirect_loop_check");
             clearTokens();
@@ -78,6 +77,11 @@ export default function AdminLoginPage() {
                 if (!user.is_superuser) {
                     setError("Only admin users can access this panel");
                     return;
+                }
+
+                // Clear loop check before redirecting
+                if (typeof window !== "undefined") {
+                    sessionStorage.removeItem("admin_redirect_loop_check");
                 }
 
                 // First, set the tokens in the admin store (localStorage)

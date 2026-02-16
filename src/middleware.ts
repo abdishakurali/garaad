@@ -79,7 +79,8 @@ export async function middleware(request: NextRequest) {
 
   if (isPremiumPath) {
     try {
-      const user = JSON.parse(userCookie.value);
+      const decodedUser = decodeURIComponent(userCookie.value);
+      const user = JSON.parse(decodedUser);
 
       // Allow if user is premium
       if (user?.is_premium) {

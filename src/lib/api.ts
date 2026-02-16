@@ -26,7 +26,14 @@ class ApiClient {
         if (typeof document === 'undefined') return null;
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+        if (parts.length === 2) {
+            const rawValue = parts.pop()?.split(';').shift() || null;
+            try {
+                return rawValue ? decodeURIComponent(rawValue) : null;
+            } catch (e) {
+                return rawValue;
+            }
+        }
         return null;
     }
 
@@ -49,7 +56,7 @@ class ApiClient {
 
             // Set cookie (minimal implementation, AuthService should ideally handle cookie persistence)
             if (typeof document !== 'undefined') {
-                document.cookie = `accessToken=${newAccessToken}; path=/; SameSite=Lax`;
+                document.cookie = `accessToken=${encodeURIComponent(newAccessToken)}; path=/; SameSite=Lax`;
             }
 
             return newAccessToken;
