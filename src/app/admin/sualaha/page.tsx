@@ -27,7 +27,12 @@ export default function SualahaPage() {
         try {
             setLoading(true);
             const res = await api.get("lms/questions/");
-            setQuestions(res.data);
+            // Handle both paginated and non-paginated responses robustly
+            const rawData = res.data;
+            const data = Array.isArray(rawData)
+                ? rawData
+                : (rawData && Array.isArray(rawData.results) ? rawData.results : []);
+            setQuestions(data);
         } catch (error) {
             console.error("Error fetching questions:", error);
         } finally {

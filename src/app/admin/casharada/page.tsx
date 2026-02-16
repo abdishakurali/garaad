@@ -64,9 +64,17 @@ function CasharadaContent() {
                 api.get("lms/courses/")
             ]);
 
-            // Handle paginated responses
-            const lessonsData = Array.isArray(lessonsRes.data) ? lessonsRes.data : (lessonsRes.data.results || []);
-            const coursesData = Array.isArray(coursesRes.data) ? coursesRes.data : (coursesRes.data.results || []);
+            // Handle both paginated and non-paginated responses robustly
+            const lessonsRaw = lessonsRes.data;
+            const coursesRaw = coursesRes.data;
+
+            const lessonsData = Array.isArray(lessonsRaw)
+                ? lessonsRaw
+                : (lessonsRaw && Array.isArray(lessonsRaw.results) ? lessonsRaw.results : []);
+
+            const coursesData = Array.isArray(coursesRaw)
+                ? coursesRaw
+                : (coursesRaw && Array.isArray(coursesRaw.results) ? coursesRaw.results : []);
 
             setLessons(lessonsData);
             setCourses(coursesData);

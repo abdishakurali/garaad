@@ -76,11 +76,23 @@ function KoorsooyinkaContent() {
                 api.get("lms/categories/")
             ]);
 
-            // Handle paginated responses
-            const coursesData = Array.isArray(coursesRes.data) ? coursesRes.data : (coursesRes.data.results || []);
-            const categoriesData = Array.isArray(categoriesRes.data) ? categoriesRes.data : (categoriesRes.data.results || []);
+            // Handle both paginated and non-paginated responses robustly
+            const coursesRaw = coursesRes.data;
+            const categoriesRaw = categoriesRes.data;
 
-            setCourses(coursesData);
+            const coursesData = Array.isArray(coursesRaw)
+                ? coursesRaw
+                : (coursesRaw && Array.isArray(coursesRaw.results) ? coursesRaw.results : []);
+
+            const categoriesData = Array.isArray(categoriesRaw)
+                ? categoriesRaw
+                : (categoriesRaw && Array.isArray(categoriesRaw.results) ? categoriesRaw.results : []);
+
+            setCourses([...coursesData].sort((a, b) => {
+                const seqA = (typeof a.sequence === 'number' && a.sequence > 0) ? a.sequence : -1;
+                const seqB = (typeof b.sequence === 'number' && b.sequence > 0) ? b.sequence : -1;
+                return seqB - seqA;
+            }));
             setCategories(categoriesData);
         } catch (error) {
             console.error("Error fetching data:", error);

@@ -57,12 +57,15 @@ export default function QaybahaPage() {
         try {
             setLoading(true);
             const res = await api.get("lms/categories/");
-            // Handle both paginated and non-paginated responses
-            const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
+            // Handle both paginated and non-paginated responses robustly
+            const rawData = res.data;
+            const data = Array.isArray(rawData)
+                ? rawData
+                : (rawData && Array.isArray(rawData.results) ? rawData.results : []);
 
             setCategories([...data].sort((a: Category, b: Category) => {
-                const seqA = (a.sequence && a.sequence > 0) ? a.sequence : -1;
-                const seqB = (b.sequence && b.sequence > 0) ? b.sequence : -1;
+                const seqA = (typeof a.sequence === 'number' && a.sequence > 0) ? a.sequence : -1;
+                const seqB = (typeof b.sequence === 'number' && b.sequence > 0) ? b.sequence : -1;
                 return seqB - seqA;
             }));
         } catch (error) {

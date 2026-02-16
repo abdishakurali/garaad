@@ -52,8 +52,11 @@ export default function VideoManagementPage() {
         try {
             setLoading(true);
             const response = await api.get("/lms/videos/");
-            // Handle both paginated and non-paginated responses
-            const data = Array.isArray(response.data) ? response.data : (response.data.results || []);
+            // Handle both paginated and non-paginated responses robustly
+            const rawData = response.data;
+            const data = Array.isArray(rawData)
+                ? rawData
+                : (rawData && Array.isArray(rawData.results) ? rawData.results : []);
             setVideos(data);
         } catch (err) {
             console.error("Error fetching videos:", err);
@@ -87,7 +90,7 @@ export default function VideoManagementPage() {
     const handleFileSelect = (files: FileList | File[]) => {
         const allowedTypes = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/x-matroska"];
         const maxSize = 2 * 1024 * 1024 * 1024;
-        const newQueueItems = [];
+        const newQueueItems: { file: File; status: 'pending' | 'uploading' | 'completed' | 'error'; error?: string }[] = [];
         let hasError = false;
 
         for (let i = 0; i < files.length; i++) {
@@ -325,7 +328,6 @@ export default function VideoManagementPage() {
                             <button
                                 onClick={() => {
                                     setShowUploadForm(false);
-                                    setSelectedFile(null);
                                     setTitle("");
                                     setDescription("");
                                     setError("");
