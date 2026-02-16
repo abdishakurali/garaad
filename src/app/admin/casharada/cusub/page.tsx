@@ -67,7 +67,7 @@ export default function NewLessonPage() {
     return (
         <div className="max-w-3xl mx-auto animate-fade-in">
             <button
-                onClick={() => router.back()}
+                onClick={() => router.push(courseId ? `/admin/casharada?course=${courseId}` : '/admin/casharada')}
                 className="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors mb-6 group"
             >
                 <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />

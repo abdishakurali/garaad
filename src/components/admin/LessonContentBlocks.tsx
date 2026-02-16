@@ -225,11 +225,14 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
         const fetchBlocks = async () => {
             try {
                 setLoading(true);
-                const response = await api.get(`lms/lesson-content-blocks/?lesson=${lessonId}`);
-                if (Array.isArray(response.data)) {
-                    const sortedBlocks = response.data.sort((a: ContentBlock, b: ContentBlock) => a.order - b.order);
-                    setBlocks(sortedBlocks);
-                }
+                const response = await api.get(`lms/lesson-content-blocks/?lesson=${lessonId}&page_size=1000`);
+                const rawData = response.data;
+                const blocksData = Array.isArray(rawData)
+                    ? rawData
+                    : (rawData && Array.isArray(rawData.results) ? rawData.results : []);
+
+                const sortedBlocks = blocksData.sort((a: ContentBlock, b: ContentBlock) => a.order - b.order);
+                setBlocks(sortedBlocks);
             } catch (err) {
                 console.error('Error fetching blocks:', err);
                 const apiError = err as ApiError;

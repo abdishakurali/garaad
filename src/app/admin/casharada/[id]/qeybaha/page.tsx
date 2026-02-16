@@ -81,7 +81,7 @@ export default function LessonSectionsPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-4">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push(`/admin/casharada?course=${lesson.course}`)}
                         className="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors group"
                     >
                         <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
