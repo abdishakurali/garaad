@@ -37,18 +37,31 @@ export default function AdminLoginPage() {
     const { setTokens, token, clearTokens } = useAdminAuthStore();
 
     useEffect(() => {
-        // If we have a token but are on the login page, it might mean 
-        // the middleware redirected us back because the session/cookie is invalid.
-        // To prevent a loop, we only redirect if we're "fresh".
-        // If we were just redirected here from /admin, we should clear state.
-        const isFromLoop = typeof window !== "undefined" && document.referrer.includes("/admin") && !document.referrer.includes("/admin/login");
+        if (typeof window === "undefined") return;
 
-        if (token && !isFromLoop) {
+        // More robust loop detection using sessionStorage
+        const lastRedirectTime = sessionStorage.getItem("admin_redirect_loop_check");
+        const now = Date.now();
+        const isFromAdmin = document.referrer.includes("/admin") && !document.referrer.includes("/admin/login");
+
+        let isLoop = false;
+        if (lastRedirectTime) {
+            const timePassed = now - parseInt(lastRedirectTime);
+            // If we were just redirected less than 3 seconds ago and are back at login
+            if (timePassed < 3000) {
+                isLoop = true;
+            }
+        }
+
+        if (token && !isLoop && !isFromAdmin) {
+            sessionStorage.setItem("admin_redirect_loop_check", now.toString());
             router.replace("/admin");
-        } else if (token && isFromLoop) {
-            // Probably a loop - clear state to be safe
-            console.warn("Detected possible redirect loop, clearing admin session");
+        } else if (token && (isLoop || isFromAdmin)) {
+            console.warn("Detected possible redirect loop, clearing admin session to break loop");
+            sessionStorage.removeItem("admin_redirect_loop_check");
             clearTokens();
+            // Optional: force a slight delay or show an error
+            setError("Session-kaagii wuu dhacay ama waa khaldanyahay. Fadlan mar kale isku day.");
         }
     }, [token, router, clearTokens]);
 

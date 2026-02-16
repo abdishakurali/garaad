@@ -108,7 +108,14 @@ export class AuthService {
     if (typeof document === "undefined") return null;
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+    if (parts.length === 2) {
+      const rawValue = parts.pop()?.split(";").shift() || null;
+      try {
+        return rawValue ? decodeURIComponent(rawValue) : null;
+      } catch (e) {
+        return rawValue; // Fallback to raw if decoding fails
+      }
+    }
     return null;
   }
 
@@ -124,11 +131,12 @@ export class AuthService {
         window.location.hostname === "127.0.0.1");
 
     const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+    const encodedValue = encodeURIComponent(value);
 
     if (isLocalhost || !isHttps) {
-      document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Lax`;
+      document.cookie = `${name}=${encodedValue}; ${expires}; path=/; SameSite=Lax`;
     } else {
-      document.cookie = `${name}=${value}; ${expires}; path=/; SameSite=Lax; Secure`;
+      document.cookie = `${name}=${encodedValue}; ${expires}; path=/; SameSite=Lax; Secure`;
     }
   }
 
@@ -142,7 +150,7 @@ export class AuthService {
     if (isLocalhost) {
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`;
     } else {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Strict; Secure`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax; Secure`;
     }
   }
 
