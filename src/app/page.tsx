@@ -4,29 +4,27 @@ import { Metadata } from "next";
 import { HomeContent } from "./home-content";
 
 export const metadata: Metadata = {
-  title: "Garaad | Baro Full-Stack Development - #1 First Somali Platform",
+  title: "Garaad STEM | Baro Full-Stack Development - #1 Somali Tech Platform",
   description:
-    "Garaad waa platform-ka waxbarasho ee ugu horreeya ee Soomaalida (First Somali Platform). Baro Full-Stack Development, React, Next.js, AI, iyo Cybersecurity adiga oo isticmaalaya Af-Soomaali.",
+    "Garaad STEM waa platform-ka waxbarasho ee ugu horreeya ee Soomaalida (First Somali Learning Platform). Baro Full-Stack Development, React, Next.js, AI, iyo Cybersecurity adiga oo isticmaalaya Af-Soomaali hufan.",
   keywords: [
-    "Garaad",
-    "First Somali Platform",
+    "Garaad", "Garaad STEM", "First Somali Platform", "Baro Coding Soomaali",
     "Sidee loo bartaa Full-Stack Development?",
     "Sidee loo bartaa coding Soomaali?",
     "Barashada React iyo Next.js oo Soomaali ah",
-    "Sida loo dhiso Mobile App",
+    "Sida loo dhiso Mobile App Soomaali",
     "Baro Cybersecurity Soomaali",
     "Amniga Internetka Soomaaliya",
     "Sirdoonka Macmalka ah Soomaali",
-    "Sayniska Xogta Soomaali",
+    "AI Soomaali",
     "Somali Coding Platform",
     "SaaS Soomaali",
-    "AI Soomaali",
     "Tech Founders Soomaali",
   ],
   openGraph: {
-    title: "Garaad | First Somali Platform - SaaS, AI, Tech, Cybersecurity",
+    title: "Garaad STEM | First Somali Platform - SaaS, AI, Tech, Cybersecurity",
     description:
-      "Garaad waa platform-ka ugu horreeya ee Soomaalida. Baro SaaS, AI, Tech, Cloud, React, iyo Amniga Internetka.",
+      "Garaad waa platform-ka ugu horreeya ee Soomaalida. Baro SaaS, AI, Tech, Cloud, React, iyo Amniga Internetka barnaamijyo Af-Soomaali ah.",
     type: "website",
     locale: "so_SO",
     url: "https://garaad.so",

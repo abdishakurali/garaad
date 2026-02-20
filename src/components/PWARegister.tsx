@@ -10,7 +10,17 @@ export default function PWARegister() {
             // Handle controller change (new SW takes over)
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (refreshing) return;
+
+                // Prevent double refresh if one happened very recently (last 5 seconds)
+                const lastRefresh = sessionStorage.getItem('pwa_recent_refresh');
+                const now = Date.now();
+                if (lastRefresh && now - parseInt(lastRefresh) < 5000) {
+                    console.log("[PWARegister] Refresh suppressed - recently refreshed.");
+                    return;
+                }
+
                 refreshing = true;
+                sessionStorage.setItem('pwa_recent_refresh', now.toString());
                 console.log("New content available, reloading...");
                 window.location.reload();
             });

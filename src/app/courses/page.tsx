@@ -3,11 +3,16 @@ import { CoursesListClient } from "./CoursesListClient";
 import { API_BASE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Koorsooyinka STEM-ka | Garaad - Somali Tech Academy",
-  description: "Ka baro Full-Stack Development, AI, iyo STEM-ka afkaaga hooyo. Waddooyin isku xiga oo loo maro hanashada Tiknoolajiyadda casriga ah.",
+  title: "Koorsooyinka STEM-ka | Garaad STEM - Somali Tech Academy",
+  description: "Ka baro Full-Stack Development, React, Next.js, AI, iyo STEM-ka afkaaga hooyo (Somali). Waddooyin isku xiga oo loo maro hanashada Tiknoolajiyadda casriga ah.",
+  keywords: [
+    "Koorsooyin Somali", "Baro Coding", "Somali Programming", "React Somali",
+    "Next.js Somali", "Full-Stack Development Somali", "STEM Somali",
+    "Soomaali Programming", "Barashada Computer-ka", "Garaad Courses"
+  ],
   openGraph: {
-    title: "Koorsooyinka STEM-ka ee Garaad",
-    description: "Ku biir jiilka dhisaya mustaqbalka tech-ka Soomaaliya. Baro Full-Stack, AI, iyo qaar kaloo badan.",
+    title: "Koorsooyinka STEM-ka ee Garaad STEM",
+    description: "Ku biir jiilka dhisaya mustaqbalka tech-ka Soomaaliya. Baro Full-Stack, AI, iyo Tiknoolajiyadda afkaaga hooyo.",
     url: "https://garaad.so/courses",
     images: [{ url: "/images/og-courses.jpg" }],
   },

@@ -14,17 +14,18 @@ import VersionCheck from "@/components/VersionCheck";
 export const metadata: Metadata = {
   metadataBase: new URL("https://garaad.so"),
   title: {
-    default: "Garaad - Baro STEM iyo Programming",
-    template: "%s | Garaad",
+    default: "Garaad STEM - #1 Somali Learning Platform for Tech & Coding",
+    template: "%s | Garaad STEM",
   },
   description:
-    "Garaad waa platform-ka waxbarasho ee ugu horreeya ee Soomaalida oo lagu barto STEM iyo Programming. Baro Full-Stack Development, AI, Cybersecurity, iyo Xisaabta adiga oo isticmaalaya Af-Soomaali.",
+    "Garaad waa platform-ka waxbarasho ee ugu horreeya ee Soomaalida oo lagu barto STEM iyo Programming. Baro Full-Stack Development, AI, Cybersecurity, iyo Xisaabta adiga oo isticmaalaya Af-Soomaali hufan oo casri ah.",
   keywords: [
-    "Garaad", "STEM Soomaali", "Baro Programming", "Baro Coding", "Af-Soomaali",
+    "Garaad", "Garaad STEM", "STEM Soomaali", "Baro Programming Soomaali", "Baro Coding Soomaali", "Af-Soomaali",
     "Full-Stack Development Soomaali", "React Soomaali", "Next.js Soomaali",
-    "Amniga Internetka", "Cybersecurity Somali", "Sirdoonka Macmalka ah", "AI Somali",
-    "Sayniska Xogta", "Data Science Somali", "Xisaabta Soomaali", "Physics Soomaali",
-    "Startup Soomaali", "Launchpad", "Somali Tech Academy", "First Somali Platform"
+    "Amniga Internetka", "Cybersecurity Somali", "Sirdoonka Macmalka ah Soomaali", "AI Somali",
+    "Sayniska Xogta Soomaali", "Data Science Somali", "Xisaabta Soomaali", "Physics Soomaali",
+    "Startup Soomaali", "Launchpad Soomaali", "Somali Tech Academy", "First Somali Platform",
+    "Online Somali Courses", "Somali Education Technology", "Garaad Academy"
   ],
   authors: [{ name: "Garaad Team", url: "https://garaad.so" }],
   creator: "Garaad STEM",
@@ -34,34 +35,41 @@ export const metadata: Metadata = {
     languages: {
       "so-SO": "/",
       "en-US": "/en",
-      "ar-SA": "/ar",
     },
   },
   openGraph: {
     type: "website",
     locale: "so_SO",
     url: "https://garaad.so",
-    siteName: "Garaad",
-    title: "Garaad - Baro STEM iyo Programming",
-    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM. Ku baro afkaaga hooyo.",
+    siteName: "Garaad STEM",
+    title: "Garaad STEM - Baro STEM iyo Programming oo Soomaali ah",
+    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM. Ku baro afkaaga hooyo adiga oo dhisaya mustaqbalkaaga tech.",
     images: [
       {
         url: "/images/og-main.jpg",
         width: 1200,
         height: 630,
-        alt: "Garaad STEM Academy",
+        alt: "Garaad STEM Academy - Learning in Somali",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Garaad - Baro STEM iyo Programming",
-    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM.",
+    title: "Garaad STEM - Baro STEM iyo Programming",
+    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM. Ku baro coding iyo technology afkaaga hooyo.",
     images: ["/images/og-main.jpg"],
+    creator: "@Garaadstem",
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

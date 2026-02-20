@@ -54,6 +54,8 @@ export default function VersionCheck() {
                     }
 
                     // 4. Hard reload
+                    const now = Date.now();
+                    sessionStorage.setItem('pwa_recent_refresh', now.toString());
                     window.location.reload();
                 } else if (!localVersion && remoteVersion) {
                     // Initial load, just set the version
