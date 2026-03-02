@@ -93,7 +93,7 @@ export default function GaraadEmailDashboard() {
         if (!token) return;
         setLoading(true);
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/accounts/marketing-users/`, {
+            const response = await axios.get(`${API_BASE_URL}/api/auth/marketing-users/`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUsers(response.data);

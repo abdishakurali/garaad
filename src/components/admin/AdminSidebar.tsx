@@ -27,13 +27,9 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
             {/* Logo section - only visible on desktop */}
             <Link href="/admin" className={`hidden lg:flex items-center gap-3 p-6 border-b border-gray-100 hover:bg-gray-50 transition-all duration-300 ${isCollapsed ? 'justify-center px-2' : ''}`}>
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                    <img src="https://www.garaad.org/favicon.ico" alt="Garaad Logo" className="w-6 h-6" />
+                    <img src="https://www.garaad.org/logo.png" alt="Garaad Logo" className="w-6 h-6" />
                 </div>
-                {!isCollapsed && (
-                    <span className="font-bold text-xl bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent truncate">
-                        Garaad Maamul
-                    </span>
-                )}
+
             </Link>
 
             {/* Navigation */}

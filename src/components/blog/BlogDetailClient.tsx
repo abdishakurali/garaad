@@ -80,14 +80,16 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
         const hasBlockTags = /<(p|div|ul|ol|table|blockquote|h1|h2|h3|h4|h5|h6)/i.test(content);
 
         if (!hasBlockTags) {
-            // Convert plain text to HTML paragraphs
+            // Treat every non-empty line as a separate paragraph
+            // This handles single-newline content written in the admin
             content = content
-                .split(/\n\s*\n/) // Split by double newlines (paragraphs)
-                .map(para => {
-                    if (!para.trim()) return '';
-                    // Convert single newlines inside paragraph to <br />
-                    return `<p>${para.replace(/\n/g, '<br />')}</p>`;
+                .split(/\n+/) // Split on any number of newlines
+                .map(line => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return '';
+                    return `<p>${trimmed}</p>`;
                 })
+                .filter(Boolean)
                 .join('');
         }
 
