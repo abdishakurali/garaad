@@ -11,7 +11,6 @@ const protectedRoots = [
   "/referrals",
   "/launchpad/submit",
   "/launchpad/edit",
-  "/courses",
 ];
 
 // Define paths that require premium subscription
