@@ -71,8 +71,6 @@ interface MarketingUser {
 
 // ─── main component ──────────────────────────────────────────────────────────
 export default function GaraadEmailDashboard() {
-    const [resendKey, setResendKey] = useState("");
-    const [keyInput, setKeyInput] = useState("");
     const [users, setUsers] = useState<MarketingUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState("contacts");
@@ -83,8 +81,6 @@ export default function GaraadEmailDashboard() {
     const [compose, setCompose] = useState({ subject: "", html: "", preview: "" });
     const [sending, setSending] = useState(false);
     const [sendResult, setSendResult] = useState<{ ok: number, fail: number, total: number } | null>(null);
-    const [emailHistory, setEmailHistory] = useState<any[]>([]);
-    const [historyLoading, setHistoryLoading] = useState(false);
 
     const { token } = useAdminAuthStore();
 
@@ -105,21 +101,7 @@ export default function GaraadEmailDashboard() {
 
     useEffect(() => { loadUsers(); }, [loadUsers]);
 
-    // ── fetch resend history ─────────────────────────────────────────────────
-    const loadHistory = async (key: string) => {
-        if (!key) return;
-        setHistoryLoading(true);
-        try {
-            const r = await fetch("https://api.resend.com/emails", {
-                headers: { Authorization: `Bearer ${key}` },
-            });
-            if (r.ok) {
-                const d = await r.json();
-                setEmailHistory((d.data || []).slice(0, 100));
-            }
-        } catch { }
-        setHistoryLoading(false);
-    };
+    // ── fetch resend history: removed — handled by backend ──────────────────
 
     // ── derived stats ────────────────────────────────────────────────────────
     const total = users.length;
@@ -158,45 +140,28 @@ export default function GaraadEmailDashboard() {
         setSelected(s);
     };
 
-    // ── send bulk email ──────────────────────────────────────────────────────
+    // ── send bulk email via backend ──────────────────────────────────────────
     const sendBulk = async () => {
-        if (!resendKey || selected.size === 0 || !compose.subject) return;
+        if (selected.size === 0 || !compose.subject) return;
         setSending(true);
         setSendResult(null);
-        let ok = 0, fail = 0;
-        const batch = [...selected];
-
-        // send in chunks of 5 to avoid aggressive rate limits on client side
-        for (let i = 0; i < batch.length; i += 5) {
-            const chunk = batch.slice(i, i + 5);
-            await Promise.all(chunk.map(async (to) => {
-                try {
-                    const user = users.find(u => u.email === to);
-                    const name = user?.first_name || "Garaad User";
-                    const htmlBody = compose.html ||
-                        `<div style="font-family:sans-serif;max-width:600px;margin:auto">
-              <h2>Salaan ${name}! 👋</h2>
-              <p>${compose.subject}</p>
-              <p>Garaad Team</p>
-            </div>`;
-
-                    const r = await fetch("https://api.resend.com/emails", {
-                        method: "POST",
-                        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            from: "Garaad <onboarding@resend.dev>",
-                            to: [to],
-                            subject: compose.subject,
-                            html: htmlBody,
-                        }),
-                    });
-                    r.ok ? ok++ : fail++;
-                } catch { fail++; }
-            }));
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/api/auth/send-campaign/`,
+                {
+                    recipients: [...selected],
+                    subject: compose.subject,
+                    html: compose.html || undefined,
+                },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const { sent, failed, total } = response.data;
+            setSendResult({ ok: sent, fail: failed, total });
+        } catch (err) {
+            console.error("Campaign send error:", err);
+            setSendResult({ ok: 0, fail: selected.size, total: selected.size });
         }
         setSending(false);
-        setSendResult({ ok, fail, total: batch.length });
-        if (ok > 0) loadHistory(resendKey);
     };
 
     // ── quick segment buttons ────────────────────────────────────────────────
@@ -213,13 +178,7 @@ export default function GaraadEmailDashboard() {
         setSelected(new Set(matches.map(u => u.email)));
     };
 
-    // ── resend stats from history ────────────────────────────────────────────
-    const hSent = emailHistory.length;
-    const hClicked = emailHistory.filter(e => e.last_event === "clicked").length;
-    const hOpened = emailHistory.filter(e => ["clicked", "opened"].includes(e.last_event)).length;
-    const hBounced = emailHistory.filter(e => e.last_event === "bounced").length;
-    const clickRate = hSent ? ((hClicked / hSent) * 100).toFixed(1) : "0.0";
-    const openRate = hSent ? ((hOpened / hSent) * 100).toFixed(1) : "0.0";
+    // ── no resend stats (removed) ──────────────────────────────────────────
 
     return (
         <div style={{
@@ -229,7 +188,7 @@ export default function GaraadEmailDashboard() {
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;800&family=DM+Mono:wght@400;500&display=swap');
         .stat-card:hover { border-color: rgba(99, 102, 241, 0.4) !important; }
-        .row-hover:hover { background: #111 !important; }
+        .row-hover:hover { background: #f5f7ff !important; }
       `}</style>
 
             {/* ── Header ──────────────────────────────────────────────────────── */}
@@ -258,34 +217,6 @@ export default function GaraadEmailDashboard() {
                 </div>
 
                 <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                    {!resendKey ? (
-                        <>
-                            <input placeholder="re_xxxxxxxx (Resend API Key)" value={keyInput}
-                                onChange={e => setKeyInput(e.target.value)}
-                                style={{
-                                    background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10,
-                                    padding: "8px 14px", color: "#000", fontSize: 12, fontFamily: "monospace", width: 230
-                                }} />
-                            <button onClick={() => { if (keyInput.trim()) { setResendKey(keyInput.trim()); loadHistory(keyInput.trim()); } }}
-                                style={{
-                                    background: "linear-gradient(135deg,#1e40af,#1d4ed8)", border: "none",
-                                    borderRadius: 10, padding: "8px 16px", color: "#fff", fontSize: 13, fontWeight: 600
-                                }}>
-                                Connect Resend
-                            </button>
-                        </>
-                    ) : (
-                        <div style={{
-                            background: "#0f2d1a", border: "1px solid #22c55e33", borderRadius: 10,
-                            padding: "6px 14px", fontSize: 12, color: "#22c55e", fontFamily: "monospace",
-                            display: "flex", gap: 8, alignItems: "center"
-                        }}>
-                            ● Resend Connected
-                            <button onClick={() => { setResendKey(""); setEmailHistory([]); }}
-                                style={{ background: "none", border: "none", color: "#666", fontSize: 14, padding: 0, cursor: "pointer" }}>×</button>
-                        </div>
-                    )}
-
                     <button onClick={() => setComposing(true)}
                         style={{
                             background: "linear-gradient(135deg,#10b981,#059669)", border: "none",
@@ -301,7 +232,7 @@ export default function GaraadEmailDashboard() {
                 display: "flex", gap: 4, marginBottom: 24, background: "#fff",
                 borderRadius: 12, padding: 4, border: "1px solid #e5e7eb", width: "fit-content"
             }}>
-                {[["contacts", "👥 Contacts"], ["analytics", "📊 Analytics"], ["history", "📨 History"]].map(([id, label]) => (
+                {[["contacts", "👥 Contacts"], ["analytics", "📊 Analytics"]].map(([id, label]) => (
                     <button key={id} onClick={() => setTab(id)} style={{
                         background: tab === id ? "#eff6ff" : "transparent",
                         border: tab === id ? "1px solid #bfdbfe" : "1px solid transparent",
@@ -682,15 +613,7 @@ export default function GaraadEmailDashboard() {
                                 }} />
                         </div>
 
-                        {!resendKey && (
-                            <div style={{
-                                background: "#fff7ed", border: "1px solid #ffedd5",
-                                borderRadius: 12, padding: "12px 16px", marginBottom: 20,
-                                fontSize: 12, color: "#c2410c", fontWeight: 500
-                            }}>
-                                ⚠️ Please connect your Resend API key to enable sending
-                            </div>
-                        )}
+
 
                         {sendResult && (
                             <div style={{
@@ -706,15 +629,15 @@ export default function GaraadEmailDashboard() {
                         )}
 
                         <button onClick={sendBulk}
-                            disabled={sending || selected.size === 0 || !resendKey || !compose.subject}
+                            disabled={sending || selected.size === 0 || !compose.subject}
                             style={{
                                 width: "100%",
-                                background: (sending || selected.size === 0 || !resendKey || !compose.subject)
+                                background: (sending || selected.size === 0 || !compose.subject)
                                     ? "#e5e7eb"
                                     : "linear-gradient(135deg,#1e40af,#1d4ed8)",
                                 border: "none", borderRadius: 14, padding: 14,
-                                color: (sending || selected.size === 0 || !resendKey || !compose.subject) ? "#9ca3af" : "#fff",
-                                fontSize: 15, fontWeight: 800, transition: "all .2s", cursor: (sending || selected.size === 0 || !resendKey || !compose.subject) ? "not-allowed" : "pointer"
+                                color: (sending || selected.size === 0 || !compose.subject) ? "#9ca3af" : "#fff",
+                                fontSize: 15, fontWeight: 800, transition: "all .2s", cursor: (sending || selected.size === 0 || !compose.subject) ? "not-allowed" : "pointer"
                             }}>
                             {sending ? `Sending Batch...` : `Start Campaign to ${selected.size} Contacts →`}
                         </button>
