@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Phone, CreditCard, Globe, MapPin } from "lucide-react";
+import { Loader2, Phone, CreditCard } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
 import StripeService from "@/services/stripe";
@@ -308,96 +308,8 @@ export default function SubscribePage() {
     };
 
     const getLocationAlert = () => {
-        if (locationLoading) {
-            return (
-                <Alert className="mb-6 bg-blue-50 border-blue-200 text-blue-800">
-                    <Globe className="h-4 w-4" />
-                    <AlertDescription>
-                        <Loader2 className="inline mr-2 h-4 w-4 animate-spin" />
-                        La helaya meesha aad ku jirto...
-                    </AlertDescription>
-                </Alert>
-            );
-        }
-
-        if (!locationData) {
-            return (
-                <Alert className="mb-6 bg-yellow-50 border-yellow-200 text-yellow-800">
-                    <Globe className="h-4 w-4" />
-                    <AlertDescription>
-                        Meesha aad ku jirto lama heli karin. Fadlan dooro habka bixinta aad rabto.
-                    </AlertDescription>
-                </Alert>
-            );
-        }
-
-        const locationService = LocationService.getInstance();
-        const recommendedMethod = locationService.getRecommendedPaymentMethod(locationData.countryCode);
-        const countryName = locationService.getCountryDisplayName(locationData.countryCode);
-        const description = locationService.getPaymentMethodDescription(recommendedMethod, countryName);
-
-        // Determine region for better context
-        const getRegionInfo = (countryCode: string) => {
-            const upperCode = countryCode.toUpperCase();
-            if (upperCode === 'SO') return 'Afrika Bari';
-            if (['US', 'CA'].includes(upperCode)) return 'Ameerika Waqooyi';
-            if (['GB', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'CH', 'SE', 'NO', 'DK', 'FI', 'PL', 'CZ', 'HU', 'RO', 'BG', 'HR', 'SI', 'SK', 'LT', 'LV', 'EE', 'IE', 'PT', 'GR', 'CY', 'MT', 'LU'].includes(upperCode)) return 'Yurub';
-            if (['AU', 'NZ', 'JP', 'KR', 'SG', 'MY', 'TH', 'VN', 'ID', 'PH', 'IN', 'HK', 'TW'].includes(upperCode)) return 'Aasiya Pasifik';
-            if (['KE', 'NG', 'ZA', 'EG', 'MA', 'TN', 'DZ', 'ET', 'UG', 'TZ', 'GH', 'CI', 'SN', 'ML', 'BF', 'NE', 'TD', 'SD', 'LY', 'CM', 'CF', 'CG', 'CD', 'AO', 'ZM', 'ZW', 'BW', 'NA', 'SZ', 'LS', 'MG', 'MU', 'SC', 'DJ', 'ER', 'SS', 'RW', 'BI', 'MW', 'MZ'].includes(upperCode)) return 'Afrika';
-            return 'Kale';
-        };
-
-        const region = getRegionInfo(locationData.countryCode);
-
-        return (
-            <Alert className={`mb-6 ${recommendedMethod === 'stripe'
-                ? 'bg-blue-50 border-blue-200 text-blue-800'
-                : 'bg-green-50 border-green-200 text-green-800'
-                }`}>
-                <MapPin className="h-4 w-4" />
-                <AlertDescription>
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <strong>Waxaad ku sugantahay:</strong> {countryName}
-                            <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded ml-2">{region}</span>
-                            {locationData.city && (
-                                <span className="text-sm text-gray-600 ml-2">• {locationData.city}</span>
-                            )}
-                            <br />
-                            <span className="text-sm">{description}</span>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                                setLocationData(null);
-                                setLocationLoading(true);
-                                // Re-detect location
-                                const detectLocation = async () => {
-                                    try {
-                                        const locationService = LocationService.getInstance();
-                                        const location = await locationService.getUserLocation();
-                                        if (location) {
-                                            setLocationData(location);
-                                            const recommendedMethod = locationService.getRecommendedPaymentMethod(location.countryCode);
-                                            setPaymentMethod(recommendedMethod);
-                                        }
-                                    } catch (error) {
-                                        console.error('Error detecting location:', error);
-                                    } finally {
-                                        setLocationLoading(false);
-                                    }
-                                };
-                                detectLocation();
-                            }}
-                            className="ml-4 text-xs"
-                        >
-                            Dib u hel
-                        </Button>
-                    </div>
-                </AlertDescription>
-            </Alert>
-        );
+        // Location is used silently for payment method routing — not shown to users
+        return null;
     };
 
     return (

@@ -4,15 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Logo from '../ui/Logo';
 
-const SECTIONS = [
-    { key: "home", label: "Home", icon: "🏠", path: "/admin" },
-    { key: "dashboard", label: "Dashboard", icon: "📊", path: "/admin/dashboard" },
-    { key: "qaybaha", label: "Qaybaha", icon: "📂", path: "/admin/qaybaha" },
-    { key: "koorsooyinka", label: "Koorsooyinka", icon: "📚", path: "/admin/koorsooyinka" },
-    { key: "casharada", label: "Casharada", icon: "📖", path: "/admin/casharada" },
-    { key: "muuqaalada", label: "Muuqaalada", icon: "🎥", path: "/admin/muuqaalada" },
-    { key: "sualaha", label: "Su'aalaha", icon: "❓", path: "/admin/sualaha" },
-    { key: "marketing", label: "Marketing", icon: "✉️", path: "/admin/marketing" },
+const NAV_ITEMS = [
+    { key: "home", label: "Home", icon: "⌂", path: "/admin" },
+    { key: "dashboard", label: "Dashboard", icon: "▦", path: "/admin/dashboard" },
+    { key: "qaybaha", label: "Qaybaha", icon: "◫", path: "/admin/qaybaha" },
+    { key: "koorsooyinka", label: "Koorsooyinka", icon: "◎", path: "/admin/koorsooyinka" },
+    { key: "casharada", label: "Casharada", icon: "≡", path: "/admin/casharada" },
+    { key: "muuqaalada", label: "Muuqaalada", icon: "▷", path: "/admin/muuqaalada" },
+    { key: "sualaha", label: "Su'aalaha", icon: "?", path: "/admin/sualaha" },
+    { key: "marketing", label: "Marketing", icon: "◈", path: "/admin/marketing" },
 ];
 
 interface AdminSidebarProps {
@@ -24,53 +24,63 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
     const pathname = usePathname();
 
     return (
-        <div className="h-full flex flex-col bg-white shadow-xl">
-            {/* Logo section - only visible on desktop */}
-            <Logo
-                width={180}
-                height={54}
-                className="h-12 w-auto sm:h-14 md:h-16 max-w-[140px] sm:max-w-[160px] md:max-w-[180px] mb-4 drop-shadow-md rounded-xl"
-                priority={true}
-                loading="eager"
-                sizes="(max-width: 640px) 120px, (max-width: 768px) 140px, 180px"
-            />
+        <div className="h-full flex flex-col bg-white border-r border-gray-100">
+            {/* Logo */}
+            <div className={`flex items-center ${isCollapsed ? 'justify-center px-4 py-5' : 'px-5 py-5'}`}>
+                {isCollapsed ? (
+                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm">G</div>
+                ) : (
+                    <Logo
+                        width={110}
+                        height={32}
+                        className="h-8 w-auto"
+                        priority={true}
+                        loading="eager"
+                        sizes="110px"
+                    />
+                )}
+            </div>
 
+            {/* Divider */}
+            <div className="mx-4 h-px bg-gray-100 mb-2" />
 
             {/* Navigation */}
-            <nav className={`flex-1 overflow-y-auto py-6 ${isCollapsed ? 'px-2' : 'px-4'}`}>
-                <div className="space-y-1.5">
-                    {SECTIONS.map((s) => {
-                        const isActive = pathname === s.path;
+            <nav className={`flex-1 overflow-y-auto py-2 ${isCollapsed ? 'px-2' : 'px-3'}`}>
+                <div className="space-y-0.5">
+                    {NAV_ITEMS.map((item) => {
+                        const isActive = pathname === item.path;
                         return (
                             <Link
-                                key={s.key}
-                                href={s.path}
+                                key={item.key}
+                                href={item.path}
+                                title={item.label}
                                 className={`
-                                    group relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
-                                    transition-all duration-200 ease-in-out
+                                    flex items-center gap-3 rounded-lg transition-all duration-150
+                                    ${isCollapsed ? 'justify-center w-10 h-10 mx-auto' : 'px-3 py-2.5'}
                                     ${isActive
-                                        ? "bg-blue-50 text-blue-700 shadow-sm"
-                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                        ? 'bg-blue-50 text-blue-700'
+                                        : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
                                     }
-                                    ${isCollapsed ? 'justify-center px-0' : ''}
                                 `}
-                                title={s.label}
                             >
+                                {/* Icon */}
                                 <span className={`
-                                    flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0
-                                    transition-all duration-200 ease-in-out
-                                    ${isActive
-                                        ? "bg-white shadow-sm text-blue-600"
-                                        : "bg-gray-50 text-gray-600 group-hover:bg-white group-hover:shadow-sm"
-                                    }
+                                    flex-shrink-0 text-base leading-none font-bold
+                                    ${isActive ? 'text-blue-600' : 'text-gray-400'}
                                 `}>
-                                    {s.icon}
+                                    {item.icon}
                                 </span>
-                                {!isCollapsed && <span className="flex-1 truncate">{s.label}</span>}
 
-                                {/* Active indicator */}
+                                {/* Label */}
+                                {!isCollapsed && (
+                                    <span className={`text-sm font-medium tracking-[-0.01em] ${isActive ? 'text-blue-700' : ''}`}>
+                                        {item.label}
+                                    </span>
+                                )}
+
+                                {/* Active dot */}
                                 {isActive && !isCollapsed && (
-                                    <span className="absolute right-2 w-1.5 h-6 bg-blue-600 rounded-full" />
+                                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
                                 )}
                             </Link>
                         );
@@ -78,23 +88,21 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
                 </div>
             </nav>
 
-            {/* Footer with collapse toggle */}
-            <div className={`p-4 border-t border-gray-100 space-y-2 ${isCollapsed ? 'px-2' : ''}`}>
-                <div className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs text-gray-600 hover:bg-gray-50 transition-all duration-200 ${isCollapsed ? 'justify-center px-0' : ''}`}>
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex-shrink-0">
-                        👤
-                    </span>
-                    {!isCollapsed && <span className="font-bold truncate">Maamulaha</span>}
-                </div>
-
+            {/* Footer */}
+            <div className={`p-3 border-t border-gray-100 ${isCollapsed ? 'px-2' : ''}`}>
                 <button
                     onClick={onToggle}
-                    className={`hidden lg:flex w-full items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 ${isCollapsed ? 'justify-center px-0' : ''}`}
+                    className={`
+                        hidden lg:flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5
+                        text-gray-400 hover:text-gray-600 hover:bg-gray-50
+                        transition-all duration-150
+                        ${isCollapsed ? 'justify-center px-0' : ''}
+                    `}
                 >
-                    <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 text-gray-600 group-hover:bg-white flex-shrink-0">
-                        {isCollapsed ? "»" : "«"}
+                    <span className="text-xs font-bold">
+                        {isCollapsed ? '→' : '←'}
                     </span>
-                    {!isCollapsed && <span>Halkaan ka xir</span>}
+                    {!isCollapsed && <span className="text-xs text-gray-400">Xir</span>}
                 </button>
             </div>
         </div>

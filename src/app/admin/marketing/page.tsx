@@ -408,21 +408,6 @@ export default function GaraadEmailDashboard() {
                         </div>
                     </div>
 
-                    <div style={{ marginBottom: 20 }}>
-                        <div style={{
-                            fontSize: 11, color: "#6b7280", fontFamily: "monospace", letterSpacing: 2,
-                            textTransform: "uppercase", marginBottom: 12
-                        }}>RESEND PERFORMANCE statistics</div>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 12 }}>
-                            <StatCard label="Emails Sent" value={hSent} color="#6366f1" icon="📤" />
-                            <StatCard label="Opened" value={hOpened} color="#3b82f6" icon="👁"
-                                sub={`${openRate}% open rate`} />
-                            <StatCard label="Clicked" value={hClicked} color="#10b981" icon="🖱"
-                                sub={`${clickRate}% click rate`} />
-                            <StatCard label="Bounced" value={hBounced} color="#ef4444" icon="⚠️" />
-                        </div>
-                    </div>
-
                     <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 24 }}>
                         <div style={{
                             fontSize: 11, color: "#6b7280", fontFamily: "monospace", letterSpacing: 2,
@@ -460,74 +445,6 @@ export default function GaraadEmailDashboard() {
                 </div>
             )}
 
-            {/* ══════════════ HISTORY TAB ══════════════ */}
-            {tab === "history" && (
-                <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 16, overflow: "hidden" }}>
-                    {!resendKey ? (
-                        <div style={{ padding: 80, textAlign: "center" }}>
-                            <div style={{ fontSize: 40, marginBottom: 16 }}>🔑</div>
-                            <div style={{ color: "#6b7280", fontWeight: 500 }}>Connect your Resend API key to see past campaigns</div>
-                        </div>
-                    ) : historyLoading ? (
-                        <div style={{ padding: 64, textAlign: "center", color: "#9ca3af" }}>Loading history...</div>
-                    ) : emailHistory.length === 0 ? (
-                        <div style={{ padding: 64, textAlign: "center", color: "#9ca3af" }}>No emails sent yet</div>
-                    ) : (
-                        <>
-                            <div style={{
-                                display: "grid", gridTemplateColumns: "1fr 200px 130px 90px",
-                                padding: "12px 20px", borderBottom: "1px solid #f3f4f6", background: "#f9fafb"
-                            }}>
-                                {["Subject", "Recipient", "Date", "Status"].map(h => (
-                                    <span key={h} style={{
-                                        fontSize: 10, color: "#9ca3af", fontFamily: "monospace",
-                                        letterSpacing: 1, textTransform: "uppercase"
-                                    }}>{h}</span>
-                                ))}
-                            </div>
-                            <div style={{ maxHeight: "65vh", overflowY: "auto" }}>
-                                {emailHistory.map((e, i) => {
-                                    const ev = e.last_event || "sent";
-                                    const c = TAG_COLORS[ev] || TAG_COLORS.sent;
-                                    return (
-                                        <div key={e.id || i} className="row-hover"
-                                            style={{
-                                                display: "grid", gridTemplateColumns: "1fr 200px 130px 90px",
-                                                padding: "14px 20px", borderBottom: "1px solid #f9fafb"
-                                            }}>
-                                            <span style={{
-                                                fontSize: 13, color: "#111827", fontWeight: 500, overflow: "hidden",
-                                                textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 16
-                                            }}>
-                                                {e.subject || "(no subject)"}
-                                            </span>
-                                            <span style={{
-                                                fontSize: 11, color: "#6b7280", fontFamily: "monospace",
-                                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
-                                            }}>
-                                                {Array.isArray(e.to) ? e.to[0] : e.to}
-                                            </span>
-                                            <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>
-                                                {e.created_at ? fmtDate(e.created_at) : "—"}
-                                            </span>
-                                            <span style={{
-                                                background: c.bg, color: c.text,
-                                                border: `1px solid ${c.dot}22`, borderRadius: 6,
-                                                padding: "2px 8px", fontSize: 11, fontFamily: "monospace",
-                                                display: "inline-flex", alignItems: "center", gap: 4,
-                                                height: "fit-content", whiteSpace: "nowrap"
-                                            }}>
-                                                <span style={{ width: 5, height: 5, borderRadius: "50%", background: c.dot }} />
-                                                {ev}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </>
-                    )}
-                </div>
-            )}
 
             {/* ══════════════ COMPOSE MODAL ══════════════ */}
             {composing && (
