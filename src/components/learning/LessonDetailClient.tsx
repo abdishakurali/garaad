@@ -21,7 +21,9 @@ import LessonHeader from "@/components/LessonHeader";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
 import type { Course, Lesson } from "@/types/lms";
 import AuthService from "@/services/auth";
-import "katex/dist/katex.min.css";
+import katex from 'katex';
+
+import 'katex/dist/katex.min.css';
 import ProblemBlock from "@/components/lesson/ProblemBlock";
 import TextBlock from "@/components/lesson/TextBlock";
 import ImageBlock from "@/components/lesson/ImageBlock";
