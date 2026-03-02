@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { notoSansSC, manrope, instrumentSerif, dmMono } from "@/lib/fonts";
+import { notoSansSC, inter, instrumentSerif, dmMono } from "@/lib/fonts";
+
 import ClientLayout from "./client-layout";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -125,7 +126,8 @@ export default function RootLayout({
           strategy="lazyOnload"
         />
       </head>
-      <body className={`${notoSansSC.variable} ${manrope.variable} ${instrumentSerif.variable} ${dmMono.variable} font-sans antialiased text-foreground bg-background`}>
+      <body className={`${notoSansSC.variable} ${inter.variable} ${instrumentSerif.variable} ${dmMono.variable} font-sans antialiased text-foreground bg-background`}>
+
         <Providers>
           <RootErrorBoundary>
             <ClientLayout>

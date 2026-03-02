@@ -1,4 +1,4 @@
-import { Noto_Sans_SC, Manrope, Instrument_Serif, DM_Mono } from "next/font/google";
+import { Noto_Sans_SC, Inter, Instrument_Serif, DM_Mono } from "next/font/google";
 
 export const notoSansSC = Noto_Sans_SC({
     subsets: ["latin"],
@@ -7,11 +7,11 @@ export const notoSansSC = Noto_Sans_SC({
     variable: "--font-noto-sans-sc"
 });
 
-export const manrope = Manrope({
+export const inter = Inter({
     subsets: ["latin"],
-    weight: ["400", "500", "700"],
+    weight: ["400", "500", "600", "700", "800"],
     display: "swap",
-    variable: "--font-manrope"
+    variable: "--font-inter"
 });
 
 export const instrumentSerif = Instrument_Serif({

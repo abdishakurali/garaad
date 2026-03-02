@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope), "Source Han Sans", var(--font-noto-sans-sc), sans-serif;
-  --font-display: var(--font-manrope), "Source Han Sans", var(--font-noto-sans-sc), sans-serif;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Source Han Sans", var(--font-noto-sans-sc), sans-serif;
+  --font-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-serif: var(--font-instrument-serif), serif;
   --font-mono: var(--font-dm-mono), monospace;
   --color-sidebar-ring: var(--sidebar-ring);
