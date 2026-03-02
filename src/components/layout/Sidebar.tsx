@@ -39,7 +39,14 @@ export function Sidebar() {
                 <button
                     className="flex items-center w-full px-6 py-3 text-gray-600 hover:bg-gray-50"
                     onClick={() => {
-                        // Handle logout
+                        if (typeof window !== "undefined") {
+                            // Clear session markers
+                            document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            localStorage.clear();
+                            window.location.href = "/";
+                        }
                     }}
                 >
                     <LogOut className="w-5 h-5 mr-3" />

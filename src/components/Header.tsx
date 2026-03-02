@@ -91,7 +91,7 @@ export function Header() {
     authService.logout();
     if (typeof window !== "undefined") {
       localStorage.clear();
-      router.push("/");
+      window.location.href = "/";
     }
   };
 
