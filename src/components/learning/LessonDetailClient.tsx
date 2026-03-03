@@ -311,7 +311,12 @@ export function LessonDetailClient() {
                 );
                 if (!response.ok) throw new Error('Failed to fetch lessons');
 
-                const lessons = await response.json();
+                const raw = await response.json();
+                const lessons = Array.isArray(raw)
+                    ? raw
+                    : Array.isArray((raw as any)?.results)
+                        ? (raw as any).results
+                        : [];
                 setCourseLessons(lessons);
             } catch (error) {
                 console.error('Error fetching course lessons:', error);

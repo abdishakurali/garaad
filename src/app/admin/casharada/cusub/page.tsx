@@ -32,7 +32,12 @@ export default function NewLessonPage() {
     const fetchCourses = async () => {
         try {
             const res = await api.get("lms/courses/");
-            setCourses(res.data);
+            const data = Array.isArray(res.data)
+                ? res.data
+                : Array.isArray((res.data as any)?.results)
+                    ? (res.data as any).results
+                    : [];
+            setCourses(data);
         } catch (error) {
             console.error("Error fetching courses:", error);
         } finally {

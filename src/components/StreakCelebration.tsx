@@ -28,7 +28,7 @@ interface UserData {
 }
 
 interface StreakCelebrationProps {
-  userData: UserData;
+  userData: UserData | undefined;
   onContinue: () => void;
 }
 
@@ -36,8 +36,14 @@ export default function StreakCelebration({
   userData,
   onContinue,
 }: StreakCelebrationProps) {
+  if (!userData) {
+    return null;
+  }
+
   // Get the last 5 days for the weekly view
-  const lastFiveDays = userData.dailyActivity.slice(0, 5).reverse();
+  const lastFiveDays = Array.isArray(userData.dailyActivity)
+    ? [...userData.dailyActivity].slice(0, 5).reverse()
+    : [];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 mx-w-md">
