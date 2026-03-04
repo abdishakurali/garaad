@@ -1,7 +1,5 @@
-import { Header as SiteHeader } from "@/components/Header";
-import { FooterSection } from "@/components/sections/FooterSection";
 import { Metadata } from "next";
-import { HomeContent } from "./home-content";
+import { HomeContent } from "../home-content";
 
 export const metadata: Metadata = {
   title: "Garaad STEM | Baro Full-Stack Development - #1 Somali Tech Platform",
@@ -58,12 +56,7 @@ export default function Home() {
           }),
         }}
       />
-
-      <SiteHeader />
-
       <HomeContent />
-
-      <FooterSection />
     </div>
   );
 }

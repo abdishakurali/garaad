@@ -1,5 +1,3 @@
-import { Header as SiteHeader } from "@/components/Header";
-import { FooterSection } from "@/components/sections/FooterSection";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -12,8 +10,6 @@ export const metadata: Metadata = {
 export default function StartupsPage() {
     return (
         <div className="min-h-screen bg-background">
-            <SiteHeader />
-
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
@@ -49,8 +45,6 @@ export default function StartupsPage() {
                     </Link>
                 </div>
             </main>
-
-            <FooterSection />
         </div>
     );
 }

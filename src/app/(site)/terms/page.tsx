@@ -1,7 +1,6 @@
 "use client";
 
 import Link from 'next/link';
-import { Header } from '@/components/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
@@ -124,7 +123,6 @@ export default function TermsPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <Header />
             <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-12">

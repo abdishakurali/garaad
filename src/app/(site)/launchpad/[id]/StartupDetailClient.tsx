@@ -5,8 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Header as SiteHeader } from "@/components/Header";
-import { FooterSection } from "@/components/sections/FooterSection";
 import { launchpadService } from "@/services/launchpad";
 import type { StartupDetail } from "@/types/launchpad";
 import {
@@ -172,7 +170,6 @@ export function StartupDetailClient({ initialData, startupId }: StartupDetailCli
     if (error || !startup) {
         return (
             <div className="min-h-screen bg-background">
-                <SiteHeader />
                 <main className="max-w-4xl mx-auto px-4 py-20 text-center">
                     <h1 className="text-2xl font-bold mb-4">{error || "Wax qalad ah ayaa dhacay"}</h1>
                     <Link href="/launchpad" className="text-primary hover:underline">
@@ -185,8 +182,6 @@ export function StartupDetailClient({ initialData, startupId }: StartupDetailCli
 
     return (
         <div className="min-h-screen bg-background">
-            <SiteHeader />
-
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 {/* Back Link */}
                 <Link
@@ -549,8 +544,6 @@ export function StartupDetailClient({ initialData, startupId }: StartupDetailCli
                     )}
                 </div>
             </main>
-
-            <FooterSection />
 
             {/* Image Modal */}
             {selectedImage && (

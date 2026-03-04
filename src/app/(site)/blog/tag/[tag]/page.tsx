@@ -1,5 +1,4 @@
 import { getBlogPosts, getBlogTags } from "@/lib/blog";
-import { Header } from "@/components/Header";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, BookOpen, ArrowRight, ChevronLeft } from "lucide-react";
@@ -9,16 +8,33 @@ import { SharePost } from "@/components/SharePost";
 import { Metadata } from "next";
 
 interface TagPageProps {
-    params: {
-        tag: string;
-    };
+    params: Promise<{ tag: string }>;
 }
 
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
-    const tagName = params.tag.charAt(0).toUpperCase() + params.tag.slice(1).replace(/-/g, ' ');
+    const { tag } = await params;
+    const tagName = tag.charAt(0).toUpperCase() + tag.slice(1).replace(/-/g, " ");
+    const canonicalUrl = `https://garaad.so/blog/tag/${tag}`;
     return {
         title: `Qoraalada ku saabsan ${tagName} | Garaad Blog`,
         description: `Ka dhex baadh dhammaan qoraalada ku saabsan ${tagName} ee ku jira wargeyska Garaad.`,
+        keywords: [tagName, "Garaad Blog", "STEM Soomaali", "mowduuc"],
+        alternates: { canonical: canonicalUrl },
+        openGraph: {
+            type: "website",
+            locale: "so_SO",
+            url: canonicalUrl,
+            siteName: "Garaad STEM",
+            title: `Qoraalada ku saabsan ${tagName} | Garaad Blog`,
+            description: `Ka dhex baadh qoraalada mowduuca ${tagName} ee wargeyska Garaad.`,
+            images: [{ url: "/images/og-blog.jpg", width: 1200, height: 630 }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: `Qoraalada ku saabsan ${tagName} | Garaad Blog`,
+            images: ["/images/og-blog.jpg"],
+        },
+        robots: { index: true, follow: true },
     };
 }
 
@@ -30,8 +46,9 @@ export async function generateStaticParams() {
 }
 
 export default async function TagPage({ params }: TagPageProps) {
-    const posts = await getBlogPosts(params.tag).catch(() => []);
-    const tagName = params.tag.charAt(0).toUpperCase() + params.tag.slice(1).replace(/-/g, ' ');
+    const { tag } = await params;
+    const posts = await getBlogPosts(tag).catch(() => []);
+    const tagName = tag.charAt(0).toUpperCase() + tag.slice(1).replace(/-/g, " ");
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("so-SO", {
@@ -48,9 +65,7 @@ export default async function TagPage({ params }: TagPageProps) {
     };
 
     return (
-        <>
-            <Header />
-            <main className="min-h-screen bg-white">
+        <main className="min-h-screen bg-white">
                 <section className="bg-primary/5 py-12 md:py-20">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <Link
@@ -135,7 +150,6 @@ export default async function TagPage({ params }: TagPageProps) {
                         </div>
                     )}
                 </section>
-            </main>
-        </>
+        </main>
     );
 }

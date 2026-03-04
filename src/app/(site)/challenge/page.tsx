@@ -1,7 +1,4 @@
-import { Header as SiteHeader } from "@/components/Header";
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
-import { FooterSection } from "@/components/sections/FooterSection";
-import { Suspense } from "react";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 
@@ -25,14 +22,18 @@ export const metadata: Metadata = {
         "Garaad Academy",
         "AI for business Somalia",
     ],
+    alternates: { canonical: "https://garaad.so/challenge" },
     openGraph: {
-        title: "Bilow Safarkaaga Tech-ga ee Garaad",
-        description:
-            "Dhis oo daabac software-kaaga ugu horreeya 5 toddobaad gudahood. Ku soo biir bahda wax dhisidda Soomaaliya.",
         type: "website",
         locale: "so_SO",
-        url: "https://garaad.org/challenge",
+        url: "https://garaad.so/challenge",
+        siteName: "Garaad STEM",
+        title: "Bilow Safarkaaga Tech-ga ee Garaad",
+        description: "Dhis oo daabac software-kaaga ugu horreeya 5 toddobaad gudahood. Ku soo biir bahda wax dhisidda Soomaaliya.",
+        images: [{ url: "/images/og-main.jpg", width: 1200, height: 630 }],
     },
+    twitter: { card: "summary_large_image", title: "Tartanka SaaS - Garaad" },
+    robots: { index: true, follow: true },
 };
 
 export default function ChallengePage() {
@@ -66,8 +67,6 @@ export default function ChallengePage() {
                 }}
             />
 
-            <SiteHeader />
-
             <main>
                 <ChallengeHero />
                 <OurStorySection />
@@ -76,7 +75,6 @@ export default function ChallengePage() {
                 <ClosingCTA />
             </main>
 
-            <FooterSection />
             <WhatsAppFloat />
         </div>
     );

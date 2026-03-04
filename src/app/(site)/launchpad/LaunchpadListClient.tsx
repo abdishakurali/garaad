@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Header as SiteHeader } from "@/components/Header";
-import { FooterSection } from "@/components/sections/FooterSection";
 import { StartupCard } from "@/components/launchpad/StartupCard";
 import { StartupCardSkeleton } from "@/components/launchpad/StartupCardSkeleton";
 import { launchpadService } from "@/services/launchpad";
@@ -81,8 +79,6 @@ export function LaunchpadListClient() {
 
     return (
         <div className="min-h-screen bg-background">
-            <SiteHeader />
-
             {/* Full Width Hero Section - Challenge Style */}
             <section className="relative w-full overflow-hidden bg-[#0A0F1C] border-b border-white/5 py-12 sm:py-16">
                 {/* Background tech icons & decorations */}
@@ -300,8 +296,6 @@ export function LaunchpadListClient() {
                 </div>
 
             </main>
-
-            <FooterSection />
         </div>
     );
 }

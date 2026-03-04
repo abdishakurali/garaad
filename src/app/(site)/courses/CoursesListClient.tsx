@@ -7,7 +7,6 @@ import { Category, Course } from "@/types/lms";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, ChevronRight, CheckCircle2 } from "lucide-react";
-import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -85,7 +84,6 @@ export function CoursesListClient() {
     if (hasMounted && isError) {
         return (
             <div className="min-h-screen bg-slate-50 dark:bg-black">
-                <Header />
                 <div className="max-w-7xl mx-auto p-8">
                     <Alert variant="destructive" className="rounded-3xl border-2">
                         <AlertCircle className="h-5 w-5" />
@@ -103,8 +101,6 @@ export function CoursesListClient() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
-            <Header />
-
             {/* Hero Section */}
             <div className="relative pt-20 pb-12 md:pt-40 md:pb-32 overflow-hidden">
                 {/* Simplified & Clean Background */}

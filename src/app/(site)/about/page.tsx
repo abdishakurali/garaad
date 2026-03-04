@@ -1,18 +1,27 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'About Us | Garaad',
-  description: 'Learn about Garaad\'s mission to systemize STEM education for the Somali generation through radical truth and merit-based learning.',
+  title: "About Us | Garaad",
+  description: "Learn about Garaad's mission to systemize STEM education for the Somali generation through radical truth and merit-based learning.",
+  alternates: { canonical: "https://garaad.so/about" },
+  openGraph: {
+    type: "website",
+    locale: "so_SO",
+    url: "https://garaad.so/about",
+    siteName: "Garaad STEM",
+    title: "About Garaad | STEM Education for the Somali Generation",
+    description: "Garaad's mission: systemize STEM education through radical truth and merit-based learning.",
+    images: [{ url: "/images/og-main.jpg", width: 1200, height: 630 }],
+  },
+  twitter: { card: "summary_large_image", title: "About Garaad" },
 };
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <Header />
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">

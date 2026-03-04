@@ -425,7 +425,48 @@ const ProblemBlock: React.FC<{
                 </div>
               )}
 
-              {content.question_type === "diagram" && (content.diagram_config || content.diagrams) && (
+              {/* Card-style diagram (diagram_cards: card_1, card_2 with label, visual_type, content, note) */}
+              {content.content?.diagram_cards && typeof content.content.diagram_cards === "object" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                  {["card_1", "card_2"].map((key) => {
+                    const card = (content.content?.diagram_cards as Record<string, { label?: string; visual_type?: string; content?: string[]; note?: string }>)?.[key];
+                    if (!card) return null;
+                    const isFlowchart = card.visual_type === "flowchart";
+                    const steps = Array.isArray(card.content) ? card.content : [];
+                    return (
+                      <div
+                        key={key}
+                        className="rounded-2xl border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] p-5 space-y-3"
+                      >
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-foreground">{card.label}</span>
+                          <span className={cn(
+                            "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded",
+                            isFlowchart ? "bg-amber-500/15 text-amber-700 dark:text-amber-400" : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                          )}>
+                            {isFlowchart ? "Flowchart" : "Learning loop"}
+                          </span>
+                        </div>
+                        <ul className="space-y-1.5 text-sm text-foreground/90">
+                          {steps.map((line: string, i: number) => (
+                            <li key={i} className="flex gap-2">
+                              <span className="text-muted-foreground shrink-0">•</span>
+                              <span>{line}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {card.note && (
+                          <p className="text-xs italic text-muted-foreground pt-2 border-t border-black/[0.06] dark:border-white/[0.06]">
+                            {card.note}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {content.question_type === "diagram" && (content.diagram_config || content.diagrams) && !content.content?.diagram_cards && (
                 <div className="py-2 overflow-hidden">
                   {(() => {
                     const diagrams = content.diagrams || (Array.isArray(content.diagram_config) ? content.diagram_config : [content.diagram_config]);
