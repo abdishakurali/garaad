@@ -139,15 +139,30 @@ export default function NewBlogPostPage() {
                         <div className="space-y-2">
                             <Label htmlFor="cover-image" className="font-medium">Sawirka Daboolka (Cover Image)</Label>
                             <div
-                                className="border-2 border-dashed border-slate-200 rounded-xl aspect-video flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors overflow-hidden relative"
+                                role="button"
+                                tabIndex={0}
+                                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); }}
+                                onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIsDragging(false);
+                                    const file = e.dataTransfer.files?.[0];
+                                    if (file) setFileFrom(file);
+                                }}
                                 onClick={() => document.getElementById("cover-image")?.click()}
+                                onKeyDown={(e) => e.key === "Enter" && document.getElementById("cover-image")?.click()}
+                                className={cn(
+                                    "border-2 border-dashed rounded-xl aspect-video flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden relative min-h-[200px]",
+                                    isDragging ? "border-primary bg-primary/10" : "border-slate-200 hover:border-primary"
+                                )}
                             >
                                 {imagePreview ? (
-                                    <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized={imagePreview.startsWith("blob:")} />
+                                    <Image src={imagePreview} alt="Preview" fill className="object-cover pointer-events-none" unoptimized={imagePreview.startsWith("blob:")} draggable={false} />
                                 ) : (
                                     <>
-                                        <ImageIcon className="h-10 w-10 text-slate-300 mb-2" />
-                                        <span className="text-sm text-slate-400">Guji si aad sawir u soo geliso</span>
+                                        <Upload className="h-10 w-10 text-slate-300 mb-2" />
+                                        <span className="text-sm text-slate-400 text-center px-4">Guji si aad sawir u soo geliso ama jiid oo tuur halkan</span>
                                     </>
                                 )}
                             </div>

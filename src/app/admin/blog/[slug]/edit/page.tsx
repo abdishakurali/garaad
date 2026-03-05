@@ -191,7 +191,7 @@ export default function EditBlogPostPage() {
                                 )}
                             >
                                 {imagePreview ? (
-                                    <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized={imagePreview.startsWith("blob:")} />
+                                    <Image src={imagePreview} alt="Preview" fill className="object-cover pointer-events-none" unoptimized={imagePreview.startsWith("blob:")} draggable={false} />
                                 ) : (
                                     <>
                                         <Upload className="h-10 w-10 text-slate-300 mb-2" />
