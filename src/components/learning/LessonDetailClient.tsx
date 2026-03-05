@@ -402,11 +402,11 @@ export function LessonDetailClient() {
         const c = typeof firstVideoBlock.content === "string" ? JSON.parse(firstVideoBlock.content) : firstVideoBlock.content;
         const url = c?.source || c?.url;
         if (url && typeof url === "string" && url.includes("/bridge/dl/")) {
-            fetch(url, { headers: { Range: "bytes=0-65535" } }).catch(() => {});
+            fetch(url, { headers: { Range: "bytes=0-1048575" } }).catch(() => {});
         }
     }, [sortedBlocks]);
 
-    // Prefetch next block when current block is not video and next block is video
+    // Prefetch next block when current block is not video and next block is video (1MB to warm bridge/cache)
     useEffect(() => {
         if (!sortedBlocks?.length || currentBlockIndex < 0) return;
         const nextBlock = sortedBlocks[currentBlockIndex + 1];
@@ -414,7 +414,7 @@ export function LessonDetailClient() {
         const c = typeof nextBlock.content === "string" ? JSON.parse(nextBlock.content) : nextBlock.content;
         const url = c?.source || c?.url;
         if (url && typeof url === "string" && url.includes("/bridge/dl/")) {
-            fetch(url, { headers: { Range: "bytes=0-65535" } }).catch(() => {});
+            fetch(url, { headers: { Range: "bytes=0-1048575" } }).catch(() => {});
         }
     }, [currentBlockIndex, sortedBlocks]);
 

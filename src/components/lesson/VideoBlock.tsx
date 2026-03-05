@@ -218,7 +218,7 @@ const VideoBlock: React.FC<{
               src={optimizedUrl}
               poster={posterUrl ?? undefined}
               playsInline
-              preload="metadata"
+              preload="auto"
               className={cn(
                 "w-full object-contain bg-black",
                 isFullscreen ? "h-full" : "h-auto max-h-[70vh] rounded-xl"

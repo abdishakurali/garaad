@@ -33,9 +33,14 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Gamification data for streak display
   const { streak, isLoading: streakLoading, hasError: streakError } = useGamificationData();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -147,8 +152,8 @@ export function Header() {
 
           {/* Desktop Right Side */}
           <div className="flex items-center gap-4">
-            {/* Streak Display for logged-in users */}
-            {user && (
+            {/* Streak Display for logged-in users (only after mount to avoid hydration mismatch) */}
+            {mounted && user && (
               <div className="hidden lg:block">
                 <StreakDisplay
                   loading={streakLoading}
@@ -159,7 +164,7 @@ export function Header() {
             )}
 
             <div className="hidden md:flex items-center gap-3">
-              {user && (
+              {mounted && user && (
                 <>
                   <button
                     onClick={() => setIsReferralModalOpen(true)}
@@ -175,7 +180,7 @@ export function Header() {
                 </>
               )}
               <ThemeToggle />
-              {user ? (
+              {mounted && user ? (
                 <ProfileDropdown />
               ) : (
                 <AuthDialog />
@@ -184,7 +189,7 @@ export function Header() {
 
             {/* Mobile: Only show essential icons + hamburger */}
             <div className="flex md:hidden items-center gap-2">
-              {user && <NotificationPanel />}
+              {mounted && user && <NotificationPanel />}
               <ThemeToggle />
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -249,7 +254,7 @@ export function Header() {
 
             {/* User Section */}
             <div className="px-6 py-4 space-y-1">
-              {user ? (
+              {mounted && user ? (
                 <>
                   <button
                     onClick={() => {
