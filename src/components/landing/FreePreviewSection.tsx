@@ -156,23 +156,19 @@ export function FreePreviewSection() {
     if (!loading && courses.length === 0) return null;
 
     return (
-        <section className="relative py-20 sm:py-28 px-4 bg-background overflow-hidden border-t border-border/50">
+        <section className="relative py-14 sm:py-20 px-4 bg-background overflow-hidden border-t border-border/50">
             {/* Subtle background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/5 dark:bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
 
             <div className="relative max-w-7xl mx-auto">
                 {/* Header */}
                 <Reveal>
-                    <div className="text-center mb-14 sm:mb-16">
-                        <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-black uppercase tracking-widest mb-4">
-                            Bilaash Bilow
-                        </span>
-                        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground tracking-tight">
-                            Dhadhan{" "}
-                            <span className="text-primary italic">Koorsooyinka</span>
+                    <div className="text-center mb-10 sm:mb-12">
+                        <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+                            Dhadhan <span className="text-primary">Koorsooyinka</span>
                         </h2>
-                        <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto">
-                            Hubi waxa aad baraneyso ka hor inaad ishtiraakdo. Dhammaan koorsooyinku waxay ku bilaabmaan darajo bilaash ah.
+                        <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+                            Darajo bilaash ah — ka bilow halka aad joogto.
                         </p>
                     </div>
                 </Reveal>

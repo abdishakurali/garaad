@@ -42,23 +42,20 @@ export function TestimonialsSection() {
     const [showVideoModal, setShowVideoModal] = useState<string | null>(null);
 
     return (
-        <section className="py-16 sm:py-24 px-4 bg-background overflow-hidden border-t border-border/50">
+        <section className="py-14 sm:py-20 px-4 bg-background overflow-hidden border-t border-border/50">
             <div className="max-w-7xl mx-auto">
                 <Reveal>
-                    <div className="text-center mb-16 sm:mb-20">
-                        <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-black uppercase tracking-widest mb-4">
-                            Guusha Ardaydeena
-                        </span>
-                        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground tracking-tight">
-                            Sheekooyinka <span className="text-primary italic">Guusha</span>
+                    <div className="text-center mb-10 sm:mb-12">
+                        <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+                            Sheekooyinka <span className="text-primary">Guusha</span>
                         </h2>
-                        <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto">
-                            Daawo muuqaalada iyo fariimaha dhiirigelinta leh ee ay noo soo direen ardayda Garaad ee guulaha gaaray.
+                        <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+                            Ardaydeena iyo muuqaalada dhiirigelinta leh.
                         </p>
                     </div>
                 </Reveal>
 
-                <div className="space-y-16">
+                <div className="space-y-12">
                     {/* Unified Testimonials Section */}
 
                     {/* 1. Videos First */}
@@ -121,13 +118,6 @@ export function TestimonialsSection() {
                     </Reveal>
                 </div>
 
-                <Reveal>
-                    <div className="mt-16 text-center">
-                        <div className="inline-flex items-center gap-2 p-1 px-4 rounded-full bg-muted border border-border text-muted-foreground text-sm font-medium italic">
-                            "Aqoon la'aan waa iftiin la'aan - Ku biir bulshada maanta"
-                        </div>
-                    </div>
-                </Reveal>
             </div>
 
             {/* Video Modal */}

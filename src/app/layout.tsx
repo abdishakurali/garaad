@@ -12,66 +12,51 @@ import { Loader } from "lucide-react";
 import PWARegister from "@/components/PWARegister";
 import VersionCheck from "@/components/VersionCheck";
 
+const SITE_URL = "https://garaad.org";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://garaad.org"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Garaad STEM - #1 Somali Learning Platform for Tech & Coding",
+    default: "Garaad STEM - Baro Full-Stack, AI & STEM oo Soomaali ah",
     template: "%s | Garaad STEM",
   },
   description:
-    "Garaad waa platform-ka waxbarasho ee ugu horreeya ee Soomaalida oo lagu barto STEM iyo Programming. Baro Full-Stack Development, AI, Cybersecurity, iyo Xisaabta adiga oo isticmaalaya Af-Soomaali hufan oo casri ah.",
+    "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro React, Next.js, AI, Cybersecurity iyo Xisaabta Af-Soomaali. Bilaash bilow.",
   keywords: [
     "Garaad", "Garaad STEM", "STEM Soomaali", "Baro Programming Soomaali", "Baro Coding Soomaali", "Af-Soomaali",
-    "Full-Stack Development Soomaali", "React Soomaali", "Next.js Soomaali",
-    "Amniga Internetka", "Cybersecurity Somali", "Sirdoonka Macmalka ah Soomaali", "AI Somali",
-    "Sayniska Xogta Soomaali", "Data Science Somali", "Xisaabta Soomaali", "Physics Soomaali",
-    "Startup Soomaali", "Launchpad Soomaali", "Somali Tech Academy", "First Somali Platform",
-    "Online Somali Courses", "Somali Education Technology", "Garaad Academy"
+    "Full-Stack Soomaali", "React Soomaali", "Next.js Soomaali", "AI Soomaali",
+    "Cybersecurity Somali", "Xisaabta Soomaali", "Physics Soomaali", "Somali Tech Academy",
+    "First Somali Platform", "Online Somali Courses", "Garaad Academy",
   ],
-  authors: [{ name: "Garaad Team", url: "https://garaad.org" }],
+  authors: [{ name: "Garaad Team", url: SITE_URL }],
   creator: "Garaad STEM",
   publisher: "Garaad STEM",
   alternates: {
-    canonical: "/",
-    languages: {
-      "so-SO": "/",
-      "en-US": "/en",
-    },
+    canonical: SITE_URL,
+    languages: { "so-SO": "/" },
   },
   openGraph: {
     type: "website",
     locale: "so_SO",
-    url: "https://garaad.org",
+    url: SITE_URL,
     siteName: "Garaad STEM",
     title: "Garaad STEM - Baro STEM iyo Programming oo Soomaali ah",
-    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM. Ku baro afkaaga hooyo adiga oo dhisaya mustaqbalkaaga tech.",
-    images: [
-      {
-        url: "/images/og-main.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Garaad STEM Academy - Learning in Somali",
-      },
-    ],
+    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM. Baro coding iyo technology afkaaga hooyo.",
+    images: [{ url: "/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad STEM - Somali Tech Learning" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Garaad STEM - Baro STEM iyo Programming",
-    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM. Ku baro coding iyo technology afkaaga hooyo.",
+    description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM.",
     images: ["/images/og-main.jpg"],
     creator: "@Garaadstem",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
+    googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
   },
+  category: "education",
 };
 
 export const viewport: Viewport = {
@@ -100,19 +85,36 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "EducationalOrganization",
-              name: "Garaad",
+              "@id": "https://garaad.org/#organization",
+              name: "Garaad STEM",
               url: "https://garaad.org",
               logo: "https://garaad.org/logo.png",
+              description: "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro Full-Stack, AI, Cybersecurity Af-Soomaali.",
               sameAs: [
                 "https://www.linkedin.com/company/garaad",
                 "https://x.com/Garaadstem",
-                "https://facebook.com/Garaadstem"
+                "https://facebook.com/Garaadstem",
               ],
               contactPoint: {
                 "@type": "ContactPoint",
-                "email": "Info@garaad.org",
-                "contactType": "customer support"
-              }
+                email: "Info@garaad.org",
+                contactType: "customer support",
+                areaServed: "SO",
+              },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": "https://garaad.org/#website",
+              url: "https://garaad.org",
+              name: "Garaad STEM",
+              publisher: { "@id": "https://garaad.org/#organization" },
+              inLanguage: "so-SO",
             }),
           }}
         />

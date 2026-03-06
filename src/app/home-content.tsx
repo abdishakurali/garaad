@@ -2,14 +2,11 @@
 
 import { HeroSection } from "@/components/landing/HeroSection";
 import { SectionSkeleton } from "@/components/landing/SkeletonLoader";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { usePostHog } from 'posthog-js/react';
-import { Loader2 } from "lucide-react";
-import { InspirationalQuotes } from "@/components/landing/InspirationalQuotes";
-
 const TestimonialsSection = dynamic(() => import("@/components/landing/TestimonialsSection").then(mod => mod.TestimonialsSection), {
     loading: () => <SectionSkeleton />,
     ssr: true
@@ -57,8 +54,6 @@ export function HomeContent() {
                     <Suspense fallback={<SectionSkeleton />}>
                         <CommunityCTASection />
                     </Suspense>
-
-                    <InspirationalQuotes />
                 </>
             )}
         </main>
