@@ -2,80 +2,77 @@
 
 import { useEffect } from "react";
 
+/**
+ * PWARegister
+ *
+ * Registers the service worker WITHOUT ever triggering a hard reload.
+ * When a new SW is available, it activates silently in the background.
+ * The user gets the new version on their next natural navigation — no disruption.
+ */
 export default function PWARegister() {
-    useEffect(() => {
-        if ("serviceWorker" in navigator && window.location.hostname !== "localhost") {
-            let refreshing = false;
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    if (window.location.hostname === "localhost") return;
 
-            // Handle controller change (new SW takes over)
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (refreshing) return;
+    const registerSW = () => {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          console.log("[PWA] Service Worker registered");
 
-                // Prevent double refresh if one happened very recently (last 5 seconds)
-                const lastRefresh = sessionStorage.getItem('pwa_recent_refresh');
-                const now = Date.now();
-                if (lastRefresh && now - parseInt(lastRefresh) < 5000) {
-                    console.log("[PWARegister] Refresh suppressed - recently refreshed.");
-                    return;
-                }
+          // Activate waiting SW immediately — but do NOT reload
+          const activateWaiting = (sw: ServiceWorker) => {
+            sw.postMessage({ type: "SKIP_WAITING" });
+            // No window.location.reload() — user gets new SW on next navigation naturally
+          };
 
-                refreshing = true;
-                sessionStorage.setItem('pwa_recent_refresh', now.toString());
-                console.log("New content available, reloading...");
-                window.location.reload();
+          // If there's already a waiting SW on load
+          if (registration.waiting) {
+            activateWaiting(registration.waiting);
+          }
+
+          // When a new SW is found and installs
+          registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            if (!newWorker) return;
+
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                activateWaiting(newWorker);
+              }
             });
+          });
 
-            const registerSW = () => {
-                navigator.serviceWorker
-                    .register("/sw.js")
-                    .then(registration => {
-                        console.log("PWA Service Worker registered");
+          // Check for updates every 30 minutes
+          setInterval(() => registration.update(), 30 * 60 * 1000);
+        })
+        .catch((error) => {
+          console.error("[PWA] Service Worker registration failed:", error);
+        });
+    };
 
-                        // Check for updates immediately
-                        registration.update();
+    if (document.readyState === "complete") {
+      registerSW();
+    } else {
+      window.addEventListener("load", registerSW, { once: true });
+    }
 
-                        if (registration.waiting) {
-                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                        }
+    // Check for updates when tab becomes visible — but never reload
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        navigator.serviceWorker
+          .getRegistration()
+          .then((reg) => reg?.update());
+      }
+    };
 
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            if (newWorker) {
-                                newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                    }
-                                });
-                            }
-                        });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
-                        setInterval(() => {
-                            registration.update();
-                        }, 30 * 60 * 1000);
-                    })
-                    .catch(error => {
-                        console.error("PWA Service Worker registration failed:", error);
-                    });
-            };
-
-            if (document.readyState === 'complete') {
-                registerSW();
-            } else {
-                window.addEventListener('load', registerSW);
-            }
-
-            const handleVisibilityChange = () => {
-                if (document.visibilityState === 'visible') {
-                    navigator.serviceWorker.getRegistration().then(reg => {
-                        if (reg) reg.update();
-                    });
-                }
-            };
-
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-        }
-    }, []);
-
-    return null;
+  return null;
 }
