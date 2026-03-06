@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowRight, BookOpen, Lock, Sparkles, ChevronRight } from "lucide-react";
+import { ArrowRight, BookOpen, Lock, Sparkles, ChevronRight, GraduationCap, PlayCircle, Award } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
 import { Reveal } from "./Reveal";
 
@@ -76,11 +76,16 @@ function CoursePreviewCard({
 
             {/* Title */}
             <div className="p-4">
+                <div className="flex justify-center mb-2">
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <BookOpen className="w-4 h-4 text-primary" />
+                    </div>
+                </div>
                 <h3 className="font-bold text-base text-center text-foreground group-hover:text-primary transition-colors line-clamp-2">
                     {course.title}
                 </h3>
                 <div className="flex items-center justify-center gap-1.5 mt-2 text-xs text-muted-foreground font-medium">
-                    <BookOpen className="w-3.5 h-3.5" />
+                    <PlayCircle className="w-3.5 h-3.5 text-primary/70" />
                     <span>Daawo si bilaash ah</span>
                 </div>
             </div>
@@ -156,7 +161,7 @@ export function FreePreviewSection() {
     if (!loading && courses.length === 0) return null;
 
     return (
-        <section className="relative py-14 sm:py-20 px-4 bg-background overflow-hidden border-t border-border/50">
+        <section className="relative py-14 sm:py-20 px-4 bg-muted/30 dark:bg-muted/10 overflow-hidden border-t border-border/50">
             {/* Subtle background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/5 dark:bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
 
@@ -164,12 +169,26 @@ export function FreePreviewSection() {
                 {/* Header */}
                 <Reveal>
                     <div className="text-center mb-10 sm:mb-12">
+                        <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
+                            <GraduationCap className="w-4 h-4" />
+                            <span className="text-xs font-bold uppercase tracking-wider">Koorsooyin Tayo leh</span>
+                        </div>
                         <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
                             Dhadhan <span className="text-primary">Koorsooyinka</span>
                         </h2>
-                        <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-                            Darajo bilaash ah — ka bilow halka aad joogto.
+                        <p className="mt-3 text-muted-foreground max-w-xl mx-auto text-base">
+                            Baro si habboon — ka bilow halka aad joogto. Darajo bilaash ah.
                         </p>
+                        <div className="mt-4 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+                            <span className="inline-flex items-center gap-1.5">
+                                <PlayCircle className="w-4 h-4 text-primary" />
+                                Video & lessons
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <Award className="w-4 h-4 text-primary" />
+                                Af-Soomaali
+                            </span>
+                        </div>
                     </div>
                 </Reveal>
 
@@ -190,14 +209,15 @@ export function FreePreviewSection() {
                 <Reveal>
                     <div className="mt-12 text-center">
                         <button
-                            onClick={() => router.push("/courses")}
+                            onClick={() => router.push("/welcome")}
                             className="inline-flex items-center gap-2 text-primary font-bold text-base hover:gap-3 transition-all duration-200 group"
                         >
+                            <GraduationCap className="w-5 h-5" />
                             <span>Dhammaan Koorsooyinka</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                         <p className="mt-2 text-sm text-muted-foreground">
-                            {courses.length}+ koorsood oo diyaar ah • Af-Soomaali
+                            {courses.length}+ koorsood oo diyaar ah • Baro Af-Soomaali
                         </p>
                     </div>
                 </Reveal>

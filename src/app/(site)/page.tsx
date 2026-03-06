@@ -4,7 +4,7 @@ import { HomeContent } from "../home-content";
 export const metadata: Metadata = {
   title: "Garaad STEM | Baro Full-Stack, AI & STEM oo Soomaali ah",
   description:
-    "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro React, Next.js, AI, Cybersecurity Af-Soomaali. Bilaash bilow.",
+    "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro React, Next.js, AI & STEM Af-Soomaali. Bilaash bilow.",
   openGraph: {
     title: "Garaad STEM | Baro Full-Stack, AI & STEM",
     description: "Platform-ka ugu horreeya ee Soomaalida. Baro coding iyo technology afkaaga hooyo.",

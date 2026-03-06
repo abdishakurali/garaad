@@ -75,7 +75,7 @@ export function HeroSection() {
           </h1>
 
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
-            React, Next.js, AI, Cybersecurity — Af-Soomaali. Bilaash bilow.
+            React, Next.js, AI & STEM — Af-Soomaali. Baro si habboon. Bilaash bilow.
           </p>
         </div>
 

@@ -21,11 +21,11 @@ export const metadata: Metadata = {
     template: "%s | Garaad STEM",
   },
   description:
-    "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro React, Next.js, AI, Cybersecurity iyo Xisaabta Af-Soomaali. Bilaash bilow.",
+    "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro React, Next.js, AI & STEM Af-Soomaali. Bilaash bilow.",
   keywords: [
     "Garaad", "Garaad STEM", "STEM Soomaali", "Baro Programming Soomaali", "Baro Coding Soomaali", "Af-Soomaali",
     "Full-Stack Soomaali", "React Soomaali", "Next.js Soomaali", "AI Soomaali",
-    "Cybersecurity Somali", "Xisaabta Soomaali", "Physics Soomaali", "Somali Tech Academy",
+    "Xisaabta Soomaali", "Physics Soomaali", "Somali Tech Academy",
     "First Somali Platform", "Online Somali Courses", "Garaad Academy",
   ],
   authors: [{ name: "Garaad Team", url: SITE_URL }],
@@ -89,7 +89,7 @@ export default function RootLayout({
               name: "Garaad STEM",
               url: "https://garaad.org",
               logo: "https://garaad.org/logo.png",
-              description: "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro Full-Stack, AI, Cybersecurity Af-Soomaali.",
+              description: "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro Full-Stack, AI & STEM Af-Soomaali.",
               sameAs: [
                 "https://www.linkedin.com/company/garaad",
                 "https://x.com/Garaadstem",
