@@ -332,8 +332,8 @@ export function HeroSection() {
               </div>
             </div>
 
-            <div className="hero-animate-headline mb-6">
-              <h1 className="font-display text-[clamp(2.5rem,5.5vw,5rem)] font-extrabold leading-[1] tracking-[-0.03em] text-white">
+            <div className="hero-animate-headline mb-6 text-left">
+              <h1 className="font-display text-[clamp(2.5rem,5.5vw,5rem)] font-extrabold leading-[1] tracking-[-0.03em] text-white text-left">
                 <span className="mb-1 block">Baro</span>
                 <span className="mb-1 block">Full-Stack</span>
                 <span className="hero-shimmer-text block text-[clamp(3rem,6vw,5.5rem)]">
