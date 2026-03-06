@@ -156,35 +156,7 @@ export function HeroSection() {
               </span>
             </Link>
 
-            {/* Courses from API */}
-            {otherCourses.length > 0 && (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="mb-3 text-xs font-medium uppercase tracking-wider text-white/50">
-                  Koorsooyin diyaar ah
-                </p>
-                <ul className="space-y-2">
-                  {otherCourses.slice(0, 4).map((course) => (
-                    <li key={course.id}>
-                      <Link
-                        href={`/courses/${course.categoryId}/${course.slug}`}
-                        className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 px-3 py-2.5 text-sm text-white/90 transition hover:border-primary/20 hover:bg-white/10"
-                      >
-                        <span className="line-clamp-1 font-medium">{course.title}</span>
-                        <span className="shrink-0 text-primary">→</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                {otherCourses.length > 4 && (
-                  <Link
-                    href="/courses"
-                    className="mt-3 block text-center text-xs font-medium text-primary hover:underline"
-                  >
-                    Dhammaan koorsooyinka ({otherCourses.length}+)
-                  </Link>
-                )}
-              </div>
-            )}
+           
 
             {/* AI course section */}
             <Link
