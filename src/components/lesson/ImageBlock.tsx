@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 
@@ -82,7 +83,7 @@ const ImageBlock: React.FC<{
               {/* Image */}
               <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/20">
                 <Image
-                  src={optimizeCloudinaryUrl(section.url)}
+                  src={optimizeCloudinaryUrl(getAbsoluteImageUrl(section.url, "")) || "/images/placeholder-course.svg"}
                   alt={section.alt || "Course image"}
                   fill
                   className="object-contain"

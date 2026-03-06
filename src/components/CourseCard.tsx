@@ -3,6 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import type { Course } from "@/types/lms";
+import { getAbsoluteImageUrl } from "@/lib/utils";
+
+const defaultCourseImage = "/images/placeholder-course.svg";
 
 interface CourseCardProps {
   course: Course;
@@ -11,27 +14,13 @@ interface CourseCardProps {
   onClick: () => void;
 }
 
-const defaultCourseImage = "/images/placeholder-course.svg";
-
 export function CourseCard({
   course,
   categoryId,
   isActive,
   onClick,
 }: CourseCardProps) {
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const imageSrc =
-    course.thumbnail && isValidUrl(course.thumbnail)
-      ? course.thumbnail
-      : defaultCourseImage;
+  const imageSrc = getAbsoluteImageUrl(course.thumbnail ?? null, defaultCourseImage);
 
   if (!course.is_published) {
     return (

@@ -1,8 +1,20 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { API_BASE_URL } from "@/lib/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Resolve image URL for course/API media. Relative paths (e.g. /media/courses/...)
+ * are turned into absolute URLs on the API so they load when the app is on www.garaad.org.
+ */
+export function getAbsoluteImageUrl(url: string | null | undefined, defaultImage: string): string {
+  if (!url) return defaultImage;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/images/")) return url;
+  const path = url.startsWith("/") ? url : `/${url}`;
+  return `${API_BASE_URL}${path}`;
 }
 
 /**

@@ -11,21 +11,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { cn } from "@/lib/utils";
-import { API_BASE_URL } from "@/lib/constants";
+import { cn, getAbsoluteImageUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-course.svg";
-
-const getAbsoluteImageUrl = (url: string | null | undefined, defaultImage: string) => {
-    if (!url) return defaultImage;
-    if (url.startsWith("http") || url.startsWith("/images/")) return url;
-
-    // Ensure exactly one slash between base URL and path
-    const cleanUrl = url.startsWith("/") ? url.substring(1) : url;
-    return `${API_BASE_URL}/${cleanUrl}`;
-};
 
 const CategoryImage = ({ src, alt }: { src?: string; alt: string }) => (
     <div className="relative w-20 h-20">

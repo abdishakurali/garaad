@@ -3,6 +3,7 @@
 import { Category } from "@/types/course";
 import Image from "next/image";
 import Link from "next/link";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 interface LearningPathsProps {
   categories: Category[];
@@ -50,7 +51,7 @@ export function LearningPaths({ categories }: LearningPathsProps) {
                       <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
                         {course.thumbnail && (
                           <Image
-                            src={course.thumbnail}
+                            src={getAbsoluteImageUrl(course.thumbnail, "/images/placeholder-course.svg")}
                             alt={course.title}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-200"

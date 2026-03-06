@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 const ModuleZigzag = dynamic(
     () => import("@/components/learning/ui/ModuleZigzag")
@@ -151,7 +152,7 @@ export function CourseDetailClient() {
                         <div className="flex mb-6 border-border dark:border-slate-800 border-2 px-4 py-2 rounded-md w-fit bg-slate-50 dark:bg-black">
                             <div className="relative w-16 h-16">
                                 <Image
-                                    src={optimizeCloudinaryUrl(currentCourse.thumbnail || undefined) || defaultCourseImage}
+                                    src={optimizeCloudinaryUrl(getAbsoluteImageUrl(currentCourse.thumbnail ?? null, defaultCourseImage)) || defaultCourseImage}
                                     alt={currentCourse.title}
                                     fill
                                     className="object-contain"
