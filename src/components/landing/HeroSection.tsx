@@ -2,10 +2,20 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
-import { motion, useInView, animate } from "framer-motion";
+import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
+import { API_BASE_URL } from "@/lib/constants";
 
-const COURSE_NAMES = ["React Bilow", "Next.js + API Routes", "AI with Python", "Django REST API"] as const;
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+const TECH_ICONS = [
+  { name: "React", Icon: Code2 },
+  { name: "Next.js", Icon: Layers },
+  { name: "AI", Icon: Brain },
+  { name: "Django", Icon: Server },
+  { name: "PostgreSQL", Icon: Database },
+] as const;
 
 const FLOAT_ICONS = [
   { icon: "</> ", top: "12%", left: "72%", size: 32, delay: 0, opacity: 0.08 },
@@ -31,25 +41,49 @@ const LESSON_ITEMS = [
 
 const IS_LIVE = true; // Currently live session (hardcoded for now)
 
+interface LandingStats {
+  students_count: number;
+  courses_count: number;
+}
+
+interface HeroCourse {
+  id: number;
+  title: string;
+  slug: string;
+  thumbnail: string | null;
+  is_published: boolean;
+}
+
 export function HeroSection() {
   const { user } = useAuthStore();
   const isLoggedIn = !!user;
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [scrollY, setScrollY] = useState(0);
-  const [studentCount, setStudentCount] = useState(480);
+  const [featuredCourse, setFeaturedCourse] = useState<HeroCourse | null>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const countRef = useRef<HTMLSpanElement>(null);
-  const isCountInView = useInView(countRef, { once: true, amount: 0.3 });
+
+  const { data: stats } = useSWR<LandingStats>(
+    `${API_BASE_URL}/api/public/landing-stats/`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+  );
+  const studentCount = stats?.students_count ?? 0;
 
   useEffect(() => {
-    if (!isCountInView) return;
-    const controls = animate(480, 500, {
-      duration: 2,
-      ease: "easeOut",
-      onUpdate: (v) => setStudentCount(Math.round(v)),
-    });
-    return () => controls.stop();
-  }, [isCountInView]);
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/api/lms/categories/`)
+      .then((r) => r.json())
+      .then((data: { results?: { courses?: HeroCourse[] }[] } | HeroCourse[]) => {
+        if (cancelled) return;
+        const categories = Array.isArray(data) ? data : data?.results ?? [];
+        const first = (categories as { courses?: HeroCourse[] }[]).flatMap((c) =>
+          (c.courses || []).filter((c) => c.is_published)
+        )[0];
+        if (first) setFeaturedCourse(first);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
@@ -227,7 +261,7 @@ export function HeroSection() {
 
       <section
         ref={heroRef}
-        className="relative flex min-h-screen flex-col justify-center overflow-hidden px-4 py-20 sm:px-8 md:px-12 lg:px-[48px]"
+        className="relative flex min-h-screen flex-col justify-center overflow-hidden px-6 py-20 sm:px-8 md:px-10 lg:px-12 xl:px-16"
         style={{ maxWidth: 1400, margin: "0 auto" }}
       >
         <div className="hero-grid-lines" aria-hidden />
@@ -353,9 +387,9 @@ export function HeroSection() {
               </Link>
             </div>
 
-            {/* Trust: animated student count + testimonial */}
+            {/* Trust: real-time stats + testimonial */}
             <div className="hero-animate-stats mt-8 space-y-4">
-              <div ref={countRef} className="flex items-center gap-5">
+              <div className="flex items-center gap-5">
                 <div className="flex items-center">
                   {["var(--primary)", "#a78bfa", "#fff", "#f59e0b"].map((c, i) => (
                     <div
@@ -387,8 +421,30 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right — Visual panel (course preview card) */}
-          <div className="relative" style={floatStyle(0.15)}>
+          {/* Right — On small: one "Koorsooyin Tayo leh" card; on lg: full course preview panel */}
+          <div className="relative">
+            {featuredCourse && (
+              <Link
+                href="/welcome"
+                className="lg:hidden block rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-primary/20 hover:bg-white/[0.06]"
+              >
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  Koorsooyin Tayo leh
+                </div>
+                <h3 className="font-display text-lg font-bold text-white line-clamp-2">
+                  {featuredCourse.title}
+                </h3>
+                <p className="mt-2 text-sm text-white/50 line-clamp-2">
+                  Baro si habboon — bilaaw koorsada
+                </p>
+                <span className="mt-3 inline-block text-sm font-semibold text-primary">
+                  Bilaaw Hadda →
+                </span>
+              </Link>
+            )}
+
+            <div className="hidden lg:block relative" style={floatStyle(0.15)}>
             <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-xl shadow-black/20 backdrop-blur-sm">
               {/* Window header — garaad.org / React Bilow + Currently Live */}
               <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-4 py-3">
@@ -529,6 +585,7 @@ export function HeroSection() {
             >
               ✓ Certificate Joogto ah
             </div>
+            </div>
           </div>
         </div>
 
@@ -549,16 +606,20 @@ export function HeroSection() {
         </div>
       </section>
 
-      {/* Course names ticker */}
-      <div className="border-t border-b border-white/10 bg-white/[0.02] py-3 overflow-hidden">
-        <div className="hero-ticker-track w-max">
+      {/* Tech icons ticker */}
+      <div className="border-t border-b border-white/10 bg-white/[0.02] py-4 overflow-hidden">
+        <div className="hero-ticker-track w-max flex items-center gap-12">
           {[...Array(2)].map((_, outer) =>
-            COURSE_NAMES.map((name, i) => (
+            TECH_ICONS.map(({ name, Icon }, i) => (
               <span
                 key={`${outer}-${i}`}
-                className={`shrink-0 font-mono text-xs font-semibold uppercase tracking-wider ${i === 0 ? "text-primary" : "text-white/30"}`}
+                className="flex shrink-0 items-center gap-2 text-white/40"
+                title={name}
               >
-                {name} <span className="text-white/20">·</span>
+                <Icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                <span className="font-mono text-xs font-semibold uppercase tracking-wider">
+                  {name}
+                </span>
               </span>
             ))
           )}
