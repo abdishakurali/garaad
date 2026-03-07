@@ -127,12 +127,7 @@ export function HeroSection() {
               >
                 Challenge — {PRICING.CHALLENGE.priceDisplay}
               </Link>
-              <Link
-                href="/courses"
-                className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-white/90 no-underline transition hover:bg-white/10"
-              >
-                Arag Koorsooyinka →
-              </Link>
+            
             </div>
             {showStats && (
               <p className="mt-6 text-sm text-white/40">
