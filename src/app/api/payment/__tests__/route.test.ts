@@ -42,7 +42,7 @@ describe("Payment API Route Security", () => {
         expect(data.error).toBe("Missing required fields: description");
     });
 
-    it("should automatically use 49.0 for monthly subscription and NOT trust frontend", async () => {
+    it("should automatically use 29.0 for Explorer monthly subscription and NOT trust frontend", async () => {
         const request = new Request("http://localhost:3000/api/payment", {
             method: "POST",
             body: JSON.stringify({
@@ -57,21 +57,21 @@ describe("Payment API Route Security", () => {
 
         expect(response.status).toBe(200);
 
-        // Verify the waafipay service was called with the SERVER verified price (49.0), NOT 0.1
+        // Verify the waafipay service was called with the SERVER verified Explorer price (29.0), NOT 0.1
         expect(waafipayService.purchase).toHaveBeenCalledWith(
             expect.objectContaining({
-                amount: 49.0, // Should ignore the 0.1 sent in the payload
+                amount: 29.0, // Explorer: server enforces 29, ignores frontend
                 accountNo: "252610000000",
             })
         );
     });
 
-    it("should correctly calculate prices for yearly and lifetime subscriptions", async () => {
+    it("should only support Explorer monthly price (29.0) regardless of subscriptionType", async () => {
         const request = new Request("http://localhost:3000/api/payment", {
             method: "POST",
             body: JSON.stringify({
                 accountNo: "252610000000",
-                description: "Yearly subscription",
+                description: "Explorer subscription",
                 subscriptionType: "yearly",
             }),
         });
@@ -81,7 +81,7 @@ describe("Payment API Route Security", () => {
 
         expect(waafipayService.purchase).toHaveBeenCalledWith(
             expect.objectContaining({
-                amount: 99.99, // The verified yearly price
+                amount: 29.0, // Only Explorer monthly (€29) supported
             })
         );
     });

@@ -14,17 +14,15 @@ import LocationService, { type LocationData } from "@/services/location";
 import Logo from "@/components/ui/Logo";
 import OrderService from "@/services/orders";
 import { useWaafiPayConfig } from "@/config/waafipay";
+import { PRICING, EXPLORER_PRICE_NUMERIC } from "@/config/pricing";
 
 const PAYMENT_METHODS = [
     { key: "waafipay", label: "WaafiPay", icon: <Phone className="w-5 h-5" /> },
     { key: "stripe", label: "Kaarka", icon: <CreditCard className="w-5 h-5" /> },
 ];
 
-// Price configuration based on location
-const PRICES = {
-    SOMALIA: "49",
-    INTERNATIONAL: "49"
-};
+// Explorer tier: €29/month (single price for all regions)
+const EXPLORER_PRICE_STR = String(EXPLORER_PRICE_NUMERIC);
 
 const ERROR_TRANSLATIONS: Record<string, string> = {
     "Payment Failed (Receiver is Locked)": "Bixinta waa guuldareysatay (Qofka qaataha waa la xidhay)",
@@ -53,11 +51,11 @@ export default function SubscribePage() {
     const [paymentMethod, setPaymentMethod] = useState("waafipay");
     const [locationData, setLocationData] = useState<LocationData | null>(null);
     const [locationLoading, setLocationLoading] = useState(true);
-    const [currentPrice, setCurrentPrice] = useState(PRICES.INTERNATIONAL);
+    const [currentPrice, setCurrentPrice] = useState(EXPLORER_PRICE_STR);
     const [formData, setFormData] = useState({
         accountNo: "",
-        amount: PRICES.INTERNATIONAL,
-        description: "Isdiiwaangeli Premium"
+        amount: EXPLORER_PRICE_STR,
+        description: `Garaad Explorer — ${PRICING.EXPLORER.priceDisplay}/bil`
     });
     const [walletType, setWalletType] = useState<string>(WALLET_TYPES[0]?.key || "MWALLET_EVC");
 
@@ -83,18 +81,16 @@ export default function SubscribePage() {
                     const recommendedMethod = locationService.getRecommendedPaymentMethod(location.countryCode);
                     setPaymentMethod(recommendedMethod);
 
-                    // Set price based on location
-                    const price = location.countryCode === 'SO' ? PRICES.SOMALIA : PRICES.INTERNATIONAL;
-                    setCurrentPrice(price);
+                    // Explorer: same price all regions
+                    setCurrentPrice(EXPLORER_PRICE_STR);
                     setFormData(prev => ({
                         ...prev,
-                        amount: price
+                        amount: EXPLORER_PRICE_STR
                     }));
                 }
             } catch (error) {
                 console.error('Error detecting location:', error);
-                // Default to international price if location detection fails
-                setCurrentPrice(PRICES.INTERNATIONAL);
+                setCurrentPrice(EXPLORER_PRICE_STR);
             } finally {
                 setLocationLoading(false);
             }
@@ -103,13 +99,14 @@ export default function SubscribePage() {
         detectLocation();
     }, []);
 
-    // Create plan options based on current price
+    // Explorer — primary subscription
     const PLAN_OPTIONS = [
         {
-            key: "monthly",
-            label: "Bille",
+            key: "explorer",
+            label: PRICING.EXPLORER.name,
             price: currentPrice,
-            note: `$${currentPrice} / Bil kasta / Xubin`
+            note: `${PRICING.EXPLORER.priceDisplay} / Bil`,
+            description: PRICING.EXPLORER.description,
         },
     ];
 
@@ -328,8 +325,8 @@ export default function SubscribePage() {
                                     loading="eager"
                                     sizes="(max-width: 640px) 120px, (max-width: 768px) 140px, 180px"
                                 />
-                                <h1 className="text-4xl font-extrabold text-purple-700 mb-2 text-center">Kor u qaad Plus</h1>
-                                <p className="text-gray-500 text-lg text-center">Ku hel blocks, faylal, iyo adeegyo aan xadidnayn.</p>
+                                <h1 className="text-4xl font-extrabold text-purple-700 mb-2 text-center">Explorer</h1>
+                                <p className="text-gray-500 text-lg text-center">{PRICING.EXPLORER.description}</p>
                             </div>
 
                             {/* Location Alert */}
@@ -485,16 +482,21 @@ export default function SubscribePage() {
                                 {PLAN_OPTIONS.map((option) => (
                                     <div
                                         key={option.key}
-                                        className="flex items-center justify-between w-full border rounded-xl p-4 mb-2 transition-all text-base font-medium shadow-sm border-purple-500 bg-purple-50"
+                                        className="flex flex-col w-full border rounded-xl p-4 mb-2 transition-all text-base font-medium shadow-sm border-purple-500 bg-purple-50"
                                     >
-                                        <span className="font-semibold">{option.label}</span>
-                                        <span className="text-sm text-gray-500">{option.note}</span>
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-semibold">{option.label}</span>
+                                            <span className="text-sm text-gray-500">{option.note}</span>
+                                        </div>
+                                        {option.description && (
+                                            <p className="text-xs text-gray-500 mt-2">{option.description}</p>
+                                        )}
                                     </div>
                                 ))}
                             </div>
                             <div className="flex justify-between items-center mb-2">
                                 <span className="font-medium">Wadarta</span>
-                                <span className="font-bold text-2xl text-purple-700">${formData.amount} / Bil</span>
+                                <span className="font-bold text-2xl text-purple-700">{PRICING.EXPLORER.priceDisplay} / Bil</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#a78bfa" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>

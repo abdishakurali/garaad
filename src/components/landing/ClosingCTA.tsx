@@ -37,17 +37,25 @@ export function ClosingCTA() {
                 </h2>
 
                 {/* Body */}
-                <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-12">
-                    Dhis Ganacsigaaga SaaS & AI 5 Toddobaad Gudahood
+                <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-8">
+                    Challenge: 4–6 toddobaad oo mentorship, €149 hal bixi (4x sannadkii). Koorsooyinka joogta ah waxaad ka heli kartaa <strong className="text-white">Explorer</strong> (€29/bil).
                 </p>
 
-                {/* CTA Button */}
-                <Link
-                    href={ctaHref}
-                    className="group relative inline-block px-10 py-5 bg-primary hover:bg-primary/90 text-white text-xl font-black rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50"
-                >
-                    <span>{isAuthenticated ? "BILOW HADDA" : "KU SOO BIIR"}</span>
-                </Link>
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <Link
+                        href="/subscribe"
+                        className="group relative inline-block px-10 py-5 bg-primary hover:bg-primary/90 text-white text-xl font-black rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50"
+                    >
+                        <span>HEL EXPLORER — €29/BIL</span>
+                    </Link>
+                    <Link
+                        href={ctaHref}
+                        className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white text-lg font-bold rounded-2xl border border-white/20 transition-all duration-300"
+                    >
+                        {isAuthenticated ? "BILOW KOORSOOYINKA" : "BILOW BILAASH AH"}
+                    </Link>
+                </div>
             </div>
         </section>
     );

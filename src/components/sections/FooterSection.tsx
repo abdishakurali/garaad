@@ -4,6 +4,7 @@ import Logo from "@/components/ui/Logo";
 export function FooterSection() {
   const navigation = {
     product: [
+      { name: "Explorer — €29/bil", href: "/subscribe" },
       { name: "Koorsooyin", href: "/courses" },
       { name: "Blog", href: "/blog" },
     ],

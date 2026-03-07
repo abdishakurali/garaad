@@ -1,5 +1,6 @@
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
+import Link from "next/link";
 
 const customCodeRenderer = (node: any) => {
   const { value } = node.content[0];
@@ -19,11 +20,29 @@ const customImageRenderer = (node: any) => {
   return <img src={`https:${url}`} alt={description || title} />;
 };
 
+/** Internal path: relative URL on same origin (e.g. /blog/foo). Use Link to avoid full page reload. */
+function isInternalHref(uri: string): boolean {
+  if (typeof uri !== "string" || !uri) return false;
+  return uri.startsWith("/") && !uri.startsWith("//");
+}
+
 const customLinkRenderer = (node: any) => {
   const { data } = node;
   const { uri } = data;
   const { content } = node;
-  return <a href={uri}>{content[0].value}</a>;
+  const text = content[0]?.value ?? "";
+  if (isInternalHref(uri)) {
+    return (
+      <Link href={uri} className="text-primary hover:underline">
+        {text}
+      </Link>
+    );
+  }
+  return (
+    <a href={uri} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+      {text}
+    </a>
+  );
 };
 
 const options = {

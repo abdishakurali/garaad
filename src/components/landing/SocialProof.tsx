@@ -29,7 +29,7 @@ const ACTIVITIES: { text: string; emoji: string; icon: React.ReactNode }[] = [
         icon: <BookOpen className="w-5 h-5 text-emerald-500" />,
     },
     {
-        text: "ayaa noqday xubin Premium!",
+        text: "ayaa noqday xubin Explorer!",
         emoji: "⭐",
         icon: <Star className="w-5 h-5 text-yellow-500" />,
     },

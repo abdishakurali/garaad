@@ -112,9 +112,10 @@ const nextConfig = {
     return "build-" + Date.now();
   },
 
+  // Reduce full page reloads in dev when navigating between pages (memory pressure / buffer)
   onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
+    maxInactiveAge: 60 * 1000, // 60s — keep pages in buffer longer
+    pagesBufferLength: 8,      // keep more pages to avoid reload on back/forward
   },
 };
 

@@ -31,13 +31,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // STRICT PRICE VALIDATION & ENFORCEMENT:
-    // Compute amount entirely server-side so attacker cannot manipulate it.
-    let currentPrice = 49.0;
-    if (subscriptionType === "yearly") {
-      currentPrice = 99.99;
-    } else if (subscriptionType === "lifetime") {
-      currentPrice = 299.99;
+    // STRICT PRICE VALIDATION: Explorer €29/month only (server-side only)
+    const EXPLORER_MONTHLY_PRICE = 29.0;
+    let currentPrice = EXPLORER_MONTHLY_PRICE;
+    if (subscriptionType !== "monthly") {
+      currentPrice = EXPLORER_MONTHLY_PRICE; // only Explorer monthly supported
     }
 
     // Validate payment method

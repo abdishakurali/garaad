@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
+import { PRICING } from "@/config/pricing";
 
 export function ChallengeHero() {
     const { user } = useAuthStore();
@@ -57,8 +58,11 @@ export function ChallengeHero() {
                 </h1>
 
                 {/* Sub-headline */}
-                <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-bold mb-12 animate-fade-in-up delay-200 uppercase tracking-widest">
-                    5 Toddobaad Gudahood
+                <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-bold mb-4 animate-fade-in-up delay-200 uppercase tracking-widest">
+                    4–6 Toddobaad · Loo qaabily 4x sannadkii
+                </p>
+                <p className="text-base sm:text-lg text-slate-500 mb-12">
+                    {PRICING.CHALLENGE.priceDisplay} hal bixi (per cohort) · Mentor access · Launchpad (gudbi startup). Ma ku jiraan koorsooyinka haddii aadan isticmaalin Explorer.
                 </p>
 
                 {/* CTAs */}

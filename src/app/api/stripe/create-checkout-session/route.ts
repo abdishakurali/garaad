@@ -67,16 +67,16 @@ function getUserInfo(
   return { userEmail, userId };
 }
 
-// Fallback price configuration when price IDs are not available
+// Fallback: Explorer €29/month when Stripe Price IDs are not set
 const FALLBACK_PRICES = {
   monthly: {
     SOMALIA: {
-      unit_amount: 4900, // $49.00 in cents
-      currency: "usd",
+      unit_amount: 2900, // €29.00 in cents
+      currency: "eur",
     },
     INTERNATIONAL: {
-      unit_amount: 4900, // $49.00 in cents
-      currency: "usd",
+      unit_amount: 2900, // €29.00 in cents
+      currency: "eur",
     },
   },
 };
@@ -187,9 +187,8 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: fallbackPrice.currency,
             product_data: {
-              name: `Garaad ${plan === "monthly" ? "Monthly" : "Yearly"
-                } Subscription`,
-              description: `Access to all premium features and content`,
+              name: "Garaad Explorer",
+              description: "All gamified courses, community, and launchpad (view only). Billed monthly.",
             },
             unit_amount: fallbackPrice.unit_amount,
             recurring: {

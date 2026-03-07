@@ -9,8 +9,8 @@ const ClosingCTA = dynamic(() => import("@/components/landing/ClosingCTA").then(
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
-    title: "Tartanka SaaS - 5 Toddobaad",
-    description: "SaaS & AI Business. 5 Toddobaad.",
+    title: "Challenge — 4–6 Toddobaad oo Mentorship",
+    description: "Qorshaha Challenge: €149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup). Ma ku jiraan koorsooyinka haddii aadan isticmaalin Explorer.",
     keywords: [
         "Tartanka dhisidda software-ka",
         "Barashada IT-ga casriga ah",
@@ -28,11 +28,11 @@ export const metadata: Metadata = {
         locale: "so_SO",
         url: "https://garaad.org/challenge",
         siteName: "Garaad STEM",
-        title: "Bilow Safarkaaga Tech-ga ee Garaad",
-        description: "Dhis oo daabac software-kaaga ugu horreeya 5 toddobaad gudahood. Ku soo biir bahda wax dhisidda Soomaaliya.",
+        title: "Challenge — 4–6 Toddobaad oo Mentorship",
+        description: "€149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup).",
         images: [{ url: "/images/og-main.jpg", width: 1200, height: 630 }],
     },
-    twitter: { card: "summary_large_image", title: "Tartanka SaaS - Garaad" },
+    twitter: { card: "summary_large_image", title: "Challenge — Garaad" },
     robots: { index: true, follow: true },
 };
 
@@ -46,16 +46,16 @@ export default function ChallengePage() {
                     __html: JSON.stringify({
                         "@context": "https://schema.org",
                         "@type": "Course",
-                        name: "SaaS & AI Challenge",
+                        name: "Garaad Challenge",
                         description:
-                            "Dhis Ganacsigaaga SaaS & AI business 5 toddobaad gudahood.",
+                            "4–6 week group mentorship program, mentor access, launchpad (submit a startup). Runs quarterly. €149 one-time per cohort.",
                         provider: {
                             "@type": "Organization",
                             name: "Garaad",
                             url: "https://garaad.org",
                         },
                         educationalLevel: "Beginner to Intermediate",
-                        timeRequired: "P5W",
+                        timeRequired: "P6W",
                         inLanguage: ["so", "en"],
                         coursePrerequisites: "Basic computer skills and willingness to learn",
                         hasCourseInstance: {
