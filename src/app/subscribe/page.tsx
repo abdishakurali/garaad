@@ -112,15 +112,35 @@ function translateError(error: string) {
 
 const TRUST_LOGOS = ["Stripe", "Vercel", "Supabase", "Notion"];
 
+type WaafiOperator = "evc" | "zaad" | "sahal" | null;
+const WAAFI_OPERATORS: { id: WaafiOperator; label: string; prefix: string; placeholder: string }[] = [
+  { id: "evc", label: "EVC Plus (Hormuud)", prefix: "25261", placeholder: "25261xxxxxxx" },
+  { id: "zaad", label: "Zaad (Telesom)", prefix: "25263", placeholder: "25263xxxxxxx" },
+  { id: "sahal", label: "Sahal (Golis)", prefix: "25270", placeholder: "25270 or 25290xxxxxxx" },
+];
+
 export default function SubscribePage() {
   const router = useRouter();
   useAuthStore();
   const [selectedProvider, setSelectedProvider] = useState<PaymentProvider>("stripe");
   const [error, setError] = useState<string | null>(null);
   const [loadingPlanName, setLoadingPlanName] = useState<string | null>(null);
-  /** Waafi mobile wallet: phone number (e.g. 25261...). If set, we use mobile wallet instead of card HPP. */
   const [waafiPhone, setWaafiPhone] = useState("");
+  const [selectedOperator, setSelectedOperator] = useState<WaafiOperator>(null);
   const [liveStats, setLiveStats] = useState<{ students_count: number; courses_count: number } | null>(null);
+
+  const handleSelectOperator = (op: WaafiOperator) => {
+    if (op === null) {
+      setSelectedOperator(null);
+      setWaafiPhone("");
+      return;
+    }
+    const row = WAAFI_OPERATORS.find((o) => o.id === op);
+    if (row) {
+      setSelectedOperator(op);
+      setWaafiPhone(row.prefix);
+    }
+  };
 
   // UPDATED: Optional auto-detect provider from locale / timezone
   useEffect(() => {
@@ -192,7 +212,8 @@ export default function SubscribePage() {
         amount: plan.waafi.amount,
         billing: plan.waafi.billing,
       };
-      if (waafiPhone.trim()) body.accountNo = waafiPhone.trim();
+      const phoneDigits = waafiPhone.replace(/\D/g, "").trim();
+      if (phoneDigits) body.accountNo = phoneDigits;
 
       const res = await fetch("/api/payment", {
         method: "POST",
@@ -232,7 +253,7 @@ export default function SubscribePage() {
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0a0a0f/80">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 py-2" aria-label="Garaad home">
-            <Logo preferDark priority loading="eager" className="h-10 w-auto sm:h-11" sizes="(max-width: 640px) 120px, 160px" />
+            <Logo priority loading="eager" className="h-10 w-auto sm:h-11" sizes="(max-width: 640px) 120px, 160px" />
           </Link>
           <ThemeToggle />
         </div>
@@ -325,30 +346,47 @@ export default function SubscribePage() {
               : "Ku bixi lacagta Waafi Pay — Soomaali ku habboon"}
           </p>
           {selectedProvider === "waafi" && (
-            <div className="mt-4 w-full max-w-sm mx-auto">
-              <label htmlFor="waafi-phone" className="block text-left text-xs font-medium text-zinc-400 mb-1">
-                Lambarkaaga (Waafi) — for mobile wallet
-              </label>
-              <input
-                id="waafi-phone"
-                type="tel"
-                placeholder="e.g. 252612345678"
-                value={waafiPhone}
-                onChange={(e) => setWaafiPhone(e.target.value)}
-                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
-              />
-              <p className="mt-1 text-[11px] text-zinc-500 text-left">
-                Leave empty to try card; enter phone to pay with Waafi mobile wallet.
+            <div className="mt-4 w-full max-w-sm mx-auto space-y-3">
+              <p className="text-left text-xs font-medium text-zinc-400">
+                Select operator — prefix added automatically
               </p>
-              <div className="mt-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-zinc-400 text-left">
-                <p className="font-medium text-zinc-300 mb-1">Use full international number:</p>
-                <ul className="space-y-0.5">
-                  <li>· EVC Plus (Hormuud): 25261xxxxxxx</li>
-                  <li>· Zaad (Telesom): 25263xxxxxxx</li>
-                  <li>· Sahal (Golis): 25270 or 25290xxxxxxx</li>
-                </ul>
-                <p className="mt-1 text-zinc-500">Waafi works over these operators; enter the number as above.</p>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Waafi operator">
+                {WAAFI_OPERATORS.map((op) => (
+                  <button
+                    key={op.id}
+                    type="button"
+                    onClick={() => handleSelectOperator(selectedOperator === op.id ? null : op.id)}
+                    className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
+                      selectedOperator === op.id
+                        ? "border-[#C8F135] bg-[#C8F135]/20 text-[#C8F135]"
+                        : "border-white/20 bg-white/5 text-zinc-400 hover:border-white/30 hover:text-zinc-300"
+                    }`}
+                  >
+                    {op.label}
+                  </button>
+                ))}
               </div>
+              <div>
+                <label htmlFor="waafi-phone" className="block text-left text-xs font-medium text-zinc-400 mb-1">
+                  Lambarkaaga (full international)
+                </label>
+                <input
+                  id="waafi-phone"
+                  type="tel"
+                  placeholder={selectedOperator ? WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.placeholder : "e.g. 252612345678"}
+                  value={waafiPhone}
+                  onChange={(e) => setWaafiPhone(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                  className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                />
+                {selectedOperator && (
+                  <p className="mt-1 text-[11px] text-zinc-500 text-left">
+                    Prefix {WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.prefix} is set. Add the rest of your number.
+                  </p>
+                )}
+              </div>
+              <p className="text-[11px] text-zinc-500 text-left">
+                Leave empty to try card; select operator and enter number for mobile wallet.
+              </p>
             </div>
           )}
         </motion.div>
