@@ -2,21 +2,27 @@ import { Metadata } from "next";
 import { LaunchpadListClient } from "./LaunchpadListClient";
 import { API_BASE_URL } from "@/lib/constants";
 
+const LAUNCHPAD_URL = "https://garaad.org/launchpad";
+
 export const metadata: Metadata = {
-    title: "Garaad Launchpad | Soo Bandhig Startup-kaaga",
-    description: "Xarunta startup-yada Soomaaliyeed. Hel mashruucyo cusub, codee kuwa aad jeceshahay, ama soo bandhig mashruucaaga tech-ka ah.",
-    alternates: { canonical: "https://garaad.org/launchpad" },
-    openGraph: {
-        type: "website",
-        locale: "so_SO",
-        url: "https://garaad.org/launchpad",
-        siteName: "Garaad STEM",
-        title: "Garaad Launchpad - Builders to Founders",
-        description: "Hel mashaariicda ugu xiisaha badan ee ay dhisayaan dhalinyarada Soomaaliyeed. Launch, Vote & Grow.",
-        images: [{ url: "/images/og-launchpad.jpg", width: 1200, height: 630 }],
-    },
-    twitter: { card: "summary_large_image", title: "Garaad Launchpad" },
-    robots: { index: true, follow: true },
+  title: "Launchpad — Garaad | Somali Startups",
+  description:
+    "Ku soo bandhig startup-kaaga bulshada Garaad. Vote, comment, kuna biir ecosystem-ka.",
+  alternates: { canonical: LAUNCHPAD_URL },
+  openGraph: {
+    type: "website",
+    url: LAUNCHPAD_URL,
+    title: "Launchpad — Garaad | Somali Startups",
+    description:
+      "Ku soo bandhig startup-kaaga bulshada Garaad. Vote, comment, kuna biir ecosystem-ka.",
+    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Launchpad" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Launchpad — Garaad | Somali Startups",
+    description: "Ku soo bandhig startup-kaaga bulshada Garaad. Vote, comment, kuna biir ecosystem-ka.",
+  },
+  robots: { index: true, follow: true },
 };
 
 async function getStartups() {

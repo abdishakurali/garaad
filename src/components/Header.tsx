@@ -306,16 +306,13 @@ export function Header() {
                   </button>
                 </>
               ) : (
-                <AuthDialog
-                  trigger={
-                    <button
-                      className="flex items-center gap-4 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-bold transition-all w-full text-left"
-                    >
-                      <LogIn className="w-5 h-5" />
-                      <span className="text-base">Soo gal</span>
-                    </button>
-                  }
-                />
+                <Link
+                  href="/login"
+                  className="flex items-center gap-4 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-bold transition-all w-full text-left"
+                >
+                  <LogIn className="w-5 h-5" />
+                  <span className="text-base">Soo gal</span>
+                </Link>
               )}
             </div>
           </div>

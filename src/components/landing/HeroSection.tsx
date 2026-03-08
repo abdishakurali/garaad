@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -9,6 +8,8 @@ import { API_BASE_URL } from "@/lib/constants";
 import { PRICING } from "@/config/pricing";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+const CATEGORIES_SWR_KEY = `${API_BASE_URL}/api/lms/categories/`;
 
 const TECH_ICONS = [
   { name: "React", Icon: Code2 },
@@ -33,10 +34,16 @@ interface HeroCourse {
 
 type HeroCourseWithCategory = HeroCourse & { categoryId: number };
 
+function parseCategories(data: unknown): HeroCourseWithCategory[] {
+  const categories = Array.isArray(data) ? data : (data as { results?: unknown[] })?.results ?? [];
+  return (categories as { id: number; courses?: HeroCourse[] }[]).flatMap((cat) =>
+    (cat.courses || []).filter((c) => c.is_published).map((c) => ({ ...c, categoryId: cat.id }))
+  );
+}
+
 export function HeroSection() {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const isLoggedIn = !!user;
-  const [courses, setCourses] = useState<HeroCourseWithCategory[]>([]);
 
   const { data: stats, error: statsError } = useSWR<LandingStats>(
     `${API_BASE_URL}/api/public/landing-stats/`,
@@ -46,21 +53,11 @@ export function HeroSection() {
   const studentCount = stats?.students_count ?? 0;
   const showStats = !statsError && stats != null && typeof studentCount === "number" && studentCount > 0;
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`${API_BASE_URL}/api/lms/categories/`)
-      .then((r) => r.json())
-      .then((data: { results?: { id: number; courses?: HeroCourse[] }[] } | { id: number; courses?: HeroCourse[] }[]) => {
-        if (cancelled) return;
-        const categories = Array.isArray(data) ? data : data?.results ?? [];
-        const list = (categories as { id: number; courses?: HeroCourse[] }[]).flatMap((cat) =>
-          (cat.courses || []).filter((c) => c.is_published).map((c) => ({ ...c, categoryId: cat.id }))
-        );
-        setCourses(list);
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
+  const { data: categoriesData } = useSWR<unknown>(CATEGORIES_SWR_KEY, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60 * 1000,
+  });
+  const courses = parseCategories(categoriesData ?? []);
 
   const aiCourse = courses.find((c) => /ai|artificial|smart|machine/i.test(c.title));
   const otherCourses = courses.filter((c) => c.id !== aiCourse?.id);
@@ -116,10 +113,10 @@ export function HeroSection() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                href={isLoggedIn ? "/courses" : "/subscribe"}
+                href={isLoggedIn ? "/courses" : "/welcome"}
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
               >
-                {isLoggedIn ? "Koorsooyinka" : `Bilow — ${PRICING.EXPLORER.priceDisplay}/bil`}
+                {isLoggedIn ? "Koorsooyinka" : "Bilow bilaash ah"}
               </Link>
               <Link
                 href="/challenge"
@@ -127,7 +124,6 @@ export function HeroSection() {
               >
                 Challenge — {PRICING.CHALLENGE.priceDisplay}
               </Link>
-            
             </div>
             {showStats && (
               <p className="mt-6 text-sm text-white/40">
@@ -140,7 +136,7 @@ export function HeroSection() {
           <div className="hero-animate-cta relative space-y-5">
             {/* Koorsooyin — Full-Stack & AI in Somali */}
             <Link
-              href="/courses"
+              href={isLoggedIn ? "/courses" : "/welcome"}
               className="block rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-primary/20 hover:bg-white/8"
             >
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
@@ -162,7 +158,7 @@ export function HeroSection() {
 
             {/* AI course section */}
             <Link
-              href={aiCourse ? `/courses/${aiCourse.categoryId}/${aiCourse.slug}` : "/courses"}
+              href={isLoggedIn ? (aiCourse ? `/courses/${aiCourse.categoryId}/${aiCourse.slug}` : "/courses") : "/welcome"}
               className="block rounded-2xl border border-primary/20 bg-primary/10 p-6 transition hover:border-primary/30 hover:bg-primary/15"
             >
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">

@@ -22,8 +22,16 @@ const FreePreviewSection = dynamic(() => import("@/components/landing/FreePrevie
     ssr: false
 });
 
+// Selector: only re-render when the effective view changes (hero vs dashboard).
+// Before hydration we show hero; after, we show dashboard only if authenticated.
+// This avoids an extra Hero re-render when only _hasHydrated flips and user is still guest.
+const selectShowDashboard = (s: { _hasHydrated: boolean; isAuthenticated: boolean }) =>
+    s._hasHydrated && s.isAuthenticated;
+
 export function HomeContent() {
-    const { user, isAuthenticated } = useAuthStore();
+    const showDashboard = useAuthStore(selectShowDashboard);
+    const user = useAuthStore((s) => s.user);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
     const posthog = usePostHog();
 
     useEffect(() => {
@@ -33,11 +41,9 @@ export function HomeContent() {
         });
     }, [isAuthenticated, user?.id, posthog]);
 
-
-
     return (
         <main className="min-h-screen bg-background dark:bg-[#09090b] transition-colors duration-300">
-            {isAuthenticated ? (
+            {showDashboard ? (
                 <StudentDashboard />
             ) : (
                 <>

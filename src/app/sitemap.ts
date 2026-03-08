@@ -5,17 +5,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://garaad.org";
   const currentDate = new Date();
 
-  // 1. Static Routes that actually exist in src/app
+  // 1. Static routes — only URLs that return 200 with actual content (no redirects/404s)
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: currentDate, changeFrequency: "daily", priority: 1 },
     { url: `${baseUrl}/courses`, lastModified: currentDate, changeFrequency: "daily", priority: 0.9 },
-    { url: `${baseUrl}/launchpad`, lastModified: currentDate, changeFrequency: "daily", priority: 0.9 },
-    { url: `${baseUrl}/about`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/community-preview`, lastModified: currentDate, changeFrequency: "daily", priority: 0.8 },
-    { url: `${baseUrl}/welcome`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/launchpad`, lastModified: currentDate, changeFrequency: "daily", priority: 0.9 },
+    { url: `${baseUrl}/blog`, lastModified: currentDate, changeFrequency: "daily", priority: 0.8 },
+    { url: `${baseUrl}/welcome`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${baseUrl}/login`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${baseUrl}/about`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/privacy`, lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 },
     { url: `${baseUrl}/terms`, lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${baseUrl}/blog`, lastModified: currentDate, changeFrequency: "daily", priority: 0.8 },
   ];
 
   const dynamicRoutes: MetadataRoute.Sitemap = [];
@@ -51,21 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: "weekly",
           priority: 0.8,
         });
-
-        // 3. Dynamic Lessons for each course
-        const lessonsRes = await fetch(`${API_BASE_URL}/api/lms/lessons/?course=${course.id}`, { next: { revalidate: 86400 } });
-        const lessonsData = lessonsRes.ok ? await lessonsRes.json() : [];
-        const lessons = Array.isArray(lessonsData) ? lessonsData : (lessonsData?.results || []);
-
-        for (const lesson of lessons) {
-          if (!lesson) continue;
-          dynamicRoutes.push({
-            url: `${baseUrl}${coursePath}/lessons/${lesson.id}`,
-            lastModified: currentDate, // Could use lesson updated_at if available
-            changeFrequency: "weekly",
-            priority: 0.7,
-          });
-        }
+        // Lessons (e.g. .../lessons/:id) require auth — not in sitemap so all URLs return 200
       }
     }
 
@@ -86,20 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     });
 
-    // 5. Community Threads (Public)
-    const postsRes = await fetch(`${API_BASE_URL}/api/community/posts/public/`, { next: { revalidate: 3600 } });
-    const postsData = postsRes.ok ? await postsRes.json() : { results: [] };
-    const posts = Array.isArray(postsData) ? postsData : (postsData?.results || []);
-
-    posts.forEach((post: any) => {
-      if (!post) return;
-      dynamicRoutes.push({
-        url: `${baseUrl}/community-preview?post=${post.id}`,
-        lastModified: new Date(post.updated_at || currentDate),
-        changeFrequency: "daily",
-        priority: 0.6,
-      });
-    });
+    // 5. Community: canonical is /community-preview only (no ?post= URLs to avoid duplicate content)
 
     // 6. Blog Posts
     const blogPostsRes = await fetch(`${API_BASE_URL}/api/blog/posts/`, { next: { revalidate: 3600 } });

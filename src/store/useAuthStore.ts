@@ -4,9 +4,11 @@ import { User, AuthState } from '@/types/auth';
 import AuthService, { SignUpData, SignUpResponse } from '@/services/auth';
 
 interface AuthStore extends AuthState {
+    _hasHydrated: boolean;
     setUser: (user: User) => void;
     setLoading: (isLoading: boolean) => void;
     setError: (error: string | null) => void;
+    setHasHydrated: (value: boolean) => void;
     login: (credentials: { email: string; password: string }) => Promise<void>;
     signUp: (data: SignUpData) => Promise<SignUpResponse | void>;
     logout: () => void;
@@ -22,6 +24,9 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
+            _hasHydrated: false,
+
+            setHasHydrated: (value) => set({ _hasHydrated: value }),
 
             setUser: (user) => set({
                 user,
@@ -99,6 +104,9 @@ export const useAuthStore = create<AuthStore>()(
                 user: state.user,
                 isAuthenticated: state.isAuthenticated
             }),
+            onRehydrateStorage: () => (state, err) => {
+                useAuthStore.getState().setHasHydrated(true);
+            },
         }
     )
 );

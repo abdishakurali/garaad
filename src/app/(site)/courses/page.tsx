@@ -2,25 +2,34 @@ import { Metadata } from "next";
 import { CoursesListClient } from "./CoursesListClient";
 import { API_BASE_URL } from "@/lib/constants";
 
+const COURSES_URL = "https://garaad.org/courses";
+
 export const metadata: Metadata = {
-  title: "Koorsooyinka STEM-ka | Garaad STEM - Somali Tech Academy",
-  description: "Ka baro Full-Stack Development, React, Next.js, AI, iyo STEM-ka afkaaga hooyo (Somali). Waddooyin isku xiga oo loo maro hanashada Tiknoolajiyadda casriga ah.",
+  title: "Koorsooyinka | Garaad",
+  description:
+    "Baro Full-Stack development, AI, iyo React af-Soomaali. Koorsooyinka step-by-step ah.",
   keywords: [
-    "Koorsooyin Somali", "Baro Coding", "Somali Programming", "React Somali",
-    "Next.js Somali", "Full-Stack Development Somali", "STEM Somali",
-    "Soomaali Programming", "Barashada Computer-ka", "Garaad Courses"
+    "Koorsooyin Somali",
+    "Baro Coding",
+    "Somali Programming",
+    "React Somali",
+    "Full-Stack Somali",
+    "Garaad Courses",
   ],
-  alternates: { canonical: "https://garaad.org/courses" },
+  alternates: { canonical: COURSES_URL },
   openGraph: {
     type: "website",
-    locale: "so_SO",
-    url: "https://garaad.org/courses",
-    siteName: "Garaad STEM",
-    title: "Koorsooyinka STEM-ka ee Garaad STEM",
-    description: "Ku biir jiilka dhisaya mustaqbalka tech-ka Soomaaliya. Baro Full-Stack, AI, iyo Tiknoolajiyadda afkaaga hooyo.",
-    images: [{ url: "/images/og-courses.jpg", width: 1200, height: 630 }],
+    url: COURSES_URL,
+    title: "Koorsooyinka | Garaad",
+    description:
+      "Baro Full-Stack development, AI, iyo React af-Soomaali. Koorsooyinka step-by-step ah.",
+    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Koorsooyinka" }],
   },
-  twitter: { card: "summary_large_image", title: "Koorsooyinka | Garaad STEM" },
+  twitter: {
+    card: "summary_large_image",
+    title: "Koorsooyinka | Garaad",
+    description: "Baro Full-Stack development, AI, iyo React af-Soomaali.",
+  },
   robots: { index: true, follow: true },
 };
 
