@@ -22,19 +22,19 @@ type PaymentProvider = "stripe" | "waafi";
 const STRIPE_PRICE_IDS = {
   explorer: process.env.NEXT_PUBLIC_STRIPE_EXPLORER_PRICE_ID ?? "",
   challenge: process.env.NEXT_PUBLIC_STRIPE_CHALLENGE_PRICE_ID ?? "",
-  bundleOneTime: process.env.NEXT_PUBLIC_STRIPE_BUNDLE_ONETIME_PRICE_ID ?? "",
-  bundleMonthly: process.env.NEXT_PUBLIC_STRIPE_BUNDLE_MONTHLY_PRICE_ID ?? "",
 };
 
 function isValidStripePriceId(id: string | undefined): boolean {
   return typeof id === "string" && id.startsWith("price_");
 }
 
-// Plans: Stripe (€), Waafi (USD — passing data must be USD)
+// 2 plans: Explorer (€29/mo), Challenge (€149 one-time, includes Explorer).
 const plans = [
   {
     name: "Explorer",
     popular: true,
+    tagline: "Start learning at your own pace",
+    saveBadge: null as string | null,
     stripe: {
       priceId: STRIPE_PRICE_IDS.explorer,
       amount: "€29",
@@ -42,14 +42,16 @@ const plans = [
     },
     waafi: { amount: "$29", billing: "subscription" as const },
     features: [
-      "All gamified courses",
-      "Community access",
-      "Launchpad (view only)",
+      "Koorsooyinka oo dhan (ciyaar)",
+      "Bulshada",
+      "Launchpad (aragti oo keliya)",
     ],
   },
   {
     name: "Challenge",
     popular: false,
+    tagline: "Join the next cohort — includes Explorer",
+    saveBadge: null as string | null,
     stripe: {
       priceId: STRIPE_PRICE_IDS.challenge,
       amount: "€149",
@@ -57,37 +59,10 @@ const plans = [
     },
     waafi: { amount: "$149", billing: "payment" as const },
     features: [
-      "4–6 week mentorship",
+      "Explorer ku jira",
+      "4–6 toddobaad oo mentorship",
       "Mentor access",
-      "Launchpad (submit startup)",
-    ],
-  },
-  {
-    name: "Bundle (One-time)",
-    popular: false,
-    stripe: {
-      priceId: STRIPE_PRICE_IDS.bundleOneTime,
-      amount: "€149",
-      billing: "payment" as const,
-    },
-    waafi: { amount: "$149", billing: "payment" as const },
-    features: [
-      "Explorer + Challenge",
-      "One-time payment",
-    ],
-  },
-  {
-    name: "Bundle (Monthly)",
-    popular: false,
-    stripe: {
-      priceId: STRIPE_PRICE_IDS.bundleMonthly,
-      amount: "€29",
-      billing: "subscription" as const,
-    },
-    waafi: { amount: "$29", billing: "subscription" as const },
-    features: [
-      "Explorer + Challenge",
-      "Monthly subscription",
+      "Launchpad (gudbi startup)",
     ],
   },
 ];
@@ -253,7 +228,7 @@ export default function SubscribePage() {
       <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-gray-50/95 backdrop-blur dark:border-white/10 dark:bg-[#0a0a0f]/95 supports-[backdrop-filter]:bg-gray-50/80 dark:supports-[backdrop-filter]:bg-[#0a0a0f/80">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 py-2" aria-label="Garaad home">
-            <Logo priority loading="eager" className="h-10 w-auto sm:h-11" sizes="(max-width: 640px) 120px, 160px" />
+            <Logo priority loading="eager" className="h-14 w-auto sm:h-16" sizes="(max-width: 640px) 160px, 220px" />
           </Link>
           <ThemeToggle />
         </div>
@@ -267,14 +242,14 @@ export default function SubscribePage() {
           transition={{ duration: 0.4 }}
         >
           <h1 className="font-syne text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white text-center mb-2">
-            Choose Your Plan
+            Dooro Bulaagaaga
           </h1>
           <p className="text-gray-600 dark:text-zinc-400 text-center text-base sm:text-lg max-w-xl">
-            Start learning. Join the community. Launch your idea.
+            Bara koorsooyinka. Ku biir bulshada. Bilaab fikraddaaga.
           </p>
           {liveStats != null && liveStats.students_count > 0 && (
             <p className="mt-2 text-xs text-gray-500 dark:text-zinc-500">
-              Join {liveStats.students_count.toLocaleString()}+ learners · {liveStats.courses_count} courses
+              Ku biir {liveStats.students_count.toLocaleString()}+ arday · {liveStats.courses_count} koorso
             </p>
           )}
         </motion.div>
@@ -287,7 +262,7 @@ export default function SubscribePage() {
           transition={{ delay: 0.2, duration: 0.4 }}
         >
           <span className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-500 shrink-0">
-            Trusted tools inside
+            Qalab lagu kalsoonaado
           </span>
           <div className="flex items-center gap-6 sm:gap-10 text-gray-500 dark:text-zinc-500">
             {TRUST_LOGOS.map((name) => (
@@ -324,7 +299,7 @@ export default function SubscribePage() {
                                 }`}
                             onClick={() => setSelectedProvider("stripe")}
                         >
-                            🌍 International (Stripe)
+                            🌍 Caalami (Stripe)
                         </button>
                         <button
                             type="button"
@@ -337,18 +312,18 @@ export default function SubscribePage() {
                                 }`}
                             onClick={() => setSelectedProvider("waafi")}
                         >
-                            🇸🇴 Somali (Waafi)
+                            🇸🇴 Soomaali (Waafi)
                         </button>
                     </div>
           <p className="mt-2 text-xs text-gray-500 dark:text-zinc-500 text-center max-w-sm">
             {selectedProvider === "stripe"
-              ? "Pay with card, Apple Pay or Google Pay"
+              ? "Ku bixi kaarka, Apple Pay ama Google Pay"
               : "Ku bixi lacagta Waafi Pay — Soomaali ku habboon"}
           </p>
           {selectedProvider === "waafi" && (
             <div className="mt-4 w-full max-w-sm mx-auto space-y-3">
               <p className="text-left text-xs font-medium text-gray-600 dark:text-zinc-400">
-                Select operator — prefix added automatically
+                Dooro shirkadda — prefix si toos ah loo daro
               </p>
               <div className="flex flex-wrap gap-2" role="group" aria-label="Waafi operator">
                 {WAAFI_OPERATORS.map((op) => (
@@ -380,12 +355,12 @@ export default function SubscribePage() {
                 />
                 {selectedOperator && (
                   <p className="mt-1 text-[11px] text-gray-500 dark:text-zinc-500 text-left">
-                    Prefix {WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.prefix} is set. Add the rest of your number.
+                    Prefix {WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.prefix} waa la dejiyay. Ku dar inta kale ee lambarkaaga.
                   </p>
                 )}
               </div>
               <p className="text-[11px] text-gray-500 dark:text-zinc-500 text-left">
-                Leave empty to try card; select operator and enter number for mobile wallet.
+                Ka bixin madhan si aad u isku daydo kaar; dooro shirkadda oo geli lambarkaaga waadhiga mobilka.
               </p>
                 </div>
           )}
@@ -400,8 +375,8 @@ export default function SubscribePage() {
                     </Alert>
                 )}
 
-        {/* UPDATED: 4 plan cards — price fade 150ms on toggle, CTA text by provider */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        {/* 2 plan cards — price fade 150ms on toggle, CTA text by provider */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
           {plans.map((plan, i) => {
                         const isStripe = selectedProvider === "stripe";
                         const amount = isStripe ? plan.stripe.amount : plan.waafi.amount;
@@ -424,13 +399,21 @@ export default function SubscribePage() {
                 >
                   {plan.popular && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
-                      Most popular
+                      Ugu caansan
                     </span>
                   )}
-                  <h3 className="font-syne text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  {plan.saveBadge && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-lg">
+                      {plan.saveBadge}
+                    </span>
+                  )}
+                  <h3 className="font-syne text-xl font-bold text-gray-900 dark:text-white mb-1">
                     {plan.name}
                   </h3>
-                  {/* UPDATED: Price amount with 150ms fade when provider changes */}
+                  {plan.tagline && (
+                    <p className="text-sm text-gray-500 dark:text-zinc-400 mb-2">{plan.tagline}</p>
+                  )}
+                  {/* Price amount with 150ms fade when provider changes */}
                   <div className="flex items-baseline gap-1.5 mb-4">
                     <motion.span
                       key={`${plan.name}-${selectedProvider}`}
@@ -441,7 +424,7 @@ export default function SubscribePage() {
                     >
                       {amount}
                     </motion.span>
-                    <span className="text-sm text-gray-500 dark:text-zinc-500">{billingLabel}</span>
+                    <span className="text-sm text-gray-500 dark:text-zinc-500">{billingLabel === "/ month" ? "/ bil" : "hal mar"}</span>
                                     </div>
                   <ul className="space-y-2 mb-6">
                     {plan.features.map((f) => (
@@ -469,12 +452,12 @@ export default function SubscribePage() {
                                             {isLoading ? (
                                                 <>
                           <Loader2 className="h-4 w-4 animate-spin" />
-                                                    Loading...
+                                                    Soo dejineysa...
                                                 </>
                       ) : isStripe && !stripePriceConfigured ? (
-                        "Set price ID in env"
+                        "Deji price ID"
                                             ) : isStripe ? (
-                        "Pay with Stripe"
+                        "Ku bixi Stripe"
                                             ) : (
                         "Ku Bixi Waafi"
                                             )}

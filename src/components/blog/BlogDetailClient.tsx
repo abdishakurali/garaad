@@ -13,7 +13,9 @@ import {
     Facebook,
     Twitter as TwitterIcon,
     Linkedin,
-    Search
+    Search,
+    Link2,
+    Check
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -73,13 +75,26 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
     const coverImage = post.cover_image_url || post.cover_image;
 
     const [shareBaseUrl, setShareBaseUrl] = useState("https://garaad.org");
+    const [linkCopied, setLinkCopied] = useState(false);
     useEffect(() => {
         if (typeof window !== "undefined") setShareBaseUrl(window.location.origin);
     }, []);
     const shareUrl = `${shareBaseUrl}/blog/${post.slug}`;
+    const popupOptions = "_blank,width=600,height=600";
     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
     const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`;
     const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+
+    const openSharePopup = (url: string) => window.open(url, "_blank", popupOptions);
+    const copyPostLink = async () => {
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2000);
+        } catch {
+            // ignore
+        }
+    };
 
     // Inject IDs into body for TOC and handle plain text newlines
     const processedBody = post.body ? (() => {
@@ -161,6 +176,21 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                                 {calculateReadingTime(post.body)} daqiiqo
                             </div>
                         </div>
+
+                        {/* Inline share bar (visible on all screens, especially mobile) */}
+                        <div className="flex flex-wrap items-center gap-2 pt-4 lg:hidden">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500 mr-2">La wadaag</span>
+                            <Button variant="outline" size="sm" className="hover:bg-[#0A66C2] hover:text-white dark:border-zinc-700 dark:text-zinc-300" onClick={() => openSharePopup(linkedInShareUrl)}>
+                                <Linkedin className="mr-1.5 h-4 w-4" /> LinkedIn
+                            </Button>
+                            <Button variant="outline" size="sm" className="hover:bg-[#1877F2] hover:text-white dark:border-zinc-700 dark:text-zinc-300" onClick={() => openSharePopup(facebookShareUrl)}>
+                                <Facebook className="mr-1.5 h-4 w-4" /> Facebook
+                            </Button>
+                            <Button variant="outline" size="sm" className="dark:border-zinc-700 dark:text-zinc-300" onClick={copyPostLink}>
+                                {linkCopied ? <Check className="mr-1.5 h-4 w-4 text-green-500" /> : <Link2 className="mr-1.5 h-4 w-4" />}
+                                {linkCopied ? "La koobiyey!" : "Koobi linkiga"}
+                            </Button>
+                        </div>
                     </div>
 
                     {coverImage && (
@@ -224,21 +254,19 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                                     <Share2 className="mr-2 h-4 w-4" /> La wadaag
                                 </h3>
                                 <div className="flex flex-col gap-2">
-                                    <a href={facebookShareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex">
-                                        <Button variant="outline" size="sm" className="w-full justify-start hover:bg-[#1877F2] hover:text-white transition-colors dark:border-zinc-800 dark:text-zinc-300">
-                                            <Facebook className="mr-2 h-4 w-4" /> Facebook
-                                        </Button>
-                                    </a>
-                                    <a href={twitterShareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex">
-                                        <Button variant="outline" size="sm" className="w-full justify-start hover:bg-[#1DA1F2] hover:text-white transition-colors dark:border-zinc-800 dark:text-zinc-300">
-                                            <TwitterIcon className="mr-2 h-4 w-4" /> Twitter
-                                        </Button>
-                                    </a>
-                                    <a href={linkedInShareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex">
-                                        <Button variant="outline" size="sm" className="w-full justify-start hover:bg-[#0A66C2] hover:text-white transition-colors dark:border-zinc-800 dark:text-zinc-300">
-                                            <Linkedin className="mr-2 h-4 w-4" /> LinkedIn
-                                        </Button>
-                                    </a>
+                                    <Button variant="outline" size="sm" className="w-full justify-start hover:bg-[#1877F2] hover:text-white transition-colors dark:border-zinc-800 dark:text-zinc-300" onClick={() => openSharePopup(facebookShareUrl)}>
+                                        <Facebook className="mr-2 h-4 w-4" /> Facebook
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="w-full justify-start hover:bg-[#1DA1F2] hover:text-white transition-colors dark:border-zinc-800 dark:text-zinc-300" onClick={() => openSharePopup(twitterShareUrl)}>
+                                        <TwitterIcon className="mr-2 h-4 w-4" /> Twitter
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="w-full justify-start hover:bg-[#0A66C2] hover:text-white transition-colors dark:border-zinc-800 dark:text-zinc-300" onClick={() => openSharePopup(linkedInShareUrl)}>
+                                        <Linkedin className="mr-2 h-4 w-4" /> LinkedIn
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="w-full justify-start dark:border-zinc-800 dark:text-zinc-300" onClick={copyPostLink}>
+                                        {linkCopied ? <Check className="mr-2 h-4 w-4 text-green-500" /> : <Link2 className="mr-2 h-4 w-4" />}
+                                        {linkCopied ? "La koobiyey!" : "Koobi linkiga"}
+                                    </Button>
                                 </div>
                             </div>
                         </aside>

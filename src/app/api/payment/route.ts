@@ -11,7 +11,7 @@ interface PaymentRequest {
   subscriptionType?: string;
   /** Plan name for Waafi HPP redirect (subscribe page). */
   plan?: string;
-  /** Amount as string e.g. "$29" or "€149" for Waafi HPP. */
+  /** Amount as string e.g. "$29" or "$149" for Waafi HPP. */
   amount?: string;
   /** "subscription" | "payment" for Waafi HPP. */
   billing?: string;
@@ -30,15 +30,11 @@ function parseAmountFromString(amountStr: string): number {
   return Number.isFinite(num) ? num : 0;
 }
 
-/** Waafi currency is USD. Map plan name to USD amount for API (display amounts may be in KSh). */
+/** Waafi currency is USD. 2 plans: Explorer $29/mo, Challenge $149 one-time (includes Explorer). */
 function getWaafiAmountUsd(plan: string, amountStr: string): number {
   const planUpper = plan.toUpperCase();
-  if (planUpper.includes("EXPLORER") && !planUpper.includes("CHALLENGE")) return 29;
-  if (planUpper.includes("CHALLENGE") && !planUpper.includes("BUNDLE")) return 149;
-  if (planUpper.includes("BUNDLE")) {
-    if (planUpper.includes("MONTHLY")) return 29;
-    return 149;
-  }
+  if (planUpper.includes("CHALLENGE")) return 149;
+  if (planUpper.includes("EXPLORER")) return 29;
   const parsed = parseAmountFromString(amountStr);
   if (parsed > 0 && parsed < 10000) return parsed;
   return 29;

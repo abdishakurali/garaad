@@ -38,22 +38,36 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         post.meta_description?.trim() ||
         post.excerpt?.trim() ||
         descriptionFromBody(post.body);
+    const ogDescription = (description || post.title).slice(0, 150).trim();
+    const ogDescriptionFinal = ogDescription.length >= 150 ? ogDescription + "…" : ogDescription;
+
+    // Ensure OG image is absolute, public URL (LinkedIn/Facebook crawl from their servers).
+    // Backend blog covers are served publicly at API_BASE/api/media/blog/covers/<path>.
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org").replace(/\/$/, "");
+    const absoluteCoverImage = coverImage
+        ? coverImage.startsWith("http")
+            ? coverImage
+            : (coverImage.includes("blog/covers/")
+                  ? `${apiBase}/api/media/blog/covers/${coverImage.replace(/^.*blog\/covers\//, "")}`
+                  : `https://garaad.org${coverImage.startsWith("/") ? "" : "/"}${coverImage}`)
+        : undefined;
 
     return {
         title: `${post.title} | Garaad Blog`,
         description: description || post.title,
         keywords,
+        authors: post.author_name ? [{ name: post.author_name }] : undefined,
         alternates: { canonical: canonicalUrl },
         openGraph: {
             title: post.title,
-            description: description || post.title,
+            description: ogDescriptionFinal,
             type: "article",
             url: canonicalUrl,
-            siteName: "Garaad STEM",
+            siteName: "Garaad",
             locale: "so_SO",
             publishedTime: post.published_at,
-            authors: [post.author_name],
-            images: coverImage ? [{ url: coverImage, width: 1200, height: 630 }] : [],
+            authors: post.author_name ? [post.author_name] : undefined,
+            images: absoluteCoverImage ? [{ url: absoluteCoverImage, width: 1200, height: 630 }] : [],
         },
         twitter: {
             card: "summary_large_image",

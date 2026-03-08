@@ -69,6 +69,9 @@ export function SharePost({ title, slug }: SharePostProps) {
     )}`;
   };
 
+  const popupOptions = "width=600,height=600";
+  const openSharePopup = (url: string) => window.open(url, "_blank", popupOptions);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -82,38 +85,26 @@ export function SharePost({ title, slug }: SharePostProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem asChild>
-          <a
-            href={getTwitterShareUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center cursor-pointer"
-          >
-            <Twitter className="mr-2 h-4 w-4" />
-            <span>Twitter</span>
-          </a>
+        <DropdownMenuItem
+          className="flex items-center cursor-pointer"
+          onClick={() => openSharePopup(getTwitterShareUrl())}
+        >
+          <Twitter className="mr-2 h-4 w-4" />
+          <span>Twitter</span>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href={getFacebookShareUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center cursor-pointer"
-          >
-            <Facebook className="mr-2 h-4 w-4" />
-            <span>Facebook</span>
-          </a>
+        <DropdownMenuItem
+          className="flex items-center cursor-pointer"
+          onClick={() => openSharePopup(getFacebookShareUrl())}
+        >
+          <Facebook className="mr-2 h-4 w-4" />
+          <span>Facebook</span>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href={getLinkedInShareUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center cursor-pointer"
-          >
-            <Linkedin className="mr-2 h-4 w-4" />
-            <span>LinkedIn</span>
-          </a>
+        <DropdownMenuItem
+          className="flex items-center cursor-pointer"
+          onClick={() => openSharePopup(getLinkedInShareUrl())}
+        >
+          <Linkedin className="mr-2 h-4 w-4" />
+          <span>LinkedIn</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={copyToClipboard} className="cursor-pointer">
           {copied ? (
