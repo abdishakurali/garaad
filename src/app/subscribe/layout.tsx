@@ -20,7 +20,7 @@ export default function SubscribeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`${syne.variable} ${dmSans.variable} font-dmsans min-h-screen`}>
+    <div className={`dark ${syne.variable} ${dmSans.variable} font-dmsans bg-[#0a0a0f] min-h-screen`}>
       {children}
     </div>
   );

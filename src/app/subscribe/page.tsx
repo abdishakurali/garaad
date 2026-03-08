@@ -179,13 +179,13 @@ export default function SubscribePage() {
         }
     }, [router]);
 
-  if (AuthService.getInstance().isPremium()) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center dark:bg-[#0a0a0f]">
-        <div className="animate-spin rounded-full h-12 w-12 border-2 border-gray-200 border-t-purple-500 dark:border-white/20" />
-      </div>
-    );
-  }
+    if (AuthService.getInstance().isPremium()) {
+        return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/20 border-t-purple-500" />
+            </div>
+        );
+    }
 
     const handleStripeCheckout = async (plan: (typeof plans)[number]) => {
         setError(null);
@@ -248,9 +248,9 @@ export default function SubscribePage() {
     };
 
     return (
-    <div className="min-h-screen flex flex-col items-center font-dmsans bg-gray-50 text-gray-900 dark:bg-[#0a0a0f] dark:text-white">
-      {/* Header: logo + dark mode toggle — theme-aware */}
-      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-[#0a0a0f]/95 supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-[#0a0a0f/80">
+    <div className="dark min-h-screen bg-[#0a0a0f] flex flex-col items-center font-dmsans text-white">
+      {/* Header: logo + dark mode toggle only */}
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0a0a0f/80">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 py-2" aria-label="Garaad home">
             <Logo priority loading="eager" className="h-10 w-auto sm:h-11" sizes="(max-width: 640px) 120px, 160px" />
@@ -266,14 +266,14 @@ export default function SubscribePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className="font-syne text-4xl sm:text-5xl font-bold text-gray-900 text-center mb-2 dark:text-white">
+          <h1 className="font-syne text-4xl sm:text-5xl font-bold text-white text-center mb-2">
             Choose Your Plan
           </h1>
-          <p className="text-gray-600 text-center text-base sm:text-lg max-w-xl dark:text-zinc-400">
+          <p className="text-zinc-400 text-center text-base sm:text-lg max-w-xl">
             Start learning. Join the community. Launch your idea.
           </p>
           {liveStats != null && liveStats.students_count > 0 && (
-            <p className="mt-2 text-xs text-gray-500 dark:text-zinc-500">
+            <p className="mt-2 text-xs text-zinc-500">
               Join {liveStats.students_count.toLocaleString()}+ learners · {liveStats.courses_count} courses
             </p>
           )}
@@ -286,10 +286,10 @@ export default function SubscribePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.4 }}
         >
-          <span className="text-xs font-medium uppercase tracking-wider text-gray-500 shrink-0 dark:text-zinc-500">
+          <span className="text-xs font-medium uppercase tracking-wider text-zinc-500 shrink-0">
             Trusted tools inside
           </span>
-          <div className="flex items-center gap-6 sm:gap-10 text-gray-500 dark:text-zinc-500">
+          <div className="flex items-center gap-6 sm:gap-10 text-zinc-500">
             {TRUST_LOGOS.map((name) => (
               <span
                 key={name}
@@ -347,7 +347,7 @@ export default function SubscribePage() {
           </p>
           {selectedProvider === "waafi" && (
             <div className="mt-4 w-full max-w-sm mx-auto space-y-3">
-              <p className="text-left text-xs font-medium text-gray-500 dark:text-zinc-400">
+              <p className="text-left text-xs font-medium text-zinc-400">
                 Select operator — prefix added automatically
               </p>
               <div className="flex flex-wrap gap-2" role="group" aria-label="Waafi operator">
@@ -359,7 +359,7 @@ export default function SubscribePage() {
                     className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
                       selectedOperator === op.id
                         ? "border-[#C8F135] bg-[#C8F135]/20 text-[#C8F135]"
-                        : "border-gray-300 bg-gray-100 text-gray-600 hover:border-gray-400 dark:border-white/20 dark:bg-white/5 dark:text-zinc-400 dark:hover:border-white/30 dark:hover:text-zinc-300"
+                        : "border-white/20 bg-white/5 text-zinc-400 hover:border-white/30 hover:text-zinc-300"
                     }`}
                   >
                     {op.label}
@@ -367,7 +367,7 @@ export default function SubscribePage() {
                 ))}
               </div>
               <div>
-                <label htmlFor="waafi-phone" className="block text-left text-xs font-medium text-gray-500 mb-1 dark:text-zinc-400">
+                <label htmlFor="waafi-phone" className="block text-left text-xs font-medium text-zinc-400 mb-1">
                   Lambarkaaga (full international)
                 </label>
                 <input
@@ -376,18 +376,18 @@ export default function SubscribePage() {
                   placeholder={selectedOperator ? WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.placeholder : "e.g. 252612345678"}
                   value={waafiPhone}
                   onChange={(e) => setWaafiPhone(e.target.value.replace(/\D/g, "").slice(0, 12))}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder-zinc-500 dark:focus:border-purple-500/50 dark:focus:ring-purple-500/50"
+                  className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
                 {selectedOperator && (
-                  <p className="mt-1 text-[11px] text-gray-500 text-left dark:text-zinc-500">
+                  <p className="mt-1 text-[11px] text-zinc-500 text-left">
                     Prefix {WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.prefix} is set. Add the rest of your number.
                   </p>
                 )}
               </div>
-              <p className="text-[11px] text-gray-500 text-left dark:text-zinc-500">
+              <p className="text-[11px] text-zinc-500 text-left">
                 Leave empty to try card; select operator and enter number for mobile wallet.
               </p>
-            </div>
+                </div>
           )}
         </motion.div>
 
@@ -419,7 +419,7 @@ export default function SubscribePage() {
                 className="group relative"
               >
                 <div
-                  className="h-full p-6 rounded-2xl bg-white backdrop-blur border border-gray-200 shadow-sm hover:border-purple-400 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 dark:bg-white/5 dark:border-white/10 dark:hover:border-purple-500/50 dark:hover:shadow-[0_0_40px_-8px_rgba(139,92,246,0.4)]"
+                  className="h-full p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_40px_-8px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
                   {plan.popular && (
@@ -427,26 +427,27 @@ export default function SubscribePage() {
                       Most popular
                     </span>
                   )}
-                  <h3 className="font-syne text-xl font-bold text-gray-900 mb-2 dark:text-white">
+                  <h3 className="font-syne text-xl font-bold text-white mb-2">
                     {plan.name}
                   </h3>
+                  {/* UPDATED: Price amount with 150ms fade when provider changes */}
                   <div className="flex items-baseline gap-1.5 mb-4">
                     <motion.span
                       key={`${plan.name}-${selectedProvider}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.15 }}
-                      className="text-3xl font-bold text-gray-900 dark:text-white"
+                      className="text-3xl font-bold text-white"
                     >
                       {amount}
                     </motion.span>
-                    <span className="text-sm text-gray-500 dark:text-zinc-500">{billingLabel}</span>
-                  </div>
+                    <span className="text-sm text-zinc-500">{billingLabel}</span>
+                                    </div>
                   <ul className="space-y-2 mb-6">
                     {plan.features.map((f) => (
                       <li
                         key={f}
-                        className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300"
+                        className="flex items-center gap-2 text-sm text-zinc-300"
                       >
                         <span className="flex-shrink-0 w-4 h-4 rounded-full bg-purple-500/30 flex items-center justify-center">
                           <Check className="w-2.5 h-2.5 text-purple-400" />
@@ -495,7 +496,7 @@ export default function SubscribePage() {
                     <Button
                         type="button"
                         variant="outline"
-            className="rounded-lg border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-white/20 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
+            className="rounded-lg border-white/20 text-zinc-400 hover:bg-white/5 hover:text-white dark:border-white/20 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
                         onClick={() => router.back()}
                     >
                         Ka noqo
