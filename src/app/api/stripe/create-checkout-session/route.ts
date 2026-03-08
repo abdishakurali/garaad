@@ -206,8 +206,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create Stripe checkout session
-    const session = await stripeInstance.checkout.sessions.create({
+    // Build session params (allow_promotion_codes only valid for subscription mode)
+    const sessionParams: Parameters<typeof stripeInstance.checkout.sessions.create>[0] = {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: sessionMode,
@@ -218,15 +218,19 @@ export async function POST(request: NextRequest) {
         cancelUrl ||
         `${process.env.NEXT_PUBLIC_BASE_URL}/subscribe?canceled=true`,
       metadata: {
-        plan: plan ?? (bodyPriceId ? "direct" : ""),
-        userId: userId || "unknown",
-        countryCode: countryCode ?? "",
+        plan: (plan as string) ?? (bodyPriceId ? "direct" : ""),
+        userId: String(userId || "unknown"),
+        countryCode: String(countryCode ?? ""),
         userEmail: finalEmail,
       },
-      allow_promotion_codes: true,
       billing_address_collection: "required",
       customer_email: finalEmail,
-    });
+    };
+    if (sessionMode === "subscription") {
+      sessionParams.allow_promotion_codes = true;
+    }
+
+    const session = await stripeInstance.checkout.sessions.create(sessionParams);
 
     console.log(`✅ Checkout session created successfully:`, {
       sessionId: session.id,
@@ -235,17 +239,18 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ sessionId: session.id });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("❌ Error creating checkout session:", error);
 
-    // Log detailed error information for debugging
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    }
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof (error as { raw?: { message?: string } })?.raw?.message === "string"
+          ? (error as { raw: { message: string } }).raw.message
+          : "Failed to create checkout session";
 
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: message },
       { status: 500 }
     );
   }

@@ -307,6 +307,12 @@ class WaafiPayService {
     successUrl: string;
     failureUrl: string;
   }): Promise<{ hppUrl: string; directPaymentLink: string }> {
+    const hppKey = this.config.hppKey?.trim();
+    if (!hppKey) {
+      throw new Error(
+        "Waafi HPP is not configured: WAAFI_HPP_KEY is missing or empty. Set WAAFI_HPP_KEY in your environment (e.g. Vercel Project Settings)."
+      );
+    }
     const request = {
       schemaVersion: "1.0",
       requestId: uuidv4(),
@@ -316,7 +322,7 @@ class WaafiPayService {
       serviceParams: {
         merchantUid: this.config.merchantUid,
         storeId: this.config.storeId,
-        hppKey: this.config.hppKey,
+        hppKey,
         paymentMethod: "CREDIT_CARD",
         hppSuccessCallbackUrl: params.successUrl,
         hppFailureCallbackUrl: params.failureUrl,

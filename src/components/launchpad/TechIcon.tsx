@@ -30,6 +30,8 @@ const techToIconKey = (name: string): string => {
         'Docker': 'docker',
         'Firebase': 'firebase',
         'Supabase': 'supabase',
+        'Stripe': 'stripe',
+        'Notion': 'notion',
         'Flutter': 'flutter',
         'Swift': 'swift',
         'Kotlin': 'kotlin',
@@ -46,7 +48,7 @@ const techToIconKey = (name: string): string => {
 const VALID_ICONS = [
     'react', 'nextjs', 'tailwindcss', 'nodejs', 'postgresql', 'mongodb',
     'python', 'django', 'typescript', 'js', 'aws', 'vercel', 'docker',
-    'firebase', 'supabase', 'flutter', 'swift', 'kotlin', 'graphql',
+    'firebase', 'supabase', 'stripe', 'notion', 'flutter', 'swift', 'kotlin', 'graphql',
     'redis', 'materialui', 'redux', 'mysql', 'php', 'java', 'ruby',
     'rails', 'csharp', 'cpp', 'c', 'go', 'rust', 'docker', 'kubernetes'
 ];
