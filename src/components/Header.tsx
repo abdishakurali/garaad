@@ -112,12 +112,16 @@ export function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo & Desktop Nav */}
-          <div className="items-center gap-6 flex">
-            <Link href="/" className="group flex items-center gap-2">
+          <div className="items-center gap-8 flex">
+            <Link
+              href="/"
+              className="group flex items-center shrink-0 py-2 pr-2 -ml-1 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              aria-label="Garaad home"
+            >
               <Logo priority={true} loading="eager" />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-1">
               {navLinks.map(({ name, href, icon: Icon }) => {
                 const active = isLinkActive(href);
                 return (
@@ -125,22 +129,23 @@ export function Header() {
                     key={href}
                     href={href}
                     className={clsx(
-                      "group relative flex items-center gap-2.5 text-[13px] font-bold transition-all duration-300",
+                      "group font-display text-sm font-semibold tracking-tight transition-all duration-300",
+                      "flex items-center gap-2.5 py-2.5 px-3.5 rounded-lg",
                       active
-                        ? "text-primary"
-                        : "text-slate-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary"
+                        ? "text-primary bg-primary/10 dark:bg-primary/15"
+                        : "text-slate-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
                     )}
                   >
                     <Icon
                       className={clsx(
-                        "w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110",
+                        "w-[18px] h-[18px] shrink-0 transition-transform duration-300 group-hover:scale-110",
                         active && "animate-pulse"
                       )}
                     />
                     <span className="relative">
                       {name}
                       <span className={clsx(
-                        "absolute -bottom-1.5 left-0 h-[2px] bg-primary transition-all duration-300 rounded-full",
+                        "absolute -bottom-0.5 left-0 h-0.5 bg-primary transition-all duration-300 rounded-full",
                         active ? "w-full" : "w-0 group-hover:w-full"
                       )} />
                     </span>
@@ -215,11 +220,18 @@ export function Header() {
           {/* Menu Panel */}
           <div className="absolute inset-x-0 top-0 bg-white dark:bg-black/95 border-b border-black/10 dark:border-white/10 shadow-xl animate-in slide-in-from-bottom duration-300 md:animate-in md:slide-in-from-top">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-              <Logo priority={false} loading="lazy" />
+            <div className="flex items-center justify-between px-6 py-5 border-b border-black/10 dark:border-white/10">
+              <Link
+                href="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="py-1 -ml-1 rounded-lg active:opacity-80"
+                aria-label="Garaad home"
+              >
+                <Logo priority={false} loading="lazy" />
+              </Link>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                className="p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 aria-label="Close menu"
               >
                 <X size={24} className="text-slate-800 dark:text-white" />
@@ -227,7 +239,7 @@ export function Header() {
             </div>
 
             {/* Navigation Links */}
-            <nav className="px-6 py-4 space-y-1">
+            <nav className="px-4 py-4 space-y-1">
               {navLinks.map(({ name, href, icon: Icon }) => {
                 const active = isLinkActive(href);
                 return (
@@ -236,14 +248,15 @@ export function Header() {
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={clsx(
-                      "flex items-center gap-4 px-4 py-3 rounded-xl transition-all",
+                      "font-display text-[15px] font-semibold tracking-tight",
+                      "flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all",
                       active
-                        ? "bg-primary/10 dark:bg-primary/20 text-primary font-bold"
-                        : "text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
+                        ? "bg-primary/10 dark:bg-primary/20 text-primary"
+                        : "text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
                     )}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-base">{name}</span>
+                    <Icon className="w-5 h-5 shrink-0" />
+                    <span>{name}</span>
                   </Link>
                 );
               })}
