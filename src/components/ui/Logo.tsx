@@ -12,7 +12,7 @@ interface LogoProps {
     sizes?: string;
     width?: number;
     height?: number;
-    /** Force dark logo (logo_darkmode.png) when true; otherwise use theme (dark = dark logo, light = normal logo). */
+    /** Force a specific variant; otherwise reversed by theme: light theme = dark logo, dark theme = light logo. */
     preferDark?: boolean;
 }
 
@@ -32,8 +32,9 @@ export function Logo({
         setMounted(true);
     }, []);
 
-    const isDarkMode = preferDark || (mounted && (resolvedTheme === "dark" || theme === "dark"));
-    const logoSrc = isDarkMode ? "/logo_darkmode.png" : "/logo.png";
+    const isDarkTheme = preferDark || (mounted && (resolvedTheme === "dark" || theme === "dark"));
+    // Reversed: dark theme → light logo (logo.png); light theme → dark logo (logo_darkmode.png)
+    const logoSrc = isDarkTheme ? "/logo.png" : "/logo_darkmode.png";
 
     return (
         <Image

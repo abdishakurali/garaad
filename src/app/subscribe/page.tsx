@@ -97,17 +97,17 @@ const ERROR_TRANSLATIONS: Record<string, string> = {
     "Bixinta waa guuldareysatay (Qofka qaataha waa la xidhay)",
   "Payment Failed (Haraaga xisaabtaadu kuguma filna, mobile No: 252618995283)":
     "Bixinta waa guuldareysatay (Haraaga xisaabtaadu kuguma filna, lambarka: 252618995283)",
-  "RCS_USER_REJECTED": "Bixinta waa la joojiyay adiga ayaa diiday",
-  "Invalid card number": "Lambarka kaarka waa khaldan",
-  "Invalid or expired card": "Kaarka waa khaldan ama waa dhammaystiran",
-  "Invalid CVV": "CVV-ga waa khaldan",
+    "RCS_USER_REJECTED": "Bixinta waa la joojiyay adiga ayaa diiday",
+    "Invalid card number": "Lambarka kaarka waa khaldan",
+    "Invalid or expired card": "Kaarka waa khaldan ama waa dhammaystiran",
+    "Invalid CVV": "CVV-ga waa khaldan",
 };
 
 function translateError(error: string) {
-  for (const key in ERROR_TRANSLATIONS) {
-    if (error.includes(key) || error === key) return ERROR_TRANSLATIONS[key];
-  }
-  return error;
+    for (const key in ERROR_TRANSLATIONS) {
+        if (error.includes(key) || error === key) return ERROR_TRANSLATIONS[key];
+    }
+    return error;
 }
 
 const TRUST_LOGOS = ["Stripe", "Vercel", "Supabase", "Notion"];
@@ -120,11 +120,11 @@ const WAAFI_OPERATORS: { id: WaafiOperator; label: string; prefix: string; place
 ];
 
 export default function SubscribePage() {
-  const router = useRouter();
-  useAuthStore();
-  const [selectedProvider, setSelectedProvider] = useState<PaymentProvider>("stripe");
-  const [error, setError] = useState<string | null>(null);
-  const [loadingPlanName, setLoadingPlanName] = useState<string | null>(null);
+    const router = useRouter();
+    useAuthStore();
+    const [selectedProvider, setSelectedProvider] = useState<PaymentProvider>("stripe");
+    const [error, setError] = useState<string | null>(null);
+    const [loadingPlanName, setLoadingPlanName] = useState<string | null>(null);
   const [waafiPhone, setWaafiPhone] = useState("");
   const [selectedOperator, setSelectedOperator] = useState<WaafiOperator>(null);
   const [liveStats, setLiveStats] = useState<{ students_count: number; courses_count: number } | null>(null);
@@ -172,41 +172,41 @@ export default function SubscribePage() {
   }, []);
 
   // Premium redirect
-  useEffect(() => {
-    const authService = AuthService.getInstance();
-    if (authService.isPremium()) {
-      router.push("/courses");
-    }
-  }, [router]);
+    useEffect(() => {
+        const authService = AuthService.getInstance();
+        if (authService.isPremium()) {
+            router.push("/courses");
+        }
+    }, [router]);
 
   if (AuthService.getInstance().isPremium()) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/20 border-t-purple-500" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center dark:bg-[#0a0a0f]">
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-gray-200 border-t-purple-500 dark:border-white/20" />
       </div>
     );
   }
 
-  const handleStripeCheckout = async (plan: (typeof plans)[number]) => {
-    setError(null);
-    setLoadingPlanName(plan.name);
-    try {
-      const stripeService = StripeService.getInstance();
-      await stripeService.createCheckoutSessionWithPrice(
-        plan.stripe.priceId,
-        plan.stripe.billing === "subscription" ? "subscription" : "payment"
-      );
-    } catch (err) {
-      setError(translateError(err instanceof Error ? err.message : String(err)));
-    } finally {
-      setLoadingPlanName(null);
-    }
-  };
+    const handleStripeCheckout = async (plan: (typeof plans)[number]) => {
+        setError(null);
+        setLoadingPlanName(plan.name);
+        try {
+            const stripeService = StripeService.getInstance();
+            await stripeService.createCheckoutSessionWithPrice(
+                plan.stripe.priceId,
+                plan.stripe.billing === "subscription" ? "subscription" : "payment"
+            );
+        } catch (err) {
+            setError(translateError(err instanceof Error ? err.message : String(err)));
+        } finally {
+            setLoadingPlanName(null);
+        }
+    };
 
-  const handleWaafiCheckout = async (plan: (typeof plans)[number]) => {
-    setError(null);
-    setLoadingPlanName(plan.name);
-    try {
+    const handleWaafiCheckout = async (plan: (typeof plans)[number]) => {
+        setError(null);
+        setLoadingPlanName(plan.name);
+        try {
       const body: { plan: string; amount: string; billing: string; accountNo?: string } = {
         plan: plan.name,
         amount: plan.waafi.amount,
@@ -215,42 +215,42 @@ export default function SubscribePage() {
       const phoneDigits = waafiPhone.replace(/\D/g, "").trim();
       if (phoneDigits) body.accountNo = phoneDigits;
 
-      const res = await fetch("/api/payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+            const res = await fetch("/api/payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      });
-      const data = await res.json();
+            });
+            const data = await res.json();
 
-      if (!res.ok) {
+            if (!res.ok) {
         if (data.error === "HPP_NOT_AUTHORIZED" && data.useMobileWallet) {
           setError(data.message || "Card not available. Enter your Waafi phone number to pay with mobile wallet.");
           return;
         }
-        throw new Error(data.message || "Bixinta waa guuldareysatay");
-      }
+                throw new Error(data.message || "Bixinta waa guuldareysatay");
+            }
 
-      if (data.hppUrl) {
-        window.location.href = data.hppUrl;
-        return;
-      }
+            if (data.hppUrl) {
+                window.location.href = data.hppUrl;
+                return;
+            }
       if (data.useMobileWallet && data.success) {
         setError(null);
         router.push("/courses?payment=initiated");
         return;
       }
-      setError(data.message || "No redirect URL received");
-    } catch (err) {
-      setError(translateError(err instanceof Error ? err.message : String(err)));
-    } finally {
-      setLoadingPlanName(null);
-    }
-  };
+            setError(data.message || "No redirect URL received");
+        } catch (err) {
+            setError(translateError(err instanceof Error ? err.message : String(err)));
+        } finally {
+            setLoadingPlanName(null);
+        }
+    };
 
-  return (
-    <div className="dark min-h-screen bg-[#0a0a0f] flex flex-col items-center font-dmsans text-white">
-      {/* Header: logo + dark mode toggle only */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0a0a0f/80">
+    return (
+    <div className="min-h-screen flex flex-col items-center font-dmsans bg-gray-50 text-gray-900 dark:bg-[#0a0a0f] dark:text-white">
+      {/* Header: logo + dark mode toggle — theme-aware */}
+      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-[#0a0a0f]/95 supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-[#0a0a0f/80">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 py-2" aria-label="Garaad home">
             <Logo priority loading="eager" className="h-10 w-auto sm:h-11" sizes="(max-width: 640px) 120px, 160px" />
@@ -266,14 +266,14 @@ export default function SubscribePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className="font-syne text-4xl sm:text-5xl font-bold text-white text-center mb-2">
+          <h1 className="font-syne text-4xl sm:text-5xl font-bold text-gray-900 text-center mb-2 dark:text-white">
             Choose Your Plan
           </h1>
-          <p className="text-zinc-400 text-center text-base sm:text-lg max-w-xl">
+          <p className="text-gray-600 text-center text-base sm:text-lg max-w-xl dark:text-zinc-400">
             Start learning. Join the community. Launch your idea.
           </p>
           {liveStats != null && liveStats.students_count > 0 && (
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs text-gray-500 dark:text-zinc-500">
               Join {liveStats.students_count.toLocaleString()}+ learners · {liveStats.courses_count} courses
             </p>
           )}
@@ -286,10 +286,10 @@ export default function SubscribePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.4 }}
         >
-          <span className="text-xs font-medium uppercase tracking-wider text-zinc-500 shrink-0">
+          <span className="text-xs font-medium uppercase tracking-wider text-gray-500 shrink-0 dark:text-zinc-500">
             Trusted tools inside
           </span>
-          <div className="flex items-center gap-6 sm:gap-10 text-zinc-500">
+          <div className="flex items-center gap-6 sm:gap-10 text-gray-500 dark:text-zinc-500">
             {TRUST_LOGOS.map((name) => (
               <span
                 key={name}
@@ -299,7 +299,7 @@ export default function SubscribePage() {
                 <TechIcon name={name} className="w-6 h-6 sm:w-7 sm:h-7" />
               </span>
             ))}
-          </div>
+                </div>
         </motion.div>
 
         {/* UPDATED: Payment method toggle — pill-style, lime active, helper text below */}
@@ -313,33 +313,33 @@ export default function SubscribePage() {
             className="inline-flex p-1 rounded-full bg-[#0a0a0f] border border-white/15 transition-all duration-300"
             role="tablist"
           >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={selectedProvider === "stripe"}
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={selectedProvider === "stripe"}
               className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 selectedProvider === "stripe"
                   ? "bg-[#C8F135] text-gray-900 shadow-sm"
                   : "bg-transparent text-zinc-400 hover:text-zinc-300 border border-transparent"
-              }`}
-              onClick={() => setSelectedProvider("stripe")}
-            >
-              🌍 International (Stripe)
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={selectedProvider === "waafi"}
+                                }`}
+                            onClick={() => setSelectedProvider("stripe")}
+                        >
+                            🌍 International (Stripe)
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={selectedProvider === "waafi"}
               className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 selectedProvider === "waafi"
                   ? "bg-[#C8F135] text-gray-900 shadow-sm"
                   : "bg-transparent text-zinc-400 hover:text-zinc-300 border border-transparent"
-              }`}
-              onClick={() => setSelectedProvider("waafi")}
-            >
-              🇸🇴 Somali (Waafi)
-            </button>
-          </div>
+                                }`}
+                            onClick={() => setSelectedProvider("waafi")}
+                        >
+                            🇸🇴 Somali (Waafi)
+                        </button>
+                    </div>
           <p className="mt-2 text-xs text-zinc-500 text-center max-w-sm">
             {selectedProvider === "stripe"
               ? "Pay with card, Apple Pay or Google Pay"
@@ -347,7 +347,7 @@ export default function SubscribePage() {
           </p>
           {selectedProvider === "waafi" && (
             <div className="mt-4 w-full max-w-sm mx-auto space-y-3">
-              <p className="text-left text-xs font-medium text-zinc-400">
+              <p className="text-left text-xs font-medium text-gray-500 dark:text-zinc-400">
                 Select operator — prefix added automatically
               </p>
               <div className="flex flex-wrap gap-2" role="group" aria-label="Waafi operator">
@@ -359,7 +359,7 @@ export default function SubscribePage() {
                     className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
                       selectedOperator === op.id
                         ? "border-[#C8F135] bg-[#C8F135]/20 text-[#C8F135]"
-                        : "border-white/20 bg-white/5 text-zinc-400 hover:border-white/30 hover:text-zinc-300"
+                        : "border-gray-300 bg-gray-100 text-gray-600 hover:border-gray-400 dark:border-white/20 dark:bg-white/5 dark:text-zinc-400 dark:hover:border-white/30 dark:hover:text-zinc-300"
                     }`}
                   >
                     {op.label}
@@ -367,7 +367,7 @@ export default function SubscribePage() {
                 ))}
               </div>
               <div>
-                <label htmlFor="waafi-phone" className="block text-left text-xs font-medium text-zinc-400 mb-1">
+                <label htmlFor="waafi-phone" className="block text-left text-xs font-medium text-gray-500 mb-1 dark:text-zinc-400">
                   Lambarkaaga (full international)
                 </label>
                 <input
@@ -376,50 +376,50 @@ export default function SubscribePage() {
                   placeholder={selectedOperator ? WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.placeholder : "e.g. 252612345678"}
                   value={waafiPhone}
                   onChange={(e) => setWaafiPhone(e.target.value.replace(/\D/g, "").slice(0, 12))}
-                  className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder-zinc-500 dark:focus:border-purple-500/50 dark:focus:ring-purple-500/50"
                 />
                 {selectedOperator && (
-                  <p className="mt-1 text-[11px] text-zinc-500 text-left">
+                  <p className="mt-1 text-[11px] text-gray-500 text-left dark:text-zinc-500">
                     Prefix {WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.prefix} is set. Add the rest of your number.
                   </p>
                 )}
               </div>
-              <p className="text-[11px] text-zinc-500 text-left">
+              <p className="text-[11px] text-gray-500 text-left dark:text-zinc-500">
                 Leave empty to try card; select operator and enter number for mobile wallet.
               </p>
             </div>
           )}
         </motion.div>
 
-        {error && (
+                {error && (
           <Alert
             variant="destructive"
             className="mb-6 border-red-500/30 bg-red-500/10 text-red-200 dark:bg-red-950/40 dark:border-red-500/30 dark:text-red-200"
           >
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
 
         {/* UPDATED: 4 plan cards — price fade 150ms on toggle, CTA text by provider */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {plans.map((plan, i) => {
-            const isStripe = selectedProvider === "stripe";
-            const amount = isStripe ? plan.stripe.amount : plan.waafi.amount;
-            const billing = isStripe ? plan.stripe.billing : plan.waafi.billing;
-            const billingLabel = billing === "subscription" ? "/ month" : "one-time";
-            const isLoading = loadingPlanName === plan.name;
+                        const isStripe = selectedProvider === "stripe";
+                        const amount = isStripe ? plan.stripe.amount : plan.waafi.amount;
+                        const billing = isStripe ? plan.stripe.billing : plan.waafi.billing;
+                        const billingLabel = billing === "subscription" ? "/ month" : "one-time";
+                        const isLoading = loadingPlanName === plan.name;
             const stripePriceConfigured = isValidStripePriceId(plan.stripe.priceId);
 
-            return (
+                        return (
               <motion.div
-                key={plan.name}
+                                key={plan.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 + i * 0.1, duration: 0.45 }}
                 className="group relative"
               >
                 <div
-                  className="h-full p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_40px_-8px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1"
+                  className="h-full p-6 rounded-2xl bg-white backdrop-blur border border-gray-200 shadow-sm hover:border-purple-400 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 dark:bg-white/5 dark:border-white/10 dark:hover:border-purple-500/50 dark:hover:shadow-[0_0_40px_-8px_rgba(139,92,246,0.4)]"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
                   {plan.popular && (
@@ -427,27 +427,26 @@ export default function SubscribePage() {
                       Most popular
                     </span>
                   )}
-                  <h3 className="font-syne text-xl font-bold text-white mb-2">
+                  <h3 className="font-syne text-xl font-bold text-gray-900 mb-2 dark:text-white">
                     {plan.name}
                   </h3>
-                  {/* UPDATED: Price amount with 150ms fade when provider changes */}
                   <div className="flex items-baseline gap-1.5 mb-4">
                     <motion.span
                       key={`${plan.name}-${selectedProvider}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.15 }}
-                      className="text-3xl font-bold text-white"
+                      className="text-3xl font-bold text-gray-900 dark:text-white"
                     >
                       {amount}
                     </motion.span>
-                    <span className="text-sm text-zinc-500">{billingLabel}</span>
+                    <span className="text-sm text-gray-500 dark:text-zinc-500">{billingLabel}</span>
                   </div>
                   <ul className="space-y-2 mb-6">
                     {plan.features.map((f) => (
                       <li
                         key={f}
-                        className="flex items-center gap-2 text-sm text-zinc-300"
+                        className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300"
                       >
                         <span className="flex-shrink-0 w-4 h-4 rounded-full bg-purple-500/30 flex items-center justify-center">
                           <Check className="w-2.5 h-2.5 text-purple-400" />
@@ -456,36 +455,36 @@ export default function SubscribePage() {
                       </li>
                     ))}
                   </ul>
-                  <Button
+                                        <Button
                     className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 relative overflow-hidden group/btn disabled:opacity-70"
                     disabled={!!loadingPlanName || (isStripe && !stripePriceConfigured)}
-                    onClick={() =>
+                                            onClick={() =>
                       isStripe
                         ? handleStripeCheckout(plan)
                         : handleWaafiCheckout(plan)
-                    }
-                  >
+                                            }
+                                        >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      {isLoading ? (
-                        <>
+                                            {isLoading ? (
+                                                <>
                           <Loader2 className="h-4 w-4 animate-spin" />
-                          Loading...
-                        </>
+                                                    Loading...
+                                                </>
                       ) : isStripe && !stripePriceConfigured ? (
                         "Set price ID in env"
-                      ) : isStripe ? (
+                                            ) : isStripe ? (
                         "Pay with Stripe"
-                      ) : (
+                                            ) : (
                         "Ku Bixi Waafi"
-                      )}
+                                            )}
                     </span>
                     <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-[length:200%_100%] animate-shimmer" />
-                  </Button>
-                </div>
+                                        </Button>
+                                    </div>
               </motion.div>
-            );
-          })}
-        </div>
+                        );
+                    })}
+                </div>
 
         <motion.div
           className="flex justify-center"
@@ -493,16 +492,16 @@ export default function SubscribePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded-lg border-white/20 text-zinc-400 hover:bg-white/5 hover:text-white dark:border-white/20 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
-            onClick={() => router.back()}
-          >
-            Ka noqo
-          </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+            className="rounded-lg border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-white/20 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
+                        onClick={() => router.back()}
+                    >
+                        Ka noqo
+                    </Button>
         </motion.div>
-      </div>
-    </div>
-  );
-}
+            </div>
+        </div>
+    );
+} 
