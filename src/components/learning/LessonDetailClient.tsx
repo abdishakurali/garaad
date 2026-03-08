@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { useGamificationData } from "@/hooks/useGamificationData";
 import RewardSequence from "@/components/RewardSequence";
+import { LessonPaywall } from "@/components/learning/LessonPaywall";
 import dynamic from "next/dynamic";
 
 const ShikiCode = dynamic(() => import("@/components/lesson/ShikiCode"), {
@@ -648,8 +649,8 @@ export function LessonDetailClient() {
         setShowCompletionAnimation(false);
         setNavigating(true);
 
-        // Find next lesson info to pass as hint for highlighting
-        const sortedLessons = [...courseLessons].sort((a, b) => (a.order || 0) - (b.order || 0));
+        // Find next lesson info (ordered by lesson_number to match backend)
+        const sortedLessons = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
         const currentIdx = sortedLessons.findIndex(l => l.id === currentLesson?.id);
         const nextLesson = currentIdx !== -1 && currentIdx < sortedLessons.length - 1 ? sortedLessons[currentIdx + 1] : null;
 
@@ -896,8 +897,19 @@ export function LessonDetailClient() {
         return <LoadingSpinner message="soo dajinaya casharada..." />;
     }
 
+    // Free users: only lesson 1 per course is free; lesson 2+ shows paywall
+    if (isLockedLesson) {
+        return (
+            <LessonPaywall
+                coursePath={coursePath}
+                courseTitle={currentCourse?.title}
+            />
+        );
+    }
+
     if (showCompletionAnimation) {
-        const sortedLessons = [...courseLessons].sort((a, b) => (a.order || 0) - (b.order || 0));
+        // Ordered by lesson_number to match backend
+        const sortedLessons = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
         const isLastLessonOfCourse = sortedLessons.length > 0 &&
             sortedLessons[sortedLessons.length - 1].id === currentLesson?.id;
 

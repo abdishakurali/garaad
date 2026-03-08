@@ -62,9 +62,9 @@ export default function VerifyEmailPage() {
         if (currentUser?.email) {
           setEmail(currentUser.email);
         } else {
-          // No email found anywhere, redirect to welcome
-          console.log("No email found, redirecting to welcome");
-          router.push('/welcome');
+          // No email found (e.g. returning user landed here directly). Send to login, not signup.
+          console.log("No email found, redirecting to login");
+          router.push('/login');
         }
       };
 
@@ -116,24 +116,21 @@ export default function VerifyEmailPage() {
               if (updatedUserData) {
                 // Check if user is premium
                 if (updatedUserData.is_premium) {
-                  // User is premium, redirect to courses
                   router.push("/courses");
                 } else {
-                  // User is not premium, redirect to subscribe
-                  router.push("/subscribe");
+                  // Free users can access lesson 1 + community; send them to courses
+                  router.push("/courses");
                 }
               } else {
-                // Fallback: manually update email verification and redirect to subscribe
                 authService.updateEmailVerificationStatus(true);
-                router.push("/subscribe");
+                router.push("/courses");
               }
             } catch (userError) {
               console.error("Error fetching user data:", userError);
-              // Fallback: manually update email verification and redirect to subscribe
               const { default: AuthService } = await import('@/services/auth');
               const authService = AuthService.getInstance();
               authService.updateEmailVerificationStatus(true);
-              router.push("/subscribe");
+              router.push("/courses");
             }
             return;
           }
@@ -248,21 +245,17 @@ export default function VerifyEmailPage() {
           const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
           if (updatedUserData) {
-            if (updatedUserData.is_premium) {
-              router.push("/courses");
-            } else {
-              router.push("/subscribe");
-            }
+            router.push("/courses");
           } else {
             authService.updateEmailVerificationStatus(true);
-            router.push("/subscribe");
+            router.push("/courses");
           }
         } catch (userError) {
           console.error("Error fetching user data:", userError);
           const { default: AuthService } = await import('@/services/auth');
           const authService = AuthService.getInstance();
           authService.updateEmailVerificationStatus(true);
-          router.push("/subscribe");
+          router.push("/courses");
         }
         return;
       }
@@ -368,26 +361,17 @@ export default function VerifyEmailPage() {
             const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
             if (updatedUserData) {
-              // Check if user is premium
-              if (updatedUserData.is_premium) {
-                // User is premium, redirect to courses
-                router.push("/courses");
-              } else {
-                // User is not premium, redirect to subscribe
-                router.push("/subscribe");
-              }
+              router.push("/courses");
             } else {
-              // Fallback: manually update email verification and redirect to subscribe
               authService.updateEmailVerificationStatus(true);
-              router.push("/subscribe");
+              router.push("/courses");
             }
           } catch (userError) {
             console.error("Error fetching user data:", userError);
-            // Fallback: manually update email verification and redirect to subscribe
             const { default: AuthService } = await import('@/services/auth');
             const authService = AuthService.getInstance();
             authService.updateEmailVerificationStatus(true);
-            router.push("/subscribe");
+            router.push("/courses");
           }
           return;
         }
@@ -407,8 +391,8 @@ export default function VerifyEmailPage() {
   };
 
   const handleGoBackToRegistration = () => {
-    // Navigate back to welcome page - the form data will be automatically restored
-    // from localStorage when the welcome page loads
+    // Back to signup/onboarding only — leave as /welcome per requirements.
+    // Form data is restored from localStorage when the welcome page loads.
     router.push('/welcome');
   };
 

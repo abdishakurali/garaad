@@ -12,6 +12,8 @@ interface ModuleZigzagProps {
     progress: UserProgress[];
     onModuleClick: (moduleId: number) => void;
     activeModuleId?: number;
+    /** First lesson of the course by order (same as LessonDetailClient). Free tier can only start this lesson. */
+    firstLessonIdOfCourse?: number | null;
 }
 
 export default function ModuleZigzag({
@@ -19,6 +21,7 @@ export default function ModuleZigzag({
     progress,
     onModuleClick,
     activeModuleId,
+    firstLessonIdOfCourse = null,
 }: ModuleZigzagProps) {
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -59,25 +62,37 @@ export default function ModuleZigzag({
         // Don't call onModuleClick here - only select for viewing
     };
 
+    // Free tier: first lesson of course by lesson_number to match backend (Lesson has no order field)
+    const selectedModuleFirstLessonId = useMemo(() => {
+        const lessons = selectedModule?.lessons ?? [];
+        if (lessons.length === 0) return null;
+        const sorted = [...lessons].sort(
+            (a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0)
+        );
+        return sorted[0]?.id ?? null;
+    }, [selectedModule]);
+    const isFirstLessonOfCourse =
+        firstLessonIdOfCourse != null &&
+        selectedModuleFirstLessonId != null &&
+        Number(selectedModuleFirstLessonId) === Number(firstLessonIdOfCourse);
+
     // Handle button click based on authentication and premium status
     const handleButtonClick = () => {
         const user = authService.getCurrentUser();
         const isAuthenticated = !!user;
         const isPremium = authService.isPremium();
 
-        // not logged in → welcome (or login) page
         if (!isAuthenticated) {
-            router.push("/welcome"); // or "/login"
+            router.push("/login");
             return;
         }
 
-        // logged in but not premium → subscription page
-        if (!isPremium) {
-            router.push("/subscribe");  // <-- your subscribe route
+        // Free users can only start the first lesson of the course; others → subscribe
+        if (!isPremium && !isFirstLessonOfCourse) {
+            router.push("/subscribe");
             return;
         }
 
-        // premium user → start lesson
         if (selectedModule) {
             setIsLoading(true);
             try {
@@ -111,11 +126,10 @@ export default function ModuleZigzag({
     const selectedModuleProgress = selectedModule ? hasModuleProgress(selectedModule.id) : false;
     const selectedModuleCompleted = selectedModule ? isModuleCompleted(selectedModule.title) : false;
 
-    // Check authentication and premium status
     const user = authService.getCurrentUser();
     const isAuthenticated = !!user;
     const isPremium = authService.isPremium();
-    const canStartLesson = isAuthenticated && isPremium;
+    const canStartLesson = isAuthenticated && (isPremium || isFirstLessonOfCourse);
 
     return (
         <div className="max-w-md mx-auto p-4 pb-32">

@@ -82,9 +82,21 @@ export function CourseDetailClient() {
         return foundModule?.id;
     }, [searchParams, currentCourse]);
 
+    // First lesson of course by lesson_number to match backend (Lesson has no order field)
+    const firstLessonIdOfCourse = useMemo(() => {
+        const modules = currentCourse?.modules ?? [];
+        const lessons = modules.flatMap((m: any) => m.lessons ?? []);
+        if (lessons.length === 0) return null;
+        const sorted = [...lessons].sort(
+            (a, b) => (a.lesson_number ?? 0) - (b.lesson_number ?? 0)
+        );
+        return sorted[0]?.id ?? null;
+    }, [currentCourse]);
+
     const handleModuleClick = (moduleId: number) => {
+        // Returning user without session → login, not signup.
         if (!isAuthenticated) {
-            router.push('/welcome');
+            router.push('/login');
             return;
         }
 
@@ -224,6 +236,7 @@ export function CourseDetailClient() {
                                     onModuleClick={handleModuleClick}
                                     progress={progress ?? []}
                                     activeModuleId={activeModuleId}
+                                    firstLessonIdOfCourse={firstLessonIdOfCourse}
                                 />
                             )}
                         </div>

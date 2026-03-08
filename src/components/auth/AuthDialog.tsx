@@ -326,6 +326,8 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
           </div>
         )}
 
+        {/* AuthDialog is used as inline login for existing users (e.g. Header "Soo gal", gated content).
+            This CTA is for new users who don't have an account → signup/onboarding stays /welcome. */}
         {authView === 'login' && (
           <div className="text-center pt-4 border-t flex space-x-3 border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">

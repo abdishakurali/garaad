@@ -30,7 +30,7 @@ export function ProtectedRoute({
 
             // Check if user is authenticated
             if (!isAuthenticated && !authService.isAuthenticated()) {
-                router.push('/welcome');
+                router.push('/login');
                 return;
             }
 
@@ -38,7 +38,7 @@ export function ProtectedRoute({
             const currentUser = user || authService.getCurrentUser();
 
             if (!currentUser) {
-                router.push('/welcome');
+                router.push('/login');
                 return;
             }
 

@@ -20,8 +20,9 @@ export default function ReferralsPage() {
     const [copying, setCopying] = useState(false);
 
     useEffect(() => {
+        // Referrals require auth; redirect to login so returning users don't get onboarding.
         if (!isAuthenticated) {
-            router.push('/welcome');
+            router.push('/login');
             return;
         }
 

@@ -16,8 +16,9 @@ export default function PremiumContent({ children }: PremiumContentProps) {
     useEffect(() => {
         const user = authService.getCurrentUser();
 
+        // Gated content: no session → login so returning users don't get full onboarding.
         if (!user) {
-            router.push("/welcome");
+            router.push("/login");
             return;
         }
 

@@ -13,11 +13,11 @@ const protectedRoots = [
   "/launchpad/edit",
 ];
 
-// Define paths that require premium subscription
-const premiumRoots = [
-  "/lessons",
-  "/courses",
-];
+// Paths that require Explorer (premium) are gated in-app:
+// - Lesson 2+ per course → paywall in LessonDetailClient
+// - /courses listing is open to authenticated users (free can access lesson 1 + community)
+// Launchpad submit stays auth-only (Challenge tier enforced by backend).
+const premiumRoots: string[] = [];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -68,7 +68,7 @@ export async function middleware(request: NextRequest) {
 
   if (!isAuthenticated) {
     console.log(`[Middleware] No valid session cookies found for ${pathname}. Redirecting to auth page.`);
-    const redirectUrl = pathname.startsWith("/admin") ? "/admin/login" : "/welcome";
+    const redirectUrl = pathname.startsWith("/admin") ? "/admin/login" : "/login";
     const url = new URL(redirectUrl, request.url);
     url.searchParams.set("reason", "unauthenticated");
     return NextResponse.redirect(url);
@@ -82,10 +82,10 @@ export async function middleware(request: NextRequest) {
 
   if (isPremiumPath) {
     if (!userCookie?.value) {
-      // Authenticated but missing user metadata for premium check
-      const welcomeUrl = new URL("/welcome", request.url);
-      welcomeUrl.searchParams.set("reason", "no_user_data");
-      return NextResponse.redirect(welcomeUrl);
+      // Authenticated but missing user metadata (session issue) → re-auth at login, not signup.
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("reason", "no_user_data");
+      return NextResponse.redirect(loginUrl);
     }
     try {
       const decodedUser = decodeURIComponent(userCookie.value);
@@ -104,9 +104,9 @@ export async function middleware(request: NextRequest) {
 
     } catch (error) {
       // Cookie parse error -> treat as session corrupted
-      const welcomeUrl = new URL("/welcome", request.url);
-      welcomeUrl.searchParams.set("reason", "session_parse_error");
-      return NextResponse.redirect(welcomeUrl);
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("reason", "session_parse_error");
+      return NextResponse.redirect(loginUrl);
     }
   }
 

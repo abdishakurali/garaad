@@ -312,12 +312,8 @@ export default function Page() {
             localStorage.removeItem('user');
           }
 
-          // Check premium status and redirect accordingly
-          if (result.user.is_premium) {
-            router.push('/courses');
-          } else {
-            router.push('/subscribe');
-          }
+          // Premium users go to courses; free users can access lesson 1 + community
+          router.push('/courses');
         } else {
           // User needs email verification
           // User needs email verification
@@ -766,6 +762,16 @@ export default function Page() {
                     </Link>
                   </label>
                 </div>
+
+                <p className="text-center text-sm text-muted-foreground pt-2">
+                  Horey ma uu kuu jiraan akoon?{" "}
+                  <Link
+                    href="/login"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Soo gal
+                  </Link>
+                </p>
               </div>
             )}
 
