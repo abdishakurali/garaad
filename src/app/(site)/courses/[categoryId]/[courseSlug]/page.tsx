@@ -29,32 +29,39 @@ async function getCourse(categoryId: string, courseSlug: string) {
     }
 }
 
+const OG_FALLBACK = "https://garaad.org/images/og-main.jpg";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { categoryId, courseSlug } = await params;
     const course = await getCourse(categoryId, courseSlug);
 
     if (!course) return { title: 'Koorso lama helin - Garaad' };
 
-    const title = `${course.title} | Baro Full-Stack Development | Garaad`;
+    const title = `${course.title} | Garaad`;
+    const canonicalUrl = `https://garaad.org/courses/${categoryId}/${courseSlug}`;
+    const rawDesc = typeof course.description === "string" ? course.description : "";
+    const description = rawDesc.length > 155 ? rawDesc.slice(0, 155).trim() + "…" : rawDesc.trim() || `Baro ${course.title} oo Af-Soomaali ah. Garaad.`;
+    const ogImage = course.thumbnail && (course.thumbnail.startsWith("http") ? course.thumbnail : `https://garaad.org${course.thumbnail.startsWith("/") ? "" : "/"}${course.thumbnail}`) || OG_FALLBACK;
 
     return {
         title,
-        description: `Baro ${course.title} oo Af-Soomaali ah. Skill-kaaga ${course.category || 'Tech'} ku dhis Garaad—macalin la'aan.`,
+        description,
+        alternates: { canonical: canonicalUrl },
         openGraph: {
+            type: "website",
+            url: canonicalUrl,
             title,
-            description: `Baro ${course.title} oo Af-Soomaali ah. Ku biir kumanaan dhalinyaro ah oo baranaya ${course.title}.`,
-            images: course.thumbnail ? [{ url: course.thumbnail }] : [],
-            type: 'website',
+            description,
+            images: [{ url: ogImage, width: 1200, height: 630 }],
         },
         twitter: {
-            card: 'summary_large_image',
+            card: "summary_large_image",
+            site: "@garaadorg",
             title,
-            description: course.description,
-            images: course.thumbnail ? [course.thumbnail] : [],
+            description,
+            images: [ogImage],
         },
-        alternates: {
-            canonical: `https://garaad.org/courses/${categoryId}/${courseSlug}`,
-        }
+        robots: { index: true, follow: true },
     };
 }
 

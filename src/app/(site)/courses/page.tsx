@@ -27,8 +27,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@garaadorg",
     title: "Koorsooyinka | Garaad",
     description: "Baro Full-Stack development, AI, iyo React af-Soomaali.",
+    images: ["https://garaad.org/images/og-main.jpg"],
   },
   robots: { index: true, follow: true },
 };

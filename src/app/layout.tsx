@@ -33,7 +33,10 @@ export const metadata: Metadata = {
   publisher: "Garaad STEM",
   alternates: {
     canonical: SITE_URL,
-    languages: { "so-SO": "/" },
+    languages: {
+      so: SITE_URL,
+      "x-default": SITE_URL,
+    },
   },
   openGraph: {
     type: "website",
@@ -46,6 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@garaadorg",
     title: "Garaad STEM - Baro STEM iyo Programming",
     description: "Platform-ka ugu horreeya ee Soomaalida loogu talagalay barashada STEM.",
     images: ["/images/og-main.jpg"],

@@ -30,9 +30,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@garaadorg",
     title: "Bulshada Garaad | Somali Developers",
     description:
       "Ku biir bulshada developers Soomaalida ah. Share garee aqoontaada, weydii su'aalo, kula shaqee.",
+    images: ["https://garaad.org/images/og-main.jpg"],
   },
   robots: { index: true, follow: true },
 };

@@ -1,22 +1,37 @@
 import { MetadataRoute } from "next";
 import { API_BASE_URL } from "@/lib/constants";
 
+const BASE_URL = "https://garaad.org";
+
+function withHreflang(
+  url: string,
+  entry: Omit<MetadataRoute.Sitemap[number], "url" | "alternates">
+): MetadataRoute.Sitemap[number] {
+  return {
+    ...entry,
+    url,
+    alternates: {
+      languages: { so: url, "x-default": url },
+    },
+  };
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://garaad.org";
+  const baseUrl = BASE_URL;
   const currentDate = new Date();
 
   // 1. Static routes — only URLs that return 200 with actual content (no redirects/404s)
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: currentDate, changeFrequency: "daily", priority: 1 },
-    { url: `${baseUrl}/courses`, lastModified: currentDate, changeFrequency: "daily", priority: 0.9 },
-    { url: `${baseUrl}/community-preview`, lastModified: currentDate, changeFrequency: "daily", priority: 0.8 },
-    { url: `${baseUrl}/launchpad`, lastModified: currentDate, changeFrequency: "daily", priority: 0.9 },
-    { url: `${baseUrl}/blog`, lastModified: currentDate, changeFrequency: "daily", priority: 0.8 },
-    { url: `${baseUrl}/welcome`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${baseUrl}/login`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${baseUrl}/about`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${baseUrl}/privacy`, lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${baseUrl}/terms`, lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 },
+    withHreflang(baseUrl, { lastModified: currentDate, changeFrequency: "daily", priority: 1 }),
+    withHreflang(`${baseUrl}/courses`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
+    withHreflang(`${baseUrl}/community-preview`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.8 }),
+    withHreflang(`${baseUrl}/launchpad`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
+    withHreflang(`${baseUrl}/blog`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.8 }),
+    withHreflang(`${baseUrl}/welcome`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 }),
+    withHreflang(`${baseUrl}/login`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 }),
+    withHreflang(`${baseUrl}/about`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 }),
+    withHreflang(`${baseUrl}/privacy`, { lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 }),
+    withHreflang(`${baseUrl}/terms`, { lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 }),
   ];
 
   const dynamicRoutes: MetadataRoute.Sitemap = [];
@@ -30,13 +45,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const cat of categories) {
       if (!cat) continue;
-      // Category Landing Page
-      dynamicRoutes.push({
-        url: `${baseUrl}/courses/${cat.id ?? cat.slug}`,
-        lastModified: currentDate,
-        changeFrequency: "weekly",
-        priority: 0.8,
-      });
+      const categoryUrl = `${baseUrl}/courses/${cat.id ?? cat.slug}`;
+      dynamicRoutes.push(
+        withHreflang(categoryUrl, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.8 })
+      );
 
       // Courses for this category
       const coursesRes = await fetch(`${API_BASE_URL}/api/lms/courses/?category=${cat.id}`, { next: { revalidate: 86400 } });
@@ -46,12 +58,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       for (const course of courses) {
         if (!course) continue;
         const coursePath = `/courses/${cat.id}/${course.slug}`;
-        dynamicRoutes.push({
-          url: `${baseUrl}${coursePath}`,
-          lastModified: new Date(course.updated_at || currentDate),
-          changeFrequency: "weekly",
-          priority: 0.8,
-        });
+        const courseUrl = `${baseUrl}${coursePath}`;
+        dynamicRoutes.push(
+          withHreflang(courseUrl, {
+            lastModified: new Date(course.updated_at || currentDate),
+            changeFrequency: "weekly",
+            priority: 0.8,
+          })
+        );
         // Lessons (e.g. .../lessons/:id) require auth — not in sitemap so all URLs return 200
       }
     }
@@ -65,12 +79,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     startups.forEach((startup: any) => {
       if (!startup) return;
-      dynamicRoutes.push({
-        url: `${baseUrl}/launchpad/${startup.slug || startup.id}`,
-        lastModified: new Date(startup.updated_at || currentDate),
-        changeFrequency: "daily",
-        priority: 0.8,
-      });
+      const url = `${baseUrl}/launchpad/${startup.slug || startup.id}`;
+      dynamicRoutes.push(
+        withHreflang(url, {
+          lastModified: new Date(startup.updated_at || currentDate),
+          changeFrequency: "daily",
+          priority: 0.8,
+        })
+      );
     });
 
     // 5. Community: canonical is /community-preview only (no ?post= URLs to avoid duplicate content)
@@ -82,12 +98,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     blogPosts.forEach((post: any) => {
       if (!post) return;
-      dynamicRoutes.push({
-        url: `${baseUrl}/blog/${post.slug}`,
-        lastModified: new Date(post.updated_at || post.published_at || currentDate),
-        changeFrequency: "weekly",
-        priority: 0.9,
-      });
+      const url = `${baseUrl}/blog/${post.slug}`;
+      dynamicRoutes.push(
+        withHreflang(url, {
+          lastModified: new Date(post.updated_at || post.published_at || currentDate),
+          changeFrequency: "weekly",
+          priority: 0.9,
+        })
+      );
     });
 
     // 7. Blog Tags
@@ -97,12 +115,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     blogTags.forEach((tag: any) => {
       if (!tag) return;
-      dynamicRoutes.push({
-        url: `${baseUrl}/blog/tag/${tag.slug}`,
-        lastModified: currentDate,
-        changeFrequency: "weekly",
-        priority: 0.7,
-      });
+      const url = `${baseUrl}/blog/tag/${tag.slug}`;
+      dynamicRoutes.push(
+        withHreflang(url, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.7 })
+      );
     });
 
   } catch (error) {

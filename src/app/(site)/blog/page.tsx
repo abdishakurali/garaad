@@ -28,8 +28,10 @@ export async function generateMetadata() {
     },
     twitter: {
       card: "summary_large_image",
+      site: "@garaadorg",
       title: "Blog — Garaad | Tech Af-Soomaali",
       description: "Maqaallada tech, coding, iyo AI ee af-Soomaali.",
+      images: ["https://garaad.org/images/og-main.jpg"],
     },
     robots: { index: true, follow: true },
   };

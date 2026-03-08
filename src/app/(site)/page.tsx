@@ -25,9 +25,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@garaadorg",
     title: "Garaad — Baro Coding Af-Soomaali | Full-Stack & AI",
     description:
       "Baro React, Next.js, iyo AI af-Soomaali. Koorsooyinka full-stack ee loogu talagalay developers Soomaalida ah.",
+    images: [`${SITE_URL}/images/og-main.jpg`],
   },
 };
 

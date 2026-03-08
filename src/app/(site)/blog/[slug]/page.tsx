@@ -16,12 +16,14 @@ export async function generateStaticParams() {
     }));
 }
 
-function descriptionFromBody(body: string | null | undefined, maxLength = 200): string {
+function descriptionFromBody(body: string | null | undefined, maxLength = 155): string {
     if (!body || typeof body !== "string") return "";
     const stripped = body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     if (stripped.length <= maxLength) return stripped;
     return stripped.slice(0, maxLength).trim() + "…";
 }
+
+const OG_FALLBACK = "https://garaad.org/images/og-main.jpg";
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
     const { slug } = await params;
@@ -35,14 +37,13 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         : ["Garaad Blog", "STEM Soomaali"];
 
     const description =
-        post.meta_description?.trim() ||
         post.excerpt?.trim() ||
-        descriptionFromBody(post.body);
-    const ogDescription = (description || post.title).slice(0, 150).trim();
-    const ogDescriptionFinal = ogDescription.length >= 150 ? ogDescription + "…" : ogDescription;
+        post.meta_description?.trim() ||
+        descriptionFromBody(post.body, 155);
+    const descFinal = (description || post.title).slice(0, 155).trim();
+    const ogDescription = descFinal.length >= 155 ? descFinal + "…" : descFinal;
 
-    // Ensure OG image is absolute, public URL (LinkedIn/Facebook crawl from their servers).
-    // Backend blog covers are served publicly at API_BASE/api/media/blog/covers/<path>.
+    // Ensure OG image is absolute; fallback to site OG if no cover
     const apiBase = (process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org").replace(/\/$/, "");
     const absoluteCoverImage = coverImage
         ? coverImage.startsWith("http")
@@ -51,6 +52,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
                   ? `${apiBase}/api/media/blog/covers/${coverImage.replace(/^.*blog\/covers\//, "")}`
                   : `https://garaad.org${coverImage.startsWith("/") ? "" : "/"}${coverImage}`)
         : undefined;
+    const ogImage = absoluteCoverImage || OG_FALLBACK;
 
     return {
         title: `${post.title} | Garaad Blog`,
@@ -59,21 +61,23 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         authors: post.author_name ? [{ name: post.author_name }] : undefined,
         alternates: { canonical: canonicalUrl },
         openGraph: {
-            title: post.title,
-            description: ogDescriptionFinal,
+            title: `${post.title} | Garaad Blog`,
+            description: ogDescription,
             type: "article",
             url: canonicalUrl,
             siteName: "Garaad",
             locale: "so_SO",
-            publishedTime: post.published_at,
+            publishedTime: post.published_at ?? undefined,
+            modifiedTime: post.updated_at ?? undefined,
             authors: post.author_name ? [post.author_name] : undefined,
-            images: absoluteCoverImage ? [{ url: absoluteCoverImage, width: 1200, height: 630 }] : [],
+            images: [{ url: ogImage, width: 1200, height: 630 }],
         },
         twitter: {
             card: "summary_large_image",
-            title: post.title,
-            description: description || post.title,
-            images: coverImage ? [coverImage] : [],
+            site: "@garaadorg",
+            title: `${post.title} | Garaad Blog`,
+            description: ogDescription,
+            images: [ogImage],
         },
         robots: { index: true, follow: true },
     };

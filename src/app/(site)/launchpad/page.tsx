@@ -19,8 +19,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@garaadorg",
     title: "Launchpad — Garaad | Somali Startups",
     description: "Ku soo bandhig startup-kaaga bulshada Garaad. Vote, comment, kuna biir ecosystem-ka.",
+    images: ["https://garaad.org/images/og-main.jpg"],
   },
   robots: { index: true, follow: true },
 };
