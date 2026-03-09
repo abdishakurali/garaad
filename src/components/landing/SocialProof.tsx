@@ -82,6 +82,7 @@ function buildToast(backendData: any[]): Toast {
 
 export function SocialProof() {
     const { user } = useAuthStore();
+    const isReady = useAuthReady();
     const pathname = usePathname();
     const [toast, setToast] = useState<Toast | null>(null);
     const [visible, setVisible] = useState(false);
