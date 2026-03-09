@@ -7,8 +7,9 @@ const BLOG_URL = "https://garaad.org/blog";
 
 export async function generateMetadata() {
   return {
-    title: "Blog — Garaad | Tech Af-Soomaali",
-    description: "Maqaallada tech, coding, iyo AI ee af-Soomaali.",
+    title: "Blog — Teknoolojiyada Soomaalida | Garaad",
+    description:
+      "Maqaallo ku saabsan Full-Stack Development, AI, iyo xirfadaha mustaqbalka — qoran Af-Soomaali.",
     keywords: [
       "Garaad Blog",
       "Tech Soomaali",
@@ -20,8 +21,9 @@ export async function generateMetadata() {
     openGraph: {
       type: "website",
       url: BLOG_URL,
-      title: "Blog — Garaad | Tech Af-Soomaali",
-      description: "Maqaallada tech, coding, iyo AI ee af-Soomaali.",
+      title: "Blog — Teknoolojiyada Soomaalida | Garaad",
+      description:
+        "Maqaallo ku saabsan Full-Stack Development, AI, iyo xirfadaha mustaqbalka — qoran Af-Soomaali.",
       images: [
         { url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Blog" },
       ],
@@ -29,8 +31,9 @@ export async function generateMetadata() {
     twitter: {
       card: "summary_large_image",
       site: "@garaadorg",
-      title: "Blog — Garaad | Tech Af-Soomaali",
-      description: "Maqaallada tech, coding, iyo AI ee af-Soomaali.",
+      title: "Blog — Teknoolojiyada Soomaalida | Garaad",
+      description:
+        "Maqaallo ku saabsan Full-Stack Development, AI, iyo xirfadaha mustaqbalka — qoran Af-Soomaali.",
       images: ["https://garaad.org/images/og-main.jpg"],
     },
     robots: { index: true, follow: true },

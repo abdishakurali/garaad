@@ -4,9 +4,9 @@ import { HomeContent } from "../home-content";
 const SITE_URL = "https://garaad.org";
 
 export const metadata: Metadata = {
-  title: "Garaad — Baro Coding Af-Soomaali | Full-Stack & AI",
+  title: "Garaad — Baro Full-Stack Dev & AI Af-Soomaali",
   description:
-    "Baro React, Next.js, iyo AI af-Soomaali. Koorsooyinka full-stack ee loogu talagalay developers Soomaalida ah.",
+    "Garaad waa platform-ka kowaad ee Full-Stack Development iyo AI lagu barto Af-Soomaali. Bilow maanta — bilaash ah.",
   keywords: [
     "somali coding",
     "learn programming somali",
@@ -18,17 +18,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    title: "Garaad — Baro Coding Af-Soomaali | Full-Stack & AI",
+    title: "Garaad — Baro Full-Stack Dev & AI Af-Soomaali",
     description:
-      "Baro React, Next.js, iyo AI af-Soomaali. Koorsooyinka full-stack ee loogu talagalay developers Soomaalida ah.",
+      "Garaad waa platform-ka kowaad ee Full-Stack Development iyo AI lagu barto Af-Soomaali. Bilow maanta — bilaash ah.",
     images: [{ url: `${SITE_URL}/images/og-main.jpg`, width: 1200, height: 630, alt: "Garaad" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@garaadorg",
-    title: "Garaad — Baro Coding Af-Soomaali | Full-Stack & AI",
+    title: "Garaad — Baro Full-Stack Dev & AI Af-Soomaali",
     description:
-      "Baro React, Next.js, iyo AI af-Soomaali. Koorsooyinka full-stack ee loogu talagalay developers Soomaalida ah.",
+      "Garaad waa platform-ka kowaad ee Full-Stack Development iyo AI lagu barto Af-Soomaali. Bilow maanta — bilaash ah.",
     images: [`${SITE_URL}/images/og-main.jpg`],
   },
 };

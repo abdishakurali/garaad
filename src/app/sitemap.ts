@@ -45,10 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const cat of categories) {
       if (!cat) continue;
-      const categoryUrl = `${baseUrl}/courses/${cat.id ?? cat.slug}`;
-      dynamicRoutes.push(
-        withHreflang(categoryUrl, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.8 })
-      );
+      // No page at /courses/[categoryId] only — skip category-only URLs to avoid 404s
 
       // Courses for this category
       const coursesRes = await fetch(`${API_BASE_URL}/api/lms/courses/?category=${cat.id}`, { next: { revalidate: 86400 } });

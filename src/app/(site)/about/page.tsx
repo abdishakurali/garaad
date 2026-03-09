@@ -4,19 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: "About Us | Garaad",
-  description: "Learn about Garaad's mission to systemize STEM education for the Somali generation through radical truth and merit-based learning.",
+  title: "About Garaad — STEM & Full-Stack Education Af-Soomaali",
+  description:
+    "Garaad waa platform-ka kowaad ee STEM iyo Full-Stack Development ee lagu barto Af-Soomaali. Mission: waxbarasho xaqiiq ah iyo merit. First Somali tech education platform.",
   alternates: { canonical: "https://garaad.org/about" },
   openGraph: {
     type: "website",
     locale: "so_SO",
     url: "https://garaad.org/about",
-    siteName: "Garaad STEM",
-    title: "About Garaad | STEM Education for the Somali Generation",
-    description: "Garaad's mission: systemize STEM education through radical truth and merit-based learning.",
-    images: [{ url: "/images/og-main.jpg", width: 1200, height: 630 }],
+    siteName: "Garaad",
+    title: "About Garaad — STEM & Full-Stack Education Af-Soomaali",
+    description:
+      "Garaad waa platform-ka kowaad ee STEM iyo Full-Stack Development ee lagu barto Af-Soomaali. Mission: waxbarasho xaqiiq ah iyo merit.",
+    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630 }],
   },
-  twitter: { card: "summary_large_image", title: "About Garaad" },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Garaad — STEM & Full-Stack Education Af-Soomaali",
+    description: "First Somali tech education platform. STEM iyo Full-Stack Af-Soomaali.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function AboutPage() {

@@ -5,9 +5,9 @@ import { API_BASE_URL } from "@/lib/constants";
 const COURSES_URL = "https://garaad.org/courses";
 
 export const metadata: Metadata = {
-  title: "Koorsooyinka | Garaad",
+  title: "Koorsooyin — Full-Stack MERN & AI | Garaad",
   description:
-    "Baro Full-Stack development, AI, iyo React af-Soomaali. Koorsooyinka step-by-step ah.",
+    "Baro React, Node.js, MongoDB iyo AI — Af-Soomaali. Koorsooyin loo qaabeeyey kuwa bilowga ah iyo xirfadlayaasha.",
   keywords: [
     "Koorsooyin Somali",
     "Baro Coding",
@@ -20,16 +20,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: COURSES_URL,
-    title: "Koorsooyinka | Garaad",
+    title: "Koorsooyin — Full-Stack MERN & AI | Garaad",
     description:
-      "Baro Full-Stack development, AI, iyo React af-Soomaali. Koorsooyinka step-by-step ah.",
+      "Baro React, Node.js, MongoDB iyo AI — Af-Soomaali. Koorsooyin loo qaabeeyey kuwa bilowga ah iyo xirfadlayaasha.",
     images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Koorsooyinka" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@garaadorg",
-    title: "Koorsooyinka | Garaad",
-    description: "Baro Full-Stack development, AI, iyo React af-Soomaali.",
+    title: "Koorsooyin — Full-Stack MERN & AI | Garaad",
+    description: "Baro React, Node.js, MongoDB iyo AI — Af-Soomaali. Koorsooyin loo qaabeeyey kuwa bilowga ah iyo xirfadlayaasha.",
     images: ["https://garaad.org/images/og-main.jpg"],
   },
   robots: { index: true, follow: true },

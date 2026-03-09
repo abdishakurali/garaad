@@ -9,31 +9,37 @@ const ClosingCTA = dynamic(() => import("@/components/landing/ClosingCTA").then(
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
-    title: "Challenge — 4–6 Toddobaad oo Mentorship",
-    description: "Qorshaha Challenge: €149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup). wey ku jiraan koorsooyinka",
-    keywords: [
-        "Tartanka dhisidda software-ka",
-        "Barashada IT-ga casriga ah",
-        "Dhisidda SaaS iyo AI",
-        "Ganacsiga digital-ka ah",
-        "Somali tech builders",
-        "SaaS development Somalia",
-        "First Somali SaaS challenge",
-        "Garaad Academy",
-        "AI for business Somalia",
-    ],
-    alternates: { canonical: "https://garaad.org/challenge" },
-    openGraph: {
-        type: "website",
-        locale: "so_SO",
-        url: "https://garaad.org/challenge",
-        siteName: "Garaad STEM",
-        title: "Challenge — 4–6 Toddobaad oo Mentorship",
-        description: "€149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup).",
-        images: [{ url: "/images/og-main.jpg", width: 1200, height: 630 }],
-    },
-    twitter: { card: "summary_large_image", title: "Challenge — Garaad" },
-    robots: { index: true, follow: true },
+  title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
+  description:
+    "Garaad Challenge: €149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup-kaaga). Quarterly program for Somali builders. Program for Somali tech founders.",
+  keywords: [
+    "Tartanka dhisidda software-ka",
+    "Barashada IT-ga casriga ah",
+    "Dhisidda SaaS iyo AI",
+    "Ganacsiga digital-ka ah",
+    "Somali tech builders",
+    "SaaS development Somalia",
+    "First Somali SaaS challenge",
+    "Garaad Academy",
+    "AI for business Somalia",
+  ],
+  alternates: { canonical: "https://garaad.org/challenge" },
+  openGraph: {
+    type: "website",
+    locale: "so_SO",
+    url: "https://garaad.org/challenge",
+    siteName: "Garaad",
+    title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
+    description:
+      "€149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup). Quarterly program for Somali tech founders.",
+    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
+    description: "Quarterly mentorship and launchpad program for Somali builders. €149 one-time.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function ChallengePage() {

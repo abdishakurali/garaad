@@ -24,16 +24,16 @@ export function Sidebar() {
                     Koorsooyinka
                 </Link>
                 <Link
-                    href="/achievements"
-                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/achievements' ? 'bg-gray-50 text-primary' : ''
+                    href="/dashboard"
+                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/dashboard' ? 'bg-gray-50 text-primary' : ''
                         }`}
                 >
                     <Trophy className="w-5 h-5 mr-3" />
                     Guulaha
                 </Link>
                 <Link
-                    href="/settings"
-                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/settings' ? 'bg-gray-50 text-primary' : ''
+                    href="/profile"
+                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/profile' ? 'bg-gray-50 text-primary' : ''
                         }`}
                 >
                     <Settings className="w-5 h-5 mr-3" />

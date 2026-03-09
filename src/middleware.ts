@@ -71,7 +71,7 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = pathname.startsWith("/admin") ? "/admin/login" : "/login";
     const url = new URL(redirectUrl, request.url);
     url.searchParams.set("reason", "unauthenticated");
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(url, 308);
   }
 
   // --- 4. Premium Access Check ---
@@ -84,7 +84,7 @@ export async function middleware(request: NextRequest) {
       // Authenticated but missing user metadata (session issue) → re-auth at login, not signup.
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("reason", "no_user_data");
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(loginUrl, 308);
     }
     try {
       const decodedUser = decodeURIComponent(userCookie.value);
@@ -99,13 +99,13 @@ export async function middleware(request: NextRequest) {
       console.log("User is not premium, redirecting to subscribe");
       const subscribeUrl = new URL("/subscribe", request.url);
       subscribeUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(subscribeUrl);
+      return NextResponse.redirect(subscribeUrl, 308);
 
     } catch (error) {
       // Cookie parse error -> treat as session corrupted
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("reason", "session_parse_error");
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(loginUrl, 308);
     }
   }
 
