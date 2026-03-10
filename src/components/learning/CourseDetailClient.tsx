@@ -9,6 +9,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
+import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 
@@ -59,6 +60,9 @@ export function CourseDetailClient() {
         progress,
         isLoading: isProgressLoading,
     } = useUserProgress();
+
+    const { progress: gamificationStatus } = useGamificationData();
+    const xp = (gamificationStatus as { xp?: number } | undefined)?.xp ?? 0;
 
     const isLoading = isCourseLoading || isEnrollmentsLoading || isProgressLoading;
     const error = courseError;
@@ -237,6 +241,7 @@ export function CourseDetailClient() {
                                     progress={progress ?? []}
                                     activeModuleId={activeModuleId}
                                     firstLessonIdOfCourse={firstLessonIdOfCourse}
+                                    xp={xp}
                                 />
                             )}
                         </div>

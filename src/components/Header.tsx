@@ -37,12 +37,35 @@ export function Header() {
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Gamification data for streak display
-  const { streak, isLoading: streakLoading, hasError: streakError } = useGamificationData();
+  // Gamification data for streak display and XP badge
+  const { streak, progress: gamificationStatus, isLoading: streakLoading, hasError: streakError } = useGamificationData();
+  const authReady = useAuthReady();
+  const xp = (gamificationStatus ?? streak) as { xp?: number } | undefined;
+  const xpValue = xp?.xp ?? 0;
+  const [prevXp, setPrevXp] = useState(xpValue);
+  const [xpPulse, setXpPulse] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (user && typeof window !== "undefined") {
+      setIsPremium(AuthService.getInstance().isPremium());
+    } else {
+      setIsPremium(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (xpValue !== prevXp && authReady) {
+      setPrevXp(xpValue);
+      setXpPulse(true);
+      const t = setTimeout(() => setXpPulse(false), 200);
+      return () => clearTimeout(t);
+    }
+  }, [xpValue, prevXp, authReady]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -186,6 +209,17 @@ export function Header() {
                   <NotificationPanel />
                 </>
               )}
+              {authReady && user && isPremium && (
+                <span
+                  className={clsx(
+                    "hidden md:inline-flex items-center gap-1.5 rounded-full bg-purple-600/20 text-purple-400 px-2.5 py-1 text-sm font-medium border border-purple-500/30 transition-transform duration-200",
+                    xpPulse && "motion-safe:scale-110"
+                  )}
+                >
+                  <span aria-hidden>⚡</span>
+                  <span>{xpValue} XP</span>
+                </span>
+              )}
               <ThemeToggle />
               {mounted && user ? (
                 <ProfileDropdown />
@@ -197,6 +231,17 @@ export function Header() {
             {/* Mobile: Only show essential icons + hamburger */}
             <div className="flex md:hidden items-center gap-2">
               {mounted && user && <NotificationPanel />}
+              {authReady && user && isPremium && (
+                <span
+                  className={clsx(
+                    "inline-flex items-center justify-center w-9 h-9 rounded-full bg-purple-600/20 text-purple-400 border border-purple-500/30 transition-transform duration-200",
+                    xpPulse && "motion-safe:scale-110"
+                  )}
+                  title={`${xpValue} XP`}
+                >
+                  ⚡
+                </span>
+              )}
               <ThemeToggle />
               <button
                 onClick={() => setIsMobileMenuOpen(true)}

@@ -4,8 +4,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Module } from "@/types/learning";
 import { UserProgress } from "@/services/progress";
-import { PlayCircle, ReplyIcon, CheckCircle, UserPlus } from "lucide-react";
+import { PlayCircle, ReplyIcon, CheckCircle, UserPlus, Lock } from "lucide-react";
 import AuthService from "@/services/auth";
+import { cn } from "@/lib/utils";
 
 interface ModuleZigzagProps {
     modules: Module[];
@@ -14,6 +15,8 @@ interface ModuleZigzagProps {
     activeModuleId?: number;
     /** First lesson of the course by order (same as LessonDetailClient). Free tier can only start this lesson. */
     firstLessonIdOfCourse?: number | null;
+    /** Total XP from gamification (optional). Shown in progress summary. */
+    xp?: number;
 }
 
 export default function ModuleZigzag({
@@ -22,6 +25,7 @@ export default function ModuleZigzag({
     onModuleClick,
     activeModuleId,
     firstLessonIdOfCourse = null,
+    xp,
 }: ModuleZigzagProps) {
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -131,109 +135,120 @@ export default function ModuleZigzag({
     const isPremium = authService.isPremium();
     const canStartLesson = isAuthenticated && (isPremium || isFirstLessonOfCourse);
 
+    const completedCount = useMemo(
+        () => progress.filter((p) => p.status === "completed" && uniqueModules.some((m) => m.title === p.lesson_title)).length,
+        [progress, uniqueModules]
+    );
+    const totalCount = uniqueModules.length;
+    const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+    const isModuleLocked = useCallback(
+        (moduleId: number) => {
+            if (!isAuthenticated || isPremium) return false;
+            const firstLessonId = uniqueModules.find((m) => m.id === moduleId)?.lessons?.[0]?.id;
+            return firstLessonId != null && firstLessonIdOfCourse != null && Number(firstLessonId) !== Number(firstLessonIdOfCourse);
+        },
+        [isAuthenticated, isPremium, uniqueModules, firstLessonIdOfCourse]
+    );
+
     return (
         <div className="max-w-md mx-auto p-4 pb-32">
+            {/* Progress summary at top */}
+            <div className="flex items-center justify-between mb-8 px-2">
+                <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 rounded-full border-2 border-white/20 bg-white/5 flex items-center justify-center">
+                        <span className="text-sm font-bold text-white">{completedCount}/{totalCount}</span>
+                        <svg className="absolute inset-0 w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+                            <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
+                            <circle cx="18" cy="18" r="16" fill="none" stroke="#7c3aed" strokeWidth="3" strokeDasharray={`${progressPercent * 1.68} 168`} strokeLinecap="round" className="transition-all duration-600 ease-out" />
+                        </svg>
+                    </div>
+                    <span className="text-sm text-gray-400">{totalCount} casharro</span>
+                </div>
+                {xp !== undefined && (
+                    <span className="rounded-full bg-purple-600/20 text-purple-400 px-3 py-1 text-sm font-medium border border-purple-500/30">
+                        {xp} XP
+                    </span>
+                )}
+            </div>
+
             {/* Course Modules - Zigzag Pattern */}
             <ul className="list-none p-0 m-0">
                 {uniqueModules.map((module, index) => {
                     const isCompleted = isModuleCompleted(module.title);
                     const isActive = activeModuleId === module.id;
                     const isSelected = selectedModule?.id === module.id;
+                    const isLocked = isModuleLocked(module.id);
                     const isRightAligned = index % 2 === 1;
+                    const titleParts = module.title.split(' ');
+                    const titleFirst = titleParts.slice(0, -1).join(' ');
+                    const titleLast = titleParts.slice(-1).join(' ');
+
+                    const circleContent = (
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center">
+                            {isCompleted && (
+                                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center">
+                                    <CheckCircle className="w-6 h-6 text-white" strokeWidth={2.5} />
+                                </div>
+                            )}
+                            {!isCompleted && (isActive || isSelected) && (
+                                <div className="w-12 h-12 rounded-full border-2 border-purple-500 flex items-center justify-center bg-transparent">
+                                    <span className="w-2 h-2 rounded-full bg-purple-400 motion-safe:animate-pulse" />
+                                </div>
+                            )}
+                            {!isCompleted && !(isActive || isSelected) && isLocked && (
+                                <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
+                                    <Lock className="w-5 h-5 text-gray-500" />
+                                </div>
+                            )}
+                            {!isCompleted && !(isActive || isSelected) && !isLocked && (
+                                <div className="w-12 h-12 rounded-full border-2 border-white/40 flex items-center justify-center group-hover:border-purple-500/50 transition-colors">
+                                    <PlayCircle className="w-5 h-5 text-gray-400 group-hover:text-purple-400" />
+                                </div>
+                            )}
+                        </div>
+                    );
 
                     return (
                         <li
                             key={module.id}
-                            className={`flex items-center mb-12 cursor-pointer transition-all duration-200 ${isRightAligned ? 'justify-end mr-4' : 'ml-4'
-                                } hover:opacity-80`}
-                            onClick={() => handleModuleClick(module)}
+                            className={cn(
+                                "flex items-center mb-10 cursor-pointer transition-all duration-200 group",
+                                isRightAligned ? "justify-end mr-4" : "ml-4",
+                                isLocked && "cursor-not-allowed opacity-80"
+                            )}
+                            onClick={() => !isLocked && handleModuleClick(module)}
                         >
                             {isRightAligned ? (
                                 <>
-                                    {/* Text on the left */}
-                                    <div className="text-right">
-                                        <h3 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                            }`}>
-                                            {module.title.split(' ').slice(0, -1).join(' ')}
-                                        </h3>
-                                        <h4 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                            }`}>
-                                            {module.title.split(' ').slice(-1).join(' ')}
-                                        </h4>
-                                    </div>
-                                    {/* Icon on the right */}
-                                    <div className="ml-6">
-                                        <div className="relative">
-                                            {/* Colored gradient rings based on status */}
-                                            <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
-                                                ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
-                                                : isActive || isSelected
-                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
-                                                    : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
-                                                }`}>
-                                                <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
-                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
-                                                        ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                        : isActive || isSelected
-                                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                            : 'bg-gradient-to-br from-gray-300 to-gray-400'
-                                                        }`}>
-                                                        <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
-                                                            {isCompleted && (
-                                                                <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                            )}
-                                                            {(isActive || isSelected) && !isCompleted && (
-                                                                <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div className="text-right flex-1">
+                                        <div className="flex items-center justify-end gap-2 flex-wrap">
+                                            <h3 className={cn(
+                                                "text-base transition-colors duration-300",
+                                                isCompleted && "font-normal text-gray-300 dark:text-slate-400",
+                                                (isActive || isSelected) && "font-bold text-white",
+                                                isLocked && "text-gray-500",
+                                                !isCompleted && !(isActive || isSelected) && !isLocked && "font-medium text-gray-300"
+                                            )}>{titleFirst} {titleLast}</h3>
+                                            {isCompleted && <span className="text-xs text-emerald-500/80">completed</span>}
                                         </div>
                                     </div>
+                                    <div className="ml-4">{circleContent}</div>
                                 </>
                             ) : (
                                 <>
-                                    {/* Icon on the left */}
-                                    <div className="mr-6">
-                                        <div className="relative">
-                                            {/* Colored gradient rings based on status */}
-                                            <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform ${isCompleted
-                                                ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-100'
-                                                : isActive || isSelected
-                                                    ? 'bg-gradient-to-br from-purple-400 to-purple-600 scale-105'
-                                                    : 'bg-gradient-to-br from-gray-300 to-gray-400 scale-100'
-                                                }`}>
-                                                <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
-                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCompleted
-                                                        ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                        : isActive || isSelected
-                                                            ? 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                                            : 'bg-gradient-to-br from-gray-300 to-gray-400'
-                                                        }`}>
-                                                        <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
-                                                            {isCompleted && (
-                                                                <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                            )}
-                                                            {(isActive || isSelected) && !isCompleted && (
-                                                                <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div className="mr-4">{circleContent}</div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <h3 className={cn(
+                                                "text-base transition-colors duration-300",
+                                                isCompleted && "font-normal text-gray-300 dark:text-slate-400",
+                                                (isActive || isSelected) && "font-bold text-white",
+                                                isLocked && "text-gray-500",
+                                                !isCompleted && !(isActive || isSelected) && !isLocked && "font-medium text-gray-300"
+                                            )}>{titleFirst} {titleLast}</h3>
+                                            {isCompleted && <span className="text-xs text-emerald-500/80">completed</span>}
                                         </div>
-                                    </div>
-                                    {/* Text on the right */}
-                                    <div>
-                                        <h3 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                            }`}>
-                                            {module.title.split(' ').slice(0, -1).join(' ')}
-                                        </h3>
-                                        <h4 className={`text-base font-medium transition-colors duration-300 ${isActive || isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-700'
-                                            }`}>
-                                            {module.title.split(' ').slice(-1).join(' ')}
-                                        </h4>
                                     </div>
                                 </>
                             )}

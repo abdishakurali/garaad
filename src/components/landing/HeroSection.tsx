@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
@@ -9,10 +8,6 @@ import { API_BASE_URL } from "@/lib/constants";
 import { PRICING } from "@/config/pricing";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
-
-// Prevent hero animation from re-running on second mount (React Strict Mode double-mount).
-// Module-level so it persists across remounts in the same page load; resets on full refresh.
-let heroAnimationAlreadyRun = false;
 
 const CATEGORIES_SWR_KEY = `${API_BASE_URL}/api/lms/categories/`;
 
@@ -50,11 +45,6 @@ export function HeroSection() {
   const user = useAuthStore((s) => s.user);
   const isLoggedIn = !!user;
 
-  const skipAnimation = heroAnimationAlreadyRun;
-  useEffect(() => {
-    heroAnimationAlreadyRun = true;
-  }, []);
-
   const { data: stats, error: statsError } = useSWR<LandingStats>(
     `${API_BASE_URL}/api/public/landing-stats/`,
     fetcher,
@@ -74,18 +64,6 @@ export function HeroSection() {
 
   return (
     <div className="min-h-screen bg-[#050508] dark:bg-[#050508]">
-      <style>{`
-        .hero-marquee {
-          display: flex;
-          width: max-content;
-          animation: hero-marquee 24s linear infinite;
-        }
-        @keyframes hero-marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
-        }
-      `}</style>
-
       <section
         className="relative flex min-h-screen flex-col justify-center px-6 py-20 sm:px-8 md:px-10 lg:px-12 xl:px-16"
         style={{ maxWidth: 1200, margin: "0 auto" }}
@@ -105,7 +83,7 @@ export function HeroSection() {
 
         <div className="relative z-10 grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">
           {/* Left — Copy */}
-          <div className={skipAnimation ? "hero-animate-done" : "hero-animate-headline"}>
+          <div className="hero-animate-done">
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
               Af-Soomaali · Full-Stack & AI
             </p>
@@ -143,7 +121,7 @@ export function HeroSection() {
           </div>
 
           {/* Right — Koorsooyin card, courses list, AI course section */}
-          <div className={skipAnimation ? "hero-animate-done relative space-y-5" : "hero-animate-cta relative space-y-5"}>
+          <div className="hero-animate-done relative space-y-5">
             {/* Koorsooyin — Full-Stack & AI in Somali */}
             <Link
               href={isLoggedIn ? "/courses" : "/welcome"}
@@ -191,25 +169,21 @@ export function HeroSection() {
         </div>
       </section>
 
-      {/* Tech slider — centered */}
+      {/* Tech strip — centered, no animation */}
       <div className="border-y border-white/10 bg-white/[0.02] py-6">
-        <div className="mx-auto flex justify-center overflow-hidden px-6" style={{ maxWidth: 1200 }}>
-          <div className="hero-marquee items-center gap-12 sm:gap-16">
-            {[...Array(3)].map((_, outer) =>
-              TECH_ICONS.map(({ name, Icon }, i) => (
-                <span
-                  key={`${outer}-${i}`}
-                  className="flex shrink-0 items-center justify-center gap-2.5 text-white/50"
-                  title={name}
-                >
-                  <Icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
-                  <span className="font-mono text-xs font-medium uppercase tracking-wider">
-                    {name}
-                  </span>
+        <div className="mx-auto flex justify-center flex-wrap items-center gap-12 sm:gap-16 px-6" style={{ maxWidth: 1200 }}>
+            {TECH_ICONS.map(({ name, Icon }) => (
+              <span
+                key={name}
+                className="flex shrink-0 items-center justify-center gap-2.5 text-white/50"
+                title={name}
+              >
+                <Icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                <span className="font-mono text-xs font-medium uppercase tracking-wider">
+                  {name}
                 </span>
-              ))
-            )}
-          </div>
+              </span>
+            ))}
         </div>
       </div>
     </div>

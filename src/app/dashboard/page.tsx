@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ProgressCard } from "@/components/progress/ProgressCard";
 import { PracticeSet } from "@/components/practice/PracticeSet";
+import { GamificationPanel } from "@/components/gamification/GamificationPanel";
 import { progressService } from "@/services/progress";
 import { practiceService } from "@/services/practice";
 import type {
@@ -51,10 +52,11 @@ export default function DashboardPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Boorka Shaqada</h1>
 
-      <div className="grid gap-8">
-        <ProgressCard progress={progress} />
+      <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
+        <div className="space-y-8">
+          <ProgressCard progress={progress} />
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {practiceSets.map((practiceSet) => (
             <PracticeSet
               key={practiceSet.id}
@@ -66,6 +68,11 @@ export default function DashboardPage() {
             />
           ))}
         </div>
+        </div>
+
+        <aside className="lg:sticky lg:top-24 h-fit">
+          <GamificationPanel />
+        </aside>
       </div>
     </div>
   );

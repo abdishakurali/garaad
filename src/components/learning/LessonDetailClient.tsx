@@ -3,10 +3,11 @@
 import type React from "react";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { useLearningStore } from "@/store/useLearningStore";
-import { useLesson, useCourse, useCategories, useProblem } from "@/hooks/useApi";
+import { useLesson, useCourse, useCategories, useProblem, useEnrollments, useUserProgress } from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
 import {
     ChevronRight,
@@ -33,7 +34,7 @@ import { useSoundManager } from "@/hooks/use-sound-effects";
 import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { useGamificationData } from "@/hooks/useGamificationData";
-import RewardSequence from "@/components/RewardSequence";
+import { LessonCompleteModal } from "@/components/learning/LessonCompleteModal";
 import { LessonPaywall } from "@/components/learning/LessonPaywall";
 import dynamic from "next/dynamic";
 
@@ -253,6 +254,8 @@ export function LessonDetailClient() {
     // Local state
     const [mounted, setMounted] = useState(false);
     const [showCompletionAnimation, setShowCompletionAnimation] = useState(false);
+    /** Score at completion (frontend value) for the modal */
+    const [completionScore, setCompletionScore] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [isCorrect, setIsCorrect] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
@@ -276,6 +279,8 @@ export function LessonDetailClient() {
     const [currentXp, setCurrentXp] = useState(10);
 
     const { streak, leaderboard, mutateAll } = useGamificationData();
+    const { enrollments } = useEnrollments();
+    const { progress: userProgress } = useUserProgress();
 
     const { playSound } = useSoundManager();
     const continueRef = useRef<() => void>(() => { });
@@ -613,7 +618,8 @@ export function LessonDetailClient() {
             return;
         }
 
-        // Handle completion with animation
+        // Handle completion with modal
+        setCompletionScore(isCorrect ? 100 : 0);
         setShowCompletionAnimation(true);
 
         if (currentLesson?.id) {
@@ -639,7 +645,7 @@ export function LessonDetailClient() {
                     `/api/lms/lessons/${currentLesson.id}/complete/`,
                     {
                         completed_problems: completedProblemIds,
-                        score: isCorrect ? 100 : 0,
+                        total_score: isCorrect ? 100 : 0,
                     }
                 );
                 // Refresh gamification data after completion
@@ -922,18 +928,39 @@ export function LessonDetailClient() {
     if (showCompletionAnimation) {
         // Ordered by lesson_number to match backend
         const sortedLessons = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
-        const isLastLessonOfCourse = sortedLessons.length > 0 &&
-            sortedLessons[sortedLessons.length - 1].id === currentLesson?.id;
+        const currentIdx = sortedLessons.findIndex(l => l.id === currentLesson?.id);
+        const nextLesson = currentIdx !== -1 && currentIdx < sortedLessons.length - 1 ? sortedLessons[currentIdx + 1] : null;
+        const totalLessonsCount = sortedLessons.length || 1;
+        const enrollmentProgressPercent = courseIdFromSlug && enrollments
+            ? (enrollments.find((e: { course: number }) => e.course === courseIdFromSlug) as { progress_percent?: number } | undefined)?.progress_percent ?? 0
+            : 0;
+        const currentCourseTitle = currentCourse?.title;
+        const completedForCourse = (userProgress ?? []).filter(
+            (p: { status: string; course_title?: string }) =>
+                p.status === "completed" && (!currentCourseTitle || p.course_title === currentCourseTitle)
+        );
+        const completedLessonsCount = Math.min(
+            completedForCourse.length + 1,
+            totalLessonsCount
+        );
+        const courseProgressPercent = totalLessonsCount > 0
+            ? Math.round((completedLessonsCount / totalLessonsCount) * 100)
+            : enrollmentProgressPercent;
+        const currentStreak = (streak as { current_streak?: number } | null)?.current_streak ?? 0;
 
         return (
-            <RewardSequence
-                streak={streak}
-                leaderboard={leaderboard}
-                completedLesson={currentLesson?.title || ""}
-                courseTitle={currentCourse?.title}
-                isCourseComplete={isLastLessonOfCourse}
-                onContinue={handleCompletionAnimationFinish}
-                onBack={() => router.push(coursePath)}
+            <LessonCompleteModal
+                lessonTitle={currentLesson?.title || ""}
+                score={completionScore}
+                xpEarned={20}
+                currentStreak={currentStreak}
+                courseProgressPercent={courseProgressPercent}
+                completedLessonsCount={completedLessonsCount}
+                totalLessonsCount={totalLessonsCount}
+                hasNextLesson={!!nextLesson}
+                onNextLesson={handleCompletionAnimationFinish}
+                onReview={() => setShowCompletionAnimation(false)}
+                onDashboard={() => setShowCompletionAnimation(false)}
             />
         );
     }
