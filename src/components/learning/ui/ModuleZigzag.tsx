@@ -165,14 +165,14 @@ export default function ModuleZigzag({
                     </div>
                     <span className="text-sm text-gray-400">{totalCount} casharro</span>
                 </div>
-                {xp !== undefined && (
+                {isAuthenticated && xp !== undefined && (
                     <span className="rounded-full bg-purple-600/20 text-purple-400 px-3 py-1 text-sm font-medium border border-purple-500/30">
                         {xp} XP
                     </span>
                 )}
             </div>
 
-            {/* Course Modules - Zigzag Pattern */}
+            {/* Course Modules - Zigzag Pattern (original gradient ring style) */}
             <ul className="list-none p-0 m-0">
                 {uniqueModules.map((module, index) => {
                     const isCompleted = isModuleCompleted(module.title);
@@ -180,32 +180,32 @@ export default function ModuleZigzag({
                     const isSelected = selectedModule?.id === module.id;
                     const isLocked = isModuleLocked(module.id);
                     const isRightAligned = index % 2 === 1;
-                    const titleParts = module.title.split(' ');
-                    const titleFirst = titleParts.slice(0, -1).join(' ');
-                    const titleLast = titleParts.slice(-1).join(' ');
+
+                    const ringClasses = cn(
+                        "w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out transform",
+                        isCompleted && "bg-gradient-to-br from-purple-400 to-purple-600 scale-100",
+                        (isActive || isSelected) && !isCompleted && "bg-gradient-to-br from-purple-400 to-purple-600 scale-105",
+                        !(isActive || isSelected) && !isCompleted && "bg-gradient-to-br from-gray-300 to-gray-400 scale-100"
+                    );
+                    const innerClasses = cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out",
+                        (isCompleted || (isActive || isSelected)) && "bg-gradient-to-br from-purple-400 to-purple-600",
+                        !isCompleted && !(isActive || isSelected) && "bg-gradient-to-br from-gray-300 to-gray-400"
+                    );
 
                     const circleContent = (
-                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center">
-                            {isCompleted && (
-                                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center">
-                                    <CheckCircle className="w-6 h-6 text-white" strokeWidth={2.5} />
+                        <div className="relative">
+                            <div className={ringClasses}>
+                                <div className="w-16 h-16 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-500">
+                                    <div className={innerClasses}>
+                                        <div className="w-8 h-8 bg-white dark:bg-black rounded-full flex items-center justify-center transition-all duration-300 shadow-inner">
+                                            {isCompleted && <CheckCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />}
+                                            {!isCompleted && isLocked && <Lock className="w-4 h-4 text-gray-500 transition-all duration-300" />}
+                                            {!isCompleted && !isLocked && <PlayCircle className="w-4 h-4 text-purple-600 transition-all duration-300" />}
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
-                            {!isCompleted && (isActive || isSelected) && (
-                                <div className="w-12 h-12 rounded-full border-2 border-purple-500 flex items-center justify-center bg-transparent">
-                                    <span className="w-2 h-2 rounded-full bg-purple-400 motion-safe:animate-pulse" />
-                                </div>
-                            )}
-                            {!isCompleted && !(isActive || isSelected) && isLocked && (
-                                <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
-                                    <Lock className="w-5 h-5 text-gray-500" />
-                                </div>
-                            )}
-                            {!isCompleted && !(isActive || isSelected) && !isLocked && (
-                                <div className="w-12 h-12 rounded-full border-2 border-white/40 flex items-center justify-center group-hover:border-purple-500/50 transition-colors">
-                                    <PlayCircle className="w-5 h-5 text-gray-400 group-hover:text-purple-400" />
-                                </div>
-                            )}
+                            </div>
                         </div>
                     );
 
@@ -213,7 +213,7 @@ export default function ModuleZigzag({
                         <li
                             key={module.id}
                             className={cn(
-                                "flex items-center mb-10 cursor-pointer transition-all duration-200 group",
+                                "flex items-center mb-12 cursor-pointer transition-all duration-200",
                                 isRightAligned ? "justify-end mr-4" : "ml-4",
                                 isLocked && "cursor-not-allowed opacity-80"
                             )}
@@ -221,34 +221,38 @@ export default function ModuleZigzag({
                         >
                             {isRightAligned ? (
                                 <>
-                                    <div className="text-right flex-1">
-                                        <div className="flex items-center justify-end gap-2 flex-wrap">
-                                            <h3 className={cn(
-                                                "text-base transition-colors duration-300",
-                                                isCompleted && "font-normal text-gray-300 dark:text-slate-400",
-                                                (isActive || isSelected) && "font-bold text-white",
-                                                isLocked && "text-gray-500",
-                                                !isCompleted && !(isActive || isSelected) && !isLocked && "font-medium text-gray-300"
-                                            )}>{titleFirst} {titleLast}</h3>
-                                            {isCompleted && <span className="text-xs text-emerald-500/80">completed</span>}
-                                        </div>
+                                    <div className="text-right">
+                                        <h3 className={cn(
+                                            "text-base font-medium transition-colors duration-300",
+                                            (isActive || isSelected) ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-slate-700"
+                                        )}>
+                                            {module.title.split(' ').slice(0, -1).join(' ')}
+                                        </h3>
+                                        <h4 className={cn(
+                                            "text-base font-medium transition-colors duration-300",
+                                            (isActive || isSelected) ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-slate-700"
+                                        )}>
+                                            {module.title.split(' ').slice(-1).join(' ')}
+                                        </h4>
                                     </div>
-                                    <div className="ml-4">{circleContent}</div>
+                                    <div className="ml-6">{circleContent}</div>
                                 </>
                             ) : (
                                 <>
-                                    <div className="mr-4">{circleContent}</div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <h3 className={cn(
-                                                "text-base transition-colors duration-300",
-                                                isCompleted && "font-normal text-gray-300 dark:text-slate-400",
-                                                (isActive || isSelected) && "font-bold text-white",
-                                                isLocked && "text-gray-500",
-                                                !isCompleted && !(isActive || isSelected) && !isLocked && "font-medium text-gray-300"
-                                            )}>{titleFirst} {titleLast}</h3>
-                                            {isCompleted && <span className="text-xs text-emerald-500/80">completed</span>}
-                                        </div>
+                                    <div className="mr-6">{circleContent}</div>
+                                    <div>
+                                        <h3 className={cn(
+                                            "text-base font-medium transition-colors duration-300",
+                                            (isActive || isSelected) ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-slate-700"
+                                        )}>
+                                            {module.title.split(' ').slice(0, -1).join(' ')}
+                                        </h3>
+                                        <h4 className={cn(
+                                            "text-base font-medium transition-colors duration-300",
+                                            (isActive || isSelected) ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-slate-700"
+                                        )}>
+                                            {module.title.split(' ').slice(-1).join(' ')}
+                                        </h4>
                                     </div>
                                 </>
                             )}
