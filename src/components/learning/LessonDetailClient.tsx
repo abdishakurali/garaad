@@ -826,29 +826,31 @@ export function LessonDetailClient() {
             case "code":
                 const codeContent = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
                 return (
-                    <div className="max-w-3xl mx-auto px-4 space-y-4">
-                        <div className="bg-zinc-950 rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+                    <div className="w-full mx-3 sm:mx-4 lg:mx-0 space-y-4">
+                        <div className="bg-zinc-950 rounded-xl lg:rounded-2xl overflow-hidden shadow-2xl border border-white/[0.09] overflow-x-auto">
                             <ShikiCode code={codeContent.code || ""} language={codeContent.language || "javascript"} />
                         </div>
                         {codeContent.explanation && (
-                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/5">
-                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                            <div className="mx-3 sm:mx-4 lg:mx-0 bg-white/[0.06] backdrop-blur-sm rounded-xl lg:rounded-2xl p-4 lg:p-6 border border-white/[0.09]">
+                                <p className="text-slate-300 text-sm leading-relaxed italic">
                                     {codeContent.explanation}
                                 </p>
                             </div>
                         )}
-                        <Button onClick={handleContinue} className="w-full h-12 rounded-xl font-bold">
-                            {isLastBlock ? "Dhamee" : "Sii wado"}
-                            <ChevronRight className="ml-2 h-5 w-5" />
-                        </Button>
+                        <div className="mx-3 sm:mx-4 lg:mx-0 mb-2">
+                            <Button onClick={handleContinue} className="w-full min-h-[44px] h-12 rounded-xl text-base font-semibold">
+                                {isLastBlock ? "Dhamee" : "Sii wado"}
+                                <ChevronRight className="ml-2 h-5 w-5" />
+                            </Button>
+                        </div>
                     </div>
                 );
 
             case "example":
                 const exampleContent = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
                 return (
-                    <div className="max-w-2xl mx-auto px-4">
-                        <div className="bg-amber-50/50 dark:bg-amber-500/10 border border-amber-200/50 dark:border-amber-500/20 rounded-3xl p-8 space-y-4">
+                    <div className="w-full mx-3 sm:mx-4 lg:mx-0">
+                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl lg:rounded-3xl p-5 sm:p-8 space-y-4">
                             <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400 font-bold uppercase tracking-widest text-xs">
                                 <Sparkles className="w-4 h-4" />
                                 Tusaale
@@ -974,22 +976,23 @@ export function LessonDetailClient() {
     if (!mounted) return null;
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background overflow-x-hidden overscroll-y-contain">
             <LessonHeader
                 currentQuestion={currentBlockIndex + 1}
                 totalQuestions={sortedBlocks?.length || 0}
                 coursePath={coursePath}
                 onDotClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
                 completedLessons={[]}
+                lessonTitle={currentLesson?.title}
             />
 
-            <main className="pt-20 pb-32">
-                <div className="container mx-auto">
+            <main className="pt-16 px-0 sm:pt-[4.5rem] sm:px-4 lg:pt-20 lg:px-8 pb-[max(6rem,env(safe-area-inset-bottom))] sm:pb-28 lg:pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
+                <div className="w-full max-w-2xl lg:max-w-3xl mx-auto">
                     {/* Review Mode Indicator */}
                     {isReviewMode && (
-                        <div className="max-w-2xl mx-auto px-4 mb-4">
+                        <div className="mx-3 sm:mx-4 lg:mx-0 mb-4">
                             <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-2">
-                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <div className="w-2 h-2 bg-green-500 rounded-full shrink-0" />
                                 <span className="text-green-400 text-sm font-bold">
                                     Muraajacee - Casharkan waa la dhammeeyay, waxaad ku celcelaysaa
                                 </span>
@@ -997,7 +1000,7 @@ export function LessonDetailClient() {
                         </div>
                     )}
 
-                    <div className="flex flex-col items-center w-full overflow-hidden">
+                    <div className="flex flex-col items-center w-full overflow-hidden space-y-0 sm:space-y-4">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentBlockIndex}

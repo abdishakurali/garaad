@@ -204,7 +204,7 @@ const ProblemBlock: React.FC<{
       const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
       const buttonClass = cn(
-        "group w-full p-3.5 md:p-4.5 text-xs md:text-sm rounded-2xl border-2 transition-all duration-300 relative text-left outline-none flex items-center gap-4",
+        "group w-full min-h-[44px] p-4 py-3 text-sm sm:text-base rounded-2xl border-2 transition-all duration-300 relative text-left outline-none flex items-center gap-3 sm:gap-4",
         // Default state
         !isSelected && !hasAnswered && "border-slate-200/60 dark:border-white/10 bg-white dark:bg-zinc-800/50 hover:border-primary/40 text-slate-700 dark:text-slate-300 shadow-sm hover:shadow-md hover:-translate-y-0.5",
         // Selected state (not answered yet) - Premium Lavender/Purple
@@ -217,11 +217,10 @@ const ProblemBlock: React.FC<{
         isDisabled && !isSelected && "border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-transparent text-slate-400/40 cursor-not-allowed grayscale opacity-40 shadow-none"
       );
 
-      // For multiple choice, use checkbox style; for single choice, use radio/letter style
       const indicatorClass = cn(
         isMultipleChoice
           ? "w-6 h-6 rounded-md flex items-center justify-center border-2 transition-all duration-300 shrink-0"
-          : "w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black border-2 transition-all duration-300 shrink-0",
+          : "w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-xs font-black border-2 transition-all duration-300 shrink-0",
         !isSelected && !hasAnswered && "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 text-slate-400 group-hover:bg-primary/10 group-hover:border-primary/40 group-hover:text-primary",
         isSelected && !hasAnswered && "bg-primary border-primary text-white shadow-lg shadow-primary/20",
         isOptionCorrect && "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20",
@@ -268,7 +267,7 @@ const ProblemBlock: React.FC<{
             </span>
           </div>
           {isSelected && !hasAnswered && (
-            <div className="absolute right-6 scale-110">
+            <div className="absolute right-4 flex items-center justify-center w-5 h-5">
               <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
             </div>
           )}
@@ -388,12 +387,12 @@ const ProblemBlock: React.FC<{
     }
 
     return (
-      <div className="w-full max-w-3xl mx-auto px-4 pb-12">
+      <div className="w-full mx-3 sm:mx-4 lg:mx-0 max-w-3xl mx-auto pb-12">
         <div className="space-y-8">
           {/* Question Card */}
-          <div className="overflow-hidden rounded-3xl bg-white/5 dark:bg-black/40 backdrop-blur-sm border border-black/5 dark:border-white/5 relative shadow-xl">
-            <div className="p-6 md:p-10 space-y-10">
-              <div className="space-y-6 text-center max-w-2xl mx-auto">
+          <div className="overflow-hidden rounded-2xl lg:rounded-3xl bg-white/[0.06] dark:bg-black/40 backdrop-blur-sm border border-white/[0.09] dark:border-white/[0.09] relative shadow-xl">
+            <div className="p-5 sm:p-6 md:p-10 space-y-8 sm:space-y-10">
+              <div className="space-y-5 sm:space-y-6 text-center max-w-2xl mx-auto">
                 {content.which && (
                   <div className="inline-flex items-center px-3 py-1 rounded-lg bg-primary/5 border border-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
                     {content.content?.type === "latex" ? (
@@ -406,7 +405,7 @@ const ProblemBlock: React.FC<{
                   </div>
                 )}
 
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight">
+                <h2 className="text-lg sm:text-xl font-semibold text-foreground leading-snug tracking-tight mb-5 sm:mb-6">
                   {content.question_type === "code" || content.question?.includes("```") ? (
                     <ShikiCode
                       code={content.question?.replace(/```[a-z]*\n?|```/g, "") || ""}
@@ -564,7 +563,7 @@ const ProblemBlock: React.FC<{
               ) : (
                 <div
                   className={cn(
-                    "grid gap-4 w-full",
+                    "grid gap-2 sm:gap-3 w-full",
                     content.question_type === "diagram" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
                   )}
                 >
@@ -574,14 +573,14 @@ const ProblemBlock: React.FC<{
             </div>
 
             {/* Bottom Actions */}
-            <div className="px-5 md:px-8 pb-12 flex flex-col items-center">
+            <div className="px-4 sm:px-5 md:px-8 pb-8 sm:pb-12 flex flex-col items-center">
               {!hasAnswered && (
                 <Button
                   onClick={onCheckAnswer}
                   disabled={isMultipleChoice ? selectedOptions.length === 0 : !selectedOption}
                   size="xl"
                   className={cn(
-                    "w-full h-14 rounded-2xl font-bold transition-all duration-300 shadow-lg active:scale-[0.98]",
+                    "w-full min-h-[44px] h-12 sm:h-14 rounded-2xl font-bold transition-all duration-300 shadow-lg active:scale-[0.98]",
                     (isMultipleChoice ? selectedOptions.length > 0 : selectedOption) ? "shadow-primary/20" : "shadow-none opacity-50"
                   )}
                 >

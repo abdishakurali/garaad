@@ -95,9 +95,9 @@ export function CodeChallengeBlock({
   }, [starterCode]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 pb-12">
-      <div className="overflow-hidden rounded-3xl bg-white/5 dark:bg-black/40 backdrop-blur-sm border border-black/5 dark:border-white/5 relative shadow-xl">
-        <div className="p-6 md:p-10 space-y-8">
+    <div className="w-full mx-3 sm:mx-4 lg:mx-0 pb-12">
+      <div className="overflow-hidden rounded-2xl lg:rounded-3xl bg-white/[0.06] dark:bg-black/40 backdrop-blur-sm border border-white/[0.09] dark:border-white/[0.09] relative shadow-xl">
+        <div className="p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
           {/* Question header */}
           <div className="space-y-4 text-center max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2">
@@ -106,21 +106,19 @@ export function CodeChallengeBlock({
               </span>
             </div>
             <h2
-              className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight text-left"
+              className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight text-left"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
               {questionText}
             </h2>
           </div>
 
-          {/* Optional starter hint */}
           {hintFromStarter && (
             <div className="rounded-r-xl border-l-4 border-amber-500/60 bg-zinc-900 px-4 py-3">
               <p className="text-sm italic text-zinc-400">{hintFromStarter}</p>
             </div>
           )}
 
-          {/* Code editor */}
           <CodeEditor
             value={code}
             onChange={setCode}
@@ -129,12 +127,12 @@ export function CodeChallengeBlock({
             minLines={10}
           />
 
-          {/* Action row */}
-          <div className="flex items-center justify-between gap-4">
+          {/* Action row — stack on mobile, side by side tablet+ */}
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
             <Button
               onClick={handleRun}
               disabled={isRunning}
-              className="h-11 rounded-xl font-bold bg-primary hover:bg-primary/90 transition-all"
+              className="min-h-[44px] h-11 w-full sm:w-auto rounded-xl font-bold bg-primary hover:bg-primary/90 transition-all"
             >
               {isRunning ? (
                 <>
@@ -149,25 +147,23 @@ export function CodeChallengeBlock({
               variant="ghost"
               onClick={handleReset}
               disabled={isRunning}
-              className="h-11 rounded-xl text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+              className="min-h-[44px] h-11 w-full sm:w-auto rounded-xl text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
             >
               <RotateCcw className="mr-2 h-4 w-4" />
               Dib u bilow
             </Button>
           </div>
 
-          {/* Test results (after first run) */}
           {hasRun && testResults && (
             <TestResults results={testResults} isRunning={isRunning} />
           )}
 
-          {/* Explanation (after all passed) */}
           {allPassed && explanation && (
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 transition-opacity duration-500 opacity-100">
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-6 transition-opacity duration-500 opacity-100">
               <p className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
                 Sharaxaad:
               </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              <p className="text-sm text-slate-300 leading-relaxed">
                 {explanation}
               </p>
             </div>

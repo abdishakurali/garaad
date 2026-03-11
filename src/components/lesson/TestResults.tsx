@@ -77,8 +77,8 @@ export function TestResults({ results, isRunning }: TestResultsProps) {
                 <X className="h-5 w-5 shrink-0 text-red-400" />
               )}
               <span
-                className="flex-1 text-sm font-medium text-white"
-                style={{ fontFamily: "Inter, sans-serif", fontSize: 14 }}
+                className="flex-1 text-sm font-medium text-white min-w-0 truncate"
+                style={{ fontFamily: "Inter, sans-serif" }}
               >
                 {r.label}
               </span>
@@ -97,12 +97,13 @@ export function TestResults({ results, isRunning }: TestResultsProps) {
             {!isRunning && !r.passed && (
               <div className="mt-2 space-y-1 pl-8">
                 {r.received !== undefined && (
-                  <p className="font-mono text-xs text-zinc-400">
-                    La filayay: {formatValue(r.expected)} &nbsp; La helay: {formatValue(r.received)}
-                  </p>
+                  <div className="font-mono text-xs text-zinc-400 overflow-x-auto">
+                    <span className="inline-block min-w-0">La filayay: <span className="text-slate-300 break-all">{formatValue(r.expected)}</span></span>
+                    <span className="inline-block min-w-0 mt-0.5">La helay: <span className="text-slate-300 break-all">{formatValue(r.received)}</span></span>
+                  </div>
                 )}
                 {r.error && (
-                  <p className="font-mono text-xs text-red-400">{r.error}</p>
+                  <p className="font-mono text-xs text-red-400 break-all">{r.error}</p>
                 )}
               </div>
             )}

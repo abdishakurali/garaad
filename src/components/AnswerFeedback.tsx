@@ -97,16 +97,17 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     <div
                         key="answer-feedback-banner"
                         className="fixed inset-x-0 bottom-0 z-50 flex justify-center"
+                        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
                     >
                         <div
                             className={cn(
-                                "w-full max-w-3xl p-6 md:p-8 rounded-t-[2rem] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border-t border-x transition-all duration-300",
+                                "w-full min-h-[80px] p-4 sm:p-6 md:p-8 rounded-t-2xl sm:rounded-t-[2rem] shadow-[0_-8px_30px_rgba(0,0,0,0.2)] border-t transition-all duration-300",
                                 isCorrect
-                                    ? "bg-white/95 dark:bg-zinc-900/95 border-emerald-500/25 backdrop-blur-xl"
-                                    : "bg-white/95 dark:bg-zinc-900/95 border-slate-200 dark:border-white/10 backdrop-blur-xl"
+                                    ? "bg-emerald-900/90 sm:bg-white/95 sm:dark:bg-zinc-900/95 border-emerald-500 backdrop-blur-xl"
+                                    : "bg-red-900/90 sm:bg-white/95 sm:dark:bg-zinc-900/95 border-red-500 sm:border-slate-200 sm:dark:border-white/10 backdrop-blur-xl"
                             )}
                         >
-                            <div className="flex flex-col md:flex-row items-center gap-6">
+                            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 sm:gap-6">
                                 {/* Left side: Icon + Text + XP */}
                                 <div className="flex items-center gap-4 text-left flex-1">
                                     <div
@@ -144,28 +145,13 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                     </div>
                                 </div>
 
-                                {/* Right side: Action Buttons */}
-                                <div className="flex items-center gap-3 w-full md:w-auto">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={handleWhyClick}
-                                        className={cn(
-                                            "h-12 rounded-xl font-black px-5 text-sm transition-colors",
-                                            isCorrect
-                                                ? "hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
-                                                : "hover:bg-slate-500/10 hover:text-slate-600 dark:hover:text-slate-400"
-                                        )}
-                                    >
-                                        <Info className="mr-2 h-4 w-4 stroke-[2.5]" />
-                                        Sharaxaad
-                                    </Button>
-
+                                {/* Right side: Action Buttons — full width on mobile, h-12 min touch target */}
+                                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                                     <Button
                                         size="lg"
                                         onClick={buttonAction}
                                         className={cn(
-                                            "flex-1 md:flex-none h-12 px-10 rounded-xl gap-2 text-white font-black text-lg transition-all active:scale-[0.96] shadow-xl",
+                                            "w-full min-h-[44px] h-12 px-6 sm:flex-1 md:flex-none rounded-xl gap-2 text-white font-black text-base sm:text-lg transition-all active:scale-[0.96] shadow-xl",
                                             isCorrect
                                                 ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/30"
                                                 : "bg-slate-600 hover:bg-slate-500 shadow-slate-500/30"
@@ -173,6 +159,20 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                     >
                                         {buttonText}
                                         <ChevronRight className="h-5 w-5 stroke-[3]" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleWhyClick}
+                                        className={cn(
+                                            "min-h-[44px] h-12 rounded-xl font-black px-5 text-sm transition-colors w-full sm:w-auto",
+                                            isCorrect
+                                                ? "hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 text-emerald-100 sm:text-inherit"
+                                                : "hover:bg-slate-500/10 hover:text-slate-600 dark:hover:text-slate-400 text-slate-100 sm:text-inherit"
+                                        )}
+                                    >
+                                        <Info className="mr-2 h-4 w-4 stroke-[2.5]" />
+                                        Sharaxaad
                                     </Button>
 
                                     <Suspense fallback={null}>

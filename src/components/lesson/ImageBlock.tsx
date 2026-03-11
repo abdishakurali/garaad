@@ -68,9 +68,9 @@ const ImageBlock: React.FC<{
   ];
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4">
-      <div className="w-full bg-white/5 dark:bg-black/40 backdrop-blur-sm rounded-3xl border border-black/5 dark:border-white/5 overflow-hidden transition-all duration-500 hover:bg-black/5 dark:hover:bg-black/50">
-        <div className="flex flex-col p-6 md:p-10 space-y-8">
+    <div className="w-full mx-3 sm:mx-4 lg:mx-0">
+      <div className="w-full bg-white/[0.06] dark:bg-black/40 backdrop-blur-sm rounded-2xl lg:rounded-3xl border border-white/[0.09] dark:border-white/[0.09] overflow-hidden transition-all duration-500 hover:bg-white/[0.09] dark:hover:bg-black/50">
+        <div className="flex flex-col p-5 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
           {imageSections.map((section, index) => (
             <div key={index} className="space-y-6">
               {/* Text before image */}
@@ -101,10 +101,10 @@ const ImageBlock: React.FC<{
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6 mb-2">
         <Button
           onClick={onContinue}
-          className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
+          className="w-full min-h-[44px] h-12 rounded-xl text-base font-semibold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
         >
           {isLastBlock ? "Dhamee" : "Sii wado"}
           <ChevronRight className="ml-2 h-5 w-5" />
