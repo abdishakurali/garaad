@@ -268,16 +268,18 @@ export function GamificationPanel() {
             ))}
           </div>
         ) : !myProjects || myProjects.length === 0 ? (
-          <p className="text-sm text-gray-400 mb-3">
-            {LAUNCHPAD_UI_TEXT.noProjects} {LAUNCHPAD_UI_TEXT.startCourseBuild}
-          </p>
-          <Link
-            href="/launchpad/submit-project"
-            className="inline-flex items-center gap-2 text-sm font-medium text-purple-400 hover:text-purple-300"
-          >
-            <Plus className="w-4 h-4" />
-            {LAUNCHPAD_UI_TEXT.submitProject}
-          </Link>
+          <>
+            <p className="text-sm text-gray-400 mb-3">
+              {LAUNCHPAD_UI_TEXT.noProjects} {LAUNCHPAD_UI_TEXT.startCourseBuild}
+            </p>
+            <Link
+              href="/launchpad/submit-project"
+              className="inline-flex items-center gap-2 text-sm font-medium text-purple-400 hover:text-purple-300"
+            >
+              <Plus className="w-4 h-4" />
+              {LAUNCHPAD_UI_TEXT.submitProject}
+            </Link>
+          </>
         ) : (
           <>
             <ul className="space-y-2">
