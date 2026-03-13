@@ -5,13 +5,13 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { ChevronRight, CheckCircle2 } from "lucide-react";
 import { Course } from "@/types/lms";
-import { getAbsoluteImageUrl } from "@/lib/utils";
+import { getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 
 const defaultCourseImage = "/images/placeholder-category.svg";
 
 function courseImageSrc(src: string | null | undefined): string {
-  const resolved = getAbsoluteImageUrl(src, defaultCourseImage);
+  const resolved = getCourseThumbnailUrl(src, defaultCourseImage);
   return optimizeCloudinaryUrl(resolved) || defaultCourseImage;
 }
 

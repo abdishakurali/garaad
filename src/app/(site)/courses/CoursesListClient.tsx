@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { cn, getAbsoluteImageUrl } from "@/lib/utils";
+import { cn, getAbsoluteImageUrl, getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
@@ -19,6 +19,12 @@ const defaultCourseImage = "/images/placeholder-category.svg";
 
 function safeImageSrc(src: string | null | undefined, fallback: string): string {
   const resolved = getAbsoluteImageUrl(src, fallback);
+  const optimized = optimizeCloudinaryUrl(resolved);
+  return optimized || fallback;
+}
+
+function safeCourseImageSrc(src: string | null | undefined, fallback: string): string {
+  const resolved = getCourseThumbnailUrl(src, fallback);
   const optimized = optimizeCloudinaryUrl(resolved);
   return optimized || fallback;
 }
@@ -40,12 +46,12 @@ const CategoryImage = ({ src, alt }: { src?: string; alt: string }) => {
 };
 
 const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string; priority?: boolean }) => {
-  const imageSrc = safeImageSrc(src, defaultCourseImage);
+  const imageSrc = safeCourseImageSrc(src, defaultCourseImage);
   const [displaySrc, setDisplaySrc] = useState(imageSrc);
   const [errored, setErrored] = useState(false);
 
   useEffect(() => {
-    setDisplaySrc(safeImageSrc(src, defaultCourseImage));
+    setDisplaySrc(safeCourseImageSrc(src, defaultCourseImage));
     setErrored(false);
   }, [src]);
 

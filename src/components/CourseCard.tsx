@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import type { Course } from "@/types/lms";
-import { getAbsoluteImageUrl } from "@/lib/utils";
+import { getCourseThumbnailUrl } from "@/lib/utils";
 
 const defaultCourseImage = "/images/placeholder-course.svg";
 
@@ -20,7 +20,7 @@ export function CourseCard({
   isActive,
   onClick,
 }: CourseCardProps) {
-  const imageSrc = getAbsoluteImageUrl(course.thumbnail ?? null, defaultCourseImage);
+  const imageSrc = getCourseThumbnailUrl(course.thumbnail ?? null, defaultCourseImage);
 
   if (!course.is_published) {
     return (

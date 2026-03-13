@@ -22,6 +22,21 @@ export function getAbsoluteImageUrl(url: string | null | undefined, defaultImage
 }
 
 /**
+ * Resolve course thumbnail URL. Backend serves course images at /api/media/courses/<filename>.
+ * Handles: full URL (Cloudinary etc.), relative path (courses/foo.png or foo.png), or null → default.
+ */
+export function getCourseThumbnailUrl(thumbnail: string | null | undefined, defaultImage: string): string {
+  const u = typeof thumbnail === "string" ? thumbnail.trim() : "";
+  if (!u) return defaultImage;
+  if (u.startsWith("http://") || u.startsWith("https://")) return u;
+  if (u.startsWith("/images/")) return u;
+  const base = API_BASE_URL.replace(/\/$/, "");
+  const path = u.replace(/^\/+/, "").replace(/^media\/+/, "");
+  const filename = path.startsWith("courses/") ? path.replace(/^courses\/+/, "") : path;
+  return `${base}/api/media/courses/${filename}`;
+}
+
+/**
  * Get the full authenticated backend media URL for a given file and type
  * @param filename - The file name, path, or full URL
  * @param type - The type of media (profile_pics, community_posts, courses, or generic)

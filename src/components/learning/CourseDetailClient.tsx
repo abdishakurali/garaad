@@ -11,7 +11,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
 import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
-import { getAbsoluteImageUrl } from "@/lib/utils";
+import { getCourseThumbnailUrl } from "@/lib/utils";
 
 const ModuleZigzag = dynamic(
     () =>
@@ -182,11 +182,17 @@ export function CourseDetailClient() {
                         <div className="flex mb-6 border-border dark:border-slate-800 border-2 px-4 py-2 rounded-md w-fit bg-slate-50 dark:bg-black">
                             <div className="relative w-16 h-16">
                                 <Image
-                                    src={optimizeCloudinaryUrl(getAbsoluteImageUrl(currentCourse.thumbnail ?? null, defaultCourseImage)) || defaultCourseImage}
+                                    src={optimizeCloudinaryUrl(getCourseThumbnailUrl(currentCourse.thumbnail ?? null, defaultCourseImage)) || defaultCourseImage}
                                     alt={currentCourse.title}
                                     fill
                                     className="object-contain"
                                     priority
+                                    onError={(e) => {
+                                        const target = e.currentTarget;
+                                        if (target.src !== defaultCourseImage) {
+                                            target.src = defaultCourseImage;
+                                        }
+                                    }}
                                 />
                             </div>
                         </div>
