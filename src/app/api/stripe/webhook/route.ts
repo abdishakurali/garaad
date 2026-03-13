@@ -3,6 +3,9 @@ import { getServerStripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import type { Stripe } from "stripe";
 
+// Stripe only considers the webhook delivered if we return HTTP 200–299.
+// Use the LIVE webhook signing secret in production (Dashboard → Webhooks → endpoint → Signing secret).
+
 export async function GET() {
   console.log("🔍 GET request to Stripe webhook endpoint");
   console.log("📅 Timestamp:", new Date().toISOString());
@@ -100,6 +103,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
+    // Process the event. We always return 200 after verifying the signature so Stripe
+    // marks the event as delivered and does not retry. Log and continue if processing fails.
     try {
       switch (event.type) {
         case "customer.subscription.created":
@@ -137,16 +142,13 @@ export async function POST(request: NextRequest) {
         default:
           console.log(`⚠️ Unhandled event type: ${event.type}`);
       }
-
       console.log("✅ Webhook processed successfully");
-      return NextResponse.json({ received: true }, { status: 200 });
     } catch (error) {
-      console.error("❌ Error processing webhook:", error);
-      return NextResponse.json(
-        { error: "Webhook processing failed" },
-        { status: 500 }
-      );
+      // Log but do NOT return 5xx — Stripe would retry. Return 200 so delivery is acknowledged.
+      console.error("❌ Error processing webhook (event already verified):", error);
     }
+
+    return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error("❌ Unexpected error in webhook handler:", error);
     return NextResponse.json(

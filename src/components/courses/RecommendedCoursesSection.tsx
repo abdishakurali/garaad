@@ -1,5 +1,7 @@
 "use client";
 
+// Deprecated — recommendations moved to admin panel only. Kept for reference; do not use in user-facing UI.
+
 import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";

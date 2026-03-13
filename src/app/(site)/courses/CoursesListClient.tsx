@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCategories, useEnrollments, useOnboarding } from "@/hooks/useApi";
+import { useCategories, useEnrollments } from "@/hooks/useApi";
 import { Category, Course } from "@/types/lms";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -81,7 +81,6 @@ const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string
 export function CoursesListClient() {
     const { categories, isLoading: isSWRLoading, isError } = useCategories();
     const { enrollments } = useEnrollments();
-    const { goal_label, hasOnboardingData } = useOnboarding();
     const searchParams = useSearchParams();
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const { isAuthenticated } = useAuthStore();
@@ -127,34 +126,6 @@ export function CoursesListClient() {
     }
 
     const safeCategories = Array.isArray(categories) ? categories : [];
-
-    // Flatten courses with category id for links; recommended first when user has onboarding
-    const recommendedCourses = (() => {
-        if (!safeCategories.length) return [];
-        const flat: { course: Course; categoryId: string }[] = [];
-        for (const cat of safeCategories) {
-            if (!cat?.courses?.length) continue;
-            for (const c of cat.courses) {
-                if (c?.is_published && c.recommended) flat.push({ course: c, categoryId: String(cat.id) });
-            }
-        }
-        return flat;
-    })();
-    const popularCourses = (() => {
-        if (recommendedCourses.length > 0) return [];
-        const flat: { course: Course; categoryId: string }[] = [];
-        for (const cat of safeCategories) {
-            if (!cat?.courses?.length) continue;
-            for (const c of cat.courses) {
-                if (c?.is_published) flat.push({ course: c, categoryId: String(cat.id) });
-            }
-        }
-        return flat.slice(0, 6);
-    })();
-    const spotlightCourses = recommendedCourses.length > 0 ? recommendedCourses : popularCourses;
-    const spotlightTitle = hasOnboardingData && goal_label
-        ? `Based on your goal: ${goal_label}`
-        : "Popular courses";
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
@@ -211,67 +182,6 @@ export function CoursesListClient() {
 
             <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
                 <div className="space-y-32">
-                    {/* Recommended for you / Popular courses */}
-                    {!isLoading && spotlightCourses.length > 0 && (
-                        <div className="animate-fade-in-up">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
-                                <h2 className="text-2xl md:text-4xl font-black tracking-tight text-foreground">
-                                    {spotlightTitle}
-                                </h2>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-                                {spotlightCourses.map(({ course, categoryId }) => {
-                                    const courseProgress = getCourseProgress(course.id);
-                                    const hasStarted = courseProgress !== undefined && courseProgress > 0;
-                                    const isComplete = courseProgress === 100;
-                                    return (
-                                        <Link
-                                            key={course.id}
-                                            href={`/courses/${categoryId}/${course.slug}`}
-                                            className="group h-full"
-                                        >
-                                            <Card className="relative h-full flex flex-col overflow-hidden bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:-translate-y-2 transition-all duration-500 rounded-[2.5rem]">
-                                                {isComplete && (
-                                                    <div className="absolute top-4 right-4 z-20 rounded-2xl bg-emerald-500/90 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-1">
-                                                        <CheckCircle2 className="w-3.5 h-3.5" /> Dhameystirmay
-                                                    </div>
-                                                )}
-                                                <div className="relative h-40 bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center rounded-t-[2.5rem]">
-                                                    <CourseImage src={course.thumbnail} alt={course.title ?? ""} />
-                                                    {course.is_new && !isComplete && (
-                                                        <div className="absolute top-4 right-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl z-20 shadow-lg animate-pulse-slow">
-                                                            CUSUB
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="relative p-6 flex-1 flex flex-col bg-white dark:bg-slate-900">
-                                                    <h3 className="font-black text-xl mb-3 line-clamp-1 leading-tight group-hover:text-primary transition-colors duration-300">
-                                                        {course.title}
-                                                    </h3>
-                                                    {course.description && (
-                                                        <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-6 font-medium leading-relaxed">
-                                                            {course.description}
-                                                        </p>
-                                                    )}
-                                                    <div className="mt-auto flex items-center justify-between pt-5 border-t border-slate-100 dark:border-slate-800">
-                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                                                            {!hasStarted && (isAuthenticated ? "Bilow" : "KU SOO BIIR")}
-                                                            {hasStarted && !isComplete && "Sii wad"}
-                                                            {isComplete && "Muraajacee"}
-                                                        </span>
-                                                        <div className="w-9 h-9 rounded-2xl bg-slate-50 dark:bg-black flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300 group-hover:rotate-12">
-                                                            <ChevronRight size={16} />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </Card>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
                     {(isLoading ? Array(3).fill(null) : safeCategories
                         .filter(cat => cat?.courses && cat.courses.length > 0)
                         .sort((a, b) => {

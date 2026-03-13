@@ -108,9 +108,50 @@ export interface RecentActivity {
     }[];
 }
 
+/** Admin users list (paginated) — for Users tab with onboarding + recommended_courses */
+export interface AdminUserOnboarding {
+    goal: string;
+    goal_label: string;
+    topic: string;
+    time_per_day: string;
+}
+
+export interface AdminUserRow {
+    id: number;
+    name: string;
+    email: string;
+    date_joined: string | null;
+    last_login: string | null;
+    is_premium: boolean;
+    onboarding: AdminUserOnboarding | null;
+    recommended_courses: string[];
+    completions: number;
+    last_active: string | null;
+}
+
+export interface AdminUsersResponse {
+    count: number;
+    next: number | null;
+    previous: number | null;
+    results: AdminUserRow[];
+    summary?: {
+        total_users: number;
+        premium: number;
+        with_onboarding: number;
+        no_onboarding: number;
+    };
+}
+
 export const analyticsService = {
     getUsers: async (): Promise<UserAnalytics> => {
         const response = await api.get("/lms/analytics/users/");
+        return response.data;
+    },
+    getAdminUsers: async (page: number = 1, search?: string): Promise<AdminUsersResponse> => {
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        if (search && search.trim()) params.set("search", search.trim());
+        const response = await api.get(`/admin/users/?${params.toString()}`);
         return response.data;
     },
     getRevenue: async (): Promise<RevenueAnalytics> => {

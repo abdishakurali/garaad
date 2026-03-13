@@ -221,8 +221,8 @@ const ProblemBlock: React.FC<{
         isSelected && !hasAnswered && "border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold ring-2 ring-primary/30 ring-inset",
         // Correct (user selected this and it's right)
         isOptionCorrect && "border-emerald-500 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-100 font-semibold",
-        // Incorrect (user selected this and it's wrong)
-        isOptionIncorrect && "border-red-500 bg-red-500/15 dark:bg-red-500/20 text-red-800 dark:text-red-100 font-semibold",
+        // Incorrect (user selected this and it's wrong) — gray with X icon
+        isOptionIncorrect && "border-slate-300 dark:border-zinc-500 bg-slate-100 dark:bg-zinc-700/80 text-slate-600 dark:text-zinc-300 font-semibold",
         // Correct answer not selected (show after wrong submit)
         isCorrectUnselected && "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold",
         // Disabled (other options after correct or locked)
@@ -235,7 +235,7 @@ const ProblemBlock: React.FC<{
         !isSelected && !hasAnswered && !isCorrectUnselected && "border-slate-300 dark:border-zinc-500 bg-slate-50 dark:bg-zinc-700/50 text-slate-500 dark:text-zinc-400",
         isSelected && !hasAnswered && "border-primary bg-primary text-white",
         isOptionCorrect && "border-emerald-500 bg-emerald-500 text-white",
-        isOptionIncorrect && "border-red-500 bg-red-500 text-white",
+        isOptionIncorrect && "border-slate-400 dark:border-zinc-500 bg-slate-200 dark:bg-zinc-600 text-slate-600 dark:text-zinc-200",
         isCorrectUnselected && "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
         isDisabled && !isSelected && !isCorrectUnselected && "border-slate-200 dark:border-zinc-600 bg-slate-100 dark:bg-zinc-700/50 text-slate-400"
       );

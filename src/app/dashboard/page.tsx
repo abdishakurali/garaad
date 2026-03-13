@@ -5,11 +5,9 @@ import Link from "next/link";
 import { ProgressCard } from "@/components/progress/ProgressCard";
 import { PracticeSet } from "@/components/practice/PracticeSet";
 import { GamificationPanel } from "@/components/gamification/GamificationPanel";
-import { RecommendedCoursesSection } from "@/components/courses/RecommendedCoursesSection";
 import { progressService } from "@/services/progress";
 import { practiceService } from "@/services/practice";
-import { useCategories, useOnboarding, useEnrollments } from "@/hooks/useApi";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useCategories, useEnrollments } from "@/hooks/useApi";
 import type { UserProgress } from "@/services/progress";
 import type { PracticeSet as PracticeSetType } from "@/services/practice";
 import type { Course } from "@/types/lms";
@@ -19,10 +17,8 @@ export default function DashboardPage() {
   const [practiceSets, setPracticeSets] = useState<PracticeSetType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { categories, isLoading: categoriesLoading } = useCategories();
-  const { goal_label, hasOnboardingData } = useOnboarding();
+  const { categories } = useCategories();
   const { enrollments } = useEnrollments();
-  const { isAuthenticated } = useAuthStore();
 
   const getCourseProgress = (courseId: number) => {
     if (!enrollments || !Array.isArray(enrollments)) return undefined;
@@ -32,32 +28,17 @@ export default function DashboardPage() {
 
   const safeCategories = useMemo(() => Array.isArray(categories) ? categories : [], [categories]);
 
-  const { spotlightCourses, spotlightTitle } = useMemo(() => {
-    const recommended: { course: Course; categoryId: string }[] = [];
+  // First 6 published courses for "Koorsoyinka" section (no recommendation framing)
+  const coursesForDashboard = useMemo(() => {
+    const flat: { course: Course; categoryId: string }[] = [];
     for (const cat of safeCategories) {
       if (!cat?.courses?.length) continue;
       for (const c of cat.courses) {
-        if (c?.is_published && c.recommended) recommended.push({ course: c, categoryId: String(cat.id) });
+        if (c?.is_published) flat.push({ course: c, categoryId: String(cat.id) });
       }
     }
-    if (recommended.length > 0) {
-      return {
-        spotlightCourses: recommended,
-        spotlightTitle: hasOnboardingData && goal_label ? `Based on your goal: ${goal_label}` : "Recommended for you",
-      };
-    }
-    const popular: { course: Course; categoryId: string }[] = [];
-    for (const cat of safeCategories) {
-      if (!cat?.courses?.length) continue;
-      for (const c of cat.courses) {
-        if (c?.is_published) popular.push({ course: c, categoryId: String(cat.id) });
-      }
-    }
-    return {
-      spotlightCourses: popular.slice(0, 6),
-      spotlightTitle: "Popular courses",
-    };
-  }, [safeCategories, hasOnboardingData, goal_label]);
+    return flat.slice(0, 6);
+  }, [safeCategories]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,7 +100,26 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <Link href="/courses" className="text-primary font-bold hover:underline inline-flex items-center gap-2">
+        <h2 className="text-2xl font-bold mb-4">Koorsoyinka</h2>
+        {coursesForDashboard.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {coursesForDashboard.map(({ course, categoryId }) => (
+              <Link
+                key={course.id}
+                href={`/courses/${categoryId}/${course.slug}`}
+                className="block p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/30 transition-colors"
+              >
+                <span className="font-bold text-foreground">{course.title}</span>
+                {course.description && (
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{course.description}</p>
+                )}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-slate-500 dark:text-slate-400">Lama hayo koorsooyin hadda.</p>
+        )}
+        <Link href="/courses" className="mt-4 text-primary font-bold hover:underline inline-flex items-center gap-2">
           View full course list →
         </Link>
       </div>

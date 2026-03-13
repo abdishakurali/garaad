@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { analyticsService, UserAnalytics, RevenueAnalytics, CourseAnalytics, RecentActivity } from "@/lib/admin/analytics";
-import type { UserListItem } from "@/lib/admin/analytics";
+import type { UserListItem, AdminUsersResponse, AdminUserRow } from "@/lib/admin/analytics";
 import KPICard from "@/components/admin/dashboard/KPICard";
 import TrendChart from "@/components/admin/dashboard/TrendChart";
 import Link from "next/link";
@@ -40,6 +40,12 @@ export default function DashboardPage() {
     const [filterGoal, setFilterGoal] = useState<string>(ALL);
     const [filterTrack, setFilterTrack] = useState<string>(ALL);
     const [filterLevel, setFilterLevel] = useState<string>(ALL);
+
+    const [activeTab, setActiveTab] = useState<"overview" | "users">("overview");
+    const [adminUsersData, setAdminUsersData] = useState<AdminUsersResponse | null>(null);
+    const [adminUsersLoading, setAdminUsersLoading] = useState(false);
+    const [usersPage, setUsersPage] = useState(1);
+    const [usersSearch, setUsersSearch] = useState("");
 
     const filteredUserList = useMemo((): UserListItem[] => {
         const list = userStats?.userList ?? [];
@@ -82,6 +88,21 @@ export default function DashboardPage() {
 
         fetchAllData();
     }, []);
+
+    useEffect(() => {
+        if (activeTab !== "users") return;
+        let cancelled = false;
+        setAdminUsersLoading(true);
+        analyticsService.getAdminUsers(usersPage, usersSearch || undefined).then((data) => {
+            if (!cancelled) {
+                setAdminUsersData(data);
+                setAdminUsersLoading(false);
+            }
+        }).catch(() => {
+            if (!cancelled) setAdminUsersLoading(false);
+        });
+        return () => { cancelled = true; };
+    }, [activeTab, usersPage, usersSearch]);
 
     if (loading) {
         return (
@@ -132,6 +153,37 @@ export default function DashboardPage() {
                 </div>
             </div>
 
+            {/* Tabs: Overview | Users */}
+            <div className="flex gap-2 border-b border-gray-100 pb-0">
+                <button
+                    type="button"
+                    onClick={() => setActiveTab("overview")}
+                    className={`px-4 py-2.5 text-sm font-bold rounded-t-xl border-b-2 transition-colors ${activeTab === "overview" ? "border-blue-600 text-blue-700 bg-blue-50/50" : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}
+                >
+                    Overview
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setActiveTab("users")}
+                    className={`px-4 py-2.5 text-sm font-bold rounded-t-xl border-b-2 transition-colors ${activeTab === "users" ? "border-blue-600 text-blue-700 bg-blue-50/50" : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}
+                >
+                    Isticmaalayaasha
+                </button>
+            </div>
+
+            {activeTab === "users" && (
+                <AdminUsersTab
+                    data={adminUsersData}
+                    loading={adminUsersLoading}
+                    page={usersPage}
+                    search={usersSearch}
+                    onPageChange={setUsersPage}
+                    onSearchChange={setUsersSearch}
+                />
+            )}
+
+            {activeTab === "overview" && (
+            <>
             {/* Top KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KPICard
@@ -461,6 +513,135 @@ export default function DashboardPage() {
                         <p className="text-[9px] text-gray-400 mt-3 font-bold uppercase tracking-widest">Showing first 50 of {filteredUserList.length} filtered users</p>
                     )}
                 </div>
+            )}
+            </>
+            )}
+        </div>
+    );
+}
+
+function truncateRecommended(titles: string[], maxLen: number = 30): string {
+    const joined = titles.join(", ");
+    if (joined.length <= maxLen) return joined || "—";
+    return joined.slice(0, maxLen).trim() + "...";
+}
+
+function AdminUsersTab({
+    data,
+    loading,
+    page,
+    search,
+    onPageChange,
+    onSearchChange,
+}: {
+    data: AdminUsersResponse | null;
+    loading: boolean;
+    page: number;
+    search: string;
+    onPageChange: (p: number) => void;
+    onSearchChange: (s: string) => void;
+}) {
+    const summary = data?.summary;
+    const results = data?.results ?? [];
+    const count = data?.count ?? 0;
+    const pageSize = 25;
+    const start = (page - 1) * pageSize + 1;
+    const end = Math.min(page * pageSize, count);
+
+    return (
+        <div className="bg-white rounded-3xl p-8 border border-gray-50 shadow-sm">
+            <h2 className="text-lg font-black text-gray-900 mb-4 tracking-tight flex items-center gap-3">
+                <Users className="w-5 h-5 text-blue-600" />
+                Isticmaalayaasha
+            </h2>
+            {summary && (
+                <div className="flex flex-wrap gap-6 mb-6 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
+                    <span className="text-xs font-bold text-gray-700">Total users: <strong className="text-gray-900">{summary.total_users}</strong></span>
+                    <span className="text-xs font-bold text-gray-700">Premium: <strong className="text-gray-900">{summary.premium}</strong></span>
+                    <span className="text-xs font-bold text-gray-700">With onboarding: <strong className="text-gray-900">{summary.with_onboarding}</strong></span>
+                    <span className="text-xs font-bold text-gray-700">No onboarding: <strong className="text-gray-900">{summary.no_onboarding}</strong></span>
+                </div>
+            )}
+            <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={(e) => { onSearchChange(e.target.value); onPageChange(1); }}
+                className="w-full max-w-md mb-4 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+            {loading ? (
+                <div className="flex items-center justify-center py-16">
+                    <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+                </div>
+            ) : (
+                <>
+                    <div className="overflow-x-auto -mx-2">
+                        <table className="w-full text-left border-collapse min-w-[640px]">
+                            <thead>
+                                <tr className="border-b border-gray-100">
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Name / Email</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Joined</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Goal</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Track</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Recommended</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Premium</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Completions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {results.map((row: AdminUserRow) => (
+                                    <tr key={row.id} className="border-b border-gray-50 hover:bg-white/[0.04]">
+                                        <td className="py-3 pr-4">
+                                            <div className="text-xs font-bold text-gray-900">{row.name || "—"}</div>
+                                            <div className="text-[9px] text-gray-500 truncate max-w-[200px]" title={row.email}>{row.email}</div>
+                                        </td>
+                                        <td className="py-3 pr-4 text-xs text-gray-700">
+                                            {row.date_joined ? new Date(row.date_joined).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+                                        </td>
+                                        <td className="py-3 pr-4 text-xs text-gray-700">{row.onboarding?.goal_label ?? "—"}</td>
+                                        <td className="py-3 pr-4 text-xs text-gray-700">{row.onboarding?.topic ?? "—"}</td>
+                                        <td className={`py-3 pr-4 text-xs ${row.recommended_courses?.length ? "text-gray-700" : "text-zinc-500"}`} title={row.recommended_courses?.join(", ")}>
+                                            {row.recommended_courses?.length ? truncateRecommended(row.recommended_courses, 30) : "—"}
+                                        </td>
+                                        <td className="py-3 pr-4">
+                                            {row.is_premium ? (
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-green-100 text-green-800">Pro</span>
+                                            ) : (
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-gray-100 text-gray-500">Free</span>
+                                            )}
+                                        </td>
+                                        <td className="py-3 pr-4 text-xs text-gray-700 text-center">{row.completions ?? 0}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    {count > 0 && (
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                            <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
+                                Showing {start}–{end} of {count} users
+                            </p>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => onPageChange(page - 1)}
+                                    disabled={!data?.previous}
+                                    className="px-3 py-1.5 text-xs font-bold rounded-lg border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                >
+                                    Prev
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => onPageChange(page + 1)}
+                                    disabled={!data?.next}
+                                    className="px-3 py-1.5 text-xs font-bold rounded-lg border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
