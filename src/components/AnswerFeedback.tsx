@@ -96,12 +96,12 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                 {!isReportingBug && (
                     <div
                         key="answer-feedback-banner"
-                        className="fixed inset-x-0 bottom-0 z-50 flex justify-center pointer-events-none pb-[env(safe-area-inset-bottom)]"
+                        className="fixed inset-x-0 bottom-0 z-50 flex justify-center pointer-events-none pb-[max(12px,env(safe-area-inset-bottom))]"
                     >
                         <div
                             className={cn(
-                                "pointer-events-auto w-full min-h-[72px] rounded-t-2xl border-t transition-[transform] duration-300 ease-out translate-y-0",
-                                "px-4 sm:px-6 py-4 pb-[env(safe-area-inset-bottom)]",
+                                "pointer-events-auto w-full max-w-2xl mx-auto min-h-[64px] lg:min-h-[72px] rounded-t-2xl lg:rounded-2xl lg:mb-6 lg:border lg:border-zinc-700 lg:shadow-2xl lg:shadow-black/50 border-t transition-[transform] duration-300 ease-out translate-y-0",
+                                "px-4 sm:px-5 py-3 sm:py-4 pb-[max(12px,env(safe-area-inset-bottom))]",
                                 isCorrect
                                     ? "bg-emerald-950 border-emerald-800/60"
                                     : "bg-zinc-950 border-zinc-800"
@@ -113,7 +113,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                 <div className="flex items-center gap-3 min-w-0">
                                     <div
                                         className={cn(
-                                            "w-9 h-9 rounded-full shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px]",
+                                            "w-8 h-8 sm:w-9 sm:h-9 rounded-full shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0",
                                             isCorrect
                                                 ? "bg-emerald-500/20 border border-emerald-500/30"
                                                 : "bg-red-500/10 border border-red-500/20"
@@ -161,7 +161,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                                     type="button"
                                                     variant="ghost"
                                                     onClick={handleWhyClick}
-                                                    className="h-8 sm:h-9 min-h-[44px] rounded-full px-3 text-xs sm:text-sm bg-transparent border border-emerald-700/60 text-emerald-400 hover:bg-emerald-900/50"
+                                                    className="h-9 min-h-[44px] rounded-full px-4 sm:px-5 text-xs sm:text-sm bg-transparent border border-emerald-700/60 text-emerald-400 hover:bg-emerald-900/50"
                                                 >
                                                     Maxay?
                                                 </Button>
@@ -169,7 +169,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                             <Button
                                                 type="button"
                                                 onClick={buttonAction}
-                                                className="h-9 min-h-[44px] rounded-full px-5 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors duration-150"
+                                                className="h-9 min-h-[44px] rounded-full px-4 sm:px-5 text-xs sm:text-sm bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-colors duration-150"
                                             >
                                                 {buttonText}
                                             </Button>
@@ -181,7 +181,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                                     type="button"
                                                     variant="ghost"
                                                     onClick={handleWhyClick}
-                                                    className="h-8 sm:h-9 min-h-[44px] rounded-full px-3 text-xs sm:text-sm bg-transparent border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                                                    className="h-9 min-h-[44px] rounded-full px-4 sm:px-5 text-xs sm:text-sm bg-transparent border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
                                                 >
                                                     Sharaxaad
                                                 </Button>
@@ -189,7 +189,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                             <Button
                                                 type="button"
                                                 onClick={buttonAction}
-                                                className="h-9 min-h-[44px] rounded-full px-5 bg-white text-zinc-900 font-semibold text-sm transition-colors duration-150 hover:bg-zinc-100"
+                                                className="h-9 min-h-[44px] rounded-full px-4 sm:px-5 text-xs sm:text-sm bg-white text-zinc-900 font-semibold transition-colors duration-150 hover:bg-zinc-100"
                                             >
                                                 {buttonText}
                                             </Button>

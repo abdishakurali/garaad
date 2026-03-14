@@ -220,7 +220,7 @@ const ProblemBlock: React.FC<{
         // STATE 3: CORRECT SELECTED
         isOptionCorrect && "bg-emerald-500/[0.08] border-2 border-emerald-500 text-emerald-100",
         // STATE 4: WRONG SELECTED
-        isOptionIncorrect && "bg-transparent border border-zinc-700 text-zinc-500 cursor-not-allowed",
+        isOptionIncorrect && "bg-transparent border border-zinc-600 text-zinc-400 cursor-not-allowed",
         // STATE 5: CORRECT UNSELECTED
         isCorrectUnselected && "bg-emerald-500/[0.06] border-2 border-emerald-500/60 text-emerald-300",
         // STATE 6: DISABLED
@@ -260,11 +260,11 @@ const ProblemBlock: React.FC<{
         >
           {isMultipleChoice ? (
             <div className={checkboxClass}>
-              {isOptionCorrect || (isSelected && !hasAnswered) ? <Check className="w-3 h-3 text-white stroke-[2.5]" /> : isCorrectUnselected ? <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" /> : isOptionIncorrect ? null : null}
+              {isOptionCorrect || (isSelected && !hasAnswered) ? <Check className="w-3 h-3 text-white stroke-[2.5]" /> : isCorrectUnselected ? <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" /> : isOptionIncorrect ? <X className="w-3 h-3 text-red-400 stroke-[2.5]" /> : null}
             </div>
           ) : (
             <div className={letterCircleClass}>
-              {isOptionCorrect || isCorrectUnselected ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : isOptionIncorrect ? null : (letters[idx] ?? String(idx + 1))}
+              {isOptionCorrect || isCorrectUnselected ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : isOptionIncorrect ? <X className="w-3 h-3 text-red-400 stroke-[2.5]" /> : (letters[idx] ?? String(idx + 1))}
             </div>
           )}
           <div className="flex-1 min-w-0 text-sm sm:text-base leading-snug">
@@ -406,12 +406,6 @@ const ProblemBlock: React.FC<{
         <div className="space-y-6 sm:space-y-8">
           {/* Question Card — Brilliant-style: near-black card, clean borders, no shadow */}
           <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 w-full shadow-none">
-            {showReviewBanner && (
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs text-amber-400 mb-4">
-                <span className="w-1.5 h-1.5 bg-amber-400 rounded-full" />
-                Muraajacee · Casharkan waa la dhammeeyay
-              </div>
-            )}
             <div className="text-white text-base sm:text-lg font-medium leading-relaxed mb-5 sm:mb-6">
               {content.question_type === "code" || content.question?.includes("```") ? (
                 <ShikiCode
