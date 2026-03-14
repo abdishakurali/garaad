@@ -550,12 +550,44 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 problem: problemId
             };
         } else if (editingContent.type === 'video') {
+            let videoUrl = editingContent.url || '';
+            let videoTitle = editingContent.title || '';
+
+            // If user uploaded a new video to replace the existing one, upload it first
+            if (editingContent.directFile) {
+                setVideoUploading(true);
+                setUploadProgress(0);
+                try {
+                    const formData = new FormData();
+                    formData.append('video', editingContent.directFile);
+                    formData.append('title', videoTitle || editingContent.directFile.name);
+
+                    const uploadRes = await api.post('lms/videos/', formData, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                        onUploadProgress: (progressEvent) => {
+                            if (progressEvent.total) {
+                                setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+                            }
+                        },
+                    });
+                    videoUrl = uploadRes.data.url;
+                    videoTitle = uploadRes.data.title || videoTitle;
+                } catch (uploadErr) {
+                    console.error("Video replace upload failed", uploadErr);
+                    setError("Muuqaalka cusub lama soo gelin karin.");
+                    setVideoUploading(false);
+                    setAdding(false);
+                    return;
+                }
+                setVideoUploading(false);
+            }
+
             blockData = {
                 block_type: 'video',
                 content: {
-                    source: editingContent.url || '',
-                    url: editingContent.url || '',
-                    title: editingContent.title || '',
+                    source: videoUrl,
+                    url: videoUrl,
+                    title: videoTitle,
                     video_source_type: editingContent.video_source_type || 'upload'
                 },
                 problem: null // Clear problem if changing from problem to video
@@ -835,40 +867,52 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                                 </div>
 
                                 {content.isDirectUpload !== false ? (
-                                    <div className="space-y-3 p-4 border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-center relative">
-                                        {!content.directFile && (
-                                            <input
-                                                type="file"
-                                                accept="video/*"
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) setContent({ ...content, directFile: file, title: content.title || file.name.replace(/\.[^/.]+$/, "") });
-                                                }}
-                                            />
+                                    <div className="space-y-3">
+                                        {content.url && !content.directFile && (
+                                            <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl text-left">
+                                                <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mb-1">Muuqaalka hadda jira</p>
+                                                <p className="text-sm font-medium text-gray-800 truncate" title={content.url}>{content.title || content.url}</p>
+                                                <p className="text-[10px] text-gray-500 mt-0.5">Soo daji muuqaal cusub hoose si aad ugu beddelo kanan.</p>
+                                            </div>
                                         )}
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto ${content.directFile ? 'bg-green-50 text-green-500' : 'bg-blue-50 text-blue-500'}`}>
-                                            {content.directFile ? <CheckCircle className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
-                                        </div>
-                                        <div>
-                                            {content.directFile ? (
-                                                <div className="relative z-10">
-                                                    <p className="font-bold text-sm text-gray-900">{content.directFile.name}</p>
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setContent({ ...content, directFile: null });
-                                                        }}
-                                                        className="text-xs text-red-500 hover:underline mt-1 font-bold"
-                                                    >
-                                                        Ka saar
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <p className="font-bold text-sm text-gray-700">Guji halkan si aad u soo geliso muuqaal (No file chosen)</p>
+                                        <div className="space-y-3 p-4 border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-center relative">
+                                            {!content.directFile && (
+                                                <input
+                                                    type="file"
+                                                    accept="video/*"
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) setContent({ ...content, directFile: file, title: content.title || file.name.replace(/\.[^/.]+$/, "") });
+                                                    }}
+                                                />
                                             )}
-                                            {!content.directFile && <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">MP4, WebM (Max 2GB)</p>}
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto ${content.directFile ? 'bg-green-50 text-green-500' : 'bg-blue-50 text-blue-500'}`}>
+                                                {content.directFile ? <CheckCircle className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
+                                            </div>
+                                            <div>
+                                                {content.directFile ? (
+                                                    <div className="relative z-10">
+                                                        <p className="font-bold text-sm text-gray-900">{content.directFile.name}</p>
+                                                        <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Muuqaalkan ayaa ku beddeli kana muuqaalka hadda jira markaad kaydsato.</p>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setContent({ ...content, directFile: null });
+                                                            }}
+                                                            className="text-xs text-red-500 hover:underline mt-1 font-bold"
+                                                        >
+                                                            Ka saar
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <p className="font-bold text-sm text-gray-700">
+                                                        {content.url ? "Guji halkan si aad u soo geliso muuqaal cusub oo u beddelo kanan" : "Guji halkan si aad u soo geliso muuqaal (No file chosen)"}
+                                                    </p>
+                                                )}
+                                                {!content.directFile && <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">MP4, WebM (Max 2GB)</p>}
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
