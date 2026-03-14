@@ -164,11 +164,8 @@ const VideoBlock: React.FC<{
         {optimizedUrl ? (
           <div className={cn("relative w-full h-full", isFullscreen && "flex items-center justify-center bg-zinc-950")} suppressHydrationWarning>
             {!mounted ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-zinc-950 animate-pulse">
-                <Loader2 className="w-10 h-10 text-primary animate-spin" />
-              </div>
-            ) : null}
-            {mounted && (
+              <div className="absolute inset-0 bg-zinc-950" aria-hidden />
+            ) : (
               <>
             {isLoading && (
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-zinc-950 animate-pulse">
