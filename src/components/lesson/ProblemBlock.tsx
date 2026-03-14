@@ -56,6 +56,7 @@ const ProblemBlock: React.FC<{
   isCorrect: boolean;
   isLastInLesson: boolean;
   disabledOptions: string[];
+  showReviewBanner?: boolean;
 }> = ({
   problemId,
   onContinue,
@@ -68,6 +69,7 @@ const ProblemBlock: React.FC<{
   content: externalContent,
   isCorrect,
   disabledOptions = [],
+  showReviewBanner = false,
 }) => {
 
 
@@ -212,33 +214,45 @@ const ProblemBlock: React.FC<{
       const isCorrectUnselected = hasAnswered && (content?.question_type === "multiple_choice" || content?.question_type === "mcq") && correctAnswerTexts.has((option || "").trim()) && !isSelected;
       const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
+      // STATE 1: idle, 2: selected, 3: correct selected, 4: wrong selected, 5: correct unselected, 6: disabled
       const buttonClass = cn(
-        "group w-full min-h-[48px] py-3.5 px-4 text-left rounded-2xl border-2 transition-all duration-200 relative outline-none flex items-center gap-3 sm:gap-4 touch-manipulation",
-        "text-sm sm:text-base leading-snug tracking-tight",
-        // Default
-        !isSelected && !hasAnswered && !isCorrectUnselected && "border-slate-200 dark:border-zinc-600 bg-white dark:bg-zinc-800/80 text-slate-800 dark:text-slate-200 active:bg-slate-50 dark:active:bg-zinc-800",
-        // Selected, not yet submitted
-        isSelected && !hasAnswered && "border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold ring-2 ring-primary/30 ring-inset",
-        // Correct (user selected this and it's right)
-        isOptionCorrect && "border-emerald-500 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-100 font-semibold",
-        // Incorrect (user selected this and it's wrong) — gray with X icon
-        isOptionIncorrect && "border-slate-300 dark:border-zinc-500 bg-slate-100 dark:bg-zinc-700/80 text-slate-600 dark:text-zinc-300 font-semibold",
-        // Correct answer not selected (show after wrong submit)
-        isCorrectUnselected && "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold",
-        // Disabled (other options after correct or locked)
-        isDisabled && !isSelected && !isCorrectUnselected && "border-slate-100 dark:border-zinc-700 bg-slate-50/80 dark:bg-zinc-800/50 text-slate-400 dark:text-zinc-500 cursor-not-allowed"
+        "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left cursor-pointer transition-all duration-150 min-h-[52px]",
+        // STATE 1: IDLE
+        !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "bg-transparent border-zinc-700 text-zinc-200 hover:border-zinc-500 hover:bg-white/[0.03]",
+        // STATE 2: SELECTED (pre-submit)
+        isSelected && !hasAnswered && "bg-violet-500/[0.08] border-2 border-violet-500 text-white",
+        // STATE 3: CORRECT SELECTED
+        isOptionCorrect && "bg-emerald-500/[0.08] border-2 border-emerald-500 text-emerald-100",
+        // STATE 4: WRONG SELECTED
+        isOptionIncorrect && "bg-transparent border border-zinc-700 text-zinc-500",
+        // STATE 5: CORRECT UNSELECTED
+        isCorrectUnselected && "bg-emerald-500/[0.06] border-2 border-emerald-500/60 text-emerald-300",
+        // STATE 6: DISABLED
+        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border-zinc-800 text-zinc-600 cursor-not-allowed"
       );
 
-      const indicatorClass = cn(
-        "shrink-0 flex items-center justify-center border-2 transition-all duration-200",
-        isMultipleChoice ? "w-6 h-6 rounded-md" : "w-9 h-9 rounded-xl text-xs font-bold",
-        !isSelected && !hasAnswered && !isCorrectUnselected && "border-slate-300 dark:border-zinc-500 bg-slate-50 dark:bg-zinc-700/50 text-slate-500 dark:text-zinc-400",
-        isSelected && !hasAnswered && "border-primary bg-primary text-white",
-        isOptionCorrect && "border-emerald-500 bg-emerald-500 text-white",
-        isOptionIncorrect && "border-slate-400 dark:border-zinc-500 bg-slate-200 dark:bg-zinc-600 text-slate-600 dark:text-zinc-200",
-        isCorrectUnselected && "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
-        isDisabled && !isSelected && !isCorrectUnselected && "border-slate-200 dark:border-zinc-600 bg-slate-100 dark:bg-zinc-700/50 text-slate-400"
+      const letterCircleClass = cn(
+        "w-8 h-8 rounded-lg shrink-0 flex items-center justify-center text-xs font-semibold transition-all duration-150",
+        !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "bg-zinc-800 text-zinc-400",
+        isSelected && !hasAnswered && "bg-violet-500 text-white font-bold",
+        isOptionCorrect && "bg-emerald-500 text-white",
+        isOptionIncorrect && "bg-red-500/20 border border-red-500/40 text-red-400",
+        isCorrectUnselected && "bg-transparent border-2 border-emerald-500 text-emerald-400",
+        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border-zinc-700 text-zinc-700"
       );
+
+      const checkboxClass = cn(
+        "w-5 h-5 rounded shrink-0 border-2 flex items-center justify-center transition-all duration-150",
+        !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "border-zinc-600 bg-transparent",
+        isSelected && !hasAnswered && "border-violet-500 bg-violet-500",
+        isOptionCorrect && "bg-emerald-500 border-emerald-500",
+        isOptionIncorrect && "bg-red-500/20 border border-red-500/40",
+        isCorrectUnselected && "bg-transparent border-2 border-emerald-500",
+        isDisabled && !isSelected && !isCorrectUnselected && "border-zinc-700 bg-transparent"
+      );
+
+      const showRightCheck = isOptionCorrect || isCorrectUnselected;
+      const showRightX = isOptionIncorrect;
 
       return (
         <button
@@ -248,13 +262,16 @@ const ProblemBlock: React.FC<{
           className={buttonClass}
           type="button"
         >
-          <div className={indicatorClass}>
-            {isOptionCorrect ? <Check className="h-5 w-5 stroke-[2.5]" /> :
-              isOptionIncorrect ? <X className="h-5 w-5 stroke-[2.5]" /> :
-                isCorrectUnselected ? <Check className="h-5 w-5 stroke-[2.5]" /> :
-                isMultipleChoice ? (isSelected ? <Check className="h-4 w-4 stroke-[2.5]" /> : null) : (letters[idx] || (idx + 1))}
-          </div>
-          <div className="flex-1 min-w-0">
+          {isMultipleChoice ? (
+            <div className={checkboxClass}>
+              {isOptionCorrect || (isSelected && !hasAnswered) ? <Check className="w-3 h-3 text-white stroke-[2.5]" /> : isCorrectUnselected ? <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" /> : isOptionIncorrect ? null : null}
+            </div>
+          ) : (
+            <div className={letterCircleClass}>
+              {isOptionCorrect || isCorrectUnselected ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : isOptionIncorrect ? null : (letters[idx] ?? String(idx + 1))}
+            </div>
+          )}
+          <div className="flex-1 min-w-0 text-sm sm:text-base leading-snug">
             {content.question_type === "code" ? (
               <div className="bg-zinc-950 rounded-xl overflow-hidden">
                 <ShikiCode code={option} language="javascript" />
@@ -262,13 +279,15 @@ const ProblemBlock: React.FC<{
             ) : content?.content?.type === "latex" ? (
               <Latex>{option}</Latex>
             ) : (
-              <span className="prose dark:prose-invert max-w-none inline-block text-sm sm:text-base leading-snug">
+              <span className="prose dark:prose-invert max-w-none inline-block">
                 <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: "span" }}>
                   {option}
                 </ReactMarkdown>
               </span>
             )}
           </div>
+          {showRightCheck && <Check className="w-4 h-4 text-emerald-400 ml-auto shrink-0" />}
+          {showRightX && <X className="w-4 h-4 text-red-400/60 ml-auto shrink-0" />}
         </button>
       );
     };
@@ -385,48 +404,39 @@ const ProblemBlock: React.FC<{
     }
 
     return (
-      <div className="w-full px-4 sm:px-6 lg:px-0 max-w-3xl mx-auto pb-12">
+      <div className="w-full px-4 sm:px-6 lg:px-0 max-w-2xl mx-auto pb-12">
         <div className="space-y-6 sm:space-y-8">
-          {/* Question Card — mobile-first, clean */}
-          <div className="overflow-hidden rounded-2xl bg-white dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-700/80 shadow-sm sm:shadow-md">
-            <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
-              <div className="space-y-4 sm:space-y-5 text-center max-w-2xl mx-auto">
-                {content.which && (
-                  <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider">
-                    {content.content?.type === "latex" ? (
-                      <Latex>{content.which}</Latex>
-                    ) : (
-                      content.which.includes('<') ? (
-                        <div dangerouslySetInnerHTML={{ __html: content.which }} />
-                      ) : content.which
-                    )}
-                  </div>
-                )}
-
-                <h2 className="text-base sm:text-lg font-semibold text-foreground leading-snug tracking-tight">
-                  {content.question_type === "code" || content.question?.includes("```") ? (
-                    <ShikiCode
-                      code={content.question?.replace(/```[a-z]*\n?|```/g, "") || ""}
-                      language={content.question?.match(/```([a-z]+)/)?.[1] || "javascript"}
-                    />
-                  ) : content.content?.type === "latex" ? (
-                    <Latex>{content.question}</Latex>
-                  ) : (
-                    content.question?.includes('<') && !content.question?.includes('**') ? (
-                      <div dangerouslySetInnerHTML={{ __html: content.question }} />
-                    ) : (
-                      <div className="prose dark:prose-invert max-w-none inline-block">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{ p: 'span' }}
-                        >
-                          {content.question}
-                        </ReactMarkdown>
-                      </div>
-                    )
-                  )}
-                </h2>
+          {/* Question Card — Brilliant-style: near-black card, clean borders, no shadow */}
+          <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-6 sm:p-8 w-full shadow-none">
+            {showReviewBanner && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs text-amber-400 mb-4">
+                <span className="w-1.5 h-1.5 bg-amber-400 rounded-full" />
+                Muraajacee · Casharkan waa la dhammeeyay
               </div>
+            )}
+            <div className="text-white text-base sm:text-lg font-medium leading-relaxed mb-6">
+              {content.question_type === "code" || content.question?.includes("```") ? (
+                <ShikiCode
+                  code={content.question?.replace(/```[a-z]*\n?|```/g, "") || ""}
+                  language={content.question?.match(/```([a-z]+)/)?.[1] || "javascript"}
+                />
+              ) : content.content?.type === "latex" ? (
+                <Latex>{content.question}</Latex>
+              ) : (
+                content.question?.includes('<') && !content.question?.includes('**') ? (
+                  <div dangerouslySetInnerHTML={{ __html: content.question }} />
+                ) : (
+                  <div className="prose dark:prose-invert max-w-none inline-block">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{ p: "span" }}
+                    >
+                      {content.question}
+                    </ReactMarkdown>
+                  </div>
+                )
+              )}
+            </div>
 
               {content.img && (
                 <div className="flex justify-center group px-4 min-[0px]:px-4">
@@ -564,32 +574,31 @@ const ProblemBlock: React.FC<{
               ) : (
                 <div
                   className={cn(
-                    "grid gap-3 w-full",
-                    content.question_type === "diagram" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+                    "w-full",
+                    content.question_type === "diagram" ? "grid grid-cols-1 sm:grid-cols-2 gap-2.5" : "flex flex-col gap-2.5"
                   )}
                 >
                   {content.options.map(renderOption)}
                 </div>
               )}
-            </div>
 
-            {/* Bottom Actions */}
-            <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8 flex flex-col items-center border-t border-slate-100 dark:border-zinc-800 pt-5">
-              {!hasAnswered && (
+            {/* Check Answer — Brilliant-style */}
+            {!hasAnswered && (
+              <div className="border-t border-zinc-800 pt-5 mt-5">
                 <Button
                   onClick={onCheckAnswer}
                   disabled={isMultipleChoice ? selectedOptions.length === 0 : !selectedOption}
                   className={cn(
-                    "w-full min-h-[48px] h-12 rounded-xl font-semibold text-base transition-all active:scale-[0.98] touch-manipulation",
-                    (isMultipleChoice ? selectedOptions.length > 0 : selectedOption)
-                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                      : "bg-slate-200 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 cursor-not-allowed"
+                    "w-full h-12 rounded-xl font-medium text-sm transition-colors duration-150",
+                    isMultipleChoice ? selectedOptions.length > 0 : selectedOption
+                      ? "bg-violet-600 hover:bg-violet-500 text-white font-semibold"
+                      : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
                   )}
                 >
-                  Hubi Jawaabta
+                  {(isMultipleChoice ? selectedOptions.length > 0 : selectedOption) ? "Hubi Jawaabta" : "Xulo jawaab..."}
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -7,9 +7,10 @@ import type { Stripe } from "stripe";
 // Use the LIVE webhook signing secret in production (Dashboard → Webhooks → endpoint → Signing secret).
 
 export async function GET() {
-  console.log("🔍 GET request to Stripe webhook endpoint");
-  console.log("📅 Timestamp:", new Date().toISOString());
-  console.log("🌍 Environment:", process.env.NODE_ENV);
+  if (process.env.NODE_ENV !== "production") {
+    console.log("🔍 GET request to Stripe webhook endpoint");
+    console.log("📅 Timestamp:", new Date().toISOString());
+  }
 
   let stripeConfigured = false;
   try {
@@ -18,12 +19,6 @@ export async function GET() {
   } catch {
     stripeConfigured = false;
   }
-
-  console.log("🔑 Stripe configured:", stripeConfigured);
-  console.log(
-    "🔐 Webhook secret configured:",
-    !!process.env.STRIPE_WEBHOOK_SECRET
-  );
 
   try {
     return NextResponse.json(
@@ -50,15 +45,14 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  console.log("🔔 Stripe webhook received");
+  if (process.env.NODE_ENV !== "production") {
+    console.log("🔔 Stripe webhook received");
+  }
 
   try {
     const body = await request.text();
     const headersList = await headers();
     const signature = headersList.get("stripe-signature");
-
-    console.log("📝 Webhook body length:", body.length);
-    console.log("🔐 Signature present:", !!signature);
 
     if (!signature) {
       console.error("❌ No Stripe signature found");
@@ -95,9 +89,9 @@ export async function POST(request: NextRequest) {
         signature,
         process.env.STRIPE_WEBHOOK_SECRET
       );
-      console.log("✅ Webhook signature verified");
-      console.log("📦 Event type:", event.type);
-      console.log("🆔 Event ID:", event.id);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("✅ Webhook signature verified", event.type, event.id);
+      }
     } catch (err) {
       console.error("❌ Webhook signature verification failed:", err);
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });

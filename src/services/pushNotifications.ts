@@ -109,10 +109,11 @@ export const subscribeToPushNotifications = async (): Promise<boolean> => {
                 return false;
             }
 
-            console.log('Subscribing with VAPID key:', VAPID_PUBLIC_KEY);
+            if (process.env.NODE_ENV !== "production") {
+                console.log("Subscribing with VAPID key (configured)");
+            }
             try {
                 const convertedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-                console.log('Converted key length:', convertedKey.length);
 
                 subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,

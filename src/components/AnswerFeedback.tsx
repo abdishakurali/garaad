@@ -4,7 +4,7 @@ import { useLearningStore } from "@/store/useLearningStore";
 import { ExplanationText, Lesson } from "@/types/learning";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Award, Check, ChevronRight, X, Info, Flag } from "lucide-react";
+import { Check, X, Zap } from "lucide-react";
 
 // Lazy‑load heavy components
 const ExplanationModal = React.lazy(() => import("./ExplanationModal"));
@@ -36,14 +36,15 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
         const [showExplanation, setShowExplanation] = useState(false);
         const [isReportingBug, setIsReportingBug] = useState(false);
 
-        // Determine if this is the last problem block
         const isLastQuestion = useMemo(() => {
             if (!currentLesson?.content_blocks) return false;
             const blocks = [...currentLesson.content_blocks]
                 .filter(b => b.block_type === "problem")
                 .sort((a, b) => (a.order || 0) - (b.order || 0));
-            return true; // Simplified for UI redesign
+            return true;
         }, [currentLesson?.content_blocks]);
+
+        const hasExplanation = !!(explanationData?.explanation);
 
         const handleWhyClick = useCallback(() => {
             revealAnswer();
@@ -59,23 +60,22 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
             setShowExplanation(false);
         }, []);
 
-        // Memoized feedback content
-        const { title, message, buttonText, buttonAction } = useMemo(() => {
+        const { title, subtitle, buttonText, buttonAction } = useMemo(() => {
             if (isCorrect) {
                 return {
                     title: "Jawaab Sax ah!",
-                    message: "Hore usoco Garaad",
+                    subtitle: `+${xp} XP`,
                     buttonText: isLastQuestion ? "Casharka xiga" : "Sii wado",
                     buttonAction: handleContinueClick,
                 };
             }
             return {
                 title: "Jawaab Khalad ah",
-                message: "akhri sharaxaada oo ku celi markale",
+                subtitle: "Isku day markale",
                 buttonText: "Isku day markale",
                 buttonAction: onResetAnswer,
             };
-        }, [isCorrect, isLastQuestion, handleContinueClick, onResetAnswer]);
+        }, [isCorrect, isLastQuestion, xp, handleContinueClick, onResetAnswer]);
 
         return (
             <>
@@ -98,80 +98,102 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                         key="answer-feedback-banner"
                         className="fixed inset-x-0 bottom-0 z-50 flex justify-center pointer-events-none pb-[env(safe-area-inset-bottom)]"
                     >
-                            <div
-                                className={cn(
-                                    "pointer-events-auto w-full max-h-[min(220px,45vh)] overflow-y-auto overflow-x-hidden min-h-0 rounded-t-2xl border-t shadow-[0_-4px_24px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-4 duration-300 ease-out",
-                                    isCorrect
-                                        ? "bg-emerald-50 dark:bg-emerald-950/95 border-emerald-200 dark:border-emerald-800"
-                                        : "bg-amber-50 dark:bg-amber-950/95 border-amber-200 dark:border-amber-800"
-                                )}
-                            >
-                            <div className="p-4 sm:p-5 flex flex-col gap-4">
-                                <div className="flex items-start gap-3 min-w-0">
+                        <div
+                            className={cn(
+                                "pointer-events-auto w-full min-h-[72px] rounded-t-2xl border-t transition-[transform] duration-300 ease-out translate-y-0",
+                                "px-4 sm:px-6 py-4 pb-[env(safe-area-inset-bottom)]",
+                                isCorrect
+                                    ? "bg-emerald-950 border-emerald-800"
+                                    : "bg-zinc-950 border-zinc-800"
+                            )}
+                            style={{ animation: "slideUp 300ms ease-out" }}
+                        >
+                            <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div className="flex items-center gap-3 min-w-0">
                                     <div
                                         className={cn(
-                                            "w-11 h-11 shrink-0 flex items-center justify-center rounded-xl",
-                                            isCorrect ? "bg-emerald-500 text-white" : "bg-amber-400 text-white"
+                                            "w-9 h-9 rounded-full shrink-0 flex items-center justify-center",
+                                            isCorrect
+                                                ? "bg-emerald-500/20 border border-emerald-500/30"
+                                                : "bg-red-500/10 border border-red-500/20"
                                         )}
                                     >
                                         {isCorrect ? (
-                                            <Check className="h-6 w-6 stroke-[2.5]" />
+                                            <Check className="w-4 h-4 text-emerald-400 stroke-[2.5]" />
                                         ) : (
-                                            <X className="h-6 w-6 stroke-[2.5]" />
+                                            <X className="w-4 h-4 text-red-400 stroke-[2.5]" />
                                         )}
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center flex-wrap gap-2 gap-y-1">
-                                            <h3 className={cn(
-                                                "text-base font-bold tracking-tight truncate",
-                                                isCorrect ? "text-emerald-800 dark:text-emerald-200" : "text-amber-800 dark:text-amber-200"
-                                            )}>
-                                                {title}
-                                            </h3>
-                                            {isCorrect && (
-                                                <span className="inline-flex items-center gap-1 py-0.5 px-2 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-                                                    <Award size={12} />
-                                                    +{xp}
+                                    <div>
+                                        <h3 className={cn(
+                                            "text-base font-bold truncate",
+                                            isCorrect ? "text-emerald-300" : "text-white"
+                                        )}>
+                                            {title}
+                                        </h3>
+                                        <p className={cn(
+                                            "text-xs mt-0.5",
+                                            isCorrect ? "text-emerald-500" : "text-zinc-500"
+                                        )}>
+                                            {isCorrect ? (
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Zap className="w-3 h-3" />
+                                                    {subtitle}
                                                 </span>
+                                            ) : (
+                                                subtitle
                                             )}
-                                        </div>
-                                        <p className="text-slate-600 dark:text-slate-400 text-sm mt-0.5 leading-snug line-clamp-2">
-                                            {message}
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                                <div className="flex flex-row items-center gap-2 sm:gap-3 shrink-0">
                                     <Suspense fallback={null}>
-                                        <div className="hidden lg:block order-first sm:order-last sm:ml-auto">
+                                        <div className="hidden lg:block">
                                             <BugReportButton setIsReportingBug={setIsReportingBug} />
                                         </div>
                                     </Suspense>
                                     {isCorrect ? (
-                                        <Button
-                                            onClick={buttonAction}
-                                            className="w-full min-h-[48px] h-12 rounded-xl font-semibold text-base bg-emerald-600 hover:bg-emerald-500 text-white transition-all active:scale-[0.98] touch-manipulation"
-                                        >
-                                            {buttonText}
-                                            <ChevronRight className="ml-2 h-5 w-5" />
-                                        </Button>
-                                    ) : (
-                                        <div className="flex flex-row gap-2 sm:gap-3">
+                                        <>
+                                            {hasExplanation && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={handleWhyClick}
+                                                    className="h-9 rounded-full px-4 bg-transparent border border-emerald-700 text-emerald-400 text-sm hover:bg-emerald-900"
+                                                >
+                                                    Maxay?
+                                                </Button>
+                                            )}
                                             <Button
-                                                variant="outline"
-                                                onClick={handleWhyClick}
-                                                className="min-h-[48px] flex-1 sm:flex-initial rounded-xl font-semibold text-sm border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/30 touch-manipulation"
-                                            >
-                                                <Info className="mr-2 h-4 w-4" />
-                                                Sharaxaad
-                                            </Button>
-                                            <Button
+                                                type="button"
                                                 onClick={buttonAction}
-                                                className="min-h-[48px] flex-1 sm:flex-initial rounded-xl font-semibold text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 transition-all active:scale-[0.98] touch-manipulation"
+                                                className="h-9 rounded-full px-5 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors duration-150"
                                             >
                                                 {buttonText}
                                             </Button>
-                                        </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {hasExplanation && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={handleWhyClick}
+                                                    className="h-9 rounded-full px-4 bg-transparent border border-zinc-700 text-zinc-400 text-sm hover:bg-zinc-800"
+                                                >
+                                                    Sharaxaad
+                                                </Button>
+                                            )}
+                                            <Button
+                                                type="button"
+                                                onClick={buttonAction}
+                                                className="h-9 rounded-full px-5 bg-white text-zinc-900 font-semibold text-sm transition-colors duration-150 hover:bg-zinc-100"
+                                            >
+                                                {buttonText}
+                                            </Button>
+                                        </>
                                     )}
                                 </div>
                             </div>
