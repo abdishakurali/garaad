@@ -137,17 +137,16 @@ const VideoBlock: React.FC<{
   const showPlayOverlay = !isPlaying && !isLoading;
 
   return (
-    <div className="w-full mx-0 sm:mx-4 lg:mx-auto lg:max-w-2xl px-0">
-      {/* Title + description above video */}
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
       {(content.title || content.description) && (
-        <div className="px-4 py-3 sm:px-0 sm:pt-0 sm:pb-2">
+        <div className="px-0 pt-0 pb-2 sm:pb-3">
           {content.title && (
-            <p className="text-sm font-semibold text-white line-clamp-2 truncate" title={content.title}>
+            <p className="text-sm font-semibold text-white line-clamp-2" title={content.title}>
               {content.title}
             </p>
           )}
           {content.description && (
-            <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{content.description}</p>
+            <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">{content.description}</p>
           )}
         </div>
       )}
@@ -155,10 +154,9 @@ const VideoBlock: React.FC<{
       <div
         ref={containerRef}
         className={cn(
-          "relative overflow-hidden bg-zinc-950 aspect-video",
-          "mx-0 rounded-none shadow-none",
-          "sm:mx-0 sm:rounded-2xl sm:shadow-lg",
-          isFullscreen && "rounded-none w-screen h-screen aspect-auto mx-0 shadow-none"
+          "relative overflow-hidden bg-zinc-950 aspect-video w-full",
+          "mx-0 rounded-none sm:mx-auto sm:rounded-2xl sm:border sm:border-zinc-800",
+          isFullscreen && "rounded-none w-screen h-screen aspect-auto mx-0 border-0"
         )}
       >
         {optimizedUrl ? (
@@ -168,10 +166,10 @@ const VideoBlock: React.FC<{
             ) : (
               <>
             {isLoading && (
-              <div className="absolute inset-0 z-30 flex items-center justify-center bg-zinc-950 animate-pulse">
-                <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                  <p className="text-[10px] sm:text-xs text-white/80 font-medium uppercase tracking-wider">Garaad loading...</p>
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-zinc-800 animate-pulse rounded-none sm:rounded-2xl">
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="w-8 h-8 text-zinc-500 animate-spin" />
+                  <p className="text-xs text-zinc-500">Soo dejinaya...</p>
                 </div>
               </div>
             )}
@@ -186,11 +184,12 @@ const VideoBlock: React.FC<{
             )}
 
             {showTryAgain && (
-              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-black/70">
-                <p className="text-sm text-white/90 text-center px-4">Muuqaalka lama soo dejin karin.</p>
+              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-zinc-900 rounded-none sm:rounded-2xl">
+                <p className="text-sm text-zinc-500 text-center px-4">Muuqaalka lama soo dejin karin.</p>
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="outline"
+                  className="border-violet-500 text-violet-400 hover:bg-violet-500/10"
                   onClick={() => {
                     setShowTryAgain(false);
                     setRetryCount(0);
@@ -264,20 +263,25 @@ const VideoBlock: React.FC<{
                   <button
                     type="button"
                     onClick={togglePlay}
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center pointer-events-auto cursor-pointer hover:bg-black/60 active:scale-95 transition-transform"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center pointer-events-auto cursor-pointer hover:bg-black/60 min-w-[56px] min-h-[56px]"
                     aria-label={isPlaying ? "Pause" : "Play"}
                   >
                     {isEnded ? (
-                      <RotateCcw className="w-8 h-8 text-white" />
+                      <RotateCcw className="w-6 h-6 text-white" />
                     ) : (
-                      <Play className="w-8 h-8 text-white fill-current ml-0.5" />
+                      <Play className="w-6 h-6 text-white fill-current ml-0.5" />
                     )}
                   </button>
                 )}
               </div>
 
-              {/* Bottom controls bar — gradient, touch-friendly scrubber */}
-              <div className="absolute bottom-0 left-0 right-0 pt-12 pb-3 px-3 sm:pb-4 sm:px-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent">
+              {/* Bottom controls bar */}
+              <div
+                className="absolute bottom-0 left-0 right-0 pt-12 pb-3 px-3 pointer-events-none"
+                style={{
+                  background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)",
+                }}
+              >
                 <div className="flex flex-col gap-2 pointer-events-auto">
                   <div className="flex items-center gap-2 sm:gap-3 min-h-11">
                     <span className="text-xs font-mono font-medium text-white/90 min-w-[2.5rem]">
@@ -298,10 +302,10 @@ const VideoBlock: React.FC<{
                     <button
                       type="button"
                       onClick={toggleFullscreen}
-                      className="min-h-11 min-w-11 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors touch-manipulation"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors touch-manipulation pointer-events-auto"
                       title={isFullscreen ? "Ka bax shaashadda weyn" : "Shaashadda weyn"}
                     >
-                      <Maximize className="w-5 h-5 text-white shrink-0" />
+                      <Maximize className="w-5 h-5 text-white/70 shrink-0" />
                     </button>
                   </div>
                 </div>
@@ -315,15 +319,13 @@ const VideoBlock: React.FC<{
         )}
       </div>
 
-      <div className="mt-6 mb-2 mx-3 sm:mx-0">
-        <Button
-          onClick={onContinue}
-          className="w-full min-h-[44px] h-12 rounded-xl text-base font-semibold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]"
-        >
-          {isLastBlock ? "Dhamee" : "Sii wado"}
-          <ChevronRight className="ml-2 h-5 w-5" />
-        </Button>
-      </div>
+      <Button
+        onClick={onContinue}
+        className="mt-5 w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors duration-150 min-h-[44px]"
+      >
+        {isLastBlock ? "Dhamee" : "Sii wado"}
+        <ChevronRight className="ml-2 h-4 w-4" />
+      </Button>
     </div>
   );
 };

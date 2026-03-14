@@ -103,17 +103,17 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                 "pointer-events-auto w-full min-h-[72px] rounded-t-2xl border-t transition-[transform] duration-300 ease-out translate-y-0",
                                 "px-4 sm:px-6 py-4 pb-[env(safe-area-inset-bottom)]",
                                 isCorrect
-                                    ? "bg-emerald-950 border-emerald-800"
+                                    ? "bg-emerald-950 border-emerald-800/60"
                                     : "bg-zinc-950 border-zinc-800"
                             )}
                             style={{ animation: "slideUp 300ms ease-out" }}
                         >
                             <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                                 <div className="flex items-center gap-3 min-w-0">
                                     <div
                                         className={cn(
-                                            "w-9 h-9 rounded-full shrink-0 flex items-center justify-center",
+                                            "w-9 h-9 rounded-full shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px]",
                                             isCorrect
                                                 ? "bg-emerald-500/20 border border-emerald-500/30"
                                                 : "bg-red-500/10 border border-red-500/20"
@@ -127,20 +127,20 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                     </div>
                                     <div>
                                         <h3 className={cn(
-                                            "text-base font-bold truncate",
+                                            "text-sm font-bold truncate",
                                             isCorrect ? "text-emerald-300" : "text-white"
                                         )}>
                                             {title}
                                         </h3>
                                         <p className={cn(
-                                            "text-xs mt-0.5",
-                                            isCorrect ? "text-emerald-500" : "text-zinc-500"
+                                            "text-xs mt-0.5 flex items-center gap-1",
+                                            isCorrect ? "text-emerald-500/80" : "text-zinc-500"
                                         )}>
                                             {isCorrect ? (
-                                                <span className="inline-flex items-center gap-1">
-                                                    <Zap className="w-3 h-3" />
+                                                <>
+                                                    <Zap className="w-3 h-3 shrink-0" />
                                                     {subtitle}
-                                                </span>
+                                                </>
                                             ) : (
                                                 subtitle
                                             )}
@@ -148,7 +148,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                     </div>
                                 </div>
 
-                                <div className="flex flex-row items-center gap-2 sm:gap-3 shrink-0">
+                                <div className="flex flex-row items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                                     <Suspense fallback={null}>
                                         <div className="hidden lg:block">
                                             <BugReportButton setIsReportingBug={setIsReportingBug} />
@@ -161,7 +161,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                                     type="button"
                                                     variant="ghost"
                                                     onClick={handleWhyClick}
-                                                    className="h-9 rounded-full px-4 bg-transparent border border-emerald-700 text-emerald-400 text-sm hover:bg-emerald-900"
+                                                    className="h-8 sm:h-9 min-h-[44px] rounded-full px-3 text-xs sm:text-sm bg-transparent border border-emerald-700/60 text-emerald-400 hover:bg-emerald-900/50"
                                                 >
                                                     Maxay?
                                                 </Button>
@@ -169,7 +169,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                             <Button
                                                 type="button"
                                                 onClick={buttonAction}
-                                                className="h-9 rounded-full px-5 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors duration-150"
+                                                className="h-9 min-h-[44px] rounded-full px-5 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors duration-150"
                                             >
                                                 {buttonText}
                                             </Button>
@@ -181,7 +181,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                                     type="button"
                                                     variant="ghost"
                                                     onClick={handleWhyClick}
-                                                    className="h-9 rounded-full px-4 bg-transparent border border-zinc-700 text-zinc-400 text-sm hover:bg-zinc-800"
+                                                    className="h-8 sm:h-9 min-h-[44px] rounded-full px-3 text-xs sm:text-sm bg-transparent border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
                                                 >
                                                     Sharaxaad
                                                 </Button>
@@ -189,7 +189,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                             <Button
                                                 type="button"
                                                 onClick={buttonAction}
-                                                className="h-9 rounded-full px-5 bg-white text-zinc-900 font-semibold text-sm transition-colors duration-150 hover:bg-zinc-100"
+                                                className="h-9 min-h-[44px] rounded-full px-5 bg-white text-zinc-900 font-semibold text-sm transition-colors duration-150 hover:bg-zinc-100"
                                             >
                                                 {buttonText}
                                             </Button>

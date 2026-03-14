@@ -59,11 +59,11 @@ const ShikiCode: React.FC<ShikiCodeProps> = ({
 
     if (!html) {
         return (
-            <div className="w-full bg-zinc-800 animate-pulse rounded-xl lg:rounded-2xl p-4 lg:p-5 min-h-[100px] flex items-center justify-center">
-                <div className="flex gap-2">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-zinc-700 rounded-full animate-bounce" />
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-zinc-700 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-zinc-700 rounded-full animate-bounce [animation-delay:-0.3s]" />
+            <div className="w-full bg-zinc-800 animate-pulse rounded-xl p-4 min-h-[100px] flex items-center justify-center">
+                <div className="flex gap-1.5">
+                    <div className="w-2 h-2 bg-zinc-700 rounded-full animate-pulse" />
+                    <div className="w-2 h-2 bg-zinc-700 rounded-full animate-pulse [animation-delay:150ms]" />
+                    <div className="w-2 h-2 bg-zinc-700 rounded-full animate-pulse [animation-delay:300ms]" />
                 </div>
             </div>
         );
@@ -71,7 +71,7 @@ const ShikiCode: React.FC<ShikiCodeProps> = ({
 
     return (
         <div
-            className="shiki-container rounded-xl lg:rounded-2xl overflow-x-auto overflow-hidden border border-white/[0.09] shadow-2xl text-[13px] sm:text-sm leading-normal p-4 lg:p-5"
+            className="shiki-container rounded-xl overflow-x-auto overflow-hidden border border-zinc-800 bg-zinc-950 text-[13px] sm:text-sm leading-normal p-4"
             dangerouslySetInnerHTML={{ __html: html }}
         />
     );

@@ -1,10 +1,6 @@
 "use client";
 import React, { memo, useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Check, X, AlertCircle } from "lucide-react";
@@ -224,11 +220,11 @@ const ProblemBlock: React.FC<{
         // STATE 3: CORRECT SELECTED
         isOptionCorrect && "bg-emerald-500/[0.08] border-2 border-emerald-500 text-emerald-100",
         // STATE 4: WRONG SELECTED
-        isOptionIncorrect && "bg-transparent border border-zinc-700 text-zinc-500",
+        isOptionIncorrect && "bg-transparent border border-zinc-700 text-zinc-500 cursor-not-allowed",
         // STATE 5: CORRECT UNSELECTED
         isCorrectUnselected && "bg-emerald-500/[0.06] border-2 border-emerald-500/60 text-emerald-300",
         // STATE 6: DISABLED
-        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border-zinc-800 text-zinc-600 cursor-not-allowed"
+        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border-zinc-800/50 text-zinc-600 cursor-not-allowed"
       );
 
       const letterCircleClass = cn(
@@ -236,7 +232,7 @@ const ProblemBlock: React.FC<{
         !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "bg-zinc-800 text-zinc-400",
         isSelected && !hasAnswered && "bg-violet-500 text-white font-bold",
         isOptionCorrect && "bg-emerald-500 text-white",
-        isOptionIncorrect && "bg-red-500/20 border border-red-500/40 text-red-400",
+        isOptionIncorrect && "bg-red-500/15 border border-red-500/30 text-red-400",
         isCorrectUnselected && "bg-transparent border-2 border-emerald-500 text-emerald-400",
         isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border-zinc-700 text-zinc-700"
       );
@@ -246,7 +242,7 @@ const ProblemBlock: React.FC<{
         !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "border-zinc-600 bg-transparent",
         isSelected && !hasAnswered && "border-violet-500 bg-violet-500",
         isOptionCorrect && "bg-emerald-500 border-emerald-500",
-        isOptionIncorrect && "bg-red-500/20 border border-red-500/40",
+        isOptionIncorrect && "bg-red-500/15 border border-red-500/30",
         isCorrectUnselected && "bg-transparent border-2 border-emerald-500",
         isDisabled && !isSelected && !isCorrectUnselected && "border-zinc-700 bg-transparent"
       );
@@ -294,26 +290,28 @@ const ProblemBlock: React.FC<{
 
     if (isLoading) {
       return (
-        <div className="flex flex-col justify-center items-center py-24 gap-4">
-          <div className="rounded-full h-14 w-14 border-4 border-primary/20 border-t-primary animate-spin"></div>
-          <p className="text-muted-foreground animate-pulse font-medium">Soo dejinaya...</p>
+        <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0 flex flex-col justify-center items-center py-24 gap-4">
+          <div className="h-10 w-10 rounded-full border-2 border-zinc-700 border-t-violet-500 animate-spin" />
+          <p className="text-zinc-500 text-sm font-medium">Soo dejinaya...</p>
         </div>
       );
     }
 
     if (error || !content) {
       return (
-        <Card className="max-w-xl mx-auto border-destructive/20 bg-destructive/5 backdrop-blur-sm">
-          <CardContent className="p-10 text-center space-y-4">
-            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
-            <p className="text-destructive font-semibold text-lg">
+        <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
+          <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-8 text-center space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-red-400" />
+            </div>
+            <p className="text-white font-medium text-sm">
               {error || "Khalad ayaa dhacay markii la soo dejinayay su'aasha"}
             </p>
-            <Button onClick={onContinue} variant="outline" className="mt-4 rounded-xl px-8">
+            <Button onClick={onContinue} className="h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm px-6">
               Sii soco
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       );
     }
 
@@ -407,14 +405,14 @@ const ProblemBlock: React.FC<{
       <div className="w-full px-4 sm:px-6 lg:px-0 max-w-2xl mx-auto pb-12">
         <div className="space-y-6 sm:space-y-8">
           {/* Question Card — Brilliant-style: near-black card, clean borders, no shadow */}
-          <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-6 sm:p-8 w-full shadow-none">
+          <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 w-full shadow-none">
             {showReviewBanner && (
               <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs text-amber-400 mb-4">
                 <span className="w-1.5 h-1.5 bg-amber-400 rounded-full" />
                 Muraajacee · Casharkan waa la dhammeeyay
               </div>
             )}
-            <div className="text-white text-base sm:text-lg font-medium leading-relaxed mb-6">
+            <div className="text-white text-base sm:text-lg font-medium leading-relaxed mb-5 sm:mb-6">
               {content.question_type === "code" || content.question?.includes("```") ? (
                 <ShikiCode
                   code={content.question?.replace(/```[a-z]*\n?|```/g, "") || ""}

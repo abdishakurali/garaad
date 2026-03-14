@@ -3,7 +3,6 @@ import { ChevronRight } from "lucide-react";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardFooter } from "../ui/card";
 
 interface ImageContent {
   url: string;
@@ -44,21 +43,21 @@ const ImageBlock: React.FC<{
 }> = ({ content, onContinue, isLastBlock }) => {
   if (!content?.url) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[40vh] w-full max-w-3xl mx-auto px-4">
-        <div className="w-full bg-white/5 dark:bg-black/40 backdrop-blur-sm rounded-3xl border border-black/5 dark:border-white/5 overflow-hidden p-8 text-center">
-          <p className="text-muted-foreground">Image not available</p>
-          <div className="mt-6 flex justify-center">
-            <Button onClick={onContinue} className="w-full md:w-auto min-w-[200px] h-12 rounded-xl font-bold">
-              {isLastBlock ? "Dhamee" : "Sii wado"}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
+        <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-8 text-center">
+          <p className="text-zinc-500 text-sm">Sawir lama helin</p>
+          <Button
+            onClick={onContinue}
+            className="mt-4 h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm min-h-[44px]"
+          >
+            {isLastBlock ? "Dhamee" : "Sii wado"}
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
         </div>
       </div>
     );
   }
 
-  // Create an array of image objects with their associated text
   const imageSections: ImageSection[] = [
     { url: content.url, alt: content.alt, caption: content.caption, text: content.text },
     ...(content.url1 ? [{ url: content.url1, alt: content.alt1 || "", caption: content.caption1 || "", text: content.text1 }] : []),
@@ -68,48 +67,37 @@ const ImageBlock: React.FC<{
   ];
 
   return (
-    <div className="w-full mx-3 sm:mx-4 lg:mx-0">
-      <div className="w-full bg-white/[0.06] dark:bg-black/40 backdrop-blur-sm rounded-2xl lg:rounded-3xl border border-white/[0.09] dark:border-white/[0.09] overflow-hidden transition-all duration-500 hover:bg-white/[0.09] dark:hover:bg-black/50">
-        <div className="flex flex-col p-5 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
-          {imageSections.map((section, index) => (
-            <div key={index} className="space-y-6">
-              {/* Text before image */}
-              {section.text && (
-                <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300">
-                  {section.text}
-                </div>
-              )}
-
-              {/* Image */}
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/20">
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
+      <div className="space-y-6">
+        {imageSections.map((section, index) => (
+          <div key={index}>
+            {section.text && (
+              <p className="text-sm sm:text-base text-zinc-300 leading-relaxed mb-3">{section.text}</p>
+            )}
+            <div className="rounded-none sm:rounded-2xl overflow-hidden border-0 sm:border border-zinc-800">
+              <div className="relative aspect-video w-full bg-zinc-900">
                 <Image
                   src={optimizeCloudinaryUrl(getAbsoluteImageUrl(section.url, "")) || "/images/placeholder-course.svg"}
-                  alt={section.alt || "Course image"}
+                  alt={section.alt || "Sawir"}
                   fill
-                  className="object-contain"
+                  className="object-cover"
                 />
               </div>
-
-              {/* Caption */}
-              {section.caption && (
-                <p className="text-sm text-center text-muted-foreground font-medium italic">
-                  {section.caption}
-                </p>
-              )}
             </div>
-          ))}
-        </div>
+            {section.caption && (
+              <p className="px-4 py-2.5 text-xs text-zinc-500 text-center sm:px-0">{section.caption}</p>
+            )}
+          </div>
+        ))}
       </div>
 
-      <div className="mt-6 mb-2">
-        <Button
-          onClick={onContinue}
-          className="w-full min-h-[44px] h-12 rounded-xl text-base font-semibold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
-        >
-          {isLastBlock ? "Dhamee" : "Sii wado"}
-          <ChevronRight className="ml-2 h-5 w-5" />
-        </Button>
-      </div>
+      <Button
+        onClick={onContinue}
+        className="mt-5 w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors duration-150 min-h-[44px]"
+      >
+        {isLastBlock ? "Dhamee" : "Sii wado"}
+        <ChevronRight className="ml-2 h-4 w-4" />
+      </Button>
     </div>
   );
 };

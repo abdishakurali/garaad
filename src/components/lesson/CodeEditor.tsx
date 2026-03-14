@@ -14,8 +14,9 @@ export interface CodeEditorProps {
 
 const LINE_NUM_WIDTH = 48;
 const FONT_SIZE_MOBILE = 13;
+const FONT_SIZE_DESKTOP = 14;
 const LINE_HEIGHT = 1.6;
-const MIN_HEIGHT_MOBILE = 200;
+const MIN_HEIGHT_MOBILE = 180;
 
 export function CodeEditor({
   value,
@@ -57,29 +58,20 @@ export function CodeEditor({
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-b-xl border border-t-0 border-[#27272a] bg-[#09090b]">
-      {/* Header bar — smaller on mobile */}
-      <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-3 py-2 sm:px-4 sm:py-3 rounded-t-xl">
-        <div className="flex items-center gap-1 sm:gap-1.5">
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500" />
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-yellow-500" />
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500" />
+    <div className="w-full overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
+      <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 py-2.5">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+          <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+          <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
         </div>
-        <span className="text-xs font-medium uppercase tracking-wider text-zinc-500" style={{ fontFamily: "Inter, sans-serif" }}>
-          {language}
-        </span>
+        <span className="text-xs text-zinc-500">{language}</span>
       </div>
 
-      {/* Editor area — line numbers hidden on small screens (< 640px) */}
       <div className="relative flex">
         <div
-          className="hidden sm:block shrink-0 py-3 sm:py-5 pr-2 text-right select-none text-zinc-600"
-          style={{
-            width: LINE_NUM_WIDTH,
-            fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
-            fontSize: FONT_SIZE_DESKTOP,
-            lineHeight: LINE_HEIGHT,
-          }}
+          className="hidden sm:block shrink-0 py-4 pr-3 text-right select-none text-zinc-700 border-r border-zinc-800 text-[13px] font-mono"
+          style={{ width: LINE_NUM_WIDTH, lineHeight: LINE_HEIGHT }}
           aria-hidden
         >
           {Array.from({ length: displayLines }, (_, i) => i + 1).map((n) => (
@@ -97,19 +89,18 @@ export function CodeEditor({
           autoCorrect="off"
           autoCapitalize="off"
           className={cn(
-            "flex-1 min-w-0 resize-y rounded-b-xl border bg-transparent py-3 pr-3 pl-3 sm:py-5 sm:pr-5 sm:-ml-12 sm:pl-[56px] outline-none transition-colors duration-200",
-            "border-[#27272a] focus:ring-0 focus:border-purple-500/60",
-            "text-[13px] sm:text-sm",
-            "min-h-[200px] sm:min-h-[240px]",
+            "flex-1 min-w-0 py-4 pl-4 sm:pl-4 sm:pr-4 outline-none transition-colors duration-150 resize-none",
+            "border-0 bg-zinc-950 text-[13px] sm:text-sm font-mono",
+            "focus:ring-0 focus:border-0 focus:ring-offset-0",
+            "placeholder:text-zinc-600 caret-violet-400",
+            "min-h-[180px] sm:min-h-[220px]",
             disabled && "cursor-not-allowed opacity-70"
           )}
           style={{
             fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
             lineHeight: LINE_HEIGHT,
-            color: "#34d399",
-            background: "#09090b",
-            minHeight: minHeightPx,
-            marginLeft: 0,
+            color: "rgb(110 231 183)",
+            minHeight: Math.max(MIN_HEIGHT_MOBILE, minHeightPx),
             tabSize: 2,
           } as React.CSSProperties}
           data-enable-grammarly="false"

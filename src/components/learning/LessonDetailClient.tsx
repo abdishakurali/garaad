@@ -16,7 +16,6 @@ import {
     Loader,
     Sparkles,
 } from "lucide-react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { ExplanationText, TextContent, DiagramConfig, ProblemContent } from "@/types/learning";
 import LessonHeader from "@/components/LessonHeader";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
@@ -73,149 +72,62 @@ interface User {
     name: string;
 }
 
-// Enhanced Loading Component with smooth animations
-const LoadingSpinner = ({
-    message,
-}: {
-    message: string;
-}) => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-8 p-8">
-            <Loader className="animate-spin w-16 h-16" />
-            <div className="text-center space-y-2">
-                <p className="text-gray-700 font-medium text-xl">{message}</p>
+const LoadingSpinner = ({ message }: { message: string }) => (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6 p-8">
+            <div className="h-10 w-10 rounded-full border-2 border-zinc-700 border-t-violet-500 animate-spin" />
+            <p className="text-zinc-400 text-sm font-medium">{message}</p>
+        </div>
+    </div>
+);
+
+const ErrorCard = ({ coursePath, onRetry }: { coursePath: string; onRetry: () => void }) => (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-6 sm:p-8 text-center space-y-5">
+            <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                <RefreshCw className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+                <h2 className="text-lg font-semibold text-white">Wax cashar ah lama helin</h2>
+                <p className="text-sm text-zinc-500 mt-1">waa soo dajin weynay casharka aad dalbatay sababo jira awgood</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+                <Button asChild className="h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm">
+                    <Link href={coursePath} className="flex items-center justify-center gap-2">
+                        <Home className="w-4 h-4" />
+                        Ku laabo bogga koorsada
+                    </Link>
+                </Button>
+                <Button variant="outline" className="h-11 rounded-xl border-zinc-700 text-zinc-400 hover:bg-white/[0.04]" onClick={onRetry}>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    soo daji markale
+                </Button>
             </div>
         </div>
     </div>
 );
 
-// Enhanced Error Component
-const ErrorCard = ({
-    coursePath,
-    onRetry,
-}: {
-    coursePath: string;
-    onRetry: () => void;
-}) => (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-100 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full shadow-2xl border-0 transform transition-all duration-300 hover:scale-105">
-            <CardContent className="p-8 text-center">
-                <div className="space-y-6">
-                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-red-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                        <RefreshCw className="w-10 h-10 text-white" />
-                    </div>
-                    <div className="space-y-3">
-                        <h2 className="text-2xl font-bold text-gray-900">
-                            Wax cashar ah lama helin
-                        </h2>
-                        <p className="text-gray-600 leading-relaxed">
-                            waa soo dajin weynay casharka aad dalbatay sababo jira awgood
-                        </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <Button
-                            asChild
-                            className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                        >
-                            <Link
-                                href={coursePath}
-                                className="flex items-center justify-center gap-2"
-                            >
-                                <Home className="w-4 h-4" />
-                                Ku laabo bogga koorsada
-                            </Link>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="flex-1 gap-2 hover:bg-gray-50"
-                            onClick={onRetry}
-                        >
-                            <RefreshCw className="w-4 h-4" />
-                            soo daji markale
-                        </Button>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    </div>
-);
-
-// Lesson Completion Animation Component
-const LessonCompletionAnimation = ({
-    onComplete,
-}: {
-    onComplete: () => void;
-}) => {
+const LessonCompletionAnimation = ({ onComplete }: { onComplete: () => void }) => {
     const [stage, setStage] = useState(0);
-
     useEffect(() => {
-        const timers = [
-            setTimeout(() => setStage(1), 200),
-            setTimeout(() => setStage(2), 900),
-            setTimeout(() => setStage(3), 1700),
-        ];
-
-        return () => timers.forEach(clearTimeout);
+        const t1 = setTimeout(() => setStage(1), 200);
+        const t2 = setTimeout(() => setStage(2), 600);
+        const t3 = setTimeout(() => setStage(3), 1000);
+        return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }, []);
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 p-4">
-            <div className="text-center space-y-8 max-w-md w-full">
-                {/* Decorative sparkles and main icon */}
-                <div className="relative">
-                    {/* Top sparkles */}
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-                        <div className="flex space-x-2">
-                            <Sparkles className="w-4 h-4 text-purple-400" />
-                            <Sparkles className="w-3 h-3 text-purple-300" />
-                        </div>
-                    </div>
-
-                    {/* Side sparkles */}
-                    <div className="absolute top-4 -right-8">
-                        <Sparkles className="w-3 h-3 text-purple-300" />
-                    </div>
-                    <div className="absolute top-8 -left-6">
-                        <Sparkles className="w-4 h-4 text-purple-400" />
-                    </div>
-
-                    {/* Main diamond icon */}
-                    <div
-                        className={cn(
-                            "transition-all duration-500 ease-out mx-auto",
-                            stage >= 1 ? "scale-100 opacity-100" : "scale-90 opacity-0"
-                        )}
-                    >
-                        <div className="relative w-20 h-20 mx-auto mb-6">
-                            <div className="w-20 h-20 bg-purple-500 transform rotate-45 rounded-lg flex items-center justify-center">
-                                <div className="w-4 h-4 bg-black rounded-sm transform -rotate-45"></div>
-                            </div>
-                        </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950 p-4">
+            <div className="text-center space-y-6 max-w-md w-full">
+                <div className={cn("transition-opacity duration-300", stage >= 1 ? "opacity-100" : "opacity-0")}>
+                    <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                        <Sparkles className="w-7 h-7 text-emerald-400" />
                     </div>
                 </div>
-
-                {/* Lesson complete text */}
-                <div
-                    className={cn(
-                        "transition-all duration-500 ease-out",
-                        stage >= 2 ? "scale-100 opacity-100" : "scale-90 opacity-0"
-                    )}
-                >
-                    <h2 className="text-3xl font-bold text-gray-800 mb-8">
-                        Cashar baa
-                        <br />
-                        la Dhammeeyay!
-                    </h2>
+                <div className={cn("transition-opacity duration-300", stage >= 2 ? "opacity-100" : "opacity-0")}>
+                    <h2 className="text-xl font-semibold text-white">Cashar baa la Dhammeeyay!</h2>
                 </div>
-
-                {/* Continue button */}
-                <div
-                    className={cn(
-                        "transition-all duration-500 ease-out pt-8",
-                        stage >= 3 ? "scale-100 opacity-100" : "scale-90 opacity-0"
-                    )}
-                >
-                    <Button onClick={onComplete} className="w-full rounded-md">
+                <div className={cn("transition-opacity duration-300 pt-2", stage >= 3 ? "opacity-100" : "opacity-0")}>
+                    <Button onClick={onComplete} className="w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm">
                         Sii wado
                     </Button>
                 </div>
@@ -767,6 +679,7 @@ export function LessonDetailClient() {
                         isCorrect={index === currentBlockIndex ? isCorrect : true}
                         isLastInLesson={isLastBlock}
                         disabledOptions={index === currentBlockIndex ? disabledOptions : []}
+                        showReviewBanner={isReviewMode && index === currentBlockIndex}
                     />
                 );
 
@@ -826,35 +739,28 @@ export function LessonDetailClient() {
             case "code":
                 const codeContent = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
                 return (
-                    <div className="w-full mx-3 sm:mx-4 lg:mx-0 space-y-4">
-                        <div className="bg-zinc-950 rounded-xl lg:rounded-2xl overflow-hidden shadow-2xl border border-white/[0.09] overflow-x-auto">
+                    <div className="w-full px-4 sm:px-6 lg:px-0 max-w-2xl mx-auto space-y-4">
+                        <div className="rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 overflow-x-auto">
                             <ShikiCode code={codeContent.code || ""} language={codeContent.language || "javascript"} />
                         </div>
                         {codeContent.explanation && (
-                            <div className="mx-3 sm:mx-4 lg:mx-0 bg-white/[0.06] backdrop-blur-sm rounded-xl lg:rounded-2xl p-4 lg:p-6 border border-white/[0.09]">
-                                <p className="text-slate-300 text-sm leading-relaxed italic">
-                                    {codeContent.explanation}
-                                </p>
+                            <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6">
+                                <p className="text-zinc-300 text-sm leading-relaxed">{codeContent.explanation}</p>
                             </div>
                         )}
-                        <div className="mx-3 sm:mx-4 lg:mx-0 mb-2">
-                            <Button onClick={handleContinue} className="w-full min-h-[44px] h-12 rounded-xl text-base font-semibold">
-                                {isLastBlock ? "Dhamee" : "Sii wado"}
-                                <ChevronRight className="ml-2 h-5 w-5" />
-                            </Button>
-                        </div>
+                        <Button onClick={handleContinue} className="w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm">
+                            {isLastBlock ? "Dhamee" : "Sii wado"}
+                            <ChevronRight className="ml-2 h-4 w-4" />
+                        </Button>
                     </div>
                 );
 
             case "example":
                 const exampleContent = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
                 return (
-                    <div className="w-full mx-3 sm:mx-4 lg:mx-0">
-                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl lg:rounded-3xl p-5 sm:p-8 space-y-4">
-                            <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400 font-bold uppercase tracking-widest text-xs">
-                                <Sparkles className="w-4 h-4" />
-                                Tusaale
-                            </div>
+                    <div className="w-full px-4 sm:px-6 lg:px-0 max-w-2xl mx-auto mb-4 sm:mb-5">
+                        <div className="rounded-2xl bg-zinc-900 border border-amber-500/30 p-5 sm:p-6">
+                            <p className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-3">Tusaale</p>
                             <TextBlock
                                 content={{ ...exampleContent, type: 'text' }}
                                 onContinue={handleContinue}
@@ -866,23 +772,14 @@ export function LessonDetailClient() {
 
             default:
                 return (
-                    <div className="max-w-2xl mx-auto px-4">
-                        <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
-                            <CardContent className="p-8 text-center">
-                                <p className="text-gray-600 text-lg">
-                                    Nooca waxyaabahan weli lama taageerayo.
-                                </p>
-                            </CardContent>
-                            <CardFooter className="flex justify-center pb-8">
-                                <Button
-                                    onClick={handleContinue}
-                                    className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                                >
-                                    Continue
-                                    <ChevronRight className="w-4 h-4" />
-                                </Button>
-                            </CardFooter>
-                        </Card>
+                    <div className="w-full px-4 sm:px-6 lg:px-0 max-w-2xl mx-auto">
+                        <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-6 sm:p-8 text-center space-y-4">
+                            <p className="text-zinc-400 text-sm">Nooca waxyaabahan weli lama taageerayo.</p>
+                            <Button onClick={handleContinue} className="h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm px-6">
+                                Sii wado
+                                <ChevronRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
                 );
         }
@@ -900,6 +797,7 @@ export function LessonDetailClient() {
         currentProblem,
         isCorrect,
         disabledOptions,
+        isReviewMode,
     ]);
 
 
@@ -976,7 +874,7 @@ export function LessonDetailClient() {
     if (!mounted) return null;
 
     return (
-        <div className="min-h-screen bg-background overflow-x-hidden overscroll-y-contain">
+        <div className="min-h-screen bg-zinc-950 overflow-x-hidden overscroll-y-contain">
             <LessonHeader
                 currentQuestion={currentBlockIndex + 1}
                 totalQuestions={sortedBlocks?.length || 0}
@@ -986,21 +884,16 @@ export function LessonDetailClient() {
                 lessonTitle={currentLesson?.title}
             />
 
-            <main className="pt-16 px-0 sm:pt-[4.5rem] sm:px-4 lg:pt-20 lg:px-8 pb-[max(6rem,env(safe-area-inset-bottom))] sm:pb-28 lg:pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
-                <div className="w-full max-w-2xl lg:max-w-3xl mx-auto">
-                    {/* Review Mode Indicator */}
+            <main className="pt-14 px-0 pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
+                <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
                     {isReviewMode && (
-                        <div className="mx-3 sm:mx-4 lg:mx-0 mb-4">
-                            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-2">
-                                <div className="w-2 h-2 bg-green-500 rounded-full shrink-0" />
-                                <span className="text-green-400 text-sm font-bold">
-                                    Muraajacee - Casharkan waa la dhammeeyay, waxaad ku celcelaysaa
-                                </span>
-                            </div>
+                        <div className="mb-4 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 inline-flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-amber-400 rounded-full shrink-0" />
+                            <span className="text-amber-400 text-xs font-medium">Muraajacee - Casharkan waa la dhammeeyay, waxaad ku celcelaysaa</span>
                         </div>
                     )}
 
-                    <div className="flex flex-col items-center w-full overflow-hidden space-y-0 sm:space-y-4">
+                    <div className="flex flex-col w-full overflow-hidden">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentBlockIndex}
@@ -1008,7 +901,7 @@ export function LessonDetailClient() {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0 }}
-                                className="w-full"
+                                className="w-full mb-4 sm:mb-5"
                             >
                                 {renderBlock(sortedBlocks[currentBlockIndex], currentBlockIndex)}
                             </motion.div>
