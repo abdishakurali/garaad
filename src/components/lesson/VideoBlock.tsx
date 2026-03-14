@@ -32,6 +32,11 @@ const VideoBlock: React.FC<{
   const [isBuffering, setIsBuffering] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [showTryAgain, setShowTryAgain] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -157,7 +162,14 @@ const VideoBlock: React.FC<{
         )}
       >
         {optimizedUrl ? (
-          <div className={cn("relative w-full h-full", isFullscreen && "flex items-center justify-center bg-zinc-950")}>
+          <div className={cn("relative w-full h-full", isFullscreen && "flex items-center justify-center bg-zinc-950")} suppressHydrationWarning>
+            {!mounted ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-zinc-950 animate-pulse">
+                <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              </div>
+            ) : null}
+            {mounted && (
+              <>
             {isLoading && (
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-zinc-950 animate-pulse">
                 <div className="flex flex-col items-center gap-3">
@@ -202,6 +214,7 @@ const VideoBlock: React.FC<{
               poster={posterUrl ?? undefined}
               playsInline
               preload="metadata"
+              {...(typeof optimizedUrl === "string" && optimizedUrl.includes("api/media/") ? { crossOrigin: "anonymous" as const } : {})}
               className={cn(
                 "w-full h-full object-cover bg-zinc-950",
                 isFullscreen ? "rounded-none object-contain" : "sm:rounded-2xl"
@@ -236,6 +249,8 @@ const VideoBlock: React.FC<{
                 }
               }}
             />
+              </>
+            )}
 
             {/* Tap anywhere to play/pause */}
             <div className="absolute inset-0 z-10 cursor-pointer" onClick={togglePlay} />
