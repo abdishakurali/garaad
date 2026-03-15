@@ -40,8 +40,8 @@ export default function EditBlogPostPage() {
                 setExcerpt(post.excerpt || "");
                 setMetaDescription(post.meta_description || "");
                 setIsPublished(post.is_published);
-                if (post.cover_image) {
-                    setImagePreview(post.cover_image);
+                if (post.cover || post.cover_image_url) {
+                    setImagePreview(post.cover || post.cover_image_url || null);
                 }
                 if (post.tags) {
                     setTags(post.tags.map((t: any) => t.name).join(", "));

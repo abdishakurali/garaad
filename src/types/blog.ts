@@ -9,8 +9,8 @@ export interface BlogPost {
     title: string;
     slug: string;
     body: string;
-    cover_image: string | null;
-    cover_image_url?: string | null;
+    cover: string | null;           // bridge URL, preferred
+    cover_image_url: string | null; // same value, kept for compat
     author_name: string;
     published_at: string;
     tags: Tag[];

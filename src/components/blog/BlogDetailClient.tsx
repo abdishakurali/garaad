@@ -72,7 +72,7 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
         return Math.max(1, Math.ceil(words / wordsPerMinute));
     };
 
-    const coverImage = post.cover_image_url || post.cover_image;
+    const coverImage = post.cover || post.cover_image_url || null;
 
     const [shareBaseUrl, setShareBaseUrl] = useState("https://garaad.org");
     const [linkCopied, setLinkCopied] = useState(false);
@@ -193,7 +193,7 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                         </div>
                     </div>
 
-                    {coverImage && (
+                    {coverImage ? (
                         <div className="mt-12 relative aspect-[21/10] w-full rounded-3xl overflow-hidden shadow-2xl shadow-primary/5 border border-slate-100 dark:border-zinc-800">
                             <Image
                                 src={coverImage}
@@ -202,6 +202,10 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                                 priority
                                 className="object-cover"
                             />
+                        </div>
+                    ) : (
+                        <div className="mt-12 relative aspect-[21/10] w-full rounded-3xl overflow-hidden shadow-2xl shadow-primary/5 border border-slate-100 dark:border-zinc-800 bg-zinc-800 flex items-center justify-center">
+                            <span className="text-zinc-600 text-sm">Garaad</span>
                         </div>
                     )}
                 </div>
@@ -332,12 +336,18 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                                         {relatedPosts.map(p => (
                                             <Link key={p.id} href={`/blog/${p.slug}`} className="group block space-y-3">
                                                 <div className="relative aspect-video rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-zinc-800">
-                                                    <Image
-                                                        src={p.cover_image_url || p.cover_image || "/images/placeholder.jpg"}
-                                                        alt={p.title}
-                                                        fill
-                                                        className="object-cover transition-transform group-hover:scale-105 duration-500"
-                                                    />
+                                                    {(p.cover || p.cover_image_url) ? (
+                                                        <Image
+                                                            src={p.cover || p.cover_image_url || ""}
+                                                            alt={p.title}
+                                                            fill
+                                                            className="object-cover transition-transform group-hover:scale-105 duration-500"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                                                            <span className="text-zinc-600 text-sm">Garaad</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <h4 className="font-bold font-serif text-slate-800 dark:text-zinc-200 leading-snug group-hover:text-primary transition-colors line-clamp-2">
                                                     {p.title}

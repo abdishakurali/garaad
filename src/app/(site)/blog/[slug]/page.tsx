@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     const post = await getBlogPost(slug).catch(() => null);
     if (!post) return { title: "Post Not Found" };
 
-    const coverImage = post.cover_image_url || post.cover_image;
+    const coverImage = post.cover || post.cover_image_url || null;
     const canonicalUrl = `https://garaad.org/blog/${slug}`;
     const keywords = post.tags?.length
         ? [...post.tags.map((t) => t.name), "Garaad Blog", "STEM Soomaali"]
@@ -43,14 +43,9 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     const descFinal = (description || post.title).slice(0, 155).trim();
     const ogDescription = descFinal.length >= 155 ? descFinal + "…" : descFinal;
 
-    // Ensure OG image is absolute; fallback to site OG if no cover
-    const apiBase = (process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org").replace(/\/$/, "");
+    // Cover from API is always absolute bridge URL when present
     const absoluteCoverImage = coverImage
-        ? coverImage.startsWith("http")
-            ? coverImage
-            : (coverImage.includes("blog/covers/")
-                  ? `${apiBase}/api/media/blog/covers/${coverImage.replace(/^.*blog\/covers\//, "")}`
-                  : `https://garaad.org${coverImage.startsWith("/") ? "" : "/"}${coverImage}`)
+        ? (coverImage.startsWith("http") ? coverImage : `https://garaad.org${coverImage.startsWith("/") ? "" : "/"}${coverImage}`)
         : undefined;
     const ogImage = absoluteCoverImage || OG_FALLBACK;
 
@@ -105,7 +100,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
         "@type": "BlogPosting",
         "mainEntityOfPage": { "@type": "WebPage", "@id": `https://garaad.org/blog/${slug}` },
         "headline": post.title,
-        "image": post.cover_image_url || post.cover_image || "https://garaad.org/images/og-blog.jpg",
+        "image": post.cover || post.cover_image_url || "https://garaad.org/images/og-blog.jpg",
         "datePublished": post.published_at,
         "dateModified": post.updated_at || post.published_at,
         "author": { "@type": "Person", "name": post.author_name },

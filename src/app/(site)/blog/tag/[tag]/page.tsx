@@ -97,16 +97,16 @@ export default async function TagPage({ params }: TagPageProps) {
                                         <Link href={`/blog/${post.slug}`} className="absolute inset-0 z-10">
                                             <span className="sr-only">Akhri: {post.title}</span>
                                         </Link>
-                                        {post.cover_image ? (
+                                        {(post.cover || post.cover_image_url) ? (
                                             <Image
-                                                src={post.cover_image_url || post.cover_image || "/images/placeholder.jpg"}
+                                                src={post.cover || post.cover_image_url || ""}
                                                 alt={post.title}
                                                 fill
                                                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                                             />
                                         ) : (
-                                            <div className="bg-slate-100 w-full h-full flex items-center justify-center">
-                                                <span className="text-slate-400">No image</span>
+                                            <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                                                <span className="text-zinc-600 text-sm">Garaad</span>
                                             </div>
                                         )}
                                     </div>
