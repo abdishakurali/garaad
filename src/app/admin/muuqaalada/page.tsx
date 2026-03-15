@@ -59,7 +59,6 @@ export default function VideoManagementPage() {
                 : (rawData && Array.isArray(rawData.results) ? rawData.results : []);
             setVideos(data);
         } catch (err) {
-            console.error("Error fetching videos:", err);
             setError("Lama soo qaadan karo muuqaalada");
         } finally {
             setLoading(false);
@@ -82,7 +81,6 @@ export default function VideoManagementPage() {
         setDragActive(false);
 
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            console.log('files dropped', e.dataTransfer.files);
             handleFileSelect(e.dataTransfer.files);
         }
     };
@@ -152,8 +150,7 @@ export default function VideoManagementPage() {
                 setUploadQueue(prev => prev.map((q, idx) => idx === i ? { ...q, status: 'completed' } : q));
                 setSuccess(`${item.file.name} way soo degtay!`);
             } catch (err: any) {
-                console.error("Upload error:", err);
-                setUploadQueue(prev => prev.map((q, idx) => idx === i ? { ...q, status: 'error', error: 'Failed' } : q));
+                setUploadQueue(prev => prev.map((q, idx) => idx === i ? { ...q, status: 'error', error: err?.response?.data?.detail || err?.message || 'Upload failed' } : q));
             }
         }
 
@@ -188,7 +185,6 @@ export default function VideoManagementPage() {
             }
             setTimeout(() => setSuccess(""), 3000);
         } catch (err) {
-            console.error("Delete error:", err);
             setError("Lama tirtiri karin muuqaalka");
         }
     };

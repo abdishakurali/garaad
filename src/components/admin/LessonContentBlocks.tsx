@@ -112,7 +112,6 @@ const ProblemContent = ({
                 const data = await fetchProblemDetails(problemId);
                 setProblemContent(data);
             } catch (err) {
-                console.error('Error loading problem content:', err);
                 const error = err as Error;
                 setError(error.message || 'Could not load problem content');
             } finally {
@@ -265,7 +264,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 img_url: res.data.photo_url || res.data.url
             });
         } catch (err: any) {
-            console.error('Image upload failed:', err);
             setUploadImageError(err.response?.data?.detail || 'Sawirka waa la soo daji waayay');
         } finally {
             setUploadingImage(false);
@@ -301,7 +299,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 const sortedBlocks = blocksData.sort((a: ContentBlock, b: ContentBlock) => a.order - b.order);
                 setBlocks(sortedBlocks);
             } catch (err) {
-                console.error('Error fetching blocks:', err);
                 const apiError = err as ApiError;
                 setError(apiError.message || 'Qeybaha casharkan lama soo saari karin');
             } finally {
@@ -349,7 +346,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 video_source_type: 'upload'
             });
         } catch (err) {
-            console.error('Video upload error:', err);
             const apiError = err as ApiError;
             setError(apiError.response?.data?.detail || 'Muuqaalka lama soo galin karin');
         } finally {
@@ -411,7 +407,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                         videoUrl = (uploadRes.data as any).video_url || (uploadRes.data as any).url || '';
                         videoTitle = (uploadRes.data as any).title || videoTitle;
                     } catch (uploadErr: any) {
-                        console.error("Direct upload failed", uploadErr);
                         const msg = uploadErr?.response?.data?.detail ?? "Waa la waayay soo gelinta muuqaalka.";
                         setError(typeof msg === 'string' ? msg : 'Waa la waayay soo gelinta muuqaalka.');
                         setVideoUploading(false);
@@ -463,7 +458,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             }
             if (onUpdate) onUpdate();
         } catch (err) {
-            console.error('Add block error:', err);
             setError('Lama dari karin qeyb cusub.');
         } finally {
             setAdding(false);
@@ -508,7 +502,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                     xp: problemData.points || initialContent.xp || 10 // Sync xp/points
                 };
             } catch (err) {
-                console.error('Failed to fetch problem details for editing:', err);
                 setError('Lama soo saari karin macluumaadka su\'aasha.');
             } finally {
                 setAdding(false);
@@ -582,7 +575,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                     videoUrl = (uploadRes.data as any).video_url || (uploadRes.data as any).url || '';
                     videoTitle = (uploadRes.data as any).title || videoTitle;
                 } catch (uploadErr: any) {
-                    console.error("Video replace upload failed", uploadErr);
                     const msg = uploadErr?.response?.data?.detail ?? "Muuqaalka cusub lama soo gelin karin.";
                     setError(typeof msg === 'string' ? msg : "Muuqaalka cusub lama soo gelin karin.");
                     setVideoUploading(false);
@@ -633,7 +625,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             setEditingContent(DEFAULT_CONTENT);
             if (onUpdate) onUpdate();
         } catch (err) {
-            console.error('Update block error:', err);
             setError('Lama cusboonaysiin karin qeybta.');
         } finally {
             setAdding(false);
@@ -657,6 +648,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
         const newIndex = direction === 'up' ? index - 1 : index + 1;
         if (newIndex < 0 || newIndex >= blocks.length) return;
 
+        const previousBlocks = [...blocks];
         const newBlocks = [...blocks];
         const [moved] = newBlocks.splice(index, 1);
         newBlocks.splice(newIndex, 0, moved);
@@ -672,6 +664,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             if (onUpdate) onUpdate();
         } catch (err) {
             setError('Dib u habeynta ma suuragalin.');
+            setBlocks(previousBlocks);
         }
     };
 
