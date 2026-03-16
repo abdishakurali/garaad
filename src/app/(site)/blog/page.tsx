@@ -1,7 +1,7 @@
 import { getBlogPosts } from "@/lib/blog";
 import { BlogListClient } from "@/components/blog/BlogListClient";
 
-export const revalidate = 3600; // ISR: Revalidate hourly
+export const revalidate = 60; // ISR: Revalidate every 60s so cover images stay fresh
 
 const BLOG_URL = "https://garaad.org/blog";
 

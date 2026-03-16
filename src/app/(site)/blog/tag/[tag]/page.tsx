@@ -6,6 +6,8 @@ import Link from "next/link";
 import { SharePost } from "@/components/SharePost";
 import { Metadata } from "next";
 
+export const revalidate = 60;
+
 interface TagPageProps {
     params: Promise<{ tag: string }>;
 }

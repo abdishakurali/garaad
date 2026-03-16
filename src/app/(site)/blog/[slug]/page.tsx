@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { BlogDetailClient } from "@/components/blog/BlogDetailClient";
 
+export const revalidate = 60;
+export const dynamicParams = true;
+
 interface PostPageProps {
     params: Promise<{
         slug: string;

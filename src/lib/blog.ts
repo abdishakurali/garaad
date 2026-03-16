@@ -12,7 +12,7 @@ export async function getBlogPosts(tag?: string): Promise<BlogPost[]> {
     }
 
     const res = await fetch(url.toString(), {
-        next: { revalidate: 3600 },
+        next: { revalidate: 60 },
     });
 
     if (!res.ok) {
@@ -24,7 +24,7 @@ export async function getBlogPosts(tag?: string): Promise<BlogPost[]> {
 
 export async function getBlogPost(slug: string): Promise<BlogPost> {
     const res = await fetch(`${API_URL}/blog/posts/${slug}/`, {
-        next: { revalidate: 3600 },
+        next: { revalidate: 60 },
     });
 
     if (!res.ok) {
@@ -36,7 +36,7 @@ export async function getBlogPost(slug: string): Promise<BlogPost> {
 
 export async function getBlogTags(): Promise<Tag[]> {
     const res = await fetch(`${API_URL}/blog/tags/`, {
-        next: { revalidate: 3600 },
+        next: { revalidate: 60 },
     });
 
     if (!res.ok) {
