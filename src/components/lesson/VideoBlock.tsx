@@ -4,22 +4,31 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
+type VideoContent = {
+  source?: string;
+  url?: string;
+  type?: string;
+  title?: string;
+  controls?: boolean;
+  description?: string;
+  thumbnail_url?: string;
+  img_url?: string;
+  thumbnail?: string;
+};
+
 const VideoBlock: React.FC<{
-  content: {
-    source?: string;
-    url?: string;
-    type?: string;
-    title?: string;
-    controls?: boolean;
-    description?: string;
-    thumbnail_url?: string;
-    img_url?: string;
-    thumbnail?: string;
-  };
+  content: VideoContent | string;
   onContinue: () => void;
   isLastBlock: boolean;
 }> = ({ content, onContinue, isLastBlock }) => {
-  const videoUrl = content.source || content.url;
+  const videoUrl =
+    (typeof content === "object" && content !== null
+      ? (content.url ?? content.source)
+      : null) ?? (typeof content === "string" ? content : null);
+  if (process.env.NODE_ENV === "development") {
+    console.log("videoUrl:", videoUrl, "content:", content);
+  }
+  const contentObj = typeof content === "object" && content !== null ? content : ({} as VideoContent);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -37,6 +46,15 @@ const VideoBlock: React.FC<{
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fallback: clear loading if onCanPlay/onLoadedData don't fire within 10s (e.g. 206 streaming)
+  useEffect(() => {
+    if (!videoUrl) return;
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 10000);
+    return () => clearTimeout(timeout);
+  }, [videoUrl]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -74,9 +92,9 @@ const VideoBlock: React.FC<{
 
   const posterUrl = React.useMemo(() => {
     if (!videoUrl) return undefined;
-    if (content.thumbnail_url) return content.thumbnail_url;
-    if (content.img_url) return content.img_url;
-    if (content.thumbnail) return content.thumbnail;
+    if (contentObj.thumbnail_url) return contentObj.thumbnail_url;
+    if (contentObj.img_url) return contentObj.img_url;
+    if (contentObj.thumbnail) return contentObj.thumbnail;
     if (videoUrl.includes("res.cloudinary.com")) {
       const cleanUrl = videoUrl.replace(/\.[^/.]+$/, "");
       const parts = cleanUrl.split("/video/upload/");
@@ -88,7 +106,7 @@ const VideoBlock: React.FC<{
       return `${before}/video/upload/f_auto,q_30,so_0/${finalAfter}.jpg`;
     }
     return undefined;
-  }, [videoUrl, content]);
+  }, [videoUrl, contentObj]);
 
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
@@ -138,15 +156,15 @@ const VideoBlock: React.FC<{
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
-      {(content.title || content.description) && (
+      {(contentObj.title || contentObj.description) && (
         <div className="px-0 pt-0 pb-2 sm:pb-3">
-          {content.title && (
-            <p className="text-sm font-semibold text-white line-clamp-2" title={content.title}>
-              {content.title}
+          {contentObj.title && (
+            <p className="text-sm font-semibold text-white line-clamp-2" title={contentObj.title}>
+              {contentObj.title}
             </p>
           )}
-          {content.description && (
-            <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">{content.description}</p>
+          {contentObj.description && (
+            <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">{contentObj.description}</p>
           )}
         </div>
       )}
@@ -205,9 +223,11 @@ const VideoBlock: React.FC<{
             )}
 
             <video
+              key={optimizedUrl}
               ref={videoRef}
               src={optimizedUrl}
               poster={posterUrl ?? undefined}
+              controls
               playsInline
               preload="metadata"
               {...(typeof optimizedUrl === "string" && optimizedUrl.includes("api/media/") ? { crossOrigin: "anonymous" as const } : {})}
@@ -219,7 +239,11 @@ const VideoBlock: React.FC<{
               onPause={() => setIsPlaying(false)}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-              onCanPlay={() => { setIsLoading(false); setIsBuffering(false); }}
+              onCanPlay={() => {
+                setIsLoading(false);
+                setIsBuffering(false);
+              }}
+              onLoadedData={() => setIsLoading(false)}
               onWaiting={() => setIsBuffering(true)}
               onStalled={() => setIsBuffering(true)}
               onPlaying={() => setIsBuffering(false)}
@@ -228,6 +252,7 @@ const VideoBlock: React.FC<{
                 setIsEnded(true);
               }}
               onError={(e) => {
+                console.error("Video error:", e);
                 const el = e.currentTarget;
                 if (el.src !== videoUrl && videoUrl) {
                   console.warn("Optimized source failed, switching to fallback:", videoUrl);
