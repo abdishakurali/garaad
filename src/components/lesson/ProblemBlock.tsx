@@ -210,41 +210,49 @@ const ProblemBlock: React.FC<{
       const isCorrectUnselected = hasAnswered && (content?.question_type === "multiple_choice" || content?.question_type === "mcq") && correctAnswerTexts.has((option || "").trim()) && !isSelected;
       const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
-      // STATE 1: idle, 2: selected, 3: correct selected, 4: wrong selected, 5: correct unselected, 6: disabled
+      // STATE 1: idle, 2: selected (pre-submit), 3: correct selected, 4: wrong selected, 5: correct unselected, 6: disabled unselected
       const buttonClass = cn(
-        "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left cursor-pointer transition-all duration-150 min-h-[52px]",
+        "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all duration-150 min-h-[52px]",
         // STATE 1: IDLE
-        !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "bg-transparent border-zinc-700 text-zinc-200 hover:border-zinc-500 hover:bg-white/[0.03]",
+        !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "bg-transparent border-zinc-700 text-zinc-200 hover:border-zinc-500 hover:bg-white/[0.03] cursor-pointer",
         // STATE 2: SELECTED (pre-submit)
-        isSelected && !hasAnswered && "bg-violet-500/[0.08] border-2 border-violet-500 text-white",
-        // STATE 3: CORRECT SELECTED
-        isOptionCorrect && "bg-emerald-500/[0.08] border-2 border-emerald-500 text-emerald-100",
-        // STATE 4: WRONG SELECTED
-        isOptionIncorrect && "bg-transparent border border-zinc-600 text-zinc-400 cursor-not-allowed",
-        // STATE 5: CORRECT UNSELECTED
-        isCorrectUnselected && "bg-emerald-500/[0.06] border-2 border-emerald-500/60 text-emerald-300",
-        // STATE 6: DISABLED
-        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border-zinc-800/50 text-zinc-600 cursor-not-allowed"
+        isSelected && !hasAnswered && "bg-violet-500/[0.08] border-2 border-violet-500 text-white cursor-pointer",
+        // STATE 3: CORRECT SELECTED (user selected this, it was correct)
+        isOptionCorrect && "bg-emerald-500/15 border-2 border-emerald-500 text-emerald-100 cursor-default",
+        // STATE 4: WRONG SELECTED (user selected this, it was wrong)
+        isOptionIncorrect && "bg-transparent border border-zinc-600 text-zinc-400 opacity-60 cursor-not-allowed",
+        // STATE 5: CORRECT UNSELECTED (user did not select but it was correct)
+        isCorrectUnselected && "bg-emerald-500/[0.08] border-2 border-emerald-500/60 text-emerald-300 cursor-default",
+        // STATE 6: DISABLED UNSELECTED (answered, option irrelevant)
+        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border border-zinc-800 text-zinc-600 opacity-40 cursor-not-allowed"
       );
 
       const letterCircleClass = cn(
         "w-8 h-8 rounded-lg shrink-0 flex items-center justify-center text-xs font-semibold transition-all duration-150",
         !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "bg-zinc-800 text-zinc-400",
         isSelected && !hasAnswered && "bg-violet-500 text-white font-bold",
-        isOptionCorrect && "bg-emerald-500 text-white",
-        isOptionIncorrect && "bg-red-500/15 border border-red-500/30 text-red-400",
+        // CORRECT SELECTED: green fill, Check
+        isOptionCorrect && "bg-emerald-500 border-emerald-500 text-white",
+        // WRONG SELECTED: red tint, X
+        isOptionIncorrect && "bg-red-500/20 border border-red-500/40 text-red-400",
+        // CORRECT UNSELECTED: outline, Check
         isCorrectUnselected && "bg-transparent border-2 border-emerald-500 text-emerald-400",
-        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border-zinc-700 text-zinc-700"
+        // DISABLED UNSELECTED: muted, no icon
+        isDisabled && !isSelected && !isCorrectUnselected && "bg-transparent border border-zinc-700 text-zinc-700"
       );
 
       const checkboxClass = cn(
         "w-5 h-5 rounded shrink-0 border-2 flex items-center justify-center transition-all duration-150",
         !isSelected && !hasAnswered && !isCorrectUnselected && !isDisabled && "border-zinc-600 bg-transparent",
         isSelected && !hasAnswered && "border-violet-500 bg-violet-500",
+        // CORRECT SELECTED: green fill, Check white
         isOptionCorrect && "bg-emerald-500 border-emerald-500",
-        isOptionIncorrect && "bg-red-500/15 border border-red-500/30",
-        isCorrectUnselected && "bg-transparent border-2 border-emerald-500",
-        isDisabled && !isSelected && !isCorrectUnselected && "border-zinc-700 bg-transparent"
+        // WRONG SELECTED: red tint, X (no tick)
+        isOptionIncorrect && "bg-red-500/20 border border-red-500/40",
+        // CORRECT UNSELECTED: outline, Check emerald
+        isCorrectUnselected && "bg-transparent border-2 border-emerald-500 text-emerald-400",
+        // DISABLED UNSELECTED: muted, no icon
+        isDisabled && !isSelected && !isCorrectUnselected && "border border-zinc-700 bg-transparent text-zinc-700"
       );
 
       const showRightCheck = isOptionCorrect || isCorrectUnselected;
@@ -260,11 +268,25 @@ const ProblemBlock: React.FC<{
         >
           {isMultipleChoice ? (
             <div className={checkboxClass}>
-              {isOptionCorrect || (isSelected && !hasAnswered) ? <Check className="w-3 h-3 text-white stroke-[2.5]" /> : isCorrectUnselected ? <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" /> : isOptionIncorrect ? <X className="w-3 h-3 text-red-400 stroke-[2.5]" /> : null}
+              {isOptionCorrect || (isSelected && !hasAnswered) ? (
+                <Check className="w-3 h-3 text-white stroke-[2.5]" />
+              ) : isCorrectUnselected ? (
+                <Check className="w-3 h-3 text-emerald-400 stroke-[2.5]" />
+              ) : isOptionIncorrect ? (
+                <X className="w-3 h-3 text-red-400 stroke-[2.5]" />
+              ) : null}
             </div>
           ) : (
             <div className={letterCircleClass}>
-              {isOptionCorrect || isCorrectUnselected ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : isOptionIncorrect ? <X className="w-3 h-3 text-red-400 stroke-[2.5]" /> : (letters[idx] ?? String(idx + 1))}
+              {isOptionCorrect ? (
+                <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+              ) : isCorrectUnselected ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" />
+              ) : isOptionIncorrect ? (
+                <X className="w-3 h-3 text-red-400 stroke-[2.5]" />
+              ) : (
+                letters[idx] ?? String(idx + 1)
+              )}
             </div>
           )}
           <div className="flex-1 min-w-0 text-sm sm:text-base leading-snug">
@@ -283,7 +305,7 @@ const ProblemBlock: React.FC<{
             )}
           </div>
           {showRightCheck && <Check className="w-4 h-4 text-emerald-400 ml-auto shrink-0" />}
-          {showRightX && <X className="w-4 h-4 text-red-400/60 ml-auto shrink-0" />}
+          {showRightX && <X className="w-4 h-4 text-red-400 ml-auto shrink-0" />}
         </button>
       );
     };
