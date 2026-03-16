@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,18 +85,16 @@ export function BlogListClient({ initialPosts }: BlogListClientProps) {
                     <Link href={href} className="absolute inset-0 z-10">
                         <span className="sr-only">Akhri: {post.title}</span>
                     </Link>
-                    {(post.cover || post.cover_image_url) ? (
-                        <Image
-                            src={post.cover || post.cover_image_url || ""}
+                    {post.cover || post.cover_image_url ? (
+                        <img
+                            src={post.cover || post.cover_image_url!}
                             alt={post.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
-                            priority={post.id === posts[0]?.id}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
                         />
                     ) : (
                         <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                            <span className="text-zinc-600 text-sm">Garaad</span>
+                            <span className="text-zinc-600 text-xs font-medium tracking-wide">Garaad</span>
                         </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

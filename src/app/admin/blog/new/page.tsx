@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Image as ImageIcon, Upload } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export default function NewBlogPostPage() {
@@ -156,7 +155,7 @@ export default function NewBlogPostPage() {
                                 )}
                             >
                                 {imagePreview ? (
-                                    <Image src={imagePreview} alt="Preview" fill className="object-cover pointer-events-none" unoptimized={imagePreview.startsWith("blob:")} draggable={false} />
+                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover pointer-events-none" draggable={false} />
                                 ) : (
                                     <>
                                         <Upload className="h-10 w-10 text-slate-300 mb-2" />

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
     Calendar,
     Clock,
@@ -71,8 +70,6 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
         const words = content.split(/\s+/).length;
         return Math.max(1, Math.ceil(words / wordsPerMinute));
     };
-
-    const coverImage = post.cover || post.cover_image_url || null;
 
     const [shareBaseUrl, setShareBaseUrl] = useState("https://garaad.org");
     const [linkCopied, setLinkCopied] = useState(false);
@@ -193,19 +190,18 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                         </div>
                     </div>
 
-                    {coverImage ? (
+                    {post.cover || post.cover_image_url ? (
                         <div className="mt-12 relative aspect-[21/10] w-full rounded-3xl overflow-hidden shadow-2xl shadow-primary/5 border border-slate-100 dark:border-zinc-800">
-                            <Image
-                                src={coverImage}
+                            <img
+                                src={post.cover || post.cover_image_url!}
                                 alt={post.title}
-                                fill
-                                priority
-                                className="object-cover"
+                                className="w-full h-full object-cover"
+                                loading="lazy"
                             />
                         </div>
                     ) : (
                         <div className="mt-12 relative aspect-[21/10] w-full rounded-3xl overflow-hidden shadow-2xl shadow-primary/5 border border-slate-100 dark:border-zinc-800 bg-zinc-800 flex items-center justify-center">
-                            <span className="text-zinc-600 text-sm">Garaad</span>
+                            <span className="text-zinc-600 text-xs font-medium tracking-wide">Garaad</span>
                         </div>
                     )}
                 </div>
@@ -336,16 +332,16 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                                         {relatedPosts.map(p => (
                                             <Link key={p.id} href={`/blog/${p.slug}`} className="group block space-y-3">
                                                 <div className="relative aspect-video rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-zinc-800">
-                                                    {(p.cover || p.cover_image_url) ? (
-                                                        <Image
-                                                            src={p.cover || p.cover_image_url || ""}
+                                                    {p.cover || p.cover_image_url ? (
+                                                        <img
+                                                            src={p.cover || p.cover_image_url!}
                                                             alt={p.title}
-                                                            fill
-                                                            className="object-cover transition-transform group-hover:scale-105 duration-500"
+                                                            className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
+                                                            loading="lazy"
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                                                            <span className="text-zinc-600 text-sm">Garaad</span>
+                                                            <span className="text-zinc-600 text-xs font-medium tracking-wide">Garaad</span>
                                                         </div>
                                                     )}
                                                 </div>

@@ -3,7 +3,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, BookOpen, ArrowRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { SharePost } from "@/components/SharePost";
 import { Metadata } from "next";
 
@@ -97,16 +96,16 @@ export default async function TagPage({ params }: TagPageProps) {
                                         <Link href={`/blog/${post.slug}`} className="absolute inset-0 z-10">
                                             <span className="sr-only">Akhri: {post.title}</span>
                                         </Link>
-                                        {(post.cover || post.cover_image_url) ? (
-                                            <Image
-                                                src={post.cover || post.cover_image_url || ""}
+                                        {post.cover || post.cover_image_url ? (
+                                            <img
+                                                src={post.cover || post.cover_image_url!}
                                                 alt={post.title}
-                                                fill
-                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                loading="lazy"
                                             />
                                         ) : (
                                             <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                                                <span className="text-zinc-600 text-sm">Garaad</span>
+                                                <span className="text-zinc-600 text-xs font-medium tracking-wide">Garaad</span>
                                             </div>
                                         )}
                                     </div>
