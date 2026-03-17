@@ -46,6 +46,11 @@ export default function DashboardPage() {
     const [adminUsersLoading, setAdminUsersLoading] = useState(false);
     const [usersPage, setUsersPage] = useState(1);
     const [usersSearch, setUsersSearch] = useState("");
+    const [usersFilterGoal, setUsersFilterGoal] = useState<string>(ALL);
+    const [usersFilterTrack, setUsersFilterTrack] = useState<string>(ALL);
+    const [usersFilterLevel, setUsersFilterLevel] = useState<string>(ALL);
+    const [usersFilterPremium, setUsersFilterPremium] = useState<string>("");
+    const [usersFilterVerified, setUsersFilterVerified] = useState<string>("");
 
     const filteredUserList = useMemo((): UserListItem[] => {
         const list = userStats?.userList ?? [];
@@ -89,11 +94,19 @@ export default function DashboardPage() {
         fetchAllData();
     }, []);
 
+    const usersFilters = useMemo(() => ({
+        goal: usersFilterGoal,
+        track: usersFilterTrack,
+        level: usersFilterLevel,
+        is_premium: (usersFilterPremium === "Pro" ? "true" : usersFilterPremium === "Free" ? "false" : "") as "true" | "false" | "",
+        is_email_verified: (usersFilterVerified === "Verified" ? "true" : usersFilterVerified === "Not verified" ? "false" : "") as "true" | "false" | "",
+    }), [usersFilterGoal, usersFilterTrack, usersFilterLevel, usersFilterPremium, usersFilterVerified]);
+
     useEffect(() => {
         if (activeTab !== "users") return;
         let cancelled = false;
         setAdminUsersLoading(true);
-        analyticsService.getAdminUsers(usersPage, usersSearch || undefined).then((data) => {
+        analyticsService.getAdminUsers(usersPage, usersSearch || undefined, usersFilters).then((data) => {
             if (!cancelled) {
                 setAdminUsersData(data);
                 setAdminUsersLoading(false);
@@ -102,7 +115,7 @@ export default function DashboardPage() {
             if (!cancelled) setAdminUsersLoading(false);
         });
         return () => { cancelled = true; };
-    }, [activeTab, usersPage, usersSearch]);
+    }, [activeTab, usersPage, usersSearch, usersFilters]);
 
     if (loading) {
         return (
@@ -179,6 +192,28 @@ export default function DashboardPage() {
                     search={usersSearch}
                     onPageChange={setUsersPage}
                     onSearchChange={setUsersSearch}
+                    filterGoal={usersFilterGoal}
+                    filterTrack={usersFilterTrack}
+                    filterLevel={usersFilterLevel}
+                    filterPremium={usersFilterPremium}
+                    filterVerified={usersFilterVerified}
+                    onFilterGoalChange={(v) => { setUsersFilterGoal(v); setUsersPage(1); }}
+                    onFilterTrackChange={(v) => { setUsersFilterTrack(v); setUsersPage(1); }}
+                    onFilterLevelChange={(v) => { setUsersFilterLevel(v); setUsersPage(1); }}
+                    onFilterPremiumChange={(v) => { setUsersFilterPremium(v); setUsersPage(1); }}
+                    onFilterVerifiedChange={(v) => { setUsersFilterVerified(v); setUsersPage(1); }}
+                    onFiltersReset={() => {
+                        setUsersFilterGoal(ALL);
+                        setUsersFilterTrack(ALL);
+                        setUsersFilterLevel(ALL);
+                        setUsersFilterPremium("");
+                        setUsersFilterVerified("");
+                        setUsersPage(1);
+                    }}
+                    goalLabels={GOAL_LABELS}
+                    trackLabels={TRACK_LABELS}
+                    levelOptions={LEVEL_OPTIONS}
+                    allLabel={ALL}
                 />
             )}
 
@@ -533,6 +568,21 @@ function AdminUsersTab({
     search,
     onPageChange,
     onSearchChange,
+    filterGoal,
+    filterTrack,
+    filterLevel,
+    filterPremium,
+    filterVerified,
+    onFilterGoalChange,
+    onFilterTrackChange,
+    onFilterLevelChange,
+    onFilterPremiumChange,
+    onFilterVerifiedChange,
+    onFiltersReset,
+    goalLabels,
+    trackLabels,
+    levelOptions,
+    allLabel,
 }: {
     data: AdminUsersResponse | null;
     loading: boolean;
@@ -540,6 +590,21 @@ function AdminUsersTab({
     search: string;
     onPageChange: (p: number) => void;
     onSearchChange: (s: string) => void;
+    filterGoal: string;
+    filterTrack: string;
+    filterLevel: string;
+    filterPremium: string;
+    filterVerified: string;
+    onFilterGoalChange: (v: string) => void;
+    onFilterTrackChange: (v: string) => void;
+    onFilterLevelChange: (v: string) => void;
+    onFilterPremiumChange: (v: string) => void;
+    onFilterVerifiedChange: (v: string) => void;
+    onFiltersReset: () => void;
+    goalLabels: string[];
+    trackLabels: string[];
+    levelOptions: string[];
+    allLabel: string;
 }) {
     const summary = data?.summary;
     const results = data?.results ?? [];
@@ -547,6 +612,7 @@ function AdminUsersTab({
     const pageSize = 25;
     const start = (page - 1) * pageSize + 1;
     const end = Math.min(page * pageSize, count);
+    const hasActiveFilters = filterGoal !== allLabel || filterTrack !== allLabel || filterLevel !== allLabel || filterPremium !== "" || filterVerified !== "";
 
     return (
         <div className="bg-white rounded-3xl p-8 border border-gray-50 shadow-sm">
@@ -570,6 +636,66 @@ function AdminUsersTab({
                 onChange={(e) => { onSearchChange(e.target.value); onPageChange(1); }}
                 className="w-full max-w-md mb-4 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+                <select
+                    value={filterGoal}
+                    onChange={(e) => onFilterGoalChange(e.target.value)}
+                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[180px]"
+                >
+                    <option value={allLabel}>{allLabel}</option>
+                    {goalLabels.map((label) => (
+                        <option key={label} value={label}>{label}</option>
+                    ))}
+                </select>
+                <select
+                    value={filterTrack}
+                    onChange={(e) => onFilterTrackChange(e.target.value)}
+                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[180px]"
+                >
+                    <option value={allLabel}>{allLabel}</option>
+                    {trackLabels.map((label) => (
+                        <option key={label} value={label}>{label}</option>
+                    ))}
+                </select>
+                <select
+                    value={filterLevel}
+                    onChange={(e) => onFilterLevelChange(e.target.value)}
+                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[140px]"
+                >
+                    <option value={allLabel}>{allLabel}</option>
+                    {levelOptions.map((label) => (
+                        <option key={label} value={label}>{label}</option>
+                    ))}
+                </select>
+                <select
+                    value={filterPremium}
+                    onChange={(e) => onFilterPremiumChange(e.target.value)}
+                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[100px]"
+                >
+                    <option value="">All</option>
+                    <option value="Pro">Pro</option>
+                    <option value="Free">Free</option>
+                </select>
+                <select
+                    value={filterVerified}
+                    onChange={(e) => onFilterVerifiedChange(e.target.value)}
+                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[120px]"
+                >
+                    <option value="">All</option>
+                    <option value="Verified">Verified</option>
+                    <option value="Not verified">Not verified</option>
+                </select>
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        onClick={onFiltersReset}
+                        className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-600 hover:text-blue-700 px-2.5 py-1.5 rounded-lg hover:bg-blue-50 border border-blue-200/60 transition-colors"
+                    >
+                        <RotateCcw className="w-3 h-3" />
+                        Reset filters
+                    </button>
+                )}
+            </div>
             {loading ? (
                 <div className="flex items-center justify-center py-16">
                     <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />

@@ -149,10 +149,27 @@ export const analyticsService = {
         const response = await api.get("/lms/analytics/users/");
         return response.data;
     },
-    getAdminUsers: async (page: number = 1, search?: string): Promise<AdminUsersResponse> => {
+    getAdminUsers: async (
+        page: number = 1,
+        search?: string,
+        filters?: {
+            goal?: string;
+            track?: string;
+            level?: string;
+            is_premium?: "true" | "false" | "";
+            is_email_verified?: "true" | "false" | "";
+        }
+    ): Promise<AdminUsersResponse> => {
         const params = new URLSearchParams();
         params.set("page", String(page));
         if (search && search.trim()) params.set("search", search.trim());
+        if (filters?.goal && filters.goal !== "All") params.set("goal", filters.goal);
+        if (filters?.track && filters.track !== "All") params.set("track", filters.track);
+        if (filters?.level && filters.level !== "All") params.set("level", filters.level);
+        if (filters?.is_premium === "true") params.set("is_premium", "true");
+        if (filters?.is_premium === "false") params.set("is_premium", "false");
+        if (filters?.is_email_verified === "true") params.set("is_email_verified", "true");
+        if (filters?.is_email_verified === "false") params.set("is_email_verified", "false");
         const response = await api.get(`/admin/users/?${params.toString()}`);
         return response.data;
     },
