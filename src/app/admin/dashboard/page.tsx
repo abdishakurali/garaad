@@ -558,6 +558,7 @@ function AdminUsersTab({
                 <div className="flex flex-wrap gap-6 mb-6 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                     <span className="text-xs font-bold text-gray-700">Total users: <strong className="text-gray-900">{summary.total_users}</strong></span>
                     <span className="text-xs font-bold text-gray-700">Premium: <strong className="text-gray-900">{summary.premium}</strong></span>
+                    <span className="text-xs font-bold text-gray-700">Verified: <strong className="text-gray-900">{summary.verified ?? 0}</strong></span>
                     <span className="text-xs font-bold text-gray-700">With onboarding: <strong className="text-gray-900">{summary.with_onboarding}</strong></span>
                     <span className="text-xs font-bold text-gray-700">No onboarding: <strong className="text-gray-900">{summary.no_onboarding}</strong></span>
                 </div>

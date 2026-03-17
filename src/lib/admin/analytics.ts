@@ -140,6 +140,7 @@ export interface AdminUsersResponse {
         premium: number;
         with_onboarding: number;
         no_onboarding: number;
+        verified: number;
     };
 }
 
