@@ -48,7 +48,6 @@ export default function DashboardPage() {
     const [usersSearch, setUsersSearch] = useState("");
     const [usersFilterGoal, setUsersFilterGoal] = useState<string>(ALL);
     const [usersFilterTrack, setUsersFilterTrack] = useState<string>(ALL);
-    const [usersFilterLevel, setUsersFilterLevel] = useState<string>(ALL);
     const [usersFilterPremium, setUsersFilterPremium] = useState<string>("");
     const [usersFilterVerified, setUsersFilterVerified] = useState<string>("");
 
@@ -97,10 +96,9 @@ export default function DashboardPage() {
     const usersFilters = useMemo(() => ({
         goal: usersFilterGoal,
         track: usersFilterTrack,
-        level: usersFilterLevel,
         is_premium: (usersFilterPremium === "Pro" ? "true" : usersFilterPremium === "Free" ? "false" : "") as "true" | "false" | "",
         is_email_verified: (usersFilterVerified === "Verified" ? "true" : usersFilterVerified === "Not verified" ? "false" : "") as "true" | "false" | "",
-    }), [usersFilterGoal, usersFilterTrack, usersFilterLevel, usersFilterPremium, usersFilterVerified]);
+    }), [usersFilterGoal, usersFilterTrack, usersFilterPremium, usersFilterVerified]);
 
     useEffect(() => {
         if (activeTab !== "users") return;
@@ -194,25 +192,21 @@ export default function DashboardPage() {
                     onSearchChange={setUsersSearch}
                     filterGoal={usersFilterGoal}
                     filterTrack={usersFilterTrack}
-                    filterLevel={usersFilterLevel}
                     filterPremium={usersFilterPremium}
                     filterVerified={usersFilterVerified}
                     onFilterGoalChange={(v) => { setUsersFilterGoal(v); setUsersPage(1); }}
                     onFilterTrackChange={(v) => { setUsersFilterTrack(v); setUsersPage(1); }}
-                    onFilterLevelChange={(v) => { setUsersFilterLevel(v); setUsersPage(1); }}
                     onFilterPremiumChange={(v) => { setUsersFilterPremium(v); setUsersPage(1); }}
                     onFilterVerifiedChange={(v) => { setUsersFilterVerified(v); setUsersPage(1); }}
                     onFiltersReset={() => {
                         setUsersFilterGoal(ALL);
                         setUsersFilterTrack(ALL);
-                        setUsersFilterLevel(ALL);
                         setUsersFilterPremium("");
                         setUsersFilterVerified("");
                         setUsersPage(1);
                     }}
                     goalLabels={GOAL_LABELS}
                     trackLabels={TRACK_LABELS}
-                    levelOptions={LEVEL_OPTIONS}
                     allLabel={ALL}
                 />
             )}
@@ -570,18 +564,15 @@ function AdminUsersTab({
     onSearchChange,
     filterGoal,
     filterTrack,
-    filterLevel,
     filterPremium,
     filterVerified,
     onFilterGoalChange,
     onFilterTrackChange,
-    onFilterLevelChange,
     onFilterPremiumChange,
     onFilterVerifiedChange,
     onFiltersReset,
     goalLabels,
     trackLabels,
-    levelOptions,
     allLabel,
 }: {
     data: AdminUsersResponse | null;
@@ -592,18 +583,15 @@ function AdminUsersTab({
     onSearchChange: (s: string) => void;
     filterGoal: string;
     filterTrack: string;
-    filterLevel: string;
     filterPremium: string;
     filterVerified: string;
     onFilterGoalChange: (v: string) => void;
     onFilterTrackChange: (v: string) => void;
-    onFilterLevelChange: (v: string) => void;
     onFilterPremiumChange: (v: string) => void;
     onFilterVerifiedChange: (v: string) => void;
     onFiltersReset: () => void;
     goalLabels: string[];
     trackLabels: string[];
-    levelOptions: string[];
     allLabel: string;
 }) {
     const summary = data?.summary;
@@ -612,7 +600,21 @@ function AdminUsersTab({
     const pageSize = 25;
     const start = (page - 1) * pageSize + 1;
     const end = Math.min(page * pageSize, count);
-    const hasActiveFilters = filterGoal !== allLabel || filterTrack !== allLabel || filterLevel !== allLabel || filterPremium !== "" || filterVerified !== "";
+    const hasActiveFilters = filterGoal !== allLabel || filterTrack !== allLabel || filterPremium !== "" || filterVerified !== "";
+
+    const filteredResults = useMemo((): AdminUserRow[] => {
+        return results.filter((row) => {
+            const goalLabel = row.onboarding?.goal_label ?? "—";
+            const topic = row.onboarding?.topic ?? "—";
+            if (filterGoal !== allLabel && goalLabel !== filterGoal) return false;
+            if (filterTrack !== allLabel && topic !== filterTrack) return false;
+            if (filterPremium === "Pro" && !row.is_premium) return false;
+            if (filterPremium === "Free" && row.is_premium) return false;
+            if (filterVerified === "Verified" && !row.is_email_verified) return false;
+            if (filterVerified === "Not verified" && row.is_email_verified) return false;
+            return true;
+        });
+    }, [results, filterGoal, filterTrack, filterPremium, filterVerified, allLabel]);
 
     return (
         <div className="bg-white rounded-3xl p-8 border border-gray-50 shadow-sm">
@@ -629,67 +631,87 @@ function AdminUsersTab({
                     <span className="text-xs font-bold text-gray-700">No onboarding: <strong className="text-gray-900">{summary.no_onboarding}</strong></span>
                 </div>
             )}
-            <input
-                type="text"
-                placeholder="Search by name or email..."
-                value={search}
-                onChange={(e) => { onSearchChange(e.target.value); onPageChange(1); }}
-                className="w-full max-w-md mb-4 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            />
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-                <select
-                    value={filterGoal}
-                    onChange={(e) => onFilterGoalChange(e.target.value)}
-                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[180px]"
-                >
-                    <option value={allLabel}>{allLabel}</option>
-                    {goalLabels.map((label) => (
-                        <option key={label} value={label}>{label}</option>
-                    ))}
-                </select>
-                <select
-                    value={filterTrack}
-                    onChange={(e) => onFilterTrackChange(e.target.value)}
-                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[180px]"
-                >
-                    <option value={allLabel}>{allLabel}</option>
-                    {trackLabels.map((label) => (
-                        <option key={label} value={label}>{label}</option>
-                    ))}
-                </select>
-                <select
-                    value={filterLevel}
-                    onChange={(e) => onFilterLevelChange(e.target.value)}
-                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[140px]"
-                >
-                    <option value={allLabel}>{allLabel}</option>
-                    {levelOptions.map((label) => (
-                        <option key={label} value={label}>{label}</option>
-                    ))}
-                </select>
-                <select
-                    value={filterPremium}
-                    onChange={(e) => onFilterPremiumChange(e.target.value)}
-                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[100px]"
-                >
-                    <option value="">All</option>
-                    <option value="Pro">Pro</option>
-                    <option value="Free">Free</option>
-                </select>
-                <select
-                    value={filterVerified}
-                    onChange={(e) => onFilterVerifiedChange(e.target.value)}
-                    className="text-xs font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-0 max-w-[120px]"
-                >
-                    <option value="">All</option>
-                    <option value="Verified">Verified</option>
-                    <option value="Not verified">Not verified</option>
-                </select>
+            <div className="mb-4">
+                <label htmlFor="users-search" className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">
+                    Search
+                </label>
+                <input
+                    id="users-search"
+                    type="text"
+                    placeholder="By name or email..."
+                    value={search}
+                    onChange={(e) => { onSearchChange(e.target.value); onPageChange(1); }}
+                    className="w-full max-w-md px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+            </div>
+            <div className="flex flex-wrap items-end gap-4 mb-4 p-4 bg-gray-50/30 rounded-xl border border-gray-100">
+                <div>
+                    <label htmlFor="filter-goal" className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+                        Goal
+                    </label>
+                    <select
+                        id="filter-goal"
+                        value={filterGoal}
+                        onChange={(e) => onFilterGoalChange(e.target.value)}
+                        className="text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-[160px]"
+                    >
+                        <option value={allLabel}>{allLabel}</option>
+                        {goalLabels.map((label) => (
+                            <option key={label} value={label}>{label}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="filter-track" className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+                        Track
+                    </label>
+                    <select
+                        id="filter-track"
+                        value={filterTrack}
+                        onChange={(e) => onFilterTrackChange(e.target.value)}
+                        className="text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-[160px]"
+                    >
+                        <option value={allLabel}>{allLabel}</option>
+                        {trackLabels.map((label) => (
+                            <option key={label} value={label}>{label}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="filter-premium" className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+                        Premium
+                    </label>
+                    <select
+                        id="filter-premium"
+                        value={filterPremium}
+                        onChange={(e) => onFilterPremiumChange(e.target.value)}
+                        className="text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-[100px]"
+                    >
+                        <option value="">All</option>
+                        <option value="Pro">Pro</option>
+                        <option value="Free">Free</option>
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="filter-verified" className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+                        Email verified
+                    </label>
+                    <select
+                        id="filter-verified"
+                        value={filterVerified}
+                        onChange={(e) => onFilterVerifiedChange(e.target.value)}
+                        className="text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-w-[120px]"
+                    >
+                        <option value="">All</option>
+                        <option value="Verified">Verified</option>
+                        <option value="Not verified">Not verified</option>
+                    </select>
+                </div>
                 {hasActiveFilters && (
                     <button
                         type="button"
                         onClick={onFiltersReset}
-                        className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-600 hover:text-blue-700 px-2.5 py-1.5 rounded-lg hover:bg-blue-50 border border-blue-200/60 transition-colors"
+                        className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-600 hover:text-blue-700 px-2.5 py-2 rounded-lg hover:bg-blue-50 border border-blue-200/60 transition-colors"
                     >
                         <RotateCcw className="w-3 h-3" />
                         Reset filters
@@ -702,6 +724,16 @@ function AdminUsersTab({
                 </div>
             ) : (
                 <>
+                    {filteredResults.length === 0 ? (
+                        <div className="py-12 text-center rounded-2xl border border-gray-100 bg-gray-50/50">
+                            <p className="text-sm font-bold text-gray-600">
+                                {results.length === 0 ? "No users found." : "No users on this page match the current filters."}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                {hasActiveFilters ? "Try changing or resetting the filters." : ""}
+                            </p>
+                        </div>
+                    ) : (
                     <div className="overflow-x-auto -mx-2">
                         <table className="w-full text-left border-collapse min-w-[640px]">
                             <thead>
@@ -717,7 +749,7 @@ function AdminUsersTab({
                                 </tr>
                             </thead>
                             <tbody>
-                                {results.map((row: AdminUserRow) => (
+                                {filteredResults.map((row: AdminUserRow) => (
                                     <tr key={row.id} className="border-b border-gray-50 hover:bg-white/[0.04]">
                                         <td className="py-3 pr-4">
                                             <div className="text-xs font-bold text-gray-900">{row.name || "—"}</div>
@@ -753,10 +785,13 @@ function AdminUsersTab({
                             </tbody>
                         </table>
                     </div>
-                    {count > 0 && (
+                    )}
+                    {(count > 0 || filteredResults.length > 0) && (
                         <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                             <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
-                                Showing {start}–{end} of {count} users
+                                {hasActiveFilters
+                                    ? `${filteredResults.length} of ${results.length} on this page match filters · ${count} total`
+                                    : `Showing ${start}–${end} of ${count} users`}
                             </p>
                             <div className="flex gap-2">
                                 <button
