@@ -585,6 +585,7 @@ function AdminUsersTab({
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Track</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Recommended</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Premium</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Email verified</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Completions</th>
                                 </tr>
                             </thead>
@@ -608,6 +609,15 @@ function AdminUsersTab({
                                                 <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-green-100 text-green-800">Pro</span>
                                             ) : (
                                                 <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-gray-100 text-gray-500">Free</span>
+                                            )}
+                                        </td>
+                                        <td className="py-3 pr-4">
+                                            {row.is_email_verified ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-100 text-emerald-800">
+                                                    <CheckCircle className="w-3 h-3" /> Verified
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-amber-50 text-amber-700">Not verified</span>
                                             )}
                                         </td>
                                         <td className="py-3 pr-4 text-xs text-gray-700 text-center">{row.completions ?? 0}</td>

@@ -123,6 +123,7 @@ export interface AdminUserRow {
     date_joined: string | null;
     last_login: string | null;
     is_premium: boolean;
+    is_email_verified?: boolean;
     onboarding: AdminUserOnboarding | null;
     recommended_courses: string[];
     completions: number;
