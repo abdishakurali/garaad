@@ -17,7 +17,7 @@ import {
     Sparkles,
 } from "lucide-react";
 import type { ExplanationText, TextContent, DiagramConfig, ProblemContent } from "@/types/learning";
-import LessonHeader from "@/components/LessonHeader";
+import { LessonStepBullets } from "@/components/learning/LessonStepBullets";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
 import type { Course, Lesson } from "@/types/lms";
 import AuthService from "@/services/auth";
@@ -874,17 +874,24 @@ export function LessonDetailClient() {
     if (!mounted) return null;
 
     return (
-        <div className="min-h-screen bg-zinc-950 overflow-x-hidden overscroll-y-contain">
-            <LessonHeader
-                currentQuestion={currentBlockIndex + 1}
-                totalQuestions={sortedBlocks?.length || 0}
+        <div className="relative min-h-screen bg-zinc-950 overflow-x-hidden overscroll-y-contain">
+            <div
+                className="pointer-events-none fixed inset-0 z-0"
+                aria-hidden
+                style={{
+                    background:
+                        "radial-gradient(ellipse 85% 45% at 50% -8%, rgba(139, 92, 246, 0.11), transparent 55%), radial-gradient(ellipse 60% 40% at 100% 50%, rgba(59, 130, 246, 0.05), transparent 50%)",
+                }}
+            />
+            <div className="relative z-10">
+            <LessonStepBullets
+                currentIndex={currentBlockIndex}
+                totalSteps={sortedBlocks?.length || 0}
+                onStepClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
                 coursePath={coursePath}
-                onDotClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
-                completedLessons={[]}
-                lessonTitle={currentLesson?.title}
             />
 
-            <main className="pt-14 px-0 pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
+            <main className="px-0 pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
                 <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
                     {isReviewMode && (
                         <div className="mb-4 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 inline-flex items-center gap-2">
@@ -910,6 +917,7 @@ export function LessonDetailClient() {
                 </div>
             </main>
 
+            </div>
             {showFeedback && (
                 <AnswerFeedback
                     isCorrect={isCorrect}
