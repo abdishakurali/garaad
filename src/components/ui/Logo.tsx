@@ -42,8 +42,8 @@ export function Logo({
             width={692}
             height={461}
             className={cn(
-                "w-32 sm:w-36 md:w-40 lg:w-44",
-                "h-auto object-contain",
+                "h-9 sm:h-10 md:h-11 lg:h-12",
+                "w-auto object-contain",
                 className
             )}
             priority={priority}

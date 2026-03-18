@@ -146,7 +146,7 @@ export function Header() {
               <Logo
                 priority={true}
                 loading="eager"
-                className="!w-[7.25rem] sm:!w-32 md:!w-36 !max-h-9 sm:!max-h-10 md:!max-h-11 object-contain"
+                className="h-10 sm:h-11 md:h-12 w-auto"
               />
             </Link>
           </div>
