@@ -5,6 +5,8 @@ import { adminApi as api, ApiError } from '@/lib/admin-api';
 import type { ContentBlock, ContentBlockData, Option, DiagramConfig, DiagramObject, ProblemData } from '@/app/admin/types/content';
 import { ContentBlockModal } from './ContentBlockModal';
 import { Modal } from './ui/Modal';
+import posthog from 'posthog-js';
+import { toast } from '@/hooks/use-toast';
 import {
     Plus, Trash2, Video, Type, Image as LucideImage, HelpCircle, Save, X,
     GripVertical, Info, Layout, List as ListIcon, Table as TableIcon,
@@ -92,6 +94,16 @@ function parseTablePaste(paste: string): { header: string[]; rows: string[][] } 
 interface LessonContentBlocksProps {
     lessonId: number;
     onUpdate?: () => void;
+}
+
+function getApiErrorMessage(err: unknown, fallback: string) {
+    const apiError = err as ApiError;
+    const detail =
+        (apiError as any)?.response?.data?.detail ??
+        (apiError as any)?.response?.data?.message ??
+        (apiError as any)?.message;
+    if (typeof detail === 'string' && detail.trim()) return detail;
+    return fallback;
 }
 
 const ProblemContent = ({
@@ -243,6 +255,19 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadImageError, setUploadImageError] = useState('');
+    const [draggingBlockId, setDraggingBlockId] = useState<number | null>(null);
+    const [dragOverBlockId, setDragOverBlockId] = useState<number | null>(null);
+
+    const captureAdminError = (action: string, err: unknown, extra?: Record<string, unknown>) => {
+        const message = getApiErrorMessage(err, 'Unknown error');
+        console.error(`[admin_lesson_editor] ${action} failed`, err);
+        posthog.capture('admin_lesson_editor_error', {
+            action,
+            lesson_id: lessonId,
+            message,
+            ...(extra ?? {}),
+        });
+    };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -264,7 +289,10 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 img_url: res.data.photo_url || res.data.url
             });
         } catch (err: any) {
-            setUploadImageError(err.response?.data?.detail || 'Sawirka waa la soo daji waayay');
+            const message = getApiErrorMessage(err, 'Sawirka waa la soo daji waayay');
+            setUploadImageError(message);
+            captureAdminError('image_upload', err);
+            toast({ variant: 'destructive', title: 'Sawirka ma gelin', description: message });
         } finally {
             setUploadingImage(false);
         }
@@ -299,8 +327,9 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 const sortedBlocks = blocksData.sort((a: ContentBlock, b: ContentBlock) => a.order - b.order);
                 setBlocks(sortedBlocks);
             } catch (err) {
-                const apiError = err as ApiError;
-                setError(apiError.message || 'Qeybaha casharkan lama soo saari karin');
+                const message = getApiErrorMessage(err, 'Qeybaha casharkan lama soo saari karin');
+                setError(message);
+                captureAdminError('fetch_blocks', err);
             } finally {
                 setLoading(false);
             }
@@ -346,8 +375,10 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 video_source_type: 'upload'
             });
         } catch (err) {
-            const apiError = err as ApiError;
-            setError(apiError.response?.data?.detail || 'Muuqaalka lama soo galin karin');
+            const message = getApiErrorMessage(err, 'Muuqaalka lama soo galin karin');
+            setError(message);
+            captureAdminError('video_upload', err);
+            toast({ variant: 'destructive', title: 'Muuqaalka ma gelin', description: message });
         } finally {
             setVideoUploading(false);
         }
@@ -457,8 +488,12 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 setEditingContent(DEFAULT_CONTENT);
             }
             if (onUpdate) onUpdate();
+            toast({ title: 'Waa la kaydiyey', description: 'Qeybta cusub waa lagu daray casharka.' });
         } catch (err) {
-            setError('Lama dari karin qeyb cusub.');
+            const message = getApiErrorMessage(err, 'Lama dari karin qeyb cusub.');
+            setError(message);
+            captureAdminError('add_block', err, { block_type: content.type });
+            toast({ variant: 'destructive', title: 'Kaydinta waa fashilantay', description: message });
         } finally {
             setAdding(false);
         }
@@ -624,8 +659,16 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             setEditingBlock(null);
             setEditingContent(DEFAULT_CONTENT);
             if (onUpdate) onUpdate();
+            toast({ title: 'Waa la kaydiyey', description: 'Isbeddelada waa la cusboonaysiiyey.' });
         } catch (err) {
-            setError('Lama cusboonaysiin karin qeybta.');
+            const message = getApiErrorMessage(err, 'Lama cusboonaysiin karin qeybta.');
+            setError(message);
+            captureAdminError('update_block', err, {
+                block_id: editingBlock.id,
+                block_type: content.type,
+                is_type_changed: isTypeChanged,
+            });
+            toast({ variant: 'destructive', title: 'Kaydinta waa fashilantay', description: message });
         } finally {
             setAdding(false);
         }
@@ -639,8 +682,12 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             setShowDeleteBlock(false);
             setDeletingBlock(null);
             if (onUpdate) onUpdate();
+            toast({ title: 'Waa la tirtiray', description: 'Qeybta waa laga saaray casharka.' });
         } catch (err) {
-            setError('Lama tiri karin qeybta.');
+            const message = getApiErrorMessage(err, 'Lama tiri karin qeybta.');
+            setError(message);
+            captureAdminError('delete_block', err, { block_id: deletingBlock.id });
+            toast({ variant: 'destructive', title: 'Tirtiriddu way fashilantay', description: message });
         }
     };
 
@@ -653,19 +700,55 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
         const [moved] = newBlocks.splice(index, 1);
         newBlocks.splice(newIndex, 0, moved);
 
+        await persistReorder(newBlocks, previousBlocks);
+    };
+
+    const normalizeOrders = (arr: ContentBlock[]): ContentBlock[] => {
+        return arr.map((b, idx) => ({ ...b, order: idx }));
+    };
+
+    const persistReorder = async (next: ContentBlock[], previous: ContentBlock[]) => {
+        const normalizedNext = normalizeOrders(next);
+
         // Optimistic UI update
-        setBlocks(newBlocks);
+        setBlocks(normalizedNext);
 
         try {
             await api.post('lms/lesson-content-blocks/reorder/', {
                 lesson_id: lessonId,
-                block_order: newBlocks.map(b => b.id)
+                block_order: normalizedNext.map(b => b.id)
             });
             if (onUpdate) onUpdate();
+            toast({ title: 'Waa la kaydiyey', description: 'Kala horreynta qeybaha waa la cusboonaysiiyey.' });
         } catch (err) {
-            setError('Dib u habeynta ma suuragalin.');
-            setBlocks(previousBlocks);
+            const message = getApiErrorMessage(err, 'Dib u habeynta ma suuragalin.');
+            setError(message);
+            captureAdminError('reorder_blocks', err, { count: normalizedNext.length });
+            toast({ variant: 'destructive', title: 'Dib-u-habeyn waa fashilantay', description: message });
+            setBlocks(previous);
         }
+    };
+
+    const reorderByIds = async (fromId: number, toId: number) => {
+        if (fromId === toId) return;
+        const fromIndex = blocks.findIndex(b => b.id === fromId);
+        const toIndex = blocks.findIndex(b => b.id === toId);
+        if (fromIndex === -1 || toIndex === -1) return;
+
+        const previousBlocks = [...blocks];
+        const nextBlocks = [...blocks];
+        const [moved] = nextBlocks.splice(fromIndex, 1);
+        nextBlocks.splice(toIndex, 0, moved);
+        await persistReorder(nextBlocks, previousBlocks);
+    };
+
+    const sortLessonBlocks = async (direction: 'asc' | 'desc') => {
+        const previousBlocks = [...blocks];
+        const nextBlocks = [...blocks].sort((a, b) => {
+            const diff = (a.order ?? 0) - (b.order ?? 0);
+            return direction === 'asc' ? diff : -diff;
+        });
+        await persistReorder(nextBlocks, previousBlocks);
     };
 
     const renderBlockIcon = (type: string) => {
@@ -703,6 +786,26 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <div className="hidden sm:flex items-center gap-2 mr-1">
+                        <button
+                            type="button"
+                            onClick={() => sortLessonBlocks('asc')}
+                            disabled={blocks.length < 2}
+                            className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Sort Ascending"
+                        >
+                            Asc
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => sortLessonBlocks('desc')}
+                            disabled={blocks.length < 2}
+                            className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Sort Descending"
+                        >
+                            Desc
+                        </button>
+                    </div>
                     <button
                         onClick={() => {
                             setEditingContent(DEFAULT_CONTENT);
@@ -719,12 +822,49 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             <div className="px-4 space-y-3">
                 {filteredBlocks.map((block, index) => {
                     const isExpanded = expandedBlocks.has(block.id);
+                    const isDragging = draggingBlockId === block.id;
+                    const isDragOver = dragOverBlockId === block.id && draggingBlockId !== block.id;
                     return (
                         <div
                             key={block.id}
-                            className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all overflow-hidden"
+                            draggable
+                            onDragStart={(e) => {
+                                e.dataTransfer.effectAllowed = 'move';
+                                e.dataTransfer.setData('text/plain', String(block.id));
+                                setDraggingBlockId(block.id);
+                            }}
+                            onDragEnd={() => {
+                                setDraggingBlockId(null);
+                                setDragOverBlockId(null);
+                            }}
+                            onDragOver={(e) => {
+                                e.preventDefault();
+                                if (dragOverBlockId !== block.id) setDragOverBlockId(block.id);
+                                e.dataTransfer.dropEffect = 'move';
+                            }}
+                            onDrop={async (e) => {
+                                e.preventDefault();
+                                const raw = e.dataTransfer.getData('text/plain');
+                                const fromId = Number(raw);
+                                if (!Number.isFinite(fromId)) return;
+                                await reorderByIds(fromId, block.id);
+                                setDraggingBlockId(null);
+                                setDragOverBlockId(null);
+                            }}
+                            className={`group bg-white rounded-2xl border shadow-sm transition-all overflow-hidden ${
+                                isDragging ? 'opacity-60 border-blue-300 shadow-md' : 'border-gray-100 hover:shadow-md hover:border-blue-200'
+                            } ${
+                                isDragOver ? 'ring-2 ring-blue-200' : ''
+                            }`}
                         >
                             <div className="flex items-center p-3 gap-3">
+                                <div
+                                    className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-50 cursor-grab active:cursor-grabbing"
+                                    title="Drag to reorder"
+                                    onClick={(e: MouseEvent) => e.stopPropagation()}
+                                >
+                                    <GripVertical className="w-4 h-4" />
+                                </div>
                                 <div className="flex flex-col gap-0.5">
                                     <button
                                         onClick={() => handleReorder(index, 'up')}
@@ -817,12 +957,14 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                     setShowEditBlock(false);
                     setEditingBlock(null);
                     setEditingContent(DEFAULT_CONTENT);
+                    setError('');
                 }}
                 onSubmit={(e, content) => showEditBlock ? handleUpdateBlock(e, content) : handleAddBlock(e, true, content)}
                 title={showEditBlock ? "Wax ka badal Qeybta" : "Ku dar Qeyb Cusub"}
                 content={editingContent}
                 setContent={setEditingContent}
                 isAdding={adding}
+                error={error}
                 renderContentForm={(content, setContent) => (
                     <div className="space-y-6">
                         {/* Block Type Selection */}

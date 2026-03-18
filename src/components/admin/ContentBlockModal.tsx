@@ -32,7 +32,13 @@ export function ContentBlockModal({
 }: ContentBlockModalProps) {
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={title} fullScreen={fullScreen}>
-            <form onSubmit={(e) => { e.preventDefault(); onSubmit(e, content); }} className="flex flex-col h-full">
+            <form
+                onSubmit={async (e) => {
+                    e.preventDefault();
+                    await onSubmit(e, content);
+                }}
+                className="flex flex-col h-full"
+            >
                 <div className="flex-1 overflow-y-auto px-6 py-3">
                     <div className="space-y-3">
                         {renderContentForm(content, setContent)}
@@ -61,7 +67,9 @@ export function ContentBlockModal({
                             {onSaveAndAddNew && (
                                 <button
                                     type="button"
-                                    onClick={onSaveAndAddNew}
+                                    onClick={async (e) => {
+                                        await onSaveAndAddNew(e);
+                                    }}
                                     disabled={isAdding}
                                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
