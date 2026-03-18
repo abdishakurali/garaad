@@ -42,10 +42,11 @@ export function Logo({
             width={692}
             height={461}
             className={cn(
-                "h-9 sm:h-10 md:h-11 lg:h-12",
-                "w-auto object-contain",
-                // The dark-mode asset has slightly different padding; scale to match perceived size.
-                isDarkMode && "origin-left scale-[1.06]",
+                "w-auto object-contain origin-left",
+                // Dark logo asset reads smaller; use taller box + light scale so it matches / exceeds light theme visually.
+                isDarkMode
+                    ? "h-12 sm:h-14 md:h-16 lg:h-[4.25rem] scale-[1.12]"
+                    : "h-10 sm:h-11 md:h-12 lg:h-12",
                 className
             )}
             priority={priority}

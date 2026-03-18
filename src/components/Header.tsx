@@ -135,7 +135,7 @@ export function Header() {
             : "py-3 bg-white dark:bg-black/95 backdrop-blur-md border-b border-black/5 dark:border-white/5"
         )}
       >
-        <div className="relative max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 h-14 sm:h-16 flex items-center">
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 min-h-14 sm:min-h-16 h-14 sm:h-16 dark:min-h-[4.25rem] sm:dark:min-h-[4.75rem] dark:h-auto sm:dark:h-auto flex items-center">
           {/* Left: logo */}
           <div className="flex-1 min-w-0 flex justify-start items-center">
             <Link
@@ -143,11 +143,7 @@ export function Header() {
               className="group flex items-center shrink-0 py-0.5 pr-1 -ml-0.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               aria-label="Garaad home"
             >
-              <Logo
-                priority={true}
-                loading="eager"
-                className="h-10 sm:h-11 md:h-12 w-auto"
-              />
+              <Logo priority={true} loading="eager" />
             </Link>
           </div>
 
