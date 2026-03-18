@@ -1,121 +1,147 @@
-# Garaad Agent Knowledge Base (Somali-first)
+Garaad Agent Knowledge Base (Af-Soomaali)
+Faylkan waxaa loogu talagalay in lagu daro “agent knowledge base” ama loo isticmaalo dukumenti tixraac ah oo loogu talagalay wakiillada taageerada ama chat agents-ka.
 
-This file is designed to be pasted into an “agent knowledge base” or used as reference docs for support/chat agents.
+Product snapshot
+Product: Garaad STEM – Madal waxbarasho oo Af-Soomaali ku baxda oo loogu talagalay STEM + programming.
 
-## Product snapshot
+Isticmaaleyaasha koowaad: Barataha Soomaaliyeed (beginner → intermediate).
 
-- **Product**: Garaad STEM – Somali-first learning platform for STEM + programming.
-- **Primary users**: Somali learners (beginner → intermediate).
-- **Core experiences**:
-  - Onboarding (`/welcome`)
-  - Dashboard (`/dashboard`)
-  - Courses (`/courses`)
-  - Lessons (sequence of content blocks: text, video, problem, code)
+Khibradaha asaasiga ah:
 
-## How the app is structured (high-level)
+Onboarding (/welcome)
 
-- **Courses**: categories contain courses.
-- **Lessons**: each course has lessons; each lesson renders a list of content blocks.
-- **Lesson blocks**:
-  - `text`, `list`, `table`, `table-grid`
-  - `video`
-  - `problem` / `diagram` (interactive Q&A)
-  - `image`
-  - `code`
+Dashboard (/dashboard)
 
-## Common routes (user-facing)
+Courses (/courses)
 
-- **Welcome / Onboarding**: `/welcome`
-- **Dashboard**: `/dashboard`
-- **Courses list**: `/courses`
-- **Course detail**: `/courses/[categoryId]/[courseSlug]`
-- **Lesson**: `/courses/[categoryId]/[courseSlug]/lessons/[lessonId]`
-- **Login**: `/login`
-- **Subscribe**: `/subscribe`
-- **Terms**: `/terms`
-- **Privacy**: `/privacy`
+Lessons (taxane ah content blocks: text, video, problem, code)
 
-## Premium / access rules (what to say)
+Sida app-ku u dhisanyahay (high-level)
+Courses: categories waxay ka kooban yihiim courses.
 
-- Some content may be locked for free users.
-- If a lesson is locked, the app shows a paywall and guides the user to subscribe.
-- If the user believes they should have access:
-  - Ask them to log out and back in.
-  - Confirm they’re using the correct account email.
-  - Ask them to refresh the page.
+Lessons: course kasta wuxuu leeyahay lessons; lesson kasta wuxuu soo bandhigaa liis content blocks ah.
 
-## Agent tone + constraints
+Lesson blocks:
 
-- **Tone**: concise Somali (simple words), supportive, actionable.
-- **Never request**: passwords, OTP codes, full payment card numbers.
-- **Never claim**: you processed a refund or changed billing unless there is an admin tool confirming it.
-- **If unsure**: ask for the user’s email (only) and what page they are on, and what error they see.
+text, list, table, table-grid
 
-## FAQ (ready-to-use answers)
+video
 
-### Getting started
+problem / diagram (su’aalo iyo jawaabo is-dhexgal ah)
 
-**Q: Sideen u bilaabaa?**  
-**A:** Tag `/welcome` si aad u doorato hadafkaaga iyo track‑ga. Kadib u gudub `/courses` oo dooro koorso, kadibna casharka koowaad.
+image
 
-**Q: Halkee ka arkaa horumarkayga?**  
-**A:** Tag `/dashboard` (Bandhiga). Halkaas waxaad ka arki doontaa progress‑ka iyo practice sets.
+code
 
-### Lessons
+Common routes (user-facing)
+Welcome / Onboarding: /welcome
 
-**Q: Casharka sidee buu u shaqeeyaa?**  
-**A:** Casharka waa tallaabooyin (blocks) isku xiran: qoraal, video, ama su’aalo. Waxaad u socotaa step‑by‑step, mararka qaarna waxaad ku celin kartaa (review).
+Dashboard: /dashboard
 
-**Q: Maxaan sameeyaa haddii casharku “soo dajin” ku xayirmo?**  
-**A:** Samee kuwan:
-- Refresh (reload) bogga
-- Hubi internetka
-- Ka bax (logout) kadibna soo gal
-- Haddii wali taagan: ii sheeg lesson title‑ka iyo waxa aad aragto (error).
+Courses list: /courses
 
-### Login / verification
+Course detail: /courses/[categoryId]/[courseSlug]
 
-**Q: Ma soo geli karo (login).**  
-**A:** Hubi email‑ka iyo password‑ka. Haddii aad dhawaan isdiiwaangelisay, hubi inaad email‑ka xaqiijisay. Haddii qalad fariin jirto, iigu soo qor.
+Lesson: /courses/[categoryId]/[courseSlug]/lessons/[lessonId]
 
-### Premium / paywall
+Login: /login
 
-**Q: Maxaa casharka loo xiraa?**  
-**A:** Qaar ka mid ah casharrada/koorsooyinka waa premium. Haddii aad premium tahay oo wali la xiro, refresh samee ama logout/login.
+Subscribe: /subscribe
 
-## Troubleshooting playbooks (step-by-step)
+Terms: /terms
 
-### “I can’t access a lesson”
+Privacy: /privacy
 
-Ask:
-- Course name + lesson title
-- Are they logged in? which email (only email)
-- Are they premium?
+Premium / xeerarka helitaanka (waxa la dhahayo)
+Nuxurka (content) qaar ayaa laga yaabaa inay u xirnaadaan free users-ka.
 
-Steps:
-- Refresh page
-- Logout → login
-- Try opening the course again via `/courses`
-- If locked remains and user is premium: escalate to admin/support with email + timestamp.
+Haddii lesson uu xiran yahay, app-ku wuxuu tusayaa paywall wuxuuna ku hagayaa isticmaalaha inuu subscribe sameeyo.
 
-### “Audio not playing”
+Haddii isticmaalahu aamminsan yahay inuu heli karo:
 
-Steps:
-- Check device is not muted
-- Try a different browser/tab
-- Disable “silent mode” on iOS
-- Refresh
+Ka codso inay log out sameeyaan ka dibna dib u log in-gareeyaan.
 
-## Short glossary (Somali)
+Xaqiiji inay isticmaalayaan email-ka saxda ah ee koontada.
 
-- **Koorso**: course
-- **Cashar**: lesson
-- **Tallaabo**: step / block
-- **Bandhiga**: dashboard
-- **Bulshada**: community
+Ka codso inay refresh ku sameeyaan bogga.
 
-## Internal notes for improving answers
+Agent tone + constraints
+Tone: Af-Soomaali kooban (ereyo fudud), taageero leh, oo actionable ah.
 
-- Prefer **direct links** to routes when guiding users (`/courses`, `/dashboard`, etc.).
-- Always end with a clear “next action” (what the user should click/do).
+Weligaa ha weydiin: passwords, OTP codes, ama nambarada buuxa ee credit card-ka.
 
+Weligaa ha sheegan: inaad samaysay refund ama aad wax ka beddeshay billing ilaa ay jirto admin tool xaqiijinaya mooyee.
+
+Haddii aad shakiso: weydii email-ka isticmaalaha (kaliya), bogga uu joogo, iyo error-ka uu arkayo.
+
+FAQ (ready-to-use answers)
+Getting started
+Q: Sideen u bilaabaa? A: Tag /welcome si aad u doorato hadafkaaga iyo track‑ga. Kadib u gudub /courses oo dooro koorso, kadibna casharka koowaad.
+
+Q: Halkee ka arkaa horumarkayga? A: Tag /dashboard (Bandhiga). Halkaas waxaad ka arki doontaa progress‑ka iyo practice sets.
+
+Lessons
+Q: Casharka sidee buu u shaqeeyaa? A: Casharku waa tallaabooyin (blocks) isku xiran: qoraal, video, ama su’aalo. Waxaad u socotaa step‑by‑step, mararka qaarna waxaad ku celin kartaa (review).
+
+Q: Maxaan sameeyaa haddii casharku “soo dajin” ku xayirmo? A: Samee kuwan:
+
+Refresh (reload) bogga
+
+Hubi internetka
+
+Ka bax (logout) kadibna soo gal
+
+Haddii ay weli taagan tahay: ii sheeg lesson title‑ka iyo waxa aad aragto (error).
+
+Login / verification
+Q: Ma soo geli karo (login). A: Hubi email‑ka iyo password‑ka. Haddii aad dhowaan is-diiwaangelisay, hubi inaad email‑ka xaqiijisay. Haddii qalad (error message) jiro, iigu soo qor.
+
+Premium / paywall
+Q: Maxaa casharka loo xiraa? A: Qaar ka mid ah casharrada/koorsooyinka waa premium. Haddii aad premium tahay oo weli la xiro, refresh samee ama logout/login.
+
+Troubleshooting playbooks (step-by-step)
+“Ma geli karo cashar”
+Weydii:
+
+Course name + lesson title
+
+Ma log in-gareysan yihiin? email-kee (email kaliya)
+
+Ma yihiin premium?
+
+Tallaabooyinka:
+
+Refresh page
+
+Logout → login
+
+Isku day inaad mar kale ka furto koorsada /courses
+
+Haddii uu weli xiran yahay isticmaalahuna yahay premium: u gudbi (escalate) admin/support adigoo raacinaya email-ka + xilliga ay dhacday (timestamp).
+
+“Codka (audio) ma shaqaynayo”
+Tallaabooyinka:
+
+Hubi in qalabkaagu uusan mute ahayn
+
+Isku day browser ama tab kale
+
+Dami “silent mode” haddii aad isticmaalayso iOS
+
+Refresh samee
+
+Short glossary (Somali)
+Koorso: course
+
+Cashar: lesson
+
+Tallaabo: step / block
+
+Bandhiga: dashboard
+
+Bulshada: community
+
+Xusuusin gudaha ah (Internal notes)
+Markaad hagayso isticmaaleyaasha, doorbid inaad siiso direct links (sida /courses, /dashboard, iwm).
+
+Had iyo jeer ku soo xir “tallaabada xigta” oo cad (waxa isticmaalahu gujinayo ama samaynayo).

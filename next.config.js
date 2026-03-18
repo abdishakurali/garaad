@@ -39,7 +39,7 @@ const nextConfig = {
       base-uri 'self';
       form-action 'self';
       frame-ancestors 'none';
-      frame-src https://js.stripe.com https://player.vimeo.com https://www.youtube.com;
+      frame-src https://js.stripe.com https://player.vimeo.com https://www.youtube.com https://www.chatbase.co https://chatbase.co;
       connect-src 'self' https://api.garaad.org wss://api.garaad.org https://*.posthog.com https://api.stripe.com https://js.stripe.com https://cdn.shakebugs.com https://www.transparenttextures.com http://localhost:8000 http://127.0.0.1:8000;
     `.replace(/\s{2,}/g, ' ').trim();
 
