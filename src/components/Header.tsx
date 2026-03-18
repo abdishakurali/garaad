@@ -131,11 +131,11 @@ export function Header() {
         className={clsx(
           "sticky top-0 z-50 transition-all duration-300",
           isScrolled
-            ? "py-1.5 glassmorphism mx-3 mt-2 rounded-xl bg-white/90 dark:bg-black/80 border border-black/5 dark:border-white/10"
-            : "py-2 bg-white dark:bg-black/95 backdrop-blur-md border-b border-black/5 dark:border-white/5"
+            ? "py-2 glassmorphism mx-3 mt-2 rounded-xl bg-white/90 dark:bg-black/80 border border-black/5 dark:border-white/10"
+            : "py-3 bg-white dark:bg-black/95 backdrop-blur-md border-b border-black/5 dark:border-white/5"
         )}
       >
-        <div className="relative max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 h-11 sm:h-12 flex items-center">
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 h-14 sm:h-16 flex items-center">
           {/* Left: logo */}
           <div className="flex-1 min-w-0 flex justify-start items-center">
             <Link
@@ -146,14 +146,14 @@ export function Header() {
               <Logo
                 priority={true}
                 loading="eager"
-                className="!w-[5.25rem] sm:!w-24 !max-h-7 sm:!max-h-8 object-contain"
+                className="!w-[7.25rem] sm:!w-32 md:!w-36 !max-h-9 sm:!max-h-10 md:!max-h-11 object-contain"
               />
             </Link>
           </div>
 
           {/* Center: nav (desktop) */}
           <nav
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center justify-center gap-0.5 px-2 max-w-[min(100vw-16rem,42rem)]"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center justify-center gap-1 px-2 max-w-[min(100vw-16rem,44rem)]"
             aria-label="Main"
           >
             {navLinks.map(({ name, href }) => {
@@ -163,8 +163,8 @@ export function Header() {
                   key={href}
                   href={href}
                   className={clsx(
-                    "group font-display text-[11px] sm:text-xs font-medium tracking-tight transition-all duration-200",
-                    "py-1.5 px-2 sm:px-2.5 rounded-md whitespace-nowrap",
+                    "group font-display text-xs sm:text-sm font-medium tracking-tight transition-all duration-200",
+                    "py-2 px-2.5 sm:px-3 rounded-md whitespace-nowrap",
                     active
                       ? "text-primary bg-primary/10 dark:bg-primary/15"
                       : "text-slate-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
