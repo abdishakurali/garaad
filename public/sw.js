@@ -1,6 +1,6 @@
-// Version: 1.0.3 (Internal: garaad-v4)
+// Version: 1.0.4 (Internal: garaad-v5) — bypass cross-origin fetches (Chatbase, CDNs)
 
-const CACHE_VERSION = 'garaad-v4';
+const CACHE_VERSION = 'garaad-v5';
 const STATIC_CACHE = `garaad-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `garaad-dynamic-${CACHE_VERSION}`;
 
@@ -47,6 +47,12 @@ self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
 
     const url = new URL(event.request.url);
+
+    // Cross-origin: do not intercept. Chatbase/stripe/CDN scripts must load in the page context;
+    // SW fetch() here triggers CSP connect-src failures and breaks widgets.
+    if (url.origin !== self.location.origin) {
+        return;
+    }
 
     // Skip API calls and WebSocket connections
     if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws/')) {
