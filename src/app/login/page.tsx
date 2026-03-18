@@ -47,13 +47,11 @@ export default function LoginPage() {
                 });
             }
 
-            // Prefer redirect param (e.g. lesson URL) over default destinations
+            // Prefer redirect param (e.g. lesson URL); otherwise always go to courses
             if (redirectTo) {
                 router.push(redirectTo);
-            } else if (result?.user?.is_premium) {
-                router.push("/courses");
             } else {
-                router.push("/subscribe");
+                router.push("/courses");
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");

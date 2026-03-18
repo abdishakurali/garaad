@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useAuthReady } from "@/hooks/useAuthReady";
 import { usePathname, useRouter } from "next/navigation";
-import { NavbarSkeleton } from "@/components/skeletons/NavbarSkeleton";
 import { X, Menu, User, LogOut, LogIn, GraduationCap } from "lucide-react";
 import clsx from "clsx";
 import { useMemo, useCallback, useState, useEffect } from "react";
@@ -17,16 +15,6 @@ import { ProfileDropdown } from "./layout/ProfileDropdown";
 import ReferralModal from "./referrals/ReferralModal";
 import StreakDisplay from "./StreakDisplay";
 import { useGamificationData } from "@/hooks/useGamificationData";
-
-const AuthDialog = dynamic(
-  () => import("@/components/auth/AuthDialog").then((mod) => mod.AuthDialog),
-  {
-    loading: () => (
-      <div className="h-10 w-24 bg-gray-100 animate-pulse rounded-md" />
-    ),
-    ssr: false,
-  }
-);
 
 export function Header() {
   const { user } = useAuthStore();
@@ -224,7 +212,13 @@ export function Header() {
               {mounted && user ? (
                 <ProfileDropdown />
               ) : (
-                <AuthDialog />
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Soo gal
+                </Link>
               )}
             </div>
 
