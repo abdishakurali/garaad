@@ -40,6 +40,7 @@ import {
   Lock,
   Calendar,
   Tag,
+  X,
 } from "lucide-react";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 
@@ -178,20 +179,68 @@ export default function Page() {
   }, [selectedTopic]);
 
   const handleSelect = (value: number | string) => {
-    // Play toggle-on sound when an option is selected
-    playSound("toggle-on");
-
-    if (currentStep === 1) {
-      // Topic selection step
-      setSelectedTopic(value as string);
-      setSelections((prev) => ({ ...prev, [currentStep]: value }));
-    } else if (currentStep === 2) {
-      // Level selection step
-      // Store the level for the currently selected topic
+    if (currentStep === 2) {
+      const currentLevel = topicLevels[selectedTopic];
+      if (currentLevel === value) {
+        setTopicLevels((prev) => {
+          const next = { ...prev };
+          delete next[selectedTopic];
+          return next;
+        });
+        setSelections((prev) => {
+          const next = { ...prev };
+          delete next[2];
+          return next;
+        });
+        return;
+      }
+      playSound("toggle-on");
       setTopicLevels((prev) => ({
         ...prev,
         [selectedTopic]: value as string,
       }));
+      setSelections((prev) => ({ ...prev, [currentStep]: value }));
+      return;
+    }
+
+    if (selections[currentStep] === value) {
+      if (currentStep === 0) {
+        setSelections((prev) => {
+          const next = { ...prev };
+          delete next[0];
+          delete next[1];
+          delete next[2];
+          return next;
+        });
+        setSelectedTopic(topics[0]?.id ?? "fullstack_mern");
+        setTopicLevels(
+          Object.fromEntries(topics.map((topicItem) => [topicItem.id, "beginner"]))
+        );
+      } else if (currentStep === 1) {
+        setSelections((prev) => {
+          const next = { ...prev };
+          delete next[1];
+          delete next[2];
+          return next;
+        });
+        setTopicLevels((prev) => {
+          const next = { ...prev };
+          delete next[value as string];
+          return next;
+        });
+      } else if (currentStep === 3) {
+        setSelections((prev) => {
+          const next = { ...prev };
+          delete next[3];
+          return next;
+        });
+      }
+      return;
+    }
+
+    playSound("toggle-on");
+    if (currentStep === 1) {
+      setSelectedTopic(value as string);
       setSelections((prev) => ({ ...prev, [currentStep]: value }));
     } else {
       setSelections((prev) => ({ ...prev, [currentStep]: value }));
@@ -478,94 +527,138 @@ export default function Page() {
             {currentStep === 0 && (
               <div className="grid gap-3">
                 {currentOptions &&
-                  currentOptions.map((option: Option) => (
-                    <div key={option.id}>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSelect(option.id);
-                        }}
-                        className="w-full group relative"
-                        disabled={option.disabled || isLoading}
-                      >
+                  currentOptions.map((option: Option) => {
+                    const isSelected = selections[currentStep] === option.id;
+                    return (
+                      <div key={option.id} className="w-full group relative">
                         <div
                           className={cn(
-                            "flex items-center p-4 rounded-xl border-2 transition-all",
-                            " hover:shadow-sm",
-                            selections[currentStep] === option.id
-                              ? "border-primary bg-primary/5"
+                            "flex items-stretch rounded-xl border-2 transition-all overflow-hidden hover:shadow-sm",
+                            isSelected
+                              ? "border-gray-400 dark:border-gray-500 bg-muted/30"
                               : "border-border bg-card hover:border-primary/50",
-                            option.disabled && "opacity-50 cursor-not-allowed"
+                            option.disabled && "opacity-50 pointer-events-none"
                           )}
                         >
-                          <div className="w-10 h-10 rounded-full bg-background shadow-sm flex items-center justify-center">
-                            <div className="text-primary">{option.icon}</div>
+                          <div
+                            role="button"
+                            tabIndex={option.disabled || isLoading ? -1 : 0}
+                            onClick={() => {
+                              if (!option.disabled && !isLoading) handleSelect(option.id);
+                            }}
+                            onKeyDown={(e) => {
+                              if (
+                                (e.key === "Enter" || e.key === " ") &&
+                                !option.disabled &&
+                                !isLoading
+                              ) {
+                                e.preventDefault();
+                                handleSelect(option.id);
+                              }
+                            }}
+                            className="flex flex-1 min-w-0 items-center p-4 cursor-pointer text-left"
+                          >
+                            <div className="w-10 h-10 shrink-0 rounded-full bg-background shadow-sm flex items-center justify-center">
+                              <div className="text-primary">{option.icon}</div>
+                            </div>
+                            <div className="flex-1 px-4 text-sm md:text-base font-medium text-foreground">
+                              {option.text}
+                            </div>
+                            {option.disabled && (
+                              <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
+                                Dhowaan
+                              </span>
+                            )}
                           </div>
-                          <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-foreground">
-                            {option.text}
-                          </div>
-                          {option.disabled && (
-                            <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
-                              Dhowaan
-                            </span>
+                          {isSelected && (
+                            <button
+                              type="button"
+                              aria-label="Ka saar doorashada"
+                              disabled={isLoading}
+                              className="shrink-0 flex items-center justify-center px-3 border-l border-gray-300 dark:border-gray-600 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                              onClick={() => handleSelect(option.id)}
+                            >
+                              <X className="h-5 w-5" strokeWidth={2} />
+                            </button>
                           )}
                         </div>
-
-                        {selections[currentStep] === option.id && (
-                          <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200">
+                        {isSelected && (
+                          <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200 max-w-[calc(100%-3rem)] line-clamp-2">
                             {option.badge}
                           </div>
                         )}
-                      </button>
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
               </div>
             )}
 
             {currentStep === 1 && (
               <div className="grid gap-3">
                 {currentOptions &&
-                  currentOptions.map((option: Option) => (
-                    <div key={option.id}>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSelect(option.id);
-                        }}
-                        className="w-full group relative"
-                        disabled={option.disabled || isLoading}
-                      >
+                  currentOptions.map((option: Option) => {
+                    const isSelected = selections[currentStep] === option.id;
+                    return (
+                      <div key={option.id} className="w-full group relative">
                         <div
                           className={cn(
-                            "flex items-center p-4 rounded-xl border-2 transition-all",
-                            "hover:border-primary/50 hover:shadow-sm",
-                            selections[currentStep] === option.id
-                              ? "border-primary bg-primary/5"
-                              : "border-border bg-card",
-                            option.disabled && "opacity-50 cursor-not-allowed"
+                            "flex items-stretch rounded-xl border-2 transition-all overflow-hidden hover:shadow-sm",
+                            isSelected
+                              ? "border-gray-400 dark:border-gray-500 bg-muted/30"
+                              : "border-border bg-card hover:border-primary/50",
+                            option.disabled && "opacity-50 pointer-events-none"
                           )}
                         >
-                          <div className="w-10 h-10 rounded-full bg-background shadow-sm flex items-center justify-center">
-                            <div className="text-primary">{option.icon}</div>
+                          <div
+                            role="button"
+                            tabIndex={option.disabled || isLoading ? -1 : 0}
+                            onClick={() => {
+                              if (!option.disabled && !isLoading) handleSelect(option.id);
+                            }}
+                            onKeyDown={(e) => {
+                              if (
+                                (e.key === "Enter" || e.key === " ") &&
+                                !option.disabled &&
+                                !isLoading
+                              ) {
+                                e.preventDefault();
+                                handleSelect(option.id);
+                              }
+                            }}
+                            className="flex flex-1 min-w-0 items-center p-4 cursor-pointer text-left"
+                          >
+                            <div className="w-10 h-10 shrink-0 rounded-full bg-background shadow-sm flex items-center justify-center">
+                              <div className="text-primary">{option.icon}</div>
+                            </div>
+                            <div className="flex-1 px-4 text-sm md:text-base font-medium text-foreground">
+                              {option.text}
+                            </div>
+                            {option.disabled && (
+                              <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
+                                Dhowaan
+                              </span>
+                            )}
                           </div>
-                          <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-foreground">
-                            {option.text}
-                          </div>
-                          {option.disabled && (
-                            <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
-                              Dhowaan
-                            </span>
+                          {isSelected && (
+                            <button
+                              type="button"
+                              aria-label="Ka saar doorashada"
+                              disabled={isLoading}
+                              className="shrink-0 flex items-center justify-center px-3 border-l border-gray-300 dark:border-gray-600 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                              onClick={() => handleSelect(option.id)}
+                            >
+                              <X className="h-5 w-5" strokeWidth={2} />
+                            </button>
                           )}
                         </div>
-
-                        {selections[currentStep] === option.id && (
-                          <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200">
+                        {isSelected && (
+                          <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200 max-w-[calc(100%-3rem)] line-clamp-2">
                             {option.badge}
                           </div>
                         )}
-                      </button>
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
               </div>
             )}
 
@@ -579,85 +672,129 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(topicLevelsByTopic as any)[selectedTopic].map((level: any) => (
-                    <div key={level.level}>
-                      <button
-                        onClick={() => handleSelect(level.level)}
-                        className="w-full text-left"
-                        disabled={isLoading}
-                      >
-                        <div
-                          className={cn(
-                            "p-5 rounded-xl border-2 transition-all h-full",
-                            "hover:border-primary/50 hover:shadow-sm",
-                            topicLevels[selectedTopic] === level.level
-                              ? "border-primary bg-primary/5"
-                              : "border-border bg-card"
-                          )}
-                        >
-                          <div className="w-10 h-10 rounded-full bg-background shadow-sm flex items-center justify-center mb-3">
-                            <div className="text-primary">{level.icon}</div>
-                          </div>
-                          <h3 className="font-bold text-lg mb-2 text-foreground">
-                            {level.title}
-                          </h3>
-                          <p className="text-muted-foreground text-sm mb-3">
-                            {level.description}
-                          </p>
-                          <div className="p-3 bg-muted/50 rounded-lg font-mono text-sm text-foreground border border-border">
-                            {level.example}
+                  {(topicLevelsByTopic as Record<string, unknown[]>)[selectedTopic]?.map(
+                    (level: { level: string; icon: React.ReactNode; title: string; description: string; example: string }) => {
+                      const isLevelSelected = topicLevels[selectedTopic] === level.level;
+                      return (
+                        <div key={level.level} className="w-full">
+                          <div
+                            className={cn(
+                              "flex items-stretch rounded-xl border-2 transition-all overflow-hidden h-full min-h-[200px]",
+                              isLevelSelected
+                                ? "border-gray-400 dark:border-gray-500 bg-muted/30"
+                                : "border-border bg-card hover:border-primary/50 hover:shadow-sm"
+                            )}
+                          >
+                            <div
+                              role="button"
+                              tabIndex={isLoading ? -1 : 0}
+                              onClick={() => !isLoading && handleSelect(level.level)}
+                              onKeyDown={(e) => {
+                                if ((e.key === "Enter" || e.key === " ") && !isLoading) {
+                                  e.preventDefault();
+                                  handleSelect(level.level);
+                                }
+                              }}
+                              className="flex flex-1 min-w-0 flex-col p-5 cursor-pointer text-left"
+                            >
+                              <div className="w-10 h-10 rounded-full bg-background shadow-sm flex items-center justify-center mb-3">
+                                <div className="text-primary">{level.icon}</div>
+                              </div>
+                              <h3 className="font-bold text-lg mb-2 text-foreground">
+                                {level.title}
+                              </h3>
+                              <p className="text-muted-foreground text-sm mb-3">
+                                {level.description}
+                              </p>
+                              <div className="p-3 bg-muted/50 rounded-lg font-mono text-sm text-foreground border border-border mt-auto">
+                                {level.example}
+                              </div>
+                            </div>
+                            {isLevelSelected && (
+                              <button
+                                type="button"
+                                aria-label="Ka saar doorashada"
+                                disabled={isLoading}
+                                className="shrink-0 self-stretch flex items-center justify-center px-3 border-l border-gray-300 dark:border-gray-600 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                                onClick={() => handleSelect(level.level)}
+                              >
+                                <X className="h-5 w-5" strokeWidth={2} />
+                              </button>
+                            )}
                           </div>
                         </div>
-                      </button>
-                    </div>
-                  ))}
+                      );
+                    }
+                  )}
                 </div>
               </>
             )}
 
             {currentStep === 3 && (
               <div className="grid gap-3">
-                {learningGoals.map((option: Option) => (
-                  <div key={option.id}>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleSelect(option.id);
-                      }}
-                      className="w-full group relative"
-                      disabled={option.disabled || isLoading}
-                    >
+                {learningGoals.map((option: Option) => {
+                  const isSelected = selections[currentStep] === option.id;
+                  return (
+                    <div key={option.id} className="w-full group relative">
                       <div
                         className={cn(
-                          "flex items-center p-4 rounded-xl border-2 transition-all",
-                          "hover:border-primary/50 hover:shadow-sm",
-                          selections[currentStep] === option.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border bg-card",
-                          option.disabled && "opacity-50 cursor-not-allowed"
+                          "flex items-stretch rounded-xl border-2 transition-all overflow-hidden hover:shadow-sm",
+                          isSelected
+                            ? "border-gray-400 dark:border-gray-500 bg-muted/30"
+                            : "border-border bg-card hover:border-primary/50",
+                          option.disabled && "opacity-50 pointer-events-none"
                         )}
                       >
-                        <div className="w-10 h-10 rounded-full bg-background shadow-sm flex items-center justify-center">
-                          <div className="text-primary">{option.icon}</div>
+                        <div
+                          role="button"
+                          tabIndex={option.disabled || isLoading ? -1 : 0}
+                          onClick={() => {
+                            if (!option.disabled && !isLoading) handleSelect(option.id);
+                          }}
+                          onKeyDown={(e) => {
+                            if (
+                              (e.key === "Enter" || e.key === " ") &&
+                              !option.disabled &&
+                              !isLoading
+                            ) {
+                              e.preventDefault();
+                              handleSelect(option.id);
+                            }
+                          }}
+                          className="flex flex-1 min-w-0 items-center p-4 cursor-pointer text-left"
+                        >
+                          <div className="w-10 h-10 shrink-0 rounded-full bg-background shadow-sm flex items-center justify-center">
+                            <div className="text-primary">{option.icon}</div>
+                          </div>
+                          <div className="flex-1 px-4 text-sm md:text-base font-medium text-foreground">
+                            {option.text}
+                          </div>
+                          {option.disabled && (
+                            <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
+                              Dhowaan
+                            </span>
+                          )}
                         </div>
-                        <div className="flex-1 text-left px-4 text-sm md:text-base font-medium text-foreground">
-                          {option.text}
-                        </div>
-                        {option.disabled && (
-                          <span className="absolute -top-2 -right-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full border border-amber-200">
-                            Dhowaan
-                          </span>
+                        {isSelected && (
+                          <button
+                            type="button"
+                            aria-label="Ka saar doorashada"
+                            disabled={isLoading}
+                            className="shrink-0 flex items-center justify-center px-3 border-l border-gray-300 dark:border-gray-600 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                            onClick={() => handleSelect(option.id)}
+                          >
+                            <X className="h-5 w-5" strokeWidth={2} />
+                          </button>
                         )}
                       </div>
-
-                      {selections[currentStep] === option.id && (
-                        <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200">
+                      {isSelected && (
+                        <div className="absolute -top-2 left-4 px-3 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-200 max-w-[calc(100%-3rem)] line-clamp-2">
                           {option.badge}
                         </div>
                       )}
-                    </button>
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
