@@ -176,38 +176,28 @@ const ProblemBlock: React.FC<{
       if (hasAnswered && isCorrect) return;
       setTextAnswer(option); // Keep for short_input
 
-      // Handle multiple choice (checkbox behavior)
-      if (isMultipleChoice) {
-        setSelectedOptions(prev => {
-          const newSelections = prev.includes(option)
-            ? prev.filter(o => o !== option) // Deselect if already selected
-            : [...prev, option]; // Add to selections
-
-          // Notify parent with array
-          onOptionSelect(newSelections);
-          return newSelections;
-        });
-      } else {
-        // Handle single choice (radio button behavior)
-        setSelectedOptions([option]);
-        onOptionSelect(option);
-      }
+      // Only one option at a time for both single_choice and multiple_choice (radio behavior)
+      setSelectedOptions([option]);
+      onOptionSelect(isMultipleChoice ? [option] : option);
     };
 
-    // For multiple_choice: which options are correct (by text match)
+    // Which options are correct (by text match, normalized and trimmed)
     const correctAnswerTexts = useMemo(() => {
       if (!content?.correct_answer || !Array.isArray(content.correct_answer)) return new Set<string>();
       return new Set(
-        content.correct_answer.map((a: { text?: string }) => (a?.text ?? "").trim())
+        content.correct_answer
+          .map((a: { id?: string; text?: string }) => (a?.text ?? "").trim())
+          .filter(Boolean)
       );
     }, [content?.correct_answer]);
 
     const renderOption = (option: string, idx: number) => {
       const letters = ["A", "B", "C", "D", "E", "F"];
-      const isSelected = isMultipleChoice ? selectedOptions.includes(option) : selectedOption === option;
+      const optionTrimmed = (option || "").trim();
+      const isSelected = selectedOptions.includes(option) || selectedOptions.includes(optionTrimmed) || selectedOption === option || selectedOption === optionTrimmed;
       const isOptionCorrect = hasAnswered && isSelected && isCorrect;
       const isOptionIncorrect = hasAnswered && isSelected && !isCorrect;
-      const isCorrectUnselected = hasAnswered && (content?.question_type === "multiple_choice" || content?.question_type === "mcq") && correctAnswerTexts.has((option || "").trim()) && !isSelected;
+      const isCorrectUnselected = hasAnswered && (content?.question_type === "multiple_choice" || content?.question_type === "mcq" || content?.question_type === "single_choice") && correctAnswerTexts.has(optionTrimmed) && !isSelected;
       const isDisabled = disabledOptions.includes(option) || (hasAnswered && isCorrect);
 
       // STATE 1: idle, 2: selected (pre-submit), 3: correct selected, 4: wrong selected, 5: correct unselected, 6: disabled unselected

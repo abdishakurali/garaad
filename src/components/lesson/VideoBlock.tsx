@@ -227,7 +227,6 @@ const VideoBlock: React.FC<{
               ref={videoRef}
               src={optimizedUrl}
               poster={posterUrl ?? undefined}
-              controls
               playsInline
               preload="metadata"
               {...(typeof optimizedUrl === "string" && optimizedUrl.includes("api/media/") ? { crossOrigin: "anonymous" as const } : {})}

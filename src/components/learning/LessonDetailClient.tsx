@@ -603,20 +603,20 @@ export function LessonDetailClient() {
         if (selectedOption === "matching_success" || (Array.isArray(selectedOption) && selectedOption[0] === "matching_success")) {
             isCorrect = true;
         } else if (currentProblem.question_type === "short_input") {
-            const correctAnswers = currentProblem.correct_answer?.map((ans) => ans.text.toLowerCase().trim()) || [];
-            isCorrect = correctAnswers.includes(userSelections[0].toLowerCase().trim());
-        } else if (currentProblem.question_type === "multiple_choice") {
-            // For multiple choice, check if all selected options match the correct answers
-            const correctIds = new Set(currentProblem.correct_answer?.map((ans) => ans.text) || []);
-            const userIds = new Set(userSelections);
-
-            // Exact match: same size and all elements match
-            isCorrect = correctIds.size === userIds.size &&
-                [...correctIds].every(id => userIds.has(id));
+            const correctAnswers = currentProblem.correct_answer?.map((ans) => (ans.text || "").toLowerCase().trim()) || [];
+            isCorrect = correctAnswers.includes((userSelections[0] || "").toLowerCase().trim());
+        } else if (currentProblem.question_type === "multiple_choice" || currentProblem.question_type === "single_choice") {
+            // Compare by option text (trimmed); only one option is selected at a time
+            const correctTexts = new Set(
+                (currentProblem.correct_answer || [])
+                    .map((ans) => (ans.text || "").trim())
+                    .filter(Boolean)
+            );
+            const selectedText = (userSelections[0] || "").trim();
+            isCorrect = correctTexts.size > 0 && correctTexts.has(selectedText);
         } else {
-            // For single choice and other types
-            const correctAnswer = currentProblem.correct_answer?.map((ans) => ans.text);
-            isCorrect = correctAnswer?.includes(userSelections[0]) || false;
+            const correctAnswer = currentProblem.correct_answer?.map((ans) => (ans.text || "").trim());
+            isCorrect = correctAnswer?.includes((userSelections[0] || "").trim()) || false;
         }
 
         if (isCorrect) {
