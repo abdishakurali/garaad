@@ -11,11 +11,22 @@ import { useLesson, useCourse, useCategories, useProblem, useEnrollments, useUse
 import { Button } from "@/components/ui/button";
 import {
     ChevronRight,
+    ChevronLeft,
     RefreshCw,
     Home,
     Loader,
     Sparkles,
 } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { ExplanationText, TextContent, DiagramConfig, ProblemContent } from "@/types/learning";
 import { LessonStepBullets } from "@/components/learning/LessonStepBullets";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
@@ -189,6 +200,8 @@ export function LessonDetailClient() {
     const [problems, setProblems] = useState<ProblemContent[]>([]);
     const [problemLoading, setProblemLoading] = useState(false);
     const [currentXp, setCurrentXp] = useState(10);
+    const [contentLoaded, setContentLoaded] = useState(false);
+    const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
     const { streak, leaderboard, mutateAll } = useGamificationData();
     const { enrollments } = useEnrollments();
@@ -323,6 +336,14 @@ export function LessonDetailClient() {
             setHasPlayedStartSound(true);
         }
     }, [currentLesson, isLoading, sortedBlocks?.length, playSound, hasPlayedStartSound]);
+
+    // Full-screen: hide header once content is ready
+    useEffect(() => {
+        if (!isLoading && (sortedBlocks?.length || 0) > 0 && currentLesson) {
+            const t = setTimeout(() => setContentLoaded(true), 100);
+            return () => clearTimeout(t);
+        }
+    }, [isLoading, sortedBlocks?.length, currentLesson]);
 
     // Warm bridge: on lesson load, silent fetch first video URL with Range to prime cache/session
     useEffect(() => {
@@ -628,10 +649,10 @@ export function LessonDetailClient() {
         playSound(isCorrect ? "correct" : "incorrect");
 
         if (!isCorrect && currentProblem.question_type !== "short_input") {
-            // For single choice, disable the incorrect option
+            // For single choice: disable the wrong option so it can't be selected again; keep it visually selected
             if (!Array.isArray(selectedOption)) {
                 setDisabledOptions((prev) => [...prev, selectedOption]);
-                setSelectedOption(null);
+                // Do not clear selectedOption — wrong option stays visible and disabled
             }
             // For multiple choice, we don't disable options, just reset
         }
@@ -641,6 +662,7 @@ export function LessonDetailClient() {
         resetAnswerState();
         setShowFeedback(false);
         setSelectedOption(null);
+        setDisabledOptions([]);
     }, [resetAnswerState]);
 
     const handleRetry = useCallback(() => {
@@ -884,14 +906,57 @@ export function LessonDetailClient() {
                 }}
             />
             <div className="relative z-10">
-            <LessonStepBullets
-                currentIndex={currentBlockIndex}
-                totalSteps={sortedBlocks?.length || 0}
-                onStepClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
-                coursePath={coursePath}
-            />
+            {!contentLoaded && (
+                <LessonStepBullets
+                    currentIndex={currentBlockIndex}
+                    totalSteps={sortedBlocks?.length || 0}
+                    onStepClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
+                    coursePath={coursePath}
+                />
+            )}
 
-            <main className="px-0 pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
+            {contentLoaded && (
+                <button
+                    type="button"
+                    onClick={() => setShowQuitConfirm(true)}
+                    className={cn(
+                        "fixed left-4 top-[max(1rem,env(safe-area-inset-top))] z-40",
+                        "flex h-11 w-11 items-center justify-center rounded-2xl",
+                        "bg-zinc-900/90 border border-zinc-700/80 text-zinc-300",
+                        "hover:bg-zinc-800 hover:text-white hover:border-zinc-600",
+                        "backdrop-blur-sm transition-all duration-200 active:scale-95"
+                    )}
+                    aria-label="Dib u noqo koorsada"
+                >
+                    <ChevronLeft className="w-5 h-5" strokeWidth={2} />
+                </button>
+            )}
+
+            <AlertDialog open={showQuitConfirm} onOpenChange={setShowQuitConfirm}>
+                <AlertDialogContent className="max-w-sm rounded-2xl border-zinc-800 bg-zinc-900 p-6">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-lg font-semibold text-white">
+                            Ma hubtaa inaad ka baxayso?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-zinc-400 text-sm">
+                            Haddii aad baxdo, horumarka casharkan weli waa la keydinayaa.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-row gap-2 sm:justify-end mt-6">
+                        <AlertDialogCancel className="rounded-xl border-zinc-600 bg-transparent text-zinc-300 hover:bg-zinc-800">
+                            Maya
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => router.push(coursePath)}
+                            className="rounded-xl bg-violet-600 hover:bg-violet-500 text-white"
+                        >
+                            Haa, bax
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <main className={cn("px-0 pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]", contentLoaded && "pt-2")}>
                 <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
                     {isReviewMode && (
                         <div className="mb-4 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 inline-flex items-center gap-2">

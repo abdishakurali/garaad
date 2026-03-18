@@ -32,19 +32,7 @@ export function CommunityCTASection() {
                             {/* Gradient Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                         </div>
-
-                        {/* Floating Badge */}
-                        <div className="absolute -bottom-6 -right-6 bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <Users className="w-6 h-6 text-primary" />
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-black text-slate-900 dark:text-white">500+</div>
-                                    <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">Active Members</div>
-                                </div>
-                            </div>
-                        </div>
+ 
                     </div>
 
                     {/* Right: Content */}

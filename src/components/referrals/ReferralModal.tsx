@@ -101,8 +101,8 @@ export default function ReferralModal({ isOpen, onClose }: ReferralModalProps) {
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
                                         { step: "1", title: "Dir Link", desc: "U dir saaxiibkaa" },
-                                        { step: "2", title: "Qiimo Dhimis", desc: "Isaga: 20% Off" },
-                                        { step: "3", title: "Dakhli", desc: "Adna: 20% Com" }
+                                        { step: "2", title: "Qiimo Dhimis", desc: "Isaga: qiimo gaar ah" },
+                                        { step: "3", title: "Dakhli", desc: "Adna: komishan" }
                                     ].map((item, idx) => (
                                         <div key={idx} className="flex flex-col items-center text-center space-y-2">
                                             <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black shadow-sm">

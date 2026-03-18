@@ -30,8 +30,8 @@ export function LessonPaywall({ coursePath, courseTitle }: LessonPaywallProps) {
           </h1>
           <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
             {courseTitle
-              ? `Si aad ugu dhex galato casharada \"${courseTitle}\" oo dhan, ku biir Explorer (€29/bil). Waxaad sii wadi kartaa casharka 1aad ee koorso kasta oo bilaash ah.`
-              : "Si aad u sii wadato casharadan, ku biir Explorer (€29/bil). Waxaad heli kartaa dhammaan koorsaska iyo casharada."}
+              ? `Si aad ugu dhex galato casharada \"${courseTitle}\" oo dhan, ku biir Explorer. Waxaad sii wadi kartaa casharka 1aad ee koorso kasta oo bilaash ah.`
+              : "Si aad u sii wadato casharadan, ku biir Explorer. Waxaad heli kartaa dhammaan koorsaska iyo casharada."}
           </p>
           <div className="flex items-center justify-center gap-2 text-primary text-sm font-medium">
             <Sparkles className="w-4 h-4" />
@@ -43,7 +43,7 @@ export function LessonPaywall({ coursePath, courseTitle }: LessonPaywallProps) {
             asChild
             className="w-full font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
           >
-            <Link href="/subscribe">Ku biir Explorer — €29/bil</Link>
+            <Link href="/subscribe">Ku biir Explorer</Link>
           </Button>
           <Button
             variant="ghost"

@@ -5,7 +5,6 @@ import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
-import { PRICING } from "@/config/pricing";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -110,7 +109,7 @@ export function HeroSection() {
                 href="/challenge"
                 className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-white/90 no-underline transition hover:bg-white/10"
               >
-                Challenge — {PRICING.CHALLENGE.priceDisplay}
+                Challenge
               </Link>
             </div>
             {showStats && (

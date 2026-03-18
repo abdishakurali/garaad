@@ -218,7 +218,7 @@ export default function HomepageSEO() {
                             "longitude": "45.3181"
                         },
                         "openingHours": "Mo-Su 00:00-23:59",
-                        "priceRange": "Free to Explorer €29/month",
+                        "priceRange": "Free and paid plans",
                         "currenciesAccepted": "USD, EUR, SOS",
                         "paymentAccepted": "Cash, Credit Card, Mobile Money"
                     })

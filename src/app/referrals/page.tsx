@@ -113,8 +113,8 @@ export default function ReferralsPage() {
                         <div className="space-y-3">
                             <h2 className="text-3xl font-bold text-white">Share the Opportunity</h2>
                             <p className="text-slate-400 max-w-lg mx-auto">
-                                Marwalba oo saaxiibkaaga uu koorso iibsado, waxaad heli doontaa 20% komishan.
-                                Isla markaana saaxiibkaaga wuxuu helayaa 20% qiimo-dhimis gaar ah!
+                                Marwalba oo saaxiibkaaga uu koorso iibsado, waxaad heli doontaa komishan.
+                                Isla markaana saaxiibkaaga wuxuu helayaa qiimo-dhimis gaar ah!
                             </p>
                         </div>
 

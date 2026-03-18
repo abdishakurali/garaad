@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
-import { PRICING } from "@/config/pricing";
 
 export function ChallengeHero() {
     const { user } = useAuthStore();
@@ -62,7 +61,7 @@ export function ChallengeHero() {
                     4–6 Toddobaad · Loo qaabily 4x sannadkii
                 </p>
                 <p className="text-base sm:text-lg text-slate-500 mb-12">
-                    {PRICING.CHALLENGE.priceDisplay} hal bixi (per cohort) · Mentor access · Launchpad (gudbi startup). wey ku jiraan koorsooyinka
+                    · Mentor access · Launchpad (gudbi startup). wey ku jiraan koorsooyinka
                 </p>
 
                 {/* CTAs */}

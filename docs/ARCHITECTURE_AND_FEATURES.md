@@ -49,7 +49,7 @@ This document describes the full architecture of the Garaad platform (frontend +
 | Forms | React Hook Form, Zod, @hookform/resolvers |
 | Rich content | TipTap, React Markdown, KaTeX, Shiki, Excalidraw, diagramatics |
 | Payments | Stripe (checkout), Waafi (local); Next API routes as webhook handlers |
-| Analytics / errors | Vercel Analytics & Speed Insights, PostHog, Shakebugs |
+| Analytics / errors | Vercel Analytics & Speed Insights, PostHog |
 
 ### 2.2 App Structure (Routes)
 

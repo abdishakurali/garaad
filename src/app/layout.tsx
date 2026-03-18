@@ -128,10 +128,6 @@ export default function RootLayout({
           strategy="lazyOnload"
         />
         <Script
-          src="https://cdn.shakebugs.com/browser/shake.javascript"
-          strategy="lazyOnload"
-        />
-        <Script
           id="chatbase-widget"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{

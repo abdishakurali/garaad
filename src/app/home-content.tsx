@@ -17,9 +17,9 @@ const CommunityCTASection = dynamic(() => import("@/components/landing/Community
     ssr: true
 });
 
-const FreePreviewSection = dynamic(() => import("@/components/landing/FreePreviewSection").then(mod => mod.FreePreviewSection), {
+const GaraadFeaturesShowcase = dynamic(() => import("@/components/landing/GaraadFeaturesShowcase").then(mod => mod.GaraadFeaturesShowcase), {
     loading: () => <SectionSkeleton />,
-    ssr: false
+    ssr: true
 });
 
 // Selector: only re-render when the effective view changes (hero vs dashboard).
@@ -50,7 +50,7 @@ export function HomeContent() {
                     <HeroSection />
 
                     <Suspense fallback={<SectionSkeleton />}>
-                        <FreePreviewSection />
+                        <GaraadFeaturesShowcase />
                     </Suspense>
 
                     <Suspense fallback={<SectionSkeleton />}>

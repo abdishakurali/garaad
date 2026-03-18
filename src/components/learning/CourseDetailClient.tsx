@@ -12,6 +12,7 @@ import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
 import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { getCourseThumbnailUrl } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 const ModuleZigzag = dynamic(
     () =>
@@ -122,7 +123,11 @@ export function CourseDetailClient() {
 
     // Prevent hydration mismatch
     const [hasMounted, setHasMounted] = useState(false);
+    const [courseImageError, setCourseImageError] = useState(false);
     useEffect(() => { setHasMounted(true); }, []);
+    useEffect(() => {
+        setCourseImageError(false);
+    }, [categoryId, courseSlug]);
 
     if (!hasMounted) {
         return (
@@ -173,6 +178,13 @@ export function CourseDetailClient() {
     const totalLessons =
         currentCourse.modules?.flatMap((m) => m.lessons).length || 0;
 
+    const courseImageSrc =
+        optimizeCloudinaryUrl(
+            getCourseThumbnailUrl(currentCourse.thumbnail ?? null, defaultCourseImage)
+        ) || defaultCourseImage;
+
+    const imageSrcToShow = courseImageError ? defaultCourseImage : courseImageSrc;
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto p-8 mb-20">
@@ -180,19 +192,19 @@ export function CourseDetailClient() {
                     {/* Course Info */}
                     <aside className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white dark:bg-slate-900 rounded-xl shadow-md border-gray-200 dark:border-slate-800 md:sticky md:top-32">
                         <div className="flex mb-6 border-border dark:border-slate-800 border-2 px-4 py-2 rounded-md w-fit bg-slate-50 dark:bg-black">
-                            <div className="relative w-16 h-16">
+                            <div className="relative w-16 h-16 shrink-0 overflow-hidden rounded-md">
                                 <Image
-                                    src={optimizeCloudinaryUrl(getCourseThumbnailUrl(currentCourse.thumbnail ?? null, defaultCourseImage)) || defaultCourseImage}
+                                    src={imageSrcToShow}
                                     alt={currentCourse.title}
                                     fill
-                                    className="object-contain"
+                                    className="object-cover"
+                                    sizes="64px"
                                     priority
-                                    onError={(e) => {
-                                        const target = e.currentTarget;
-                                        if (target.src !== defaultCourseImage) {
-                                            target.src = defaultCourseImage;
-                                        }
-                                    }}
+                                    unoptimized={
+                                        imageSrcToShow.startsWith(API_BASE_URL.replace(/\/$/, "")) ||
+                                        imageSrcToShow.includes("/api/media/courses/")
+                                    }
+                                    onError={() => setCourseImageError(true)}
                                 />
                             </div>
                         </div>

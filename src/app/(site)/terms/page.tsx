@@ -26,7 +26,7 @@ export default function TermsPage() {
                 },
                 {
                     title: "2. Fees and Subscriptions",
-                    content: "Basic access to Garaad is free. Explorer (€29/month) gives access to all gamified courses, community, and launchpad (view only). Challenge (€149 one-time per cohort) is a quarterly 4–6 week mentorship program with launchpad submit access; course access is not included unless you also have Explorer. All fees are charged through your online account. Subscriptions automatically renew unless you cancel. You must cancel at least 1 business day before renewal to avoid charges. Fees are non-refundable except as required by law. We may change prices with notice to you. To cancel your subscription, email us at info@garaad.org or use the cancellation option in your account settings."
+                    content: "Basic access to Garaad is free. Explorer subscription gives access to all gamified courses, community, and launchpad (view only). Challenge is a quarterly 4–6 week mentorship program with launchpad submit access; course access is not included unless you also have Explorer. Current pricing is shown on the Subscribe page. All fees are charged through your online account. Subscriptions automatically renew unless you cancel. You must cancel at least 1 business day before renewal to avoid charges. Fees are non-refundable except as required by law. We may change prices with notice to you. To cancel your subscription, email us at info@garaad.org or use the cancellation option in your account settings."
                 },
                 {
                     title: "3. Your Content",

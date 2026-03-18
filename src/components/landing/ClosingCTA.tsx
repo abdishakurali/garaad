@@ -38,7 +38,7 @@ export function ClosingCTA() {
 
                 {/* Body */}
                 <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-8">
-                    Challenge: 4–6 toddobaad oo mentorship, €149 hal bixi (4x sannadkii). Koorsooyinka joogta ah waxaad ka heli kartaa <strong className="text-white">Explorer</strong> (€29/bil).
+                    Challenge: 4–6 toddobaad oo mentorship (4x sannadkii). Koorsooyinka joogta ah waxaad ka heli kartaa <strong className="text-white">Explorer</strong>.
                 </p>
 
                 {/* CTA Buttons */}
@@ -47,7 +47,7 @@ export function ClosingCTA() {
                         href="/subscribe"
                         className="group relative inline-block px-10 py-5 bg-primary hover:bg-primary/90 text-white text-xl font-black rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50"
                     >
-                        <span>HEL EXPLORER — €29/BIL</span>
+                        <span>HEL EXPLORER</span>
                     </Link>
                     <Link
                         href={ctaHref}

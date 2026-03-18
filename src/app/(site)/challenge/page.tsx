@@ -11,7 +11,7 @@ const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat")
 export const metadata: Metadata = {
   title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
   description:
-    "Garaad Challenge: €149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup-kaaga). Quarterly program for Somali builders. Program for Somali tech founders.",
+    "Garaad Challenge: 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup-kaaga). Quarterly program for Somali builders. Program for Somali tech founders.",
   keywords: [
     "Tartanka dhisidda software-ka",
     "Barashada IT-ga casriga ah",
@@ -31,13 +31,13 @@ export const metadata: Metadata = {
     siteName: "Garaad",
     title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
     description:
-      "€149 hal bixi (4x sannadkii). 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup). Quarterly program for Somali tech founders.",
+      "4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup). Quarterly program for Somali tech founders.",
     images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
-    description: "Quarterly mentorship and launchpad program for Somali builders. €149 one-time.",
+    description: "Quarterly mentorship and launchpad program for Somali builders.",
   },
   robots: { index: true, follow: true },
 };
@@ -54,7 +54,7 @@ export default function ChallengePage() {
                         "@type": "Course",
                         name: "Garaad Challenge",
                         description:
-                            "4–6 week group mentorship program, mentor access, launchpad (submit a startup). Runs quarterly. €149 one-time per cohort.",
+                            "4–6 week group mentorship program, mentor access, launchpad (submit a startup). Runs quarterly.",
                         provider: {
                             "@type": "Organization",
                             name: "Garaad",

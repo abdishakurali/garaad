@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Check, X, Zap } from "lucide-react";
 
-// Lazy‑load heavy components
 const ExplanationModal = React.lazy(() => import("./ExplanationModal"));
-const BugReportButton = React.lazy(() => import("./BugRepportButton"));
 
 interface AnswerFeedbackProps {
     currentLesson: Lesson | null;
@@ -34,7 +32,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
     }) => {
         const { resetAnswerState, revealAnswer } = useLearningStore();
         const [showExplanation, setShowExplanation] = useState(false);
-        const [isReportingBug, setIsReportingBug] = useState(false);
 
         const isLastQuestion = useMemo(() => {
             if (!currentLesson?.content_blocks) return false;
@@ -93,8 +90,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                     </Suspense>
                 )}
 
-                {!isReportingBug && (
-                    <div
+                <div
                         key="answer-feedback-banner"
                         className="fixed inset-x-0 bottom-0 z-50 flex justify-center pointer-events-none pb-[max(12px,env(safe-area-inset-bottom))]"
                     >
@@ -149,11 +145,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                                 </div>
 
                                 <div className="flex flex-row items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
-                                    <Suspense fallback={null}>
-                                        <div className="hidden lg:block">
-                                            <BugReportButton setIsReportingBug={setIsReportingBug} />
-                                        </div>
-                                    </Suspense>
                                     {isCorrect ? (
                                         <>
                                             {hasExplanation && (
@@ -199,7 +190,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                             </div>
                         </div>
                     </div>
-                )}
             </>
         );
     }

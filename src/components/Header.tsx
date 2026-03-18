@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useAuthReady } from "@/hooks/useAuthReady";
 import { usePathname, useRouter } from "next/navigation";
 import { NavbarSkeleton } from "@/components/skeletons/NavbarSkeleton";
-import { FolderDot, Home, X, Users, Menu, User, LogOut, LogIn, GraduationCap, Rocket, Newspaper } from "lucide-react";
+import { X, Menu, User, LogOut, LogIn, GraduationCap } from "lucide-react";
 import clsx from "clsx";
 import { useMemo, useCallback, useState, useEffect } from "react";
 import AuthService from "@/services/auth";
@@ -95,18 +95,18 @@ export function Header() {
     () =>
       user
         ? [
-          { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
-          { name: "Challenge", href: "/challenge", icon: Home },
-          { name: "Bulshada", href: "/community", icon: Users },
-          { name: "Blog", href: "/blog", icon: Newspaper },
-          { name: "Launchpad", href: "/launchpad", icon: Rocket },
+          { name: "Koorsooyinka", href: "/courses" },
+          { name: "Challenge", href: "/challenge" },
+          { name: "Bulshada", href: "/community" },
+          { name: "Blog", href: "/blog" },
+          { name: "Launchpad", href: "/launchpad" },
         ]
         : [
-          { name: "Koorsooyinka", href: "/courses", icon: FolderDot },
-          { name: "Challenge", href: "/challenge", icon: Home },
-          { name: "Bulshada", href: "/communitypreview", icon: Users },
-          { name: "Blog", href: "/blog", icon: Newspaper },
-          { name: "Launchpad", href: "/launchpad", icon: Rocket },
+          { name: "Koorsooyinka", href: "/courses" },
+          { name: "Challenge", href: "/challenge" },
+          { name: "Bulshada", href: "/communitypreview" },
+          { name: "Blog", href: "/blog" },
+          { name: "Launchpad", href: "/launchpad" },
         ],
     [user]
   );
@@ -131,60 +131,64 @@ export function Header() {
         className={clsx(
           "sticky top-0 z-50 transition-all duration-300",
           isScrolled
-            ? "py-2 glassmorphism mx-4 mt-4 rounded-2xl bg-white/90 dark:bg-black/80 border border-black/5 dark:border-white/10"
-            : "py-5 bg-white dark:bg-black/95 backdrop-blur-md border-b border-black/5 dark:border-white/5"
+            ? "py-1.5 glassmorphism mx-3 mt-2 rounded-xl bg-white/90 dark:bg-black/80 border border-black/5 dark:border-white/10"
+            : "py-2 bg-white dark:bg-black/95 backdrop-blur-md border-b border-black/5 dark:border-white/5"
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo & Desktop Nav */}
-          <div className="items-center gap-8 flex">
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 h-11 sm:h-12 flex items-center">
+          {/* Left: logo */}
+          <div className="flex-1 min-w-0 flex justify-start items-center">
             <Link
               href="/"
-              className="group flex items-center shrink-0 py-2 pr-2 -ml-1 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              className="group flex items-center shrink-0 py-0.5 pr-1 -ml-0.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               aria-label="Garaad home"
             >
-              <Logo priority={true} loading="eager" />
+              <Logo
+                priority={true}
+                loading="eager"
+                className="!w-[5.25rem] sm:!w-24 !max-h-7 sm:!max-h-8 object-contain"
+              />
             </Link>
-
-            <nav className="hidden md:flex items-center gap-1">
-              {navLinks.map(({ name, href, icon: Icon }) => {
-                const active = isLinkActive(href);
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={clsx(
-                      "group font-display text-sm font-semibold tracking-tight transition-all duration-300",
-                      "flex items-center gap-2.5 py-2.5 px-3.5 rounded-lg",
-                      active
-                        ? "text-primary bg-primary/10 dark:bg-primary/15"
-                        : "text-slate-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
-                    )}
-                  >
-                    <Icon
-                      className={clsx(
-                        "w-[18px] h-[18px] shrink-0 transition-transform duration-300 group-hover:scale-110",
-                        active && "animate-pulse"
-                      )}
-                    />
-                    <span className="relative">
-                      {name}
-                      <span className={clsx(
-                        "absolute -bottom-0.5 left-0 h-0.5 bg-primary transition-all duration-300 rounded-full",
-                        active ? "w-full" : "w-0 group-hover:w-full"
-                      )} />
-                    </span>
-                  </Link>
-                );
-              })}
-            </nav>
           </div>
 
-          {/* Desktop Right Side */}
-          <div className="flex items-center gap-4">
+          {/* Center: nav (desktop) */}
+          <nav
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center justify-center gap-0.5 px-2 max-w-[min(100vw-16rem,42rem)]"
+            aria-label="Main"
+          >
+            {navLinks.map(({ name, href }) => {
+              const active = isLinkActive(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={clsx(
+                    "group font-display text-[11px] sm:text-xs font-medium tracking-tight transition-all duration-200",
+                    "py-1.5 px-2 sm:px-2.5 rounded-md whitespace-nowrap",
+                    active
+                      ? "text-primary bg-primary/10 dark:bg-primary/15"
+                      : "text-slate-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
+                  )}
+                >
+                  <span className="relative">
+                    {name}
+                    <span
+                      className={clsx(
+                        "absolute -bottom-0.5 left-0 h-px bg-primary transition-all duration-200 rounded-full",
+                        active ? "w-full" : "w-0 group-hover:w-full"
+                      )}
+                    />
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right: actions */}
+          <div className="flex-1 min-w-0 flex items-center justify-end gap-2 sm:gap-3">
             {/* Streak Display for logged-in users (only after mount to avoid hydration mismatch) */}
             {mounted && user && (
-              <div className="hidden lg:block">
+              <div className="hidden lg:block scale-90 origin-right">
                 <StreakDisplay
                   loading={streakLoading}
                   error={streakError ? "Failed to load streak data" : null}
@@ -193,15 +197,15 @@ export function Header() {
               </div>
             )}
 
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-1.5">
               {mounted && user && (
                 <>
                   <button
                     onClick={() => setIsReferralModalOpen(true)}
-                    className="relative p-2.5 rounded-xl bg-primary/5 hover:bg-primary/10 transition-all group overflow-hidden border border-primary/10"
+                    className="relative p-2 rounded-lg bg-primary/5 hover:bg-primary/10 transition-all group overflow-hidden border border-primary/10"
                     title="Share the Opportunity"
                   >
-                    <GraduationCap className="w-5 h-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
+                    <GraduationCap className="w-4 h-4 text-primary group-hover:scale-105 transition-transform relative z-10" />
                     <span className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse" />
                   </button>
@@ -212,7 +216,7 @@ export function Header() {
               {authReady && user && isPremium && (
                 <span
                   className={clsx(
-                    "hidden md:inline-flex items-center gap-1.5 rounded-full bg-purple-600/20 text-purple-400 px-2.5 py-1 text-sm font-medium border border-purple-500/30 transition-transform duration-200",
+                    "hidden md:inline-flex items-center gap-1 rounded-full bg-purple-600/20 text-purple-400 px-2 py-0.5 text-xs font-medium border border-purple-500/30 transition-transform duration-200",
                     xpPulse && "motion-safe:scale-110"
                   )}
                 >
@@ -248,7 +252,7 @@ export function Header() {
                 className="p-2 rounded-lg hover:bg-muted transition-colors"
                 aria-label="Open menu"
               >
-                <Menu size={24} className="text-foreground" />
+                <Menu size={22} className="text-foreground" />
               </button>
             </div>
           </div>
@@ -286,8 +290,8 @@ export function Header() {
             </div>
 
             {/* Navigation Links */}
-            <nav className="px-4 py-4 space-y-1">
-              {navLinks.map(({ name, href, icon: Icon }) => {
+            <nav className="px-4 py-3 space-y-0.5">
+              {navLinks.map(({ name, href }) => {
                 const active = isLinkActive(href);
                 return (
                   <Link
@@ -295,15 +299,14 @@ export function Header() {
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={clsx(
-                      "font-display text-[15px] font-semibold tracking-tight",
-                      "flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all",
+                      "font-display text-sm font-medium tracking-tight",
+                      "flex items-center justify-center px-4 py-2.5 rounded-lg transition-all text-center",
                       active
                         ? "bg-primary/10 dark:bg-primary/20 text-primary"
                         : "text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
                     )}
                   >
-                    <Icon className="w-5 h-5 shrink-0" />
-                    <span>{name}</span>
+                    {name}
                   </Link>
                 );
               })}
@@ -328,7 +331,7 @@ export function Header() {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-black">Casuun Saaxiibbadaada</span>
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-green-400">Hel 20% Commission</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-green-400">Casuun saaxiibada</span>
                     </div>
                     <div className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                   </button>
