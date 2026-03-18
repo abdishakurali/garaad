@@ -11,6 +11,7 @@ import { Suspense } from "react";
 import { Loader } from "lucide-react";
 import PWARegister from "@/components/PWARegister";
 import VersionCheck from "@/components/VersionCheck";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 
 const SITE_URL = "https://garaad.org";
 
@@ -143,6 +144,7 @@ export default function RootLayout({
                 {children}
               </Suspense>
               <OverlayElements />
+              <ChatWidget />
             </ClientLayout>
             <Toaster />
             <Analytics />

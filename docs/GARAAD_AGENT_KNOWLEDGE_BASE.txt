@@ -1,0 +1,121 @@
+# Garaad Agent Knowledge Base (Somali-first)
+
+This file is designed to be pasted into an “agent knowledge base” or used as reference docs for support/chat agents.
+
+## Product snapshot
+
+- **Product**: Garaad STEM – Somali-first learning platform for STEM + programming.
+- **Primary users**: Somali learners (beginner → intermediate).
+- **Core experiences**:
+  - Onboarding (`/welcome`)
+  - Dashboard (`/dashboard`)
+  - Courses (`/courses`)
+  - Lessons (sequence of content blocks: text, video, problem, code)
+
+## How the app is structured (high-level)
+
+- **Courses**: categories contain courses.
+- **Lessons**: each course has lessons; each lesson renders a list of content blocks.
+- **Lesson blocks**:
+  - `text`, `list`, `table`, `table-grid`
+  - `video`
+  - `problem` / `diagram` (interactive Q&A)
+  - `image`
+  - `code`
+
+## Common routes (user-facing)
+
+- **Welcome / Onboarding**: `/welcome`
+- **Dashboard**: `/dashboard`
+- **Courses list**: `/courses`
+- **Course detail**: `/courses/[categoryId]/[courseSlug]`
+- **Lesson**: `/courses/[categoryId]/[courseSlug]/lessons/[lessonId]`
+- **Login**: `/login`
+- **Subscribe**: `/subscribe`
+- **Terms**: `/terms`
+- **Privacy**: `/privacy`
+
+## Premium / access rules (what to say)
+
+- Some content may be locked for free users.
+- If a lesson is locked, the app shows a paywall and guides the user to subscribe.
+- If the user believes they should have access:
+  - Ask them to log out and back in.
+  - Confirm they’re using the correct account email.
+  - Ask them to refresh the page.
+
+## Agent tone + constraints
+
+- **Tone**: concise Somali (simple words), supportive, actionable.
+- **Never request**: passwords, OTP codes, full payment card numbers.
+- **Never claim**: you processed a refund or changed billing unless there is an admin tool confirming it.
+- **If unsure**: ask for the user’s email (only) and what page they are on, and what error they see.
+
+## FAQ (ready-to-use answers)
+
+### Getting started
+
+**Q: Sideen u bilaabaa?**  
+**A:** Tag `/welcome` si aad u doorato hadafkaaga iyo track‑ga. Kadib u gudub `/courses` oo dooro koorso, kadibna casharka koowaad.
+
+**Q: Halkee ka arkaa horumarkayga?**  
+**A:** Tag `/dashboard` (Bandhiga). Halkaas waxaad ka arki doontaa progress‑ka iyo practice sets.
+
+### Lessons
+
+**Q: Casharka sidee buu u shaqeeyaa?**  
+**A:** Casharka waa tallaabooyin (blocks) isku xiran: qoraal, video, ama su’aalo. Waxaad u socotaa step‑by‑step, mararka qaarna waxaad ku celin kartaa (review).
+
+**Q: Maxaan sameeyaa haddii casharku “soo dajin” ku xayirmo?**  
+**A:** Samee kuwan:
+- Refresh (reload) bogga
+- Hubi internetka
+- Ka bax (logout) kadibna soo gal
+- Haddii wali taagan: ii sheeg lesson title‑ka iyo waxa aad aragto (error).
+
+### Login / verification
+
+**Q: Ma soo geli karo (login).**  
+**A:** Hubi email‑ka iyo password‑ka. Haddii aad dhawaan isdiiwaangelisay, hubi inaad email‑ka xaqiijisay. Haddii qalad fariin jirto, iigu soo qor.
+
+### Premium / paywall
+
+**Q: Maxaa casharka loo xiraa?**  
+**A:** Qaar ka mid ah casharrada/koorsooyinka waa premium. Haddii aad premium tahay oo wali la xiro, refresh samee ama logout/login.
+
+## Troubleshooting playbooks (step-by-step)
+
+### “I can’t access a lesson”
+
+Ask:
+- Course name + lesson title
+- Are they logged in? which email (only email)
+- Are they premium?
+
+Steps:
+- Refresh page
+- Logout → login
+- Try opening the course again via `/courses`
+- If locked remains and user is premium: escalate to admin/support with email + timestamp.
+
+### “Audio not playing”
+
+Steps:
+- Check device is not muted
+- Try a different browser/tab
+- Disable “silent mode” on iOS
+- Refresh
+
+## Short glossary (Somali)
+
+- **Koorso**: course
+- **Cashar**: lesson
+- **Tallaabo**: step / block
+- **Bandhiga**: dashboard
+- **Bulshada**: community
+
+## Internal notes for improving answers
+
+- Prefer **direct links** to routes when guiding users (`/courses`, `/dashboard`, etc.).
+- Always end with a clear “next action” (what the user should click/do).
+
