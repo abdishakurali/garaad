@@ -334,7 +334,9 @@ export class AuthService {
     return api.get("/api/auth/onboarding/");
   }
 
-  public async completeOnboarding(data: OnboardingData): Promise<OnboardingData> {
+  public async completeOnboarding(
+    data: OnboardingData
+  ): Promise<OnboardingData & { redirect_url?: string; success?: boolean }> {
     return api.post("/api/auth/complete-onboarding/", data);
   }
 

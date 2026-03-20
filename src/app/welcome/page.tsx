@@ -297,7 +297,7 @@ export default function Page() {
         try {
           const mins = Number.parseInt(String(selections[3]), 10);
           const timeVal = String(selections[3]).trim();
-          await authService.completeOnboarding({
+            const res = await authService.completeOnboarding({
             goal: String(selections[0]).trim(),
             learning_approach: "Waxbarasho shaqsiyeed",
             topic: String(selections[1]).trim(),
@@ -315,7 +315,7 @@ export default function Page() {
           }
           const updated = authService.getCurrentUser();
           if (updated) setAuthStoreUser({ ...updated, has_completed_onboarding: true });
-          router.push("/dashboard");
+            router.push(res.redirect_url || "/dashboard");
           return;
         } catch (err) {
           console.error("Complete onboarding failed:", err);
