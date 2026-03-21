@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerStripe, STRIPE_PRICE_IDS } from "@/lib/stripe";
+import { STRIPE_USD_FALLBACK } from "@/config/stripeUsdFallback";
 import { jwtDecode } from "jwt-decode";
 
 // More flexible JWT payload interface to handle different token structures
@@ -67,16 +68,16 @@ function getUserInfo(
   return { userEmail, userId };
 }
 
-// Fallback: Explorer €29/month when Stripe Price IDs are not set
+// Legacy fallback: Explorer $29/mo when old `plan: monthly` + no Price ID
 const FALLBACK_PRICES = {
   monthly: {
     SOMALIA: {
-      unit_amount: 2900, // €29.00 in cents
-      currency: "eur",
+      unit_amount: 2900,
+      currency: "usd",
     },
     INTERNATIONAL: {
-      unit_amount: 2900, // €29.00 in cents
-      currency: "eur",
+      unit_amount: 2900,
+      currency: "usd",
     },
   },
 };
@@ -89,10 +90,12 @@ export async function POST(request: NextRequest) {
       plan,
       priceId: bodyPriceId,
       mode: bodyMode,
+      billingPlan,
       successUrl,
       cancelUrl,
       countryCode,
       email: providedEmail,
+      orderId,
     } = requestBody;
 
     console.log("📧 Email extraction - Request body:", {
@@ -147,7 +150,12 @@ export async function POST(request: NextRequest) {
     let lineItems: { price: string; quantity: number }[] | { price_data: { currency: string; product_data: { name: string; description: string }; unit_amount: number; recurring: { interval: "month" | "year" } }; quantity: number }[];
     let sessionMode: "subscription" | "payment";
 
-    // Path 1: Direct priceId + mode (multi-plan subscribe page)
+    const billing =
+      billingPlan === "explorer" || billingPlan === "challenge"
+        ? billingPlan
+        : undefined;
+
+    // Path 1: Direct Stripe Price ID + mode (subscribe page when env IDs are set)
     if (
       bodyPriceId &&
       typeof bodyPriceId === "string" &&
@@ -158,8 +166,27 @@ export async function POST(request: NextRequest) {
       lineItems = [{ price: bodyPriceId, quantity: 1 }];
       sessionMode = bodyMode;
       console.log(`✅ Using direct Price ID: ${bodyPriceId}, mode: ${sessionMode}`);
+    } else if (billing) {
+      // Path 2: USD price_data — $29 Explorer / $149 Challenge per month (no Price ID)
+      const fb = STRIPE_USD_FALLBACK[billing];
+      lineItems = [
+        {
+          price_data: {
+            currency: fb.currency,
+            product_data: {
+              name: fb.product_name,
+              description: fb.product_description,
+            },
+            unit_amount: fb.unit_amount,
+            recurring: { interval: "month" },
+          },
+          quantity: 1,
+        },
+      ];
+      sessionMode = "subscription";
+      console.log(`✅ Using USD price_data fallback for billingPlan=${billing}`);
     } else {
-      // Path 2: Legacy plan + countryCode
+      // Path 3: Legacy plan + countryCode
       if (!plan || !STRIPE_PRICE_IDS[plan as keyof typeof STRIPE_PRICE_IDS]) {
         return NextResponse.json(
           { error: "Invalid plan specified" },
@@ -190,7 +217,7 @@ export async function POST(request: NextRequest) {
               currency: fallbackPrice.currency,
               product_data: {
                 name: "Garaad Explorer",
-                description: "All gamified courses, community, and launchpad (view only). Billed monthly.",
+                description: "All courses, community. Billed monthly ($29).",
               },
               unit_amount: fallbackPrice.unit_amount,
               recurring: {
@@ -218,8 +245,13 @@ export async function POST(request: NextRequest) {
         cancelUrl ||
         `${process.env.NEXT_PUBLIC_BASE_URL}/subscribe?canceled=true`,
       metadata: {
-        plan: (plan as string) ?? (bodyPriceId ? "direct" : ""),
+        plan:
+          (billing as string) ||
+          (plan as string) ||
+          (bodyPriceId ? "direct" : ""),
         userId: String(userId || "unknown"),
+        user_id: String(userId || "unknown"),
+        order_id: orderId != null ? String(orderId) : "",
         countryCode: String(countryCode ?? ""),
         userEmail: finalEmail,
       },

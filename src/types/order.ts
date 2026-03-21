@@ -109,11 +109,16 @@ export interface OrderStatsResponse {
 }
 
 export interface CreateOrderRequest {
-  subscription_type: "monthly" | "yearly" | "lifetime";
+  /** Required for Explorer; omitted when plan is challenge (backend ignores). */
+  subscription_type?: "monthly" | "yearly" | "lifetime";
   payment_method: "waafi" | "zaad" | "evcplus" | "sahal" | "stripe";
   currency: "USD" | "EUR" | "SOS";
   customer_name?: string;
   customer_email?: string;
+  /** International digits, e.g. 252615000000 — required for Waafi. */
+  phone?: string;
+  /** Backend pricing: explorer vs challenge ($29/mo vs $149/mo USD). */
+  plan?: "explorer" | "challenge";
   metadata?: Record<string, any>;
 }
 
@@ -121,6 +126,8 @@ export interface CreateOrderResponse {
   success: boolean;
   message: string;
   data: Order;
+  payment_success?: boolean;
+  waafi?: Record<string, unknown>;
 }
 
 export interface ReceiptData {
@@ -295,7 +302,7 @@ export const SUBSCRIPTION_TYPE_OPTIONS = [
     value: "monthly",
     label: "Monthly",
     label_somali: "Bishii",
-    price_usd: 49.00,
+    price_usd: 29.00,
   },
   {
     value: "yearly",

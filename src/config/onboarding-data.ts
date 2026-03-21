@@ -195,7 +195,7 @@ export const topicLevelsByTopic: Record<string, Array<{
         {
             title: "Build & Monetize",
             description: "Stripe, auth, onboarding, pricing — dhis MVP lacag keenaya oo la gaarsiin karo users.",
-            example: "Wax ku bixi Stripe Checkout iyo Explorer subscription (€29/bil).",
+            example: "Wax ku bixi Stripe Checkout iyo Explorer subscription ($29/bil).",
             level: "intermediate",
             icon: React.createElement(Rocket, { className: "w-5 h-5" }),
         },

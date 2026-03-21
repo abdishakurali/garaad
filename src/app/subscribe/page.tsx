@@ -14,11 +14,12 @@ import Logo from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TechIcon } from "@/components/launchpad/TechIcon";
 import { API_BASE_URL } from "@/lib/constants";
+import OrderService from "@/services/orders";
+import { PLANS, type SubscribePlanKey } from "@/config/subscribePlans";
 
 type PaymentProvider = "stripe" | "waafi";
 
-// Stripe price IDs from env only — set in Vercel/.env (Dashboard → Products → copy Price ID)
-// No fallback: "No such price" means your Stripe account uses different IDs; set these vars.
+/** Optional Stripe Price IDs — if unset, checkout uses USD `price_data` ($29 / $149 per month). */
 const STRIPE_PRICE_IDS = {
   explorer: process.env.NEXT_PUBLIC_STRIPE_EXPLORER_PRICE_ID ?? "",
   challenge: process.env.NEXT_PUBLIC_STRIPE_CHALLENGE_PRICE_ID ?? "",
@@ -28,42 +29,43 @@ function isValidStripePriceId(id: string | undefined): boolean {
   return typeof id === "string" && id.startsWith("price_");
 }
 
-// 2 plans: Explorer (€29/mo), Challenge (€149 one-time, includes Explorer).
-const plans = [
+const plans: {
+  key: SubscribePlanKey;
+  name: string;
+  popular: boolean;
+  tagline: string;
+  saveBadge: string | null;
+  stripe: { priceId: string; amount: string; billing: "subscription" };
+  waafi: { amount: string; billing: "subscription" };
+  features: string[];
+}[] = [
   {
-    name: "Explorer",
+    key: "explorer",
+    name: PLANS.explorer.name,
     popular: true,
-    tagline: "Start learning at your own pace",
-    saveBadge: null as string | null,
+    tagline: PLANS.explorer.description,
+    saveBadge: null,
     stripe: {
       priceId: STRIPE_PRICE_IDS.explorer,
-      amount: "€29",
-      billing: "subscription" as const,
+      amount: `$${PLANS.explorer.price}`,
+      billing: "subscription",
     },
-    waafi: { amount: "$29", billing: "subscription" as const },
-    features: [
-      "Koorsooyinka oo dhan (ciyaar)",
-      "Bulshada",
-      "Launchpad (aragti oo keliya)",
-    ],
+    waafi: { amount: `$${PLANS.explorer.price}`, billing: "subscription" },
+    features: [...PLANS.explorer.features],
   },
   {
-    name: "Challenge",
+    key: "challenge",
+    name: PLANS.challenge.name,
     popular: false,
-    tagline: "Join the next cohort — includes Explorer",
-    saveBadge: null as string | null,
+    tagline: PLANS.challenge.description,
+    saveBadge: null,
     stripe: {
       priceId: STRIPE_PRICE_IDS.challenge,
-      amount: "€149",
-      billing: "payment" as const,
+      amount: `$${PLANS.challenge.price}`,
+      billing: "subscription",
     },
-    waafi: { amount: "$149", billing: "payment" as const },
-    features: [
-      "Explorer ku jira",
-      "4–6 toddobaad oo mentorship",
-      "Mentor access",
-      "Launchpad (gudbi startup)",
-    ],
+    waafi: { amount: `$${PLANS.challenge.price}`, billing: "subscription" },
+    features: [...PLANS.challenge.features],
   },
 ];
 
@@ -166,10 +168,26 @@ export default function SubscribePage() {
         setError(null);
         setLoadingPlanName(plan.name);
         try {
+            const planKey = plan.key;
+            const orderService = OrderService.getInstance();
+            const orderBody = {
+                payment_method: "stripe" as const,
+                currency: "USD" as const,
+                plan: planKey,
+                ...(planKey === "explorer" ? { subscription_type: "monthly" as const } : {}),
+            };
+            const created = await orderService.createSubscriptionOrder(orderBody);
+            const orderId = created.data?.id;
+            if (!orderId) {
+                throw new Error("Dalbashada Stripe: ma helin aqoonsiga dalbashada");
+            }
             const stripeService = StripeService.getInstance();
+            const usePriceId = isValidStripePriceId(plan.stripe.priceId);
             await stripeService.createCheckoutSessionWithPrice(
-                plan.stripe.priceId,
-                plan.stripe.billing === "subscription" ? "subscription" : "payment"
+                usePriceId ? plan.stripe.priceId : "",
+                "subscription",
+                orderId,
+                planKey
             );
         } catch (err) {
             setError(translateError(err instanceof Error ? err.message : String(err)));
@@ -182,39 +200,26 @@ export default function SubscribePage() {
         setError(null);
         setLoadingPlanName(plan.name);
         try {
-      const body: { plan: string; amount: string; billing: string; accountNo?: string } = {
-        plan: plan.name,
-        amount: plan.waafi.amount,
-        billing: plan.waafi.billing,
-      };
-      const phoneDigits = waafiPhone.replace(/\D/g, "").trim();
-      if (phoneDigits) body.accountNo = phoneDigits;
-
-            const res = await fetch("/api/payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-        if (data.error === "HPP_NOT_AUTHORIZED" && data.useMobileWallet) {
-          setError(data.message || "Card not available. Enter your Waafi phone number to pay with mobile wallet.");
-          return;
-        }
-                throw new Error(data.message || "Bixinta waa guuldareysatay");
-            }
-
-            if (data.hppUrl) {
-                window.location.href = data.hppUrl;
+            const phoneDigits = waafiPhone.replace(/\D/g, "").trim();
+            if (!phoneDigits) {
+                setError("Geli lambarka Waafi (tusaale 252615000000)");
                 return;
             }
-      if (data.useMobileWallet && data.success) {
-        setError(null);
-        router.push("/courses?payment=initiated");
-        return;
-      }
-            setError(data.message || "No redirect URL received");
+            const planKey = plan.key;
+            const orderService = OrderService.getInstance();
+            const orderBody = {
+                payment_method: "waafi" as const,
+                currency: "USD" as const,
+                phone: phoneDigits,
+                plan: planKey,
+                ...(planKey === "explorer" ? { subscription_type: "monthly" as const } : {}),
+            };
+            const result = await orderService.createSubscriptionOrder(orderBody);
+            if (result.payment_success) {
+                router.push("/courses?payment=success");
+                return;
+            }
+            setError(translateError(result.message || "Bixinta waa guuldareysatay"));
         } catch (err) {
             setError(translateError(err instanceof Error ? err.message : String(err)));
         } finally {
@@ -380,10 +385,8 @@ export default function SubscribePage() {
           {plans.map((plan, i) => {
                         const isStripe = selectedProvider === "stripe";
                         const amount = isStripe ? plan.stripe.amount : plan.waafi.amount;
-                        const billing = isStripe ? plan.stripe.billing : plan.waafi.billing;
-                        const billingLabel = billing === "subscription" ? "/ month" : "one-time";
+                        const billingLabel = "/ month";
                         const isLoading = loadingPlanName === plan.name;
-            const stripePriceConfigured = isValidStripePriceId(plan.stripe.priceId);
 
                         return (
               <motion.div
@@ -441,7 +444,7 @@ export default function SubscribePage() {
                   </ul>
                                         <Button
                     className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 relative overflow-hidden group/btn disabled:opacity-70"
-                    disabled={!!loadingPlanName || (isStripe && !stripePriceConfigured)}
+                    disabled={!!loadingPlanName}
                                             onClick={() =>
                       isStripe
                         ? handleStripeCheckout(plan)
@@ -454,9 +457,7 @@ export default function SubscribePage() {
                           <Loader2 className="h-4 w-4 animate-spin" />
                                                     Soo dejineysa...
                                                 </>
-                      ) : isStripe && !stripePriceConfigured ? (
-                        "Deji price ID"
-                                            ) : isStripe ? (
+                      ) : isStripe ? (
                         "Ku bixi Stripe"
                                             ) : (
                         "Ku Bixi Waafi"

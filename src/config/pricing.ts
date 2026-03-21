@@ -1,34 +1,33 @@
 /**
- * Garaad platform pricing — single source of truth.
- * TIER 1 Explorer: core subscription. TIER 2 Challenge: quarterly add-on.
+ * Garaad platform pricing — aligns with subscribe checkout (USD).
+ * @see subscribePlans.ts for subscribe page copy; backend `PLAN_PRICING` for orders.
  */
 
 export const PRICING = {
-  /** TIER 1 — Explorer: €29/month. All courses, community, launchpad (view only). */
+  /** Explorer — $29/month. All current courses, community, tracking. */
   EXPLORER: {
-    priceEur: 29,
-    priceDisplay: "€29",
+    priceUsd: 29,
+    priceDisplay: "$29",
     interval: "month" as const,
     name: "Explorer",
     nameSo: "Explorer",
-    description: "Koorsooyinka oo dhan, bulshada, iyo launchpad (aragti oo keliya).",
-    descriptionEn: "All gamified courses, community, and launchpad (view only).",
+    description: "Dhammaan koorsooyinka hadda jira, raadinta casharrada, bulshada.",
+    descriptionEn: "All current courses, lesson progress, community.",
   },
-  /** TIER 2 — Challenge: €149 one-time per cohort. 4–6 week mentorship, launchpad submit. Quarterly. */
+  /** Challenge — $149/month. Full stack intensive, direct support, certificates. */
   CHALLENGE: {
-    priceEur: 149,
-    priceDisplay: "€149",
-    oneTime: true,
+    priceUsd: 149,
+    priceDisplay: "$149",
+    interval: "month" as const,
     name: "Challenge",
     nameSo: "Challenge",
-    description: "4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup). Loo qaabily qeybta (4x sannadkii).",
-    descriptionEn: "4–6 week group mentorship program, mentor access, launchpad (submit a startup). Runs quarterly (4x per year).",
-    noteNoCourseAccess: "Ma ku jiraan koorsooyinka joogta ah ee Explorer haddii aad isku darkaysato.",
+    description: "Full stack intensive, taageero toos ah, shahaadooyin.",
+    descriptionEn: "Full stack intensive, direct support, certificates.",
   },
 } as const;
 
-/** Explorer monthly price for payment/API (same value for all regions). */
-export const EXPLORER_PRICE_NUMERIC = PRICING.EXPLORER.priceEur;
+/** Explorer monthly price (USD) for copy / helpers. */
+export const EXPLORER_PRICE_NUMERIC = PRICING.EXPLORER.priceUsd;
 
-/** Challenge one-time price for payment/API. */
-export const CHALLENGE_PRICE_NUMERIC = PRICING.CHALLENGE.priceEur;
+/** Challenge monthly price (USD). */
+export const CHALLENGE_PRICE_NUMERIC = PRICING.CHALLENGE.priceUsd;

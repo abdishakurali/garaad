@@ -27,7 +27,12 @@ export class StripeService {
   }
 
   /** Create checkout with explicit Stripe price ID and mode (subscription or one-time payment). */
-  async createCheckoutSessionWithPrice(priceId: string, mode: "subscription" | "payment") {
+  async createCheckoutSessionWithPrice(
+    priceId: string,
+    mode: "subscription" | "payment",
+    orderId?: string,
+    billingPlan?: "explorer" | "challenge"
+  ) {
     try {
       const authService = AuthService.getInstance();
       const token = authService.getToken();
@@ -56,10 +61,12 @@ export class StripeService {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          priceId,
+          priceId: priceId || "",
           mode,
+          billingPlan,
           email: userEmail,
           userId,
+          orderId,
           successUrl: `${window.location.origin}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}/subscribe?canceled=true`,
         }),

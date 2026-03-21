@@ -81,7 +81,7 @@ describe("Payment API Route Security", () => {
 
         expect(waafipayService.purchase).toHaveBeenCalledWith(
             expect.objectContaining({
-                amount: 29.0, // Only Explorer monthly (€29) supported
+                amount: 29.0, // Explorer monthly ($29) supported
             })
         );
     });

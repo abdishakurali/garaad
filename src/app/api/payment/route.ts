@@ -30,7 +30,7 @@ function parseAmountFromString(amountStr: string): number {
   return Number.isFinite(num) ? num : 0;
 }
 
-/** Waafi currency is USD. 2 plans: Explorer $29/mo, Challenge $149 one-time (includes Explorer). */
+/** Waafi currency is USD. Explorer $29/mo, Challenge $149/mo. */
 function getWaafiAmountUsd(plan: string, amountStr: string): number {
   const planUpper = plan.toUpperCase();
   if (planUpper.includes("CHALLENGE")) return 149;
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // STRICT PRICE VALIDATION: Explorer €29/month only (server-side only)
+    // STRICT PRICE VALIDATION: Explorer $29/month (legacy path)
     const EXPLORER_MONTHLY_PRICE = 29.0;
     let currentPrice = EXPLORER_MONTHLY_PRICE;
     if (subscriptionType !== "monthly") {
