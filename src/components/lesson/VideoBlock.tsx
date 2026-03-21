@@ -156,18 +156,7 @@ const VideoBlock: React.FC<{
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
-      {(contentObj.title || contentObj.description) && (
-        <div className="px-0 pt-0 pb-2 sm:pb-3">
-          {contentObj.title && (
-            <p className="text-sm font-semibold text-white line-clamp-2" title={contentObj.title}>
-              {contentObj.title}
-            </p>
-          )}
-          {contentObj.description && (
-            <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">{contentObj.description}</p>
-          )}
-        </div>
-      )}
+      {/* Title hidden in lesson UI — keeps focus on the player */}
 
       <div
         ref={containerRef}

@@ -11,7 +11,6 @@ import { useLesson, useCourse, useCategories, useProblem, useEnrollments, useUse
 import { Button } from "@/components/ui/button";
 import {
     ChevronRight,
-    ChevronLeft,
     RefreshCw,
     Home,
     Loader,
@@ -200,7 +199,6 @@ export function LessonDetailClient() {
     const [problems, setProblems] = useState<ProblemContent[]>([]);
     const [problemLoading, setProblemLoading] = useState(false);
     const [currentXp, setCurrentXp] = useState(10);
-    const [contentLoaded, setContentLoaded] = useState(false);
     const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
     const { streak, leaderboard, mutateAll } = useGamificationData();
@@ -336,14 +334,6 @@ export function LessonDetailClient() {
             setHasPlayedStartSound(true);
         }
     }, [currentLesson, isLoading, sortedBlocks?.length, playSound, hasPlayedStartSound]);
-
-    // Full-screen: hide header once content is ready
-    useEffect(() => {
-        if (!isLoading && (sortedBlocks?.length || 0) > 0 && currentLesson) {
-            const t = setTimeout(() => setContentLoaded(true), 100);
-            return () => clearTimeout(t);
-        }
-    }, [isLoading, sortedBlocks?.length, currentLesson]);
 
     // Warm bridge: on lesson load, silent fetch first video URL with Range to prime cache/session
     useEffect(() => {
@@ -701,7 +691,7 @@ export function LessonDetailClient() {
                         isCorrect={index === currentBlockIndex ? isCorrect : true}
                         isLastInLesson={isLastBlock}
                         disabledOptions={index === currentBlockIndex ? disabledOptions : []}
-                        showReviewBanner={isReviewMode && index === currentBlockIndex}
+                        showReviewBanner={false}
                     />
                 );
 
@@ -906,31 +896,14 @@ export function LessonDetailClient() {
                 }}
             />
             <div className="relative z-10">
-            {!contentLoaded && (
-                <LessonStepBullets
-                    currentIndex={currentBlockIndex}
-                    totalSteps={sortedBlocks?.length || 0}
-                    onStepClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
-                    coursePath={coursePath}
-                />
-            )}
-
-            {contentLoaded && (
-                <button
-                    type="button"
-                    onClick={() => setShowQuitConfirm(true)}
-                    className={cn(
-                        "fixed left-4 top-[max(1rem,env(safe-area-inset-top))] z-40",
-                        "flex h-11 w-11 items-center justify-center rounded-2xl",
-                        "bg-zinc-900/90 border border-zinc-700/80 text-zinc-300",
-                        "hover:bg-zinc-800 hover:text-white hover:border-zinc-600",
-                        "backdrop-blur-sm transition-all duration-200 active:scale-95"
-                    )}
-                    aria-label="Dib u noqo koorsada"
-                >
-                    <ChevronLeft className="w-5 h-5" strokeWidth={2} />
-                </button>
-            )}
+            <LessonStepBullets
+                currentIndex={currentBlockIndex}
+                totalSteps={sortedBlocks?.length || 0}
+                onStepClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
+                coursePath={coursePath}
+                onBackRequest={() => setShowQuitConfirm(true)}
+                currentStreak={(streak as { current_streak?: number } | null)?.current_streak ?? 0}
+            />
 
             <AlertDialog open={showQuitConfirm} onOpenChange={setShowQuitConfirm}>
                 <AlertDialogContent className="max-w-sm rounded-2xl border-zinc-800 bg-zinc-900 p-6">
@@ -956,15 +929,8 @@ export function LessonDetailClient() {
                 </AlertDialogContent>
             </AlertDialog>
 
-            <main className={cn("px-0 pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]", contentLoaded && "pt-2")}>
+            <main className="px-0 pb-32 pt-1 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
                 <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
-                    {isReviewMode && (
-                        <div className="mb-4 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 inline-flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-amber-400 rounded-full shrink-0" />
-                            <span className="text-amber-400 text-xs font-medium">Muraajacee - Casharkan waa la dhammeeyay, waxaad ku celcelaysaa</span>
-                        </div>
-                    )}
-
                     <div className="flex flex-col w-full overflow-hidden">
                         <AnimatePresence mode="wait">
                             <motion.div

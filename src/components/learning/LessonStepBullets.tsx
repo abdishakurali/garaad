@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LessonStepBulletsProps {
@@ -10,6 +10,10 @@ interface LessonStepBulletsProps {
   totalSteps: number;
   onStepClick: (index: number) => void;
   coursePath: string;
+  /** If set, back opens this (e.g. quit confirm) instead of navigating away immediately */
+  onBackRequest?: () => void;
+  /** Current learning streak for compact display (right side) */
+  currentStreak?: number;
 }
 
 /**
@@ -20,13 +24,20 @@ export function LessonStepBullets({
   totalSteps,
   onStepClick,
   coursePath,
+  onBackRequest,
+  currentStreak = 0,
 }: LessonStepBulletsProps) {
   const router = useRouter();
   const total = Math.max(1, totalSteps);
 
+  const handleBack = () => {
+    if (onBackRequest) onBackRequest();
+    else router.push(coursePath);
+  };
+
   return (
     <header
-      className="sticky top-0 z-40 px-3 sm:px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3"
+      className="sticky top-0 z-40 px-3 sm:px-5 pt-[max(1.25rem,calc(env(safe-area-inset-top)+0.75rem))] pb-3"
       style={{
         background:
           "linear-gradient(180deg, rgb(9 9 11 / 0.92) 0%, rgb(9 9 11 / 0.75) 70%, transparent 100%)",
@@ -36,7 +47,7 @@ export function LessonStepBullets({
       <div className="max-w-2xl mx-auto flex items-start gap-3">
         <button
           type="button"
-          onClick={() => router.push(coursePath)}
+          onClick={handleBack}
           className={cn(
             "mt-0.5 shrink-0 flex h-11 w-11 items-center justify-center rounded-2xl",
             "bg-white/[0.05] text-zinc-400 hover:bg-white/[0.09] hover:text-white",
@@ -89,8 +100,17 @@ export function LessonStepBullets({
           </p>
         </div>
 
-        {/* Balance layout with back button */}
-        <div className="w-11 shrink-0" aria-hidden />
+        <div
+          className={cn(
+            "mt-0.5 shrink-0 flex h-11 min-w-[3rem] items-center justify-center rounded-2xl px-2.5",
+            "bg-violet-600/15 border border-violet-500/35 text-violet-200",
+            "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
+          )}
+          title="Xadhigga maalinlaha ah"
+        >
+          <Flame className="h-4 w-4 shrink-0 text-amber-400 mr-1" aria-hidden />
+          <span className="text-sm font-bold tabular-nums leading-none">{currentStreak}</span>
+        </div>
       </div>
     </header>
   );
