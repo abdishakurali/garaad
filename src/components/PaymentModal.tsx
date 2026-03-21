@@ -104,7 +104,11 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     } catch (e) {
       const err = e as Error & { status?: number };
       const msg = (err.message || "").toLowerCase();
-      if (err.status === 409 || msg.includes("already") || msg.includes("active subscription")) {
+      if (
+        err.status === 409 ||
+        msg.includes("already") ||
+        msg.includes("active subscription")
+      ) {
         setError(t.already_subscribed);
       } else {
         setError(err.message || t.error_payment_failed);
@@ -114,89 +118,127 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     }
   };
 
+  const methodBtn = (active: boolean) =>
+    `flex-1 min-h-[3rem] px-3 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
+      active
+        ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25"
+        : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-muted/50"
+    }`;
+
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-md p-8 relative border border-gray-200 dark:border-zinc-700">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="payment-modal-title"
+    >
+      <div className="relative w-full max-w-[440px] rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-primary/10">
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl"
+          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label="Close"
         >
-          ✕
+          <span className="text-lg leading-none" aria-hidden>
+            ✕
+          </span>
         </button>
 
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-          {t.modal_title}
-        </h2>
-
-        <div className="flex justify-between gap-2 text-sm text-gray-500 dark:text-zinc-400 mb-6 pb-4 border-b border-gray-200 dark:border-zinc-700">
-          <span>
-            {t.modal_plan_label}:{" "}
-            <strong className="text-gray-900 dark:text-white">{plan.name}</strong>
-          </span>
-          <span className="text-right shrink-0">
-            {t.modal_price_label}:{" "}
-            <strong className="text-gray-900 dark:text-white">
-              ${plan.price}
-              {plan.per}
-            </strong>
-          </span>
-        </div>
-
-        <p className="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3">
-          {t.modal_pay_with}
-        </p>
-        <div className="flex gap-3 mb-6">
-          <button
-            type="button"
-            onClick={() => setMethod("waafi")}
-            className={`flex-1 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
-              method === "waafi"
-                ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                : "border-gray-200 text-gray-700 hover:border-gray-400 dark:border-zinc-600 dark:text-zinc-300"
-            }`}
+        <div className="px-6 pb-6 pt-12 sm:px-8 sm:pb-8 sm:pt-14">
+          <h2
+            id="payment-modal-title"
+            className="pr-10 text-xl font-bold tracking-tight text-foreground"
           >
-            {t.modal_waafi_label}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMethod("stripe")}
-            className={`flex-1 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
-              method === "stripe"
-                ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                : "border-gray-200 text-gray-700 hover:border-gray-400 dark:border-zinc-600 dark:text-zinc-300"
-            }`}
-          >
-            {t.modal_card_label}
-          </button>
-        </div>
+            {t.modal_title}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {plan.name} · ${plan.price}
+            {plan.per}
+          </p>
 
-        {method === "waafi" && (
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
-              {t.modal_phone_label}
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder={t.modal_phone_placeholder}
-              className="w-full border border-gray-200 dark:border-zinc-600 rounded-xl px-4 py-3 text-sm bg-white dark:bg-zinc-950 text-gray-900 dark:text-white focus:outline-none focus:border-black dark:focus:border-white"
-            />
+          <div className="mt-6 rounded-xl border border-border bg-muted/40 p-4 dark:bg-muted/25">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t.modal_plan_label}
+                </p>
+                <p className="mt-0.5 text-base font-semibold text-foreground">
+                  {plan.name}
+                </p>
+              </div>
+              <div className="sm:text-right">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t.modal_price_label}
+                </p>
+                <p className="mt-0.5 text-base font-semibold text-primary">
+                  ${plan.price}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {plan.per}
+                  </span>
+                </p>
+              </div>
+            </div>
           </div>
-        )}
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          <div className="mt-8">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t.modal_pay_with}
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setMethod("waafi")}
+                className={methodBtn(method === "waafi")}
+              >
+                {t.modal_waafi_label}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMethod("stripe")}
+                className={methodBtn(method === "stripe")}
+              >
+                {t.modal_card_label}
+              </button>
+            </div>
+          </div>
 
-        <button
-          type="button"
-          onClick={handlePay}
-          disabled={loading}
-          className="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold text-base hover:bg-gray-900 dark:hover:bg-zinc-200 disabled:opacity-50 transition-all"
-        >
-          {loading ? t.modal_processing : plan.payButton}
-        </button>
+          {method === "waafi" && (
+            <div className="mt-6 space-y-2">
+              <label
+                htmlFor="waafi-phone"
+                className="text-sm font-medium text-foreground"
+              >
+                {t.modal_phone_label}
+              </label>
+              <input
+                id="waafi-phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder={t.modal_phone_placeholder}
+                className="mt-1.5 h-11 w-full rounded-xl border border-input bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground transition-shadow focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+              />
+            </div>
+          )}
+
+          {error && (
+            <p
+              className="mt-5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={handlePay}
+            disabled={loading}
+            className="mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+          >
+            {loading ? t.modal_processing : plan.payButton}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -212,7 +212,7 @@ export function Header() {
               {mounted && user && !isPremium && (
                 <Link
                   href="/subscribe"
-                  className="hidden md:inline-flex text-xs font-bold px-3 py-1 rounded-full bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-colors"
+                  className="hidden md:inline-flex text-xs font-bold px-3 py-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
                 >
                   {pricingT.nav_upgrade} →
                 </Link>
@@ -222,8 +222,8 @@ export function Header() {
                   className={clsx(
                     "hidden md:inline-flex text-xs font-bold px-3 py-1 rounded-full",
                     user.subscription_type === "challenge"
-                      ? "bg-black text-white dark:bg-white dark:text-black"
-                      : "bg-gray-100 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100"
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                      : "bg-primary/15 text-primary border border-primary/25"
                   )}
                 >
                   {user.subscription_type === "challenge"
@@ -251,7 +251,7 @@ export function Header() {
               {mounted && user && !isPremium && (
                 <Link
                   href="/subscribe"
-                  className="text-[10px] font-bold px-2 py-1 rounded-full bg-black text-white dark:bg-white dark:text-black shrink-0"
+                  className="text-[10px] font-bold px-2 py-1 rounded-full bg-primary text-primary-foreground shrink-0 shadow-sm shadow-primary/20"
                 >
                   {pricingT.nav_upgrade} →
                 </Link>
@@ -261,8 +261,8 @@ export function Header() {
                   className={clsx(
                     "text-[10px] font-bold px-2 py-1 rounded-full shrink-0 max-w-[5.5rem] truncate",
                     user.subscription_type === "challenge"
-                      ? "bg-black text-white"
-                      : "bg-gray-100 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-primary/15 text-primary border border-primary/25"
                   )}
                   title={
                     user.subscription_type === "challenge"

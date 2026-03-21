@@ -22,7 +22,7 @@ function SubscribedSuccessBanner() {
   const subscribed = searchParams.get("subscribed");
   if (!subscribed) return null;
   return (
-    <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl px-5 py-4 mb-6 text-sm text-green-800 dark:text-green-200 font-medium">
+    <div className="rounded-xl border border-primary/25 bg-primary/5 px-5 py-4 mb-6 text-sm font-medium text-foreground">
       🎉{" "}
       {subscribed === "challenge" ? t.success_challenge : t.success_explorer}
     </div>

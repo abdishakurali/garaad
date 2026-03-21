@@ -30,8 +30,8 @@ export default function SubscribePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 text-gray-900 dark:text-zinc-100">
-      <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
           <Link href="/" className="flex items-center py-1" aria-label="Garaad home">
             <Logo
@@ -45,17 +45,17 @@ export default function SubscribePage() {
         </div>
       </header>
 
-      <div className="px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="px-4 py-12 sm:py-16">
+        <div className="text-center mb-12 sm:mb-14">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary via-violet-600 to-primary bg-clip-text text-transparent">
             {t.pricing_title}
           </h1>
-          <p className="text-gray-500 dark:text-zinc-400 text-base">
+          <p className="text-muted-foreground text-base max-w-lg mx-auto leading-relaxed">
             {t.pricing_subtitle}
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-16 md:mb-20">
           {PLAN_KEYS.map((key) => {
             const plan = PLANS[key];
             return (
@@ -67,12 +67,12 @@ export default function SubscribePage() {
                     : "order-2 md:order-1"
                 } ${
                   plan.highlight
-                    ? "border-black bg-black text-white"
-                    : "border-gray-200 bg-white text-gray-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                    ? "border-primary bg-gradient-to-b from-primary to-violet-700 text-primary-foreground shadow-xl shadow-primary/20"
+                    : "border-border bg-card text-card-foreground hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5 transition-shadow"
                 }`}
               >
                 {plan.badge && (
-                  <span className="absolute -top-3 left-6 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="absolute -top-3 left-6 bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                     ★ {plan.badge}
                   </span>
                 )}
@@ -80,18 +80,18 @@ export default function SubscribePage() {
                 <h2
                   className={`text-xl font-bold mb-1 ${
                     plan.highlight
-                      ? "text-white"
-                      : "text-gray-900 dark:text-white"
+                      ? "text-primary-foreground"
+                      : "text-card-foreground"
                   }`}
                 >
                   {plan.name}
                 </h2>
 
                 <p
-                  className={`text-sm mb-6 ${
+                  className={`text-sm mb-6 leading-relaxed ${
                     plan.highlight
-                      ? "text-gray-300"
-                      : "text-gray-500 dark:text-zinc-400"
+                      ? "text-primary-foreground/80"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {plan.tagline}
@@ -99,10 +99,10 @@ export default function SubscribePage() {
 
                 <div className="flex items-end gap-1 mb-8">
                   <span
-                    className={`text-5xl font-extrabold ${
+                    className={`text-5xl font-extrabold tabular-nums ${
                       plan.highlight
-                        ? "text-white"
-                        : "text-gray-900 dark:text-white"
+                        ? "text-primary-foreground"
+                        : "text-foreground"
                     }`}
                   >
                     ${plan.price}
@@ -110,22 +110,22 @@ export default function SubscribePage() {
                   <span
                     className={`text-base mb-2 ${
                       plan.highlight
-                        ? "text-gray-400"
-                        : "text-gray-400 dark:text-zinc-500"
+                        ? "text-primary-foreground/70"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {plan.per}
                   </span>
                 </div>
 
-                <ul className="space-y-3 mb-8 flex-1">
+                <ul className="space-y-3.5 mb-8 flex-1">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
+                    <li key={i} className="flex items-start gap-3 text-sm leading-snug">
                       <span
-                        className={`mt-0.5 font-bold ${
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                           plan.highlight
-                            ? "text-green-400"
-                            : "text-green-600 dark:text-green-500"
+                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            : "bg-primary/10 text-primary"
                         }`}
                       >
                         ✓
@@ -133,8 +133,8 @@ export default function SubscribePage() {
                       <span
                         className={
                           plan.highlight
-                            ? "text-gray-200"
-                            : "text-gray-700 dark:text-zinc-300"
+                            ? "text-primary-foreground/90"
+                            : "text-muted-foreground"
                         }
                       >
                         {feature}
@@ -146,10 +146,10 @@ export default function SubscribePage() {
                 <button
                   type="button"
                   onClick={() => setSelectedPlan(plan.key)}
-                  className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
+                  className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${
                     plan.highlight
-                      ? "bg-white text-black hover:bg-gray-100"
-                      : "bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                      ? "bg-primary-foreground text-primary shadow-md hover:bg-primary-foreground/90"
+                      : "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
                   }`}
                 >
                   {plan.cta}
@@ -160,27 +160,27 @@ export default function SubscribePage() {
         </div>
 
         <div className="max-w-2xl mx-auto">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+          <h3 className="text-xl font-bold text-foreground mb-6 text-center">
             {t.faq_title}
           </h3>
           <div className="space-y-3">
             {FAQ.map((item, i) => (
               <div
                 key={i}
-                className="border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900"
+                className="border border-border rounded-xl overflow-hidden bg-card"
               >
                 <button
                   type="button"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full text-left px-5 py-4 font-medium text-gray-900 dark:text-white flex justify-between items-center hover:bg-gray-50 dark:hover:bg-zinc-800"
+                  className="w-full text-left px-5 py-4 sm:py-4 font-medium text-card-foreground flex justify-between items-center gap-4 hover:bg-primary/5 transition-colors"
                 >
                   <span>{item.q}</span>
-                  <span className="text-gray-400 ml-4 shrink-0">
+                  <span className="text-muted-foreground ml-4 shrink-0 tabular-nums w-6 text-center">
                     {openFaq === i ? "−" : "+"}
                   </span>
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4 text-sm text-gray-600 dark:text-zinc-400 leading-relaxed">
+                  <div className="px-5 pb-5 pt-1 text-sm text-muted-foreground leading-relaxed">
                     {item.a}
                   </div>
                 )}

@@ -169,12 +169,11 @@
   --card-foreground: #fafafa;
   --popover: #18181b;
   --popover-foreground: #fafafa;
-  --primary: #10b981;
-  /* Emerald 500 - Vibrant primary */
-  --primary-foreground: #022c22;
-  /* Deep emerald for text on primary */
+  --primary: #a855f7;
+  /* Violet 500 — aligns subscribe / CTAs with light theme purple */
+  --primary-foreground: #fafafa;
   --secondary: #8b5cf6;
-  /* Violet 500 - Vibrant secondary */
+  /* Violet accent (badges, secondary chips) */
   --secondary-foreground: #fafafa;
   --muted: #27272a;
   /* Zinc 800 */
@@ -187,28 +186,28 @@
   --border: #27272a;
   /* Zinc 800 - Visible borders */
   --input: #27272a;
-  --ring: #10b981;
-  --chart-1: #10b981;
-  --chart-2: #8b5cf6;
+  --ring: #a855f7;
+  --chart-1: #a855f7;
+  --chart-2: #c084fc;
   --chart-3: #f59e0b;
   --chart-4: #3b82f6;
   --chart-5: #ec4899;
   --sidebar: #09090b;
   --sidebar-foreground: #fafafa;
-  --sidebar-primary: #10b981;
-  --sidebar-primary-foreground: #022c22;
+  --sidebar-primary: #a855f7;
+  --sidebar-primary-foreground: #fafafa;
   --sidebar-accent: #27272a;
   --sidebar-accent-foreground: #fafafa;
   --sidebar-border: #27272a;
-  --sidebar-ring: #10b981;
+  --sidebar-ring: #a855f7;
 
   /* Premium Design Tokens - Dark */
   --glass-bg: rgba(24, 24, 27, 0.8);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 
-  --primary-glow: 0 0 20px rgba(16, 185, 129, 0.2);
-  --secondary-glow: 0 0 20px rgba(139, 92, 246, 0.2);
+  --primary-glow: 0 0 24px rgba(168, 85, 247, 0.35);
+  --secondary-glow: 0 0 20px rgba(240, 255, 0, 0.25);
 }
 
 @layer base {
