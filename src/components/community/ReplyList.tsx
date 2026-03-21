@@ -1,5 +1,7 @@
 import { useState } from "react";
+import Link from "next/link";
 import { CommunityPost, CommunityReply, UserProfile, ReactionType, SOMALI_UI_TEXT, REACTION_ICONS, getUserDisplayName } from "@/types/community";
+import { useAuthStore } from "@/store/useAuthStore";
 import { LinkifiedText } from "@/components/ui/linkified-text";
 import { useCommunityStore } from "@/store/useCommunityStore";
 import communityService from "@/services/community";
@@ -7,7 +9,7 @@ import { getMediaUrl, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Trash2, Paperclip, X, Video, Play } from "lucide-react";
+import { Send, Loader2, Trash2, Paperclip, X, Video, Play, File } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { UserProfileModal } from "./UserProfileModal";
 import { AttachmentDisplay } from "./AttachmentDisplay";
@@ -26,6 +28,7 @@ interface ReplyListProps {
 
 export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const { addReply, removeReply, updateReply, toggleReplyReaction } = useCommunityStore();
+    const authUser = useAuthStore((s) => s.user);
     const [replyContent, setReplyContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -34,6 +37,7 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
     const [attachments, setAttachments] = useState<File[]>([]);
     const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState("");
+    const [replyError, setReplyError] = useState<string | null>(null);
 
     const handleOpenProfile = (userId: string) => {
         setSelectedUserId(userId);
@@ -74,6 +78,12 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
 
     const handleSubmit = async () => {
         if ((!replyContent.trim() && !videoUrl.trim() && attachments.length === 0) || !userProfile) return;
+
+        setReplyError(null);
+        if (authUser?.is_email_verified === false) {
+            setReplyError("Fadlan xaqiiji email-kaaga ka hor intaadan ka jawaabto.");
+            return;
+        }
 
         const requestId = `req_rep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const tempId = `temp-${Date.now()}`;
@@ -166,6 +176,20 @@ export function ReplyList({ postId, replies, userProfile }: ReplyListProps) {
                         fallback={userProfile.first_name?.[0] || userProfile.username[0]}
                     />
                     <div className="flex-1">
+                        {replyError && (
+                            <p className="text-xs text-red-600 dark:text-red-400 mb-1">{replyError}</p>
+                        )}
+                        {authUser?.is_email_verified === false && (
+                            <p className="text-xs text-amber-800 dark:text-amber-400 mb-1">
+                                Jawaabtu waxay u baahan tahay emayl la xaqiijiyay.{" "}
+                                <Link
+                                    href={`/verify-email?email=${encodeURIComponent(authUser.email || "")}`}
+                                    className="underline font-medium"
+                                >
+                                    Xaqiiji emailka
+                                </Link>
+                            </p>
+                        )}
                         <div className="flex gap-2">
                             <Textarea
                                 value={replyContent}

@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import React from "react";
 import type { JSX } from "react";
+import { usePostHog } from "posthog-js/react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,9 @@ import {
   X,
 } from "lucide-react";
 import { useSoundManager } from "@/hooks/use-sound-effects";
+import { isAllowedRedirect } from "@/lib/auth-redirect";
+import { progressService } from "@/services/progress";
+import { getResumeLessonPath } from "@/lib/onboarding-resume";
 
 import {
   stepTitles,
@@ -52,10 +56,18 @@ import {
   topicLevelsByTopic,
   learningGoals
 } from "@/config/onboarding-data";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const MOBILE_OPTION_COLLAPSE_AT = 3;
 
 function WelcomeOnboardingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const postAuthRedirect = useMemo(() => {
+    const r = searchParams.get("redirect");
+    return isAllowedRedirect(r) ? r : null;
+  }, [searchParams]);
+  const [resumeRedirecting, setResumeRedirecting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState<Record<number, number | string>>({});
   const [selectedTopic, setSelectedTopic] = useState<string>("saas_challenge");
@@ -76,7 +88,15 @@ function WelcomeOnboardingPage() {
   });
   const [actualError, setActualError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showAllStepOptions, setShowAllStepOptions] = useState(false);
   const { playSound } = useSoundManager();
+  const posthog = usePostHog();
+  const posthogRef = useRef(posthog);
+  posthogRef.current = posthog;
+  const isMobile = useIsMobile();
+  const exitCapturedRef = useRef(false);
+  const selectionsRef = useRef(selections);
+  selectionsRef.current = selections;
   const steps = [goals, topics, null, learningGoals];
   const progress = (currentStep / (steps.length + 1)) * 100;
 
@@ -148,6 +168,28 @@ function WelcomeOnboardingPage() {
       setUserData((prev) => ({ ...prev, referralCode: ref }));
     }
   }, [searchParams]);
+
+  // Returning learners: any LMS progress → go straight to last touched incomplete lesson (or /courses).
+  useEffect(() => {
+    const auth = AuthService.getInstance();
+    if (!auth.isAuthenticated()) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await progressService.getUserProgress();
+        if (cancelled || !list?.length) return;
+        setResumeRedirecting(true);
+        router.replace(getResumeLessonPath(list));
+      } catch {
+        // Not logged in enough / API error — stay on welcome
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   // Save data to localStorage whenever it changes
   useEffect(() => {
@@ -244,6 +286,10 @@ function WelcomeOnboardingPage() {
     if (currentStep === 1) {
       setSelectedTopic(value as string);
       setSelections((prev) => ({ ...prev, [currentStep]: value }));
+      posthog?.capture("onboarding_track_selected", {
+        track_id: value,
+        track_name: topics.find((t) => t.id === value)?.text ?? String(value),
+      });
     } else {
       setSelections((prev) => ({ ...prev, [currentStep]: value }));
     }
@@ -273,6 +319,67 @@ function WelcomeOnboardingPage() {
     }
     return steps[currentStep] as Option[] | null;
   }, [currentStep, selections]);
+
+  const { visibleStepOptions, stepOptionsHasMore } = useMemo(() => {
+    if (currentStep !== 0 && currentStep !== 1) {
+      return { visibleStepOptions: null as Option[] | null, stepOptionsHasMore: false };
+    }
+    const opts = currentOptions;
+    if (!opts?.length) {
+      return { visibleStepOptions: null, stepOptionsHasMore: false };
+    }
+    if (!isMobile || opts.length <= MOBILE_OPTION_COLLAPSE_AT || showAllStepOptions) {
+      return { visibleStepOptions: opts, stepOptionsHasMore: false };
+    }
+    return {
+      visibleStepOptions: opts.slice(0, MOBILE_OPTION_COLLAPSE_AT),
+      stepOptionsHasMore: true,
+    };
+  }, [currentStep, currentOptions, isMobile, showAllStepOptions]);
+
+  useEffect(() => {
+    setShowAllStepOptions(false);
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (currentStep !== 0 && currentStep !== 1) return;
+    const opts = currentOptions;
+    if (!opts?.length || !isMobile || opts.length <= MOBILE_OPTION_COLLAPSE_AT) return;
+    const sel = selections[currentStep];
+    if (sel === undefined) return;
+    const idx = opts.findIndex((o) => o.id === sel);
+    if (idx >= MOBILE_OPTION_COLLAPSE_AT) {
+      setShowAllStepOptions(true);
+    }
+  }, [currentStep, currentOptions, isMobile, selections]);
+
+  useEffect(() => {
+    exitCapturedRef.current = false;
+    const captureWelcomeExit = () => {
+      if (exitCapturedRef.current) return;
+      exitCapturedRef.current = true;
+      const goal = selectionsRef.current[0];
+      const tracksViewed =
+        typeof goal === "string" ? topicsByGoal[goal] ?? [] : [];
+      const trackSel = selectionsRef.current[1];
+      const deviceType =
+        typeof window !== "undefined" && window.innerWidth < 768
+          ? "mobile"
+          : "desktop";
+      posthogRef.current?.capture("welcome_page_exited", {
+        tracks_viewed: tracksViewed,
+        track_selected:
+          trackSel === undefined || trackSel === null ? null : String(trackSel),
+        device_type: deviceType,
+      });
+    };
+    const onPageHide = () => captureWelcomeExit();
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      captureWelcomeExit();
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -317,7 +424,10 @@ function WelcomeOnboardingPage() {
           }
           const updated = authService.getCurrentUser();
           if (updated) setAuthStoreUser({ ...updated, has_completed_onboarding: true });
-            router.push(res.redirect_url || "/dashboard");
+          posthog?.capture("onboarding_completed", {
+            destination_lesson_id: res.destination_lesson_id ?? undefined,
+          });
+          router.replace(postAuthRedirect || res.redirect_url || "/dashboard");
           return;
         } catch (err) {
           console.error("Complete onboarding failed:", err);
@@ -381,59 +491,48 @@ function WelcomeOnboardingPage() {
         });
       }
 
-      // Only redirect if signup was successful
+      // Only redirect if signup was successful — go to first lesson (or intended URL); verification is non-blocking
       if (result) {
-        // Check if the user's email is already verified
-        if (result.user?.is_email_verified) {
-          // User is already verified, check premium status
-          // User is already verified, check premium status
-          console.log("Waad mahadsantahay! Emailkaaga la xaqiijiyay.");
+        let finalDest =
+          (postAuthRedirect && postAuthRedirect.startsWith("/") ? postAuthRedirect : null) ||
+          (result.redirect_url && result.redirect_url.startsWith("/")
+            ? result.redirect_url
+            : null);
 
-          // Clear localStorage data since user is already verified
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('welcome_user_data');
-            localStorage.removeItem('welcome_selections');
-            localStorage.removeItem('welcome_current_step');
-            localStorage.removeItem('welcome_topic_levels');
-            localStorage.removeItem('welcome_selected_topic');
-            localStorage.removeItem('user');
-          }
-
-          // Premium users go to courses; free users can access lesson 1 + community
-          router.push('/courses');
-        } else {
-          // User needs email verification
-          // User needs email verification
-          console.log("Waad mahadsantahay! Si aad u bilowdo, fadlan xaqiiji emailkaaga.");
-
-          // Store user data in localStorage for email verification page
-          localStorage.setItem('user', JSON.stringify({ email: userData.email }));
-
-          // After email verification, user will be redirected based on premium status
-          router.push(`/verify-email?email=${userData.email}`);
+        const topic = String(selections[1] ?? "").trim();
+        const deeplink = await AuthService.getInstance().getOnboardingFirstLesson(topic);
+        if (!finalDest) {
+          finalDest = deeplink.path || "/courses";
         }
+
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("post_signup_redirect", finalDest);
+          localStorage.removeItem("welcome_user_data");
+          localStorage.removeItem("welcome_selections");
+          localStorage.removeItem("welcome_current_step");
+          localStorage.removeItem("welcome_topic_levels");
+          localStorage.removeItem("welcome_selected_topic");
+          localStorage.removeItem("user");
+        }
+
+        posthog?.capture("onboarding_completed", {
+          destination_lesson_id: deeplink.lesson_id ?? undefined,
+        });
+        router.replace(finalDest);
       }
     } catch (error: unknown) {
       console.log("Submission failed:", error);
 
-      // Handle specific case where user already exists
-      if (error instanceof Error && error.message.includes("horey ayaa loo diiwaangeliyay")) {
-        // User already exists - suggest they should verify email or login
-        // User already exists - suggest they should verify email or login
-        console.log("Isticmaalaha ayaa horey u jira. Emailkaagu horey ayuu u diiwaangelisan yahay.");
+      const errMsg = error instanceof Error ? error.message : "";
+      const emailTaken =
+        errMsg.includes("Email-kan waa la isticmaalay") ||
+        errMsg.includes("email:") ||
+        errMsg.toLowerCase().includes("already");
 
-        // Clear local storage
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('welcome_user_data');
-          localStorage.removeItem('welcome_selections');
-          localStorage.removeItem('welcome_current_step');
-          localStorage.removeItem('welcome_topic_levels');
-          localStorage.removeItem('welcome_selected_topic');
-          localStorage.removeItem('user');
-        }
-
-        // Redirect to email verification page as default action
-        router.push(`/verify-email?email=${userData.email}`);
+      if (emailTaken) {
+        setActualError(
+          "Email-kan horey ayaa loo isticmaalay. Soo gal akoonkaaga ama isticmaal emayl kale."
+        );
         return;
       }
 
@@ -485,16 +584,34 @@ function WelcomeOnboardingPage() {
     });
     setActualError("");
     setIsLoading(false);
+    setShowAllStepOptions(false);
   };
+
+  if (resumeRedirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const listStepOptions = visibleStepOptions ?? currentOptions ?? [];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background px-2 py-6">
-      <Card className="w-full max-w-2xl shadow-lg border-0 md:border border-border overflow-hidden px-0 bg-card">
-        <CardContent className="p-0">
+      <Card className="w-full max-w-2xl shadow-lg border-0 md:border border-border overflow-hidden max-md:overflow-visible px-0 bg-card">
+        <CardContent className="p-0 max-md:overflow-visible">
           {/* Progress bar */}
           <Progress value={progress} className="h-1 rounded-none" />
+          <p className="text-center text-xs sm:text-sm text-muted-foreground px-4 py-3 border-b border-border/80 bg-muted/20">
+            <span className="font-medium text-foreground/85">{topics.length} track</span>
+            {" → "}
+            Dooro kugu habboon
+            {" → "}
+            Bilow casharka 1aad isla markiiba
+          </p>
 
-          <div className="p-4 md:p-6">
+          <div className="p-4 md:p-6 flex flex-col">
             {/* Step Title and Start Over Button */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-foreground">
@@ -527,9 +644,8 @@ function WelcomeOnboardingPage() {
 
             {/* Options Grid */}
             {currentStep === 0 && (
-              <div className="grid gap-3">
-                {currentOptions &&
-                  currentOptions.map((option: Option) => {
+              <div className="grid grid-cols-1 gap-3">
+                {listStepOptions.map((option: Option) => {
                     const isSelected = selections[currentStep] === option.id;
                     return (
                       <div key={option.id} className="w-full group relative">
@@ -592,13 +708,21 @@ function WelcomeOnboardingPage() {
                       </div>
                     );
                   })}
+                {stepOptionsHasMore && (
+                  <button
+                    type="button"
+                    className="w-full py-3 text-sm font-medium text-primary hover:underline"
+                    onClick={() => setShowAllStepOptions(true)}
+                  >
+                    Show more
+                  </button>
+                )}
               </div>
             )}
 
             {currentStep === 1 && (
-              <div className="grid gap-3">
-                {currentOptions &&
-                  currentOptions.map((option: Option) => {
+              <div className="grid grid-cols-1 gap-3">
+                {listStepOptions.map((option: Option) => {
                     const isSelected = selections[currentStep] === option.id;
                     return (
                       <div key={option.id} className="w-full group relative">
@@ -661,6 +785,15 @@ function WelcomeOnboardingPage() {
                       </div>
                     );
                   })}
+                {stepOptionsHasMore && (
+                  <button
+                    type="button"
+                    className="w-full py-3 text-sm font-medium text-primary hover:underline"
+                    onClick={() => setShowAllStepOptions(true)}
+                  >
+                    Show more
+                  </button>
+                )}
               </div>
             )}
 
@@ -950,7 +1083,15 @@ function WelcomeOnboardingPage() {
               </div>
             )}
 
-            <div className="mt-8">
+            <div
+              className={cn(
+                "w-full mt-8",
+                "max-md:sticky max-md:z-20 max-md:mt-6 max-md:shrink-0",
+                "max-md:bottom-4 max-md:border-t max-md:border-border max-md:bg-card/95 max-md:backdrop-blur-sm max-md:pt-4",
+                "max-md:pb-[max(1rem,env(safe-area-inset-bottom))]",
+                "max-md:shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.12)] dark:max-md:shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.45)]"
+              )}
+            >
               <Button
                 className={cn(
                   "w-full rounded-lg py-6 font-semibold transition-colors",
@@ -998,11 +1139,14 @@ function WelcomeOnboardingPage() {
                     <span>Waa la socodaa...</span>
                   </div>
                 ) : currentStep === 4 ? (
-                  "Gudbi"
+                  "Bilow Lesson 1"
                 ) : (
                   "Sii wad"
                 )}
               </Button>
+              <p className="mt-2 text-center text-xs text-muted-foreground md:hidden">
+                Sii wad telefoonkaaga
+              </p>
             </div>
           </div>
         </CardContent>

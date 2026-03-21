@@ -31,6 +31,7 @@ All app routes and how middleware applies to each.
 | `/community-preview` | Community preview (public) |
 | `/communitypreview` | Community preview (alt) |
 | `/login` | User login |
+| `/signup` | Redirects to `/welcome` (optional `?redirect=` for post-auth return) |
 | `/welcome` | Sign up / welcome |
 | `/admin/login` | Admin login |
 | `/subscribe` | Subscribe |

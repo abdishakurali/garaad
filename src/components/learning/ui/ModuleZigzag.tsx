@@ -17,6 +17,9 @@ interface ModuleZigzagProps {
     firstLessonIdOfCourse?: number | null;
     /** Total XP from gamification (optional). Shown in progress summary. */
     xp?: number;
+    /** Course URL segments — used to open locked lessons in-place (upgrade modal) instead of /subscribe. */
+    categoryId: string;
+    courseSlug: string;
 }
 
 export default function ModuleZigzag({
@@ -26,6 +29,8 @@ export default function ModuleZigzag({
     activeModuleId,
     firstLessonIdOfCourse = null,
     xp,
+    categoryId,
+    courseSlug,
 }: ModuleZigzagProps) {
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -87,13 +92,25 @@ export default function ModuleZigzag({
         const isPremium = authService.isPremium();
 
         if (!isAuthenticated) {
+            if (
+                selectedModule &&
+                selectedModuleFirstLessonId != null &&
+                !isFirstLessonOfCourse
+            ) {
+                router.push(
+                    `/courses/${categoryId}/${courseSlug}/lessons/${selectedModuleFirstLessonId}`
+                );
+                return;
+            }
             router.push("/login");
             return;
         }
 
-        // Free users can only start the first lesson of the course; others → subscribe
-        if (!isPremium && !isFirstLessonOfCourse) {
-            router.push("/subscribe");
+        // Free users: open the lesson URL so the in-lesson upgrade modal appears (intentful path)
+        if (!isPremium && !isFirstLessonOfCourse && selectedModuleFirstLessonId != null) {
+            router.push(
+                `/courses/${categoryId}/${courseSlug}/lessons/${selectedModuleFirstLessonId}`
+            );
             return;
         }
 
@@ -111,6 +128,7 @@ export default function ModuleZigzag({
 
 
     // Update selected module when activeModuleId changes
+    /* eslint-disable react-hooks/set-state-in-effect -- sync selection with URL/props; no external store */
     useEffect(() => {
         if (activeModuleId) {
             const activeModule = uniqueModules.find(m => m.id === activeModuleId);
@@ -126,6 +144,7 @@ export default function ModuleZigzag({
             setSelectedModule(uniqueModules[0]);
         }
     }, [uniqueModules, selectedModule]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     const selectedModuleProgress = selectedModule ? hasModuleProgress(selectedModule.id) : false;
     const selectedModuleCompleted = selectedModule ? isModuleCompleted(selectedModule.title) : false;
@@ -134,6 +153,10 @@ export default function ModuleZigzag({
     const isAuthenticated = !!user;
     const isPremium = authService.isPremium();
     const canStartLesson = isAuthenticated && (isPremium || isFirstLessonOfCourse);
+    const opensUpgradeFromLesson =
+        !isPremium && !isFirstLessonOfCourse && !!selectedModule;
+    const needsLoginForFreeFirst =
+        !isAuthenticated && isFirstLessonOfCourse && !!selectedModule;
 
     const completedCount = useMemo(
         () => progress.filter((p) => p.status === "completed" && uniqueModules.some((m) => m.title === p.lesson_title)).length,
@@ -144,11 +167,21 @@ export default function ModuleZigzag({
 
     const isModuleLocked = useCallback(
         (moduleId: number) => {
-            if (!isAuthenticated || isPremium) return false;
-            const firstLessonId = uniqueModules.find((m) => m.id === moduleId)?.lessons?.[0]?.id;
-            return firstLessonId != null && firstLessonIdOfCourse != null && Number(firstLessonId) !== Number(firstLessonIdOfCourse);
+            if (isPremium) return false;
+            const mod = uniqueModules.find((m) => m.id === moduleId);
+            const lessons = mod?.lessons ?? [];
+            if (lessons.length === 0) return false;
+            const sorted = [...lessons].sort(
+                (a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0)
+            );
+            const firstLessonId = sorted[0]?.id;
+            return (
+                firstLessonId != null &&
+                firstLessonIdOfCourse != null &&
+                Number(firstLessonId) !== Number(firstLessonIdOfCourse)
+            );
         },
-        [isAuthenticated, isPremium, uniqueModules, firstLessonIdOfCourse]
+        [isPremium, uniqueModules, firstLessonIdOfCourse]
     );
 
     return (
@@ -215,9 +248,9 @@ export default function ModuleZigzag({
                             className={cn(
                                 "flex items-center mb-12 cursor-pointer transition-all duration-200",
                                 isRightAligned ? "justify-end mr-4" : "ml-4",
-                                isLocked && "cursor-not-allowed opacity-80"
+                                isLocked && "opacity-90"
                             )}
-                            onClick={() => !isLocked && handleModuleClick(module)}
+                            onClick={() => handleModuleClick(module)}
                         >
                             {isRightAligned ? (
                                 <>
@@ -305,6 +338,16 @@ export default function ModuleZigzag({
                                 <>
                                     <PlayCircle className="inline w-4 h-4 mr-2" />
                                     Billow
+                                </>
+                            ) : opensUpgradeFromLesson ? (
+                                <>
+                                    <Lock className="inline w-4 h-4 mr-2" />
+                                    Fur dhammaan casharada
+                                </>
+                            ) : needsLoginForFreeFirst ? (
+                                <>
+                                    <UserPlus className="inline w-4 h-4 mr-2" />
+                                    KU SOO BIIR
                                 </>
                             ) : !canStartLesson ? (
                                 <>

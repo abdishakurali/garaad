@@ -10,6 +10,7 @@ import {
 import AuthService from "@/services/auth";
 import OrderService from "@/services/orders";
 import StripeService from "@/services/stripe";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface Props {
   plan: SubscribePlan;
@@ -28,6 +29,15 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     const token = await auth.ensureValidToken();
     if (!token) {
       setError(t.error_login_required);
+      return;
+    }
+
+    const sessionUser = useAuthStore.getState().user;
+    const u = sessionUser || auth.getCurrentUser();
+    if (u?.is_email_verified === false) {
+      setError(
+        "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin. Hubi sanduuqaaga emaylka."
+      );
       return;
     }
 
@@ -152,7 +162,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             {t.modal_title}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {plan.name} · ${plan.price}
+            {plan.name} · {plan.priceDisplay}
             {plan.per}
           </p>
 
@@ -171,7 +181,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
                   {t.modal_price_label}
                 </p>
                 <p className="mt-0.5 text-base font-semibold text-primary">
-                  ${plan.price}
+                  {plan.priceDisplay}
                   <span className="text-sm font-normal text-muted-foreground">
                     {plan.per}
                   </span>

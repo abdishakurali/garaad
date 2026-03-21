@@ -62,6 +62,13 @@ const Certificate: React.FC<{
   const garaadName = storedUser ? `Garaad ${storedUser.username} ${storedUser.last_name}` : 'Garaad User';
 
   const handleShare = async () => {
+    const u = AuthService.getInstance().getCurrentUser();
+    if (u?.is_email_verified === false) {
+      window.alert(
+        "Shahaadada waxaad ka heli kartaa marka aad xaqiijiso email-kaaga. Tag bogga xaqiijinta emaylka."
+      );
+      return;
+    }
     if (!certRef.current) return;
     const canvas = await html2canvas(certRef.current, {
       backgroundColor: "#ffffff",

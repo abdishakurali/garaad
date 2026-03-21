@@ -1,11 +1,19 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState, useEffect } from "react";
+import {
+    useMemo,
+    useState,
+    useEffect,
+    useCallback,
+    useRef,
+    useSyncExternalStore,
+} from "react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, CheckCircle2, PlayCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
@@ -13,6 +21,7 @@ import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { getCourseThumbnailUrl } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
+import { TrackLessonList } from "@/components/learning/TrackLessonList";
 
 const ModuleZigzag = dynamic(
     () =>
@@ -40,6 +49,33 @@ const CourseProgress = dynamic(
 
 const defaultCourseImage = "/images/placeholder-course.svg";
 
+function CourseThumbnailImage({
+    courseImageSrc,
+    title,
+    unoptimized,
+}: {
+    courseImageSrc: string;
+    title: string;
+    unoptimized: boolean;
+}) {
+    const [courseImageError, setCourseImageError] = useState(false);
+    const imageSrcToShow = courseImageError ? defaultCourseImage : courseImageSrc;
+    return (
+        <div className="relative w-16 h-16 shrink-0 overflow-hidden rounded-md">
+            <Image
+                src={imageSrcToShow}
+                alt={title}
+                fill
+                className="object-cover"
+                sizes="64px"
+                priority
+                unoptimized={unoptimized}
+                onError={() => setCourseImageError(true)}
+            />
+        </div>
+    );
+}
+
 export function CourseDetailClient() {
     const router = useRouter();
     const { categoryId, courseSlug } = useParams();
@@ -51,6 +87,7 @@ export function CourseDetailClient() {
     } = useCourse(String(categoryId), String(courseSlug));
 
     const { isAuthenticated } = useAuthStore();
+    const isPremiumUser = useAuthStore((s) => s.user?.is_premium ?? false);
 
     const {
         enrollments,
@@ -76,6 +113,14 @@ export function CourseDetailClient() {
         );
     }, [enrollments, currentCourse]);
 
+    const trackJustCompleted = searchParams.get("completed") === "true";
+
+    const hasMounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false
+    );
+
     // Determine active module based on nextLessonId param
     const activeModuleId = useMemo(() => {
         const nextLessonId = searchParams.get('nextLessonId');
@@ -98,36 +143,163 @@ export function CourseDetailClient() {
         return sorted[0]?.id ?? null;
     }, [currentCourse]);
 
-    const handleModuleClick = (moduleId: number) => {
-        // Returning user without session → login, not signup.
-        if (!isAuthenticated) {
-            router.push('/login');
-            return;
-        }
+    const sortedLessonIds = useMemo(() => {
+        const modules = currentCourse?.modules ?? [];
+        const pairs = modules
+            .map((m: any) => m.lessons?.[0])
+            .filter(Boolean)
+            .sort(
+                (a: any, b: any) =>
+                    (a.lesson_number ?? 0) - (b.lesson_number ?? 0)
+            );
+        return pairs.map((l: any) => Number(l.id));
+    }, [currentCourse]);
 
-        const courseModule = (currentCourse?.modules as any[])?.find(m => m.id === moduleId);
+    const courseProgressEntries = useMemo(() => {
+        if (!progress?.length || sortedLessonIds.length === 0) return [];
+        const idSet = new Set(sortedLessonIds);
+        return progress.filter((p: any) => idSet.has(Number(p.lesson)));
+    }, [progress, sortedLessonIds]);
+
+    const resumeLessonId = useMemo(() => {
+        if (sortedLessonIds.length === 0 || firstLessonIdOfCourse == null) return null;
+        for (const lid of sortedLessonIds) {
+            const p = courseProgressEntries.find(
+                (e: any) => Number(e.lesson) === Number(lid)
+            );
+            if (!p || p.status !== "completed") return lid;
+        }
+        return sortedLessonIds[sortedLessonIds.length - 1] ?? null;
+    }, [sortedLessonIds, courseProgressEntries, firstLessonIdOfCourse]);
+
+    const allLessonsCompleted = useMemo(() => {
+        if (sortedLessonIds.length === 0) return false;
+        return sortedLessonIds.every((lid) =>
+            courseProgressEntries.some(
+                (e: any) => Number(e.lesson) === lid && e.status === "completed"
+            )
+        );
+    }, [sortedLessonIds, courseProgressEntries]);
+
+    const showContinueCta = useMemo(() => {
+        if (!isAuthenticated || sortedLessonIds.length === 0) return false;
+        if (enrollmentProgress > 0) return true;
+        return courseProgressEntries.some(
+            (e: any) => e.status === "completed" || e.status === "in_progress"
+        );
+    }, [
+        isAuthenticated,
+        sortedLessonIds.length,
+        courseProgressEntries,
+        enrollmentProgress,
+    ]);
+
+    const primaryCtaLessonId = useMemo(() => {
+        if (showContinueCta && resumeLessonId != null) return resumeLessonId;
+        return firstLessonIdOfCourse;
+    }, [showContinueCta, resumeLessonId, firstLessonIdOfCourse]);
+
+
+    const lessonPath = useCallback(
+        (lessonId: number, review?: boolean) =>
+            `/courses/${categoryId}/${courseSlug}/lessons/${lessonId}${review ? "?review=true" : ""}`,
+        [categoryId, courseSlug]
+    );
+
+    const navigateToLesson = useCallback(
+        (lessonId: number, opts?: { review?: boolean }) => {
+            if (!lessonId) return;
+            if (!isAuthenticated) {
+                router.push(
+                    `/login?redirect=${encodeURIComponent(lessonPath(lessonId, opts?.review))}`
+                );
+                return;
+            }
+            const isFirst =
+                firstLessonIdOfCourse != null &&
+                Number(lessonId) === Number(firstLessonIdOfCourse);
+            if (!isPremiumUser && !isFirst) {
+                router.push("/subscribe");
+                return;
+            }
+            router.push(lessonPath(lessonId, opts?.review));
+        },
+        [isAuthenticated, isPremiumUser, firstLessonIdOfCourse, router, lessonPath]
+    );
+
+    const handleModuleClick = (moduleId: number) => {
+        const courseModule = (currentCourse?.modules as any[])?.find(
+            (m) => m.id === moduleId
+        );
         const firstLessonId = courseModule?.lessons?.[0]?.id;
 
         if (!firstLessonId) {
-            console.error('No lessons found in module:', moduleId);
+            console.error("No lessons found in module:", moduleId);
             return;
         }
 
-        const isModuleCompleted = courseModule && progress?.some(
-            (p: any) => p.module_id === moduleId && p.status === "completed"
-        );
+        const isModuleCompleted =
+            courseModule &&
+            progress?.some(
+                (p: any) => p.module_id === moduleId && p.status === "completed"
+            );
 
-        const reviewParam = isModuleCompleted ? '?review=true' : '';
-        router.push(`/courses/${categoryId}/${courseSlug}/lessons/${firstLessonId}${reviewParam}`);
+        navigateToLesson(firstLessonId, { review: Boolean(isModuleCompleted) });
     };
 
-    // Prevent hydration mismatch
-    const [hasMounted, setHasMounted] = useState(false);
-    const [courseImageError, setCourseImageError] = useState(false);
-    useEffect(() => { setHasMounted(true); }, []);
+    const nextLessonParam = searchParams.get("nextLessonId");
+    const didRedirectNextLesson = useRef(false);
     useEffect(() => {
-        setCourseImageError(false);
-    }, [categoryId, courseSlug]);
+        didRedirectNextLesson.current = false;
+    }, [categoryId, courseSlug, nextLessonParam]);
+
+    useEffect(() => {
+        const nextLessonId = searchParams.get("nextLessonId");
+        if (
+            !nextLessonId ||
+            !currentCourse?.modules?.length ||
+            !hasMounted ||
+            isLoading
+        )
+            return;
+        if (didRedirectNextLesson.current) return;
+
+        const idNum = Number(nextLessonId);
+        if (!Number.isFinite(idNum)) return;
+
+        const belongs = sortedLessonIds.includes(idNum);
+        if (!belongs) return;
+
+        didRedirectNextLesson.current = true;
+
+        if (!isAuthenticated) {
+            router.replace(
+                `/login?redirect=${encodeURIComponent(lessonPath(idNum))}`
+            );
+            return;
+        }
+
+        const isFirst =
+            firstLessonIdOfCourse != null &&
+            idNum === Number(firstLessonIdOfCourse);
+        if (!isPremiumUser && !isFirst) {
+            router.replace("/subscribe");
+            return;
+        }
+
+        router.replace(lessonPath(idNum));
+    }, [
+        searchParams,
+        currentCourse?.modules,
+        hasMounted,
+        isLoading,
+        sortedLessonIds,
+        isAuthenticated,
+        isPremiumUser,
+        firstLessonIdOfCourse,
+        router,
+        lessonPath,
+    ]);
 
     if (!hasMounted) {
         return (
@@ -183,30 +355,40 @@ export function CourseDetailClient() {
             getCourseThumbnailUrl(currentCourse.thumbnail ?? null, defaultCourseImage)
         ) || defaultCourseImage;
 
-    const imageSrcToShow = courseImageError ? defaultCourseImage : courseImageSrc;
+    const thumbUnoptimized =
+        courseImageSrc.startsWith(API_BASE_URL.replace(/\/$/, "")) ||
+        courseImageSrc.includes("/api/media/courses/");
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto p-8 mb-20">
+                {primaryCtaLessonId != null && (
+                    <div className="mb-8 flex justify-center lg:justify-start">
+                        <Button
+                            type="button"
+                            size="xl"
+                            className="w-full max-w-xl lg:max-w-md h-14 text-lg font-bold shadow-lg rounded-2xl bg-violet-600 hover:bg-violet-700 text-white"
+                            onClick={() =>
+                                navigateToLesson(primaryCtaLessonId, {
+                                    review: allLessonsCompleted,
+                                })
+                            }
+                        >
+                            <PlayCircle className="size-7 shrink-0" aria-hidden />
+                            {showContinueCta ? "Sii wad" : "Bilow"}
+                        </Button>
+                    </div>
+                )}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Course Info */}
                     <aside className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white dark:bg-slate-900 rounded-xl shadow-md border-gray-200 dark:border-slate-800 md:sticky md:top-32">
                         <div className="flex mb-6 border-border dark:border-slate-800 border-2 px-4 py-2 rounded-md w-fit bg-slate-50 dark:bg-black">
-                            <div className="relative w-16 h-16 shrink-0 overflow-hidden rounded-md">
-                                <Image
-                                    src={imageSrcToShow}
-                                    alt={currentCourse.title}
-                                    fill
-                                    className="object-cover"
-                                    sizes="64px"
-                                    priority
-                                    unoptimized={
-                                        imageSrcToShow.startsWith(API_BASE_URL.replace(/\/$/, "")) ||
-                                        imageSrcToShow.includes("/api/media/courses/")
-                                    }
-                                    onError={() => setCourseImageError(true)}
-                                />
-                            </div>
+                            <CourseThumbnailImage
+                                key={`${String(categoryId)}-${String(courseSlug)}`}
+                                courseImageSrc={courseImageSrc}
+                                title={currentCourse.title}
+                                unoptimized={thumbUnoptimized}
+                            />
                         </div>
 
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -242,7 +424,18 @@ export function CourseDetailClient() {
 
                     {/* Learning Path */}
                     <section className="relative space-y-12">
-                        <div className="text-center mb-12">
+                        {trackJustCompleted && (
+                            <Alert className="max-w-2xl mx-auto rounded-2xl border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 dark:border-emerald-500/30">
+                                <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                <AlertTitle className="text-emerald-900 dark:text-emerald-100">
+                                    Waad ku dhameysatay casharka ugu dambeeya ee taxanahan!
+                                </AlertTitle>
+                                <AlertDescription className="text-emerald-800/90 dark:text-emerald-200/90">
+                                    Horumar wanaagsan. Waxaad ka dooran kartaa cashar kale ama dib u eegi kartaa kuwa aad horey u dhameysay.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        <div className="text-center mb-8">
                             <h2 className="text-3xl font-bold mb-4 dark:text-white">Naqshada Barashada</h2>
                             {enrollmentProgress === 0 && (
                                 <p className="text-gray-600 dark:text-gray-400 font-medium">
@@ -251,7 +444,26 @@ export function CourseDetailClient() {
                             )}
                         </div>
 
-                        <div className="relative flex flex-col items-center gap-12">
+                        {currentCourse.modules && (
+                            <TrackLessonList
+                                modules={currentCourse.modules as any}
+                                progress={progress ?? []}
+                                firstLessonIdOfCourse={firstLessonIdOfCourse}
+                                resumeLessonId={resumeLessonId}
+                                isPremium={isPremiumUser}
+                                isAuthenticated={isAuthenticated}
+                                onLessonClick={(id) => {
+                                    const completed = progress?.some(
+                                        (p: any) =>
+                                            Number(p.lesson) === id &&
+                                            p.status === "completed"
+                                    );
+                                    navigateToLesson(id, { review: Boolean(completed) });
+                                }}
+                            />
+                        )}
+
+                        <div className="relative flex flex-col items-center gap-12 mt-10">
                             {currentCourse.modules && (
                                 <ModuleZigzag
                                     modules={currentCourse.modules as any}
@@ -260,6 +472,8 @@ export function CourseDetailClient() {
                                     activeModuleId={activeModuleId}
                                     firstLessonIdOfCourse={firstLessonIdOfCourse}
                                     xp={xp}
+                                    categoryId={String(categoryId)}
+                                    courseSlug={String(courseSlug)}
                                 />
                             )}
                         </div>

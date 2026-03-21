@@ -1,9 +1,12 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { CheckCircle2, RotateCcw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PLANS } from "@/config/subscribePlans";
 import { cn } from "@/lib/utils";
 
 export interface LessonCompleteModalProps {
@@ -25,6 +28,9 @@ export interface LessonCompleteModalProps {
   onNextLesson: () => void;
   onReview: () => void;
   onDashboard: () => void;
+  lessonId: number | string;
+  /** Non-premium: subtle upsell banner (auto-dismiss 5s). */
+  showExplorerUpsell?: boolean;
 }
 
 export function LessonCompleteModal({
@@ -39,8 +45,29 @@ export function LessonCompleteModal({
   onNextLesson,
   onReview,
   onDashboard,
+  lessonId,
+  showExplorerUpsell = false,
 }: LessonCompleteModalProps) {
   const router = useRouter();
+  const posthog = usePostHog();
+  const [upsellVisible, setUpsellVisible] = useState(showExplorerUpsell);
+  const upsellCaptured = useRef(false);
+
+  useEffect(() => {
+    if (!showExplorerUpsell) return;
+    const t = setTimeout(() => setUpsellVisible(false), 5000);
+    return () => clearTimeout(t);
+  }, [showExplorerUpsell]);
+
+  useEffect(() => {
+    if (!upsellVisible || !posthog || upsellCaptured.current) return;
+    upsellCaptured.current = true;
+    posthog.capture("upgrade_prompt_shown", {
+      trigger: "lesson_complete_banner",
+      lesson_id: lessonId,
+      plan: "explorer",
+    });
+  }, [upsellVisible, posthog, lessonId]);
 
   const handleDashboard = useCallback(() => {
     onDashboard();
@@ -49,12 +76,15 @@ export function LessonCompleteModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex flex-col justify-center p-4 bg-black/70 backdrop-blur-sm"
       style={{ animation: "none" }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="lesson-complete-heading"
     >
+      <div
+        className="flex flex-1 items-center justify-center min-h-0 w-full"
+      >
       <div
         className={cn(
           "w-full max-w-lg rounded-2xl border border-white/10 bg-slate-900/95 shadow-2xl",
@@ -164,6 +194,29 @@ export function LessonCompleteModal({
           </div>
         </div>
       </div>
+      </div>
+
+      {upsellVisible && (
+        <div className="pointer-events-auto shrink-0 w-full max-w-lg mx-auto pb-4 px-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-zinc-900/95 px-4 py-3 text-sm text-zinc-200 shadow-lg">
+            <p className="text-left leading-snug">
+              Unlock all 40+ lessons —{" "}
+              <span className="font-semibold text-white">
+                {PLANS.explorer.priceDisplay}/mo
+              </span>
+            </p>
+            <Button
+              asChild
+              size="sm"
+              className="shrink-0 rounded-lg bg-violet-600 hover:bg-violet-500 text-white"
+            >
+              <Link href="/subscribe?plan=explorer&ref=lesson_complete_banner">
+                Subscribe
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

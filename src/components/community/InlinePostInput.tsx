@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useCommunityStore } from "@/store/useCommunityStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import communityService from "@/services/community";
 import { CommunityPost, SOMALI_UI_TEXT, getUserDisplayName } from "@/types/community";
 import { Button } from "@/components/ui/button";
@@ -24,6 +26,7 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp
 
 export function InlinePostInput({ categoryId }: InlinePostInputProps) {
     const { userProfile, addPost: addOptimisticPost, updatePost } = useCommunityStore();
+    const authUser = useAuthStore((s) => s.user);
 
     const [content, setContent] = useState("");
     const [images, setImages] = useState<File[]>([]);
@@ -98,6 +101,11 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
         const hasMedia = images.length > 0 || attachments.length > 0 || videoUrl.trim().length > 0;
 
         if ((!hasContent && !hasMedia) || !userProfile) return;
+
+        if (authUser?.is_email_verified === false) {
+            setError("Fadlan xaqiiji email-kaaga ka hor intaadan wax ka qorin bulshada.");
+            return;
+        }
 
         const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const tempId = `temp-${Date.now()}`;
@@ -185,6 +193,17 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
                 </div>
 
                 <div className="flex-1 min-w-0">
+                    {authUser?.is_email_verified === false && (
+                        <p className="text-xs text-amber-800 dark:text-amber-400 mb-2">
+                            Qorista bulshada waxay u baahan tahay emayl la xaqiijiyay.{" "}
+                            <Link
+                                href={`/verify-email?email=${encodeURIComponent(authUser.email || "")}`}
+                                className="underline font-medium"
+                            >
+                                Xaqiiji emailka
+                            </Link>
+                        </p>
+                    )}
                     <Textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}

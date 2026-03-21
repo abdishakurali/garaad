@@ -1,23 +1,23 @@
 /**
- * Garaad platform pricing — aligns with subscribe checkout (USD).
- * @see subscribePlans.ts for subscribe page copy; backend `PLAN_PRICING` for orders.
+ * Numeric fields align with backend settlement; `priceDisplay` is EUR marketing copy.
+ * @see subscribePlans.ts for subscribe UI; backend `PLAN_PRICING` for charged amounts.
  */
 
 export const PRICING = {
-  /** Explorer — $29/month. All current courses, community, tracking. */
+  /** Explorer — €29/mo display; charged per backend. */
   EXPLORER: {
     priceUsd: 29,
-    priceDisplay: "$29",
+    priceDisplay: "€29",
     interval: "month" as const,
     name: "Explorer",
     nameSo: "Explorer",
     description: "Dhammaan koorsooyinka hadda jira, raadinta casharrada, bulshada.",
     descriptionEn: "All current courses, lesson progress, community.",
   },
-  /** Challenge — $149/month. Full stack intensive, direct support, certificates. */
+  /** Challenge — €149 one-time display; charged per backend. */
   CHALLENGE: {
     priceUsd: 149,
-    priceDisplay: "$149",
+    priceDisplay: "€149",
     interval: "month" as const,
     name: "Challenge",
     nameSo: "Challenge",

@@ -117,7 +117,8 @@ export const coursesService = {
       if (response.status === 401) {
         // Token might be expired, try to refresh it
         try {
-          const newToken = await AuthService.refreshAccessToken();
+          const newToken = await AuthService.getInstance().refreshAccessToken();
+          if (!newToken) throw new Error("Failed to refresh session");
           // Retry the request with the new token
           const retryResponse = await fetch(url, {
             method: "GET",

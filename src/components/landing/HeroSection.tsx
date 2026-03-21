@@ -21,6 +21,7 @@ const TECH_ICONS = [
 interface LandingStats {
   students_count: number;
   courses_count: number;
+  learners_this_month?: number;
 }
 
 interface HeroCourse {

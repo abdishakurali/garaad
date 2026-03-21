@@ -10,6 +10,9 @@ export interface UserProgress {
   module_title: string;
   category_title: string;
   course_title: string;
+  /** LMS category PK — used to build /courses/[categoryId]/[slug]/lessons/[id] */
+  category_id?: number;
+  course_slug?: string;
   status: "not_started" | "in_progress" | "completed";
   score: number | null;
   last_visited_at: string;

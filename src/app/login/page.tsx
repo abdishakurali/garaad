@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { usePostHog } from "posthog-js/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,27 +11,88 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import AuthService from "@/services/auth";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Loader2 } from "lucide-react";
+import { Loader2, BookOpen } from "lucide-react";
+import { isAllowedRedirect, parseLessonIdFromRedirectPath } from "@/lib/auth-redirect";
+import { fetchLessonWallPreview } from "@/lib/lesson-wall-preview";
 
-// Allowed redirect targets (same-origin paths only; no open redirect)
-function isAllowedRedirect(redirect: string | null): boolean {
-    if (!redirect || typeof redirect !== "string") return false;
-    const path = redirect.startsWith("/") ? redirect : `/${redirect}`;
-    return path.startsWith("/") && !path.startsWith("//") && !path.includes("\\");
-}
-
-export default function LoginPage() {
+function LoginPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const posthog = usePostHog();
     const redirectTo = useMemo(() => {
         const r = searchParams.get("redirect");
         return isAllowedRedirect(r) ? r : null;
     }, [searchParams]);
+    const reason = searchParams.get("reason");
+    const lessonIdFromPath = useMemo(
+        () => (redirectTo ? parseLessonIdFromRedirectPath(redirectTo) : null),
+        [redirectTo]
+    );
+    const showLessonWall =
+        reason === "unauthenticated" && Boolean(redirectTo) && Boolean(lessonIdFromPath);
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const { setUser: setAuthStoreUser } = useAuthStore();
+
+    const shouldLoadWallPreview = Boolean(showLessonWall && lessonIdFromPath);
+    const [wallPreview, setWallPreview] = useState<NonNullable<Awaited<ReturnType<typeof fetchLessonWallPreview>>> | null>(
+        null
+    );
+    const [wallPreviewLoading, setWallPreviewLoading] = useState(shouldLoadWallPreview);
+    const wallHitCaptured = useRef(false);
+
+    useEffect(() => {
+        if (!showLessonWall || !lessonIdFromPath) {
+            setWallPreview(null);
+            setWallPreviewLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+        setWallPreviewLoading(true);
+        setWallPreview(null);
+
+        (async () => {
+            try {
+                const data = await fetchLessonWallPreview(lessonIdFromPath);
+                if (cancelled) return;
+                setWallPreview(data);
+                if (!wallHitCaptured.current && posthog) {
+                    wallHitCaptured.current = true;
+                    posthog.capture("lesson_wall_hit", {
+                        lesson_id: Number(lessonIdFromPath),
+                        course_id: data?.courseId ?? null,
+                        source: "unauthenticated_redirect",
+                    });
+                }
+            } catch {
+                if (cancelled) return;
+                setWallPreview(null);
+                if (!wallHitCaptured.current && posthog) {
+                    wallHitCaptured.current = true;
+                    posthog.capture("lesson_wall_hit", {
+                        lesson_id: Number(lessonIdFromPath),
+                        course_id: null,
+                        source: "unauthenticated_redirect",
+                    });
+                }
+            } finally {
+                if (!cancelled) setWallPreviewLoading(false);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [showLessonWall, lessonIdFromPath, posthog]);
+
+    const signupHref =
+        redirectTo != null
+            ? `/signup?redirect=${encodeURIComponent(redirectTo)}`
+            : "/signup";
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,8 +109,8 @@ export default function LoginPage() {
                 });
             }
 
-            // Prefer redirect param (e.g. lesson URL); otherwise always go to courses
             if (redirectTo) {
+                router.refresh();
                 router.push(redirectTo);
             } else {
                 router.push("/courses");
@@ -64,12 +126,56 @@ export default function LoginPage() {
         <div className="flex flex-col items-center justify-center min-h-screen bg-background px-4 py-8">
             <Card className="w-full max-w-md shadow-lg border-0 md:border border-border overflow-hidden bg-card">
                 <CardContent className="p-6">
-                    <h1 className="text-2xl font-bold text-foreground mb-2 text-center">
-                        Soo gal
-                    </h1>
+                    <h1 className="text-2xl font-bold text-foreground mb-2 text-center">Soo gal</h1>
                     <p className="text-muted-foreground text-sm text-center mb-6">
                         Geli emailkaaga iyo passwordkaaga si aad ugu soo noqoto akoonkaaga.
                     </p>
+
+                    {showLessonWall && (
+                        <div className="mb-6 rounded-xl border border-border bg-muted/40 p-4 space-y-3">
+                            {wallPreviewLoading && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                                    <span>Waa la soo saarayaa macluumaadka casharka…</span>
+                                </div>
+                            )}
+                            {!wallPreviewLoading && wallPreview && (
+                                <>
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-0.5 rounded-lg bg-primary/10 p-2 text-primary shrink-0">
+                                            <BookOpen className="h-5 w-5" />
+                                        </div>
+                                        <div className="min-w-0 space-y-1">
+                                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                {wallPreview.courseTitle}
+                                            </p>
+                                            <p className="text-base font-semibold text-foreground leading-snug">
+                                                {wallPreview.lessonTitle}
+                                            </p>
+                                            {wallPreview.teaser && (
+                                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                                    {wallPreview.teaser}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <Button asChild className="w-full rounded-lg py-5 font-semibold" variant="default">
+                                        <Link href={signupHref}>Abuur akoon bilaash</Link>
+                                    </Button>
+                                </>
+                            )}
+                            {!wallPreviewLoading && wallPreview === null && lessonIdFromPath && (
+                                <div className="space-y-3">
+                                    <p className="text-sm text-muted-foreground">
+                                        Fur akoon si aad u furto casharkan oo aad barashada u bilowdo.
+                                    </p>
+                                    <Button asChild className="w-full rounded-lg py-5 font-semibold" variant="default">
+                                        <Link href={signupHref}>Abuur akoon bilaash</Link>
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {error && (
                         <Alert variant="destructive" className="mb-6">
@@ -128,16 +234,27 @@ export default function LoginPage() {
                     </form>
 
                     <p className="text-center text-sm text-muted-foreground mt-6">
-                        Don&apos;t have an account?{" "}
-                        <Link
-                            href="/welcome"
-                            className="text-primary hover:underline font-medium"
-                        >
-                            Sign up
+                        Ma haysatid akoon?{" "}
+                        <Link href={signupHref} className="text-primary hover:underline font-medium">
+                            Isdiiwaangeli
                         </Link>
                     </p>
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex min-h-screen items-center justify-center bg-background">
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                </div>
+            }
+        >
+            <LoginPageContent />
+        </Suspense>
     );
 }

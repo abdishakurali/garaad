@@ -5,11 +5,12 @@ export const PLANS = {
     key: "explorer" as const,
     name: t.explorer_name,
     tagline: t.explorer_tagline,
-    price: 29,
-    currency: "USD",
+    /** Shown in UI only; backend still settles in USD for Waafi/Stripe as configured. */
+    priceDisplay: "€29",
+    yearlyPriceNote: t.explorer_yearly_hint,
     per: t.explorer_per_month,
     highlight: false,
-    badge: null as string | null,
+    badge: t.explorer_popular_badge,
     features: [
       t.explorer_feature_1,
       t.explorer_feature_2,
@@ -24,9 +25,8 @@ export const PLANS = {
     key: "challenge" as const,
     name: t.challenge_name,
     tagline: t.challenge_tagline,
-    price: 149,
-    currency: "USD",
-    per: t.challenge_per_month,
+    priceDisplay: "€149",
+    per: t.challenge_per_one_time,
     highlight: true,
     badge: t.challenge_badge,
     features: [
@@ -45,7 +45,7 @@ export const PLANS = {
 export type SubscribePlanKey = keyof typeof PLANS;
 export type SubscribePlan = (typeof PLANS)[SubscribePlanKey];
 
-/** Optional Stripe Price IDs — if unset, checkout uses USD `price_data` ($29 / $149 per month). */
+/** Optional Stripe Price IDs — if unset, checkout uses server `price_data` fallback. */
 export const SUBSCRIBE_STRIPE_PRICE_IDS = {
   explorer: process.env.NEXT_PUBLIC_STRIPE_EXPLORER_PRICE_ID ?? "",
   challenge: process.env.NEXT_PUBLIC_STRIPE_CHALLENGE_PRICE_ID ?? "",

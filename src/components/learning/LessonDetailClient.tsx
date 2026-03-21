@@ -43,8 +43,11 @@ import { useSoundManager } from "@/hooks/use-sound-effects";
 import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { useGamificationData } from "@/hooks/useGamificationData";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { LessonCompleteModal } from "@/components/learning/LessonCompleteModal";
-import { LessonPaywall } from "@/components/learning/LessonPaywall";
+import { LessonUpgradeModal } from "@/components/learning/LessonUpgradeModal";
+import { EmailVerificationBanner } from "@/components/learning/EmailVerificationBanner";
 import dynamic from "next/dynamic";
 
 const ShikiCode = dynamic(() => import("@/components/lesson/ShikiCode"), {
@@ -81,6 +84,17 @@ interface User {
     id: number;
     name: string;
 }
+
+interface LessonCompleteApiResponse {
+    status?: string;
+    next_lesson_id?: number | null;
+    next_lesson_title?: string | null;
+}
+
+type CompletionNavigateMeta = {
+    nextLessonId: number | null;
+    nextLessonTitle: string | null;
+};
 
 const LoadingSpinner = ({ message }: { message: string }) => (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -200,12 +214,15 @@ export function LessonDetailClient() {
     const [problemLoading, setProblemLoading] = useState(false);
     const [currentXp, setCurrentXp] = useState(10);
     const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+    /** Set after complete API succeeds; drives auto-advance toast + redirect */
+    const [completionNavigateMeta, setCompletionNavigateMeta] = useState<CompletionNavigateMeta | null>(null);
 
     const { streak, leaderboard, mutateAll } = useGamificationData();
     const { enrollments } = useEnrollments();
     const { progress: userProgress } = useUserProgress();
 
     const { playSound } = useSoundManager();
+    const { toast } = useToast();
     const continueRef = useRef<() => void>(() => { });
 
     const coursePath = useMemo(
@@ -289,12 +306,11 @@ export function LessonDetailClient() {
         return problems.find(p => p.id === problemId) || problems[0];
     }, [problems, sortedBlocks, currentBlockIndex]);
 
-    // Free tier: locked if not premium and this is not the first lesson of the course (by lesson_number)
+    // Free tier / guests: locked if not premium and this is not the first lesson (by lesson_number)
     const isLockedLesson = useMemo(() => {
         if (typeof window === "undefined") return false;
         const user = AuthService.getInstance().getCurrentUser();
-        if (!user) return false;
-        if (user.is_premium) return false;
+        if (user?.is_premium) return false;
         if (!courseLessons.length || !currentLesson?.id) return false;
         const sorted = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
         const firstId = sorted[0]?.id;
@@ -318,6 +334,12 @@ export function LessonDetailClient() {
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    useEffect(() => {
+        setShowCompletionAnimation(false);
+        setCompletionNavigateMeta(null);
+        setNavigating(false);
+    }, [params.lessonId]);
 
     // Sync lesson to Zustand for other components
     useEffect(() => {
@@ -543,7 +565,10 @@ export function LessonDetailClient() {
 
         // Handle completion with modal
         setCompletionScore(isCorrect ? 100 : 0);
+        setCompletionNavigateMeta(null);
         setShowCompletionAnimation(true);
+
+        let navMeta: CompletionNavigateMeta | null = null;
 
         if (currentLesson?.id) {
             try {
@@ -563,7 +588,7 @@ export function LessonDetailClient() {
                     .filter((b) => b.block_type === "problem" && b.problem)
                     .map((b) => b.problem);
 
-                await AuthService.getInstance().makeAuthenticatedRequest(
+                const res = await AuthService.getInstance().makeAuthenticatedRequest<LessonCompleteApiResponse>(
                     "post",
                     `/api/lms/lessons/${currentLesson.id}/complete/`,
                     {
@@ -571,12 +596,35 @@ export function LessonDetailClient() {
                         total_score: isCorrect ? 100 : 0,
                     }
                 );
-                // Refresh gamification data after completion
                 mutateAll();
+                if (res?.status === "success") {
+                    if ("next_lesson_id" in res) {
+                        navMeta = {
+                            nextLessonId: res.next_lesson_id ?? null,
+                            nextLessonTitle: res.next_lesson_title ?? null,
+                        };
+                    } else {
+                        const ordered = [...courseLessons].sort(
+                            (a, b) => ((a as { lesson_number?: number }).lesson_number ?? 0) - ((b as { lesson_number?: number }).lesson_number ?? 0)
+                        );
+                        const currentIdx = ordered.findIndex((l) => l.id === currentLesson.id);
+                        const nextLesson =
+                            currentIdx !== -1 && currentIdx < ordered.length - 1
+                                ? ordered[currentIdx + 1]
+                                : null;
+                        navMeta = {
+                            nextLessonId: nextLesson?.id ?? null,
+                            nextLessonTitle: nextLesson?.title ?? null,
+                        };
+                    }
+                }
             } catch (err) {
                 console.error("Completion error", err);
+                navMeta = null;
             }
         }
+
+        setCompletionNavigateMeta(navMeta);
     }, [
         currentBlockIndex,
         isCorrect,
@@ -584,20 +632,97 @@ export function LessonDetailClient() {
         sortedBlocks,
         currentLesson?.id,
         mutateAll,
+        courseLessons,
+    ]);
+
+    useEffect(() => {
+        if (!showCompletionAnimation || completionNavigateMeta === null) return;
+
+        const cancelled = { v: false };
+        let toastDismiss: (() => void) | undefined;
+        let redirectTimer: ReturnType<typeof setTimeout> | undefined;
+
+        const run = () => {
+            if (cancelled.v) return;
+            const { nextLessonId, nextLessonTitle } = completionNavigateMeta;
+
+            const { dismiss } = toast({
+                title:
+                    nextLessonId != null
+                        ? `Up next: ${nextLessonTitle || "Next lesson"}`
+                        : "Track complete",
+                description:
+                    nextLessonId != null
+                        ? "Taking you there in a moment…"
+                        : "Returning to course overview…",
+                duration: 4000,
+                action: (
+                    <ToastAction
+                        altText="Skip auto-advance"
+                        onClick={() => {
+                            cancelled.v = true;
+                            if (redirectTimer) clearTimeout(redirectTimer);
+                            dismiss();
+                        }}
+                    >
+                        Skip
+                    </ToastAction>
+                ),
+            });
+            toastDismiss = dismiss;
+
+            redirectTimer = setTimeout(() => {
+                if (cancelled.v) return;
+                dismiss();
+                setShowCompletionAnimation(false);
+                setNavigating(true);
+                setCompletionNavigateMeta(null);
+                if (nextLessonId != null) {
+                    router.push(
+                        `/courses/${params.categoryId}/${params.courseSlug}/lessons/${nextLessonId}`
+                    );
+                } else {
+                    router.push(`${coursePath}?completed=true`);
+                }
+            }, 3000);
+        };
+
+        const afterAnimationMs = setTimeout(run, 500);
+
+        return () => {
+            cancelled.v = true;
+            clearTimeout(afterAnimationMs);
+            if (redirectTimer) clearTimeout(redirectTimer);
+            toastDismiss?.();
+        };
+    }, [
+        showCompletionAnimation,
+        completionNavigateMeta,
+        coursePath,
+        router,
+        params.categoryId,
+        params.courseSlug,
+        toast,
     ]);
 
     const handleCompletionAnimationFinish = useCallback(() => {
+        setCompletionNavigateMeta(null);
         setShowCompletionAnimation(false);
         setNavigating(true);
 
-        // Find next lesson info (ordered by lesson_number to match backend)
-        const sortedLessons = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
-        const currentIdx = sortedLessons.findIndex(l => l.id === currentLesson?.id);
-        const nextLesson = currentIdx !== -1 && currentIdx < sortedLessons.length - 1 ? sortedLessons[currentIdx + 1] : null;
+        const sortedLessons = [...courseLessons].sort(
+            (a, b) => ((a as { lesson_number?: number }).lesson_number ?? 0) - ((b as { lesson_number?: number }).lesson_number ?? 0)
+        );
+        const currentIdx = sortedLessons.findIndex((l) => l.id === currentLesson?.id);
+        const nextLesson =
+            currentIdx !== -1 && currentIdx < sortedLessons.length - 1 ? sortedLessons[currentIdx + 1] : null;
 
-        const queryParam = nextLesson ? `?nextLessonId=${nextLesson.id}` : "";
-        router.push(`${coursePath}${queryParam}`);
-    }, [router, coursePath, courseLessons, currentLesson?.id]);
+        if (nextLesson) {
+            router.push(`/courses/${params.categoryId}/${params.courseSlug}/lessons/${nextLesson.id}`);
+        } else {
+            router.push(`${coursePath}?completed=true`);
+        }
+    }, [router, coursePath, courseLessons, currentLesson?.id, params.categoryId, params.courseSlug]);
 
     useEffect(() => {
         continueRef.current = handleContinue;
@@ -827,13 +952,17 @@ export function LessonDetailClient() {
         return <LoadingSpinner message="soo dajinaya casharada..." />;
     }
 
-    // Free users: only lesson 1 per course is free; lesson 2+ shows paywall
+    // Guests / free users: only lesson 1 per course is free; lesson 2+ shows upgrade modal
     if (isLockedLesson) {
         return (
-            <LessonPaywall
-                coursePath={coursePath}
-                courseTitle={currentCourse?.title}
-            />
+            <div className="min-h-screen bg-zinc-950">
+                <LessonUpgradeModal
+                    coursePath={coursePath}
+                    courseTitle={currentCourse?.title}
+                    lessonTitle={currentLesson?.title}
+                    lessonId={currentLesson.id}
+                />
+            </div>
         );
     }
 
@@ -871,8 +1000,16 @@ export function LessonDetailClient() {
                 totalLessonsCount={totalLessonsCount}
                 hasNextLesson={!!nextLesson}
                 onNextLesson={handleCompletionAnimationFinish}
-                onReview={() => setShowCompletionAnimation(false)}
-                onDashboard={() => setShowCompletionAnimation(false)}
+                onReview={() => {
+                    setCompletionNavigateMeta(null);
+                    setShowCompletionAnimation(false);
+                }}
+                onDashboard={() => {
+                    setCompletionNavigateMeta(null);
+                    setShowCompletionAnimation(false);
+                }}
+                lessonId={currentLesson.id}
+                showExplorerUpsell={!AuthService.getInstance().isPremium()}
             />
         );
     }
@@ -896,6 +1033,7 @@ export function LessonDetailClient() {
                 }}
             />
             <div className="relative z-10">
+            <EmailVerificationBanner />
             <LessonStepBullets
                 currentIndex={currentBlockIndex}
                 totalSteps={sortedBlocks?.length || 0}

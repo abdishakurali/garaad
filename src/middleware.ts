@@ -8,7 +8,7 @@ import type { NextRequest } from "next/server";
  *   /, /courses, /courses/[categoryId]/[courseSlug], /blog, /blog/[slug], /blog/tag/[tag],
  *   /challenge, /launchpad, /launchpad/[id], /launchpad/project/[slug], /about, /about/abdishakuur-ali,
  *   /terms, /privacy, /startups, /community-preview, /communitypreview,
- *   /login, /welcome, /admin/login, /subscribe, /verify-email, /reset-password
+ *   /login, /signup, /welcome, /admin/login, /subscribe, /verify-email, /reset-password
  *
  * PROTECTED (auth required; unauthenticated → /login or /admin/login with redirect param):
  *   /admin, /admin/* (except /admin/login),
@@ -66,6 +66,7 @@ export async function middleware(request: NextRequest) {
     pathname === "/admin/login" ||
     pathname === "/welcome" ||
     pathname === "/login" ||
+    pathname === "/signup" ||
     pathname === "/verify-email";
 
   if (isAuthPage) {
@@ -112,7 +113,7 @@ export async function middleware(request: NextRequest) {
 
   // --- 4. Premium Access Check ---
   // Lesson paths: do NOT gate by premium here. Backend (LessonViewSet.retrieve) and
-  // frontend (LessonDetailClient isLockedLesson + LessonPaywall) enforce free lesson 1 only.
+  // frontend (LessonDetailClient isLockedLesson + LessonUpgradeModal) enforce free lesson 1 only.
   const isPremiumPath = premiumRoots.some(root => pathname.startsWith(root));
 
   if (isPremiumPath) {

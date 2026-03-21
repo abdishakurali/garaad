@@ -15,7 +15,7 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({
     children,
     requirePremium = false,
-    requireEmailVerification = true
+    requireEmailVerification = false
 }: ProtectedRouteProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);

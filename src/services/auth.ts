@@ -45,6 +45,8 @@ export interface SignUpResponse {
   message?: string;
   user: User;
   token?: string;
+  /** Server path to first lesson or dashboard (e.g. /courses/.../lessons/1/) */
+  redirect_url?: string;
   tokens?: {
     refresh: string;
     access: string;
@@ -217,6 +219,7 @@ export class AuthService {
         email: user.email,
         is_premium: user.is_premium,
         is_superuser: user.is_superuser,
+        is_email_verified: user.is_email_verified ?? false,
         // So middleware can redirect to /welcome when false
         has_completed_onboarding: user.has_completed_onboarding !== false,
       };
@@ -336,8 +339,37 @@ export class AuthService {
 
   public async completeOnboarding(
     data: OnboardingData
-  ): Promise<OnboardingData & { redirect_url?: string; success?: boolean }> {
+  ): Promise<
+    OnboardingData & {
+      redirect_url?: string;
+      success?: boolean;
+      destination_lesson_id?: number | null;
+    }
+  > {
     return api.post("/api/auth/complete-onboarding/", data);
+  }
+
+  /** Public: first lesson URL for onboarding topic (no auth required). */
+  public async getOnboardingFirstLesson(topic: string): Promise<{
+    path: string | null;
+    lesson_id: number | null;
+  }> {
+    return api.get("/api/auth/onboarding-first-lesson/", {
+      topic: topic.trim(),
+    });
+  }
+
+  /** Authenticated: first lesson path for the signed-up user's enrolled track. */
+  public async getFirstLessonRedirect(): Promise<string | null> {
+    try {
+      const res = await api.get<{ redirect_url: string }>(
+        "/api/auth/first-lesson-redirect/"
+      );
+      const url = res?.redirect_url?.trim();
+      return url && url.startsWith("/") ? url : null;
+    } catch {
+      return null;
+    }
   }
 
   /** Update learning path (goal, track, level, time) from settings. Uses PATCH for partial update. */

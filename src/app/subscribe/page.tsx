@@ -1,29 +1,142 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import useSWR from "swr";
+import { usePostHog } from "posthog-js/react";
 import { PLANS, FAQ, type SubscribePlanKey } from "@/config/subscribePlans";
 import { pricingTranslations as t } from "@/config/translations/pricing";
 import PaymentModal from "@/components/PaymentModal";
 import AuthService from "@/services/auth";
 import Logo from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { API_BASE_URL } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 const PLAN_KEYS: SubscribePlanKey[] = ["explorer", "challenge"];
 
-export default function SubscribePage() {
-  const [selectedPlan, setSelectedPlan] = useState<SubscribePlanKey | null>(
-    null
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+interface LandingStats {
+  students_count?: number;
+  courses_count?: number;
+  learners_this_month?: number;
+}
+
+function PlanComparisonTable() {
+  const rows = [
+    {
+      label: t.compare_row_price,
+      free: t.compare_free_price,
+      explorer: t.compare_explorer_price,
+      challenge: t.compare_challenge_price,
+    },
+    {
+      label: t.compare_row_lessons,
+      free: t.compare_free_lessons,
+      explorer: t.compare_explorer_lessons,
+      challenge: t.compare_challenge_lessons,
+    },
+    {
+      label: t.compare_row_courses,
+      free: t.compare_free_courses,
+      explorer: t.compare_explorer_courses,
+      challenge: t.compare_challenge_courses,
+    },
+    {
+      label: t.compare_row_support,
+      free: t.compare_free_support,
+      explorer: t.compare_explorer_support,
+      challenge: t.compare_challenge_support,
+    },
+  ];
+
+  return (
+    <div className="mb-10 sm:mb-12 overflow-x-auto rounded-2xl border border-border bg-card/50 shadow-sm">
+      <table className="w-full min-w-[520px] text-left text-sm">
+        <caption className="sr-only">{t.compare_title}</caption>
+        <thead>
+          <tr className="border-b border-border bg-muted/40">
+            <th scope="col" className="p-3 sm:p-4 font-semibold text-foreground w-[28%]">
+              {t.compare_col_features}
+            </th>
+            <th scope="col" className="p-3 sm:p-4 font-semibold text-muted-foreground">
+              Free
+            </th>
+            <th scope="col" className="p-3 sm:p-4 font-semibold text-primary">
+              Explorer
+            </th>
+            <th scope="col" className="p-3 sm:p-4 font-semibold text-muted-foreground">
+              Challenge
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.label} className="border-b border-border last:border-0">
+              <th
+                scope="row"
+                className="p-3 sm:p-4 font-medium text-foreground align-top"
+              >
+                {row.label}
+              </th>
+              <td className="p-3 sm:p-4 text-muted-foreground align-top">
+                {row.free}
+              </td>
+              <td className="p-3 sm:p-4 text-foreground align-top">{row.explorer}</td>
+              <td className="p-3 sm:p-4 text-muted-foreground align-top">
+                {row.challenge}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
+}
+
+function SubscribePageInner() {
+  const [selectedPlan, setSelectedPlan] = useState<SubscribePlanKey | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const posthog = usePostHog();
+  const viewCaptured = useRef(false);
+
+  const planFromQuery = searchParams.get("plan") as SubscribePlanKey | null;
+  const refParam = searchParams.get("ref") ?? "";
+
+  const { data: stats, error: statsError } = useSWR<LandingStats>(
+    `${API_BASE_URL}/api/public/landing-stats/`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+  );
+
+  const joinCount =
+    typeof stats?.learners_this_month === "number" && stats.learners_this_month > 0
+      ? stats.learners_this_month
+      : !statsError && typeof stats?.students_count === "number" && stats.students_count > 0
+        ? Math.max(48, Math.round(stats.students_count * 0.08))
+        : 186;
 
   useEffect(() => {
     if (AuthService.getInstance().isPremium()) {
       router.replace("/dashboard");
     }
   }, [router]);
+
+  useEffect(() => {
+    if (viewCaptured.current || !posthog) return;
+    viewCaptured.current = true;
+    posthog.capture("subscribe_page_view", { ref: refParam });
+  }, [posthog, refParam]);
+
+  useEffect(() => {
+    if (planFromQuery !== "explorer" && planFromQuery !== "challenge") return;
+    const el = document.getElementById(`plan-card-${planFromQuery}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [planFromQuery]);
 
   const handlePaymentSuccess = (planKey: SubscribePlanKey) => {
     router.push(`/dashboard?subscribed=${planKey}`);
@@ -46,7 +159,7 @@ export default function SubscribePage() {
       </header>
 
       <div className="px-4 py-12 sm:py-16">
-        <div className="text-center mb-12 sm:mb-14">
+        <div className="text-center mb-8 sm:mb-10">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary via-violet-600 to-primary bg-clip-text text-transparent">
             {t.pricing_title}
           </h1>
@@ -55,24 +168,53 @@ export default function SubscribePage() {
           </p>
         </div>
 
+        <div className="max-w-4xl mx-auto mb-8">
+          {!stats && !statsError ? (
+            <div
+              className="h-6 max-w-md mx-auto rounded-md bg-muted animate-pulse mb-2"
+              aria-hidden
+            />
+          ) : (
+            <p className="text-center text-sm font-medium text-primary">
+              {t.subscribe_social_month.replace("{n}", String(joinCount))}
+            </p>
+          )}
+        </div>
+
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-lg font-bold text-center mb-4 text-foreground">
+            {t.compare_title}
+          </h2>
+          <PlanComparisonTable />
+        </div>
+
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-16 md:mb-20">
           {PLAN_KEYS.map((key) => {
             const plan = PLANS[key];
+            const isHighlightedFromUrl = planFromQuery === plan.key;
             return (
               <div
+                id={`plan-card-${plan.key}`}
                 key={plan.key}
-                className={`relative rounded-2xl border-2 p-8 flex flex-col ${
+                className={cn(
+                  `relative rounded-2xl border-2 p-8 flex flex-col`,
                   plan.key === "challenge"
                     ? "order-1 md:order-2"
-                    : "order-2 md:order-1"
-                } ${
+                    : "order-2 md:order-1",
                   plan.highlight
                     ? "border-primary bg-gradient-to-b from-primary to-violet-700 text-primary-foreground shadow-xl shadow-primary/20"
-                    : "border-border bg-card text-card-foreground hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5 transition-shadow"
-                }`}
+                    : "border-border bg-card text-card-foreground hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5 transition-shadow",
+                  isHighlightedFromUrl && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                )}
               >
                 {plan.badge && (
-                  <span className="absolute -top-3 left-6 bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                  <span
+                    className={`absolute -top-3 left-6 text-xs font-bold px-3 py-1 rounded-full shadow-sm ${
+                      plan.key === "explorer"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-secondary-foreground"
+                    }`}
+                  >
                     ★ {plan.badge}
                   </span>
                 )}
@@ -97,25 +239,38 @@ export default function SubscribePage() {
                   {plan.tagline}
                 </p>
 
-                <div className="flex items-end gap-1 mb-8">
-                  <span
-                    className={`text-5xl font-extrabold tabular-nums ${
-                      plan.highlight
-                        ? "text-primary-foreground"
-                        : "text-foreground"
-                    }`}
-                  >
-                    ${plan.price}
-                  </span>
-                  <span
-                    className={`text-base mb-2 ${
-                      plan.highlight
-                        ? "text-primary-foreground/70"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {plan.per}
-                  </span>
+                <div className="mb-8">
+                  <div className="flex items-end gap-1">
+                    <span
+                      className={`text-5xl font-extrabold tabular-nums ${
+                        plan.highlight
+                          ? "text-primary-foreground"
+                          : "text-foreground"
+                      }`}
+                    >
+                      {plan.priceDisplay}
+                    </span>
+                    <span
+                      className={`text-base mb-2 ${
+                        plan.highlight
+                          ? "text-primary-foreground/70"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {plan.per}
+                    </span>
+                  </div>
+                  {"yearlyPriceNote" in plan && plan.yearlyPriceNote ? (
+                    <p
+                      className={`mt-2 text-sm ${
+                        plan.highlight
+                          ? "text-primary-foreground/75"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {plan.yearlyPriceNote}
+                    </p>
+                  ) : null}
                 </div>
 
                 <ul className="space-y-3.5 mb-8 flex-1">
@@ -198,5 +353,21 @@ export default function SubscribePage() {
         )}
       </div>
     </div>
+  );
+}
+
+function SubscribeFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="h-10 w-10 rounded-full border-2 border-muted border-t-primary animate-spin" />
+    </div>
+  );
+}
+
+export default function SubscribePage() {
+  return (
+    <Suspense fallback={<SubscribeFallback />}>
+      <SubscribePageInner />
+    </Suspense>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { API_BASE_URL } from "@/lib/constants";
 import type React from "react";
 
@@ -22,6 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { isAllowedRedirect } from "@/lib/auth-redirect";
 
 export default function VerifyEmailPage() {
   const [isVerifying, setIsVerifying] = useState(false);
@@ -33,6 +35,38 @@ export default function VerifyEmailPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [postVerifyTarget, setPostVerifyTarget] = useState("/courses");
+
+  useEffect(() => {
+    let cancelled = false;
+    const resolveTarget = async () => {
+      if (typeof window === "undefined") return;
+      const fromSession = sessionStorage.getItem("post_signup_redirect");
+      if (fromSession && isAllowedRedirect(fromSession)) {
+        if (!cancelled) setPostVerifyTarget(fromSession);
+        return;
+      }
+      const r = searchParams.get("redirect");
+      if (r && isAllowedRedirect(r)) {
+        if (!cancelled) setPostVerifyTarget(r);
+        return;
+      }
+      const { default: AuthService } = await import("@/services/auth");
+      const auth = AuthService.getInstance();
+      if (auth.isAuthenticated()) {
+        const path = await auth.getFirstLessonRedirect();
+        if (path && isAllowedRedirect(path)) {
+          if (!cancelled) setPostVerifyTarget(path);
+          return;
+        }
+      }
+      if (!cancelled) setPostVerifyTarget("/courses");
+    };
+    resolveTarget();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -116,21 +150,21 @@ export default function VerifyEmailPage() {
               if (updatedUserData) {
                 // Check if user is premium
                 if (updatedUserData.is_premium) {
-                  router.push("/courses");
+                  router.push(postVerifyTarget);
                 } else {
                   // Free users can access lesson 1 + community; send them to courses
-                  router.push("/courses");
+                  router.push(postVerifyTarget);
                 }
               } else {
                 authService.updateEmailVerificationStatus(true);
-                router.push("/courses");
+                router.push(postVerifyTarget);
               }
             } catch (userError) {
               console.error("Error fetching user data:", userError);
               const { default: AuthService } = await import('@/services/auth');
               const authService = AuthService.getInstance();
               authService.updateEmailVerificationStatus(true);
-              router.push("/courses");
+              router.push(postVerifyTarget);
             }
             return;
           }
@@ -150,7 +184,7 @@ export default function VerifyEmailPage() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [email, router]);
+  }, [email, router, postVerifyTarget]);
 
   const handleInputChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -245,17 +279,17 @@ export default function VerifyEmailPage() {
           const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
           if (updatedUserData) {
-            router.push("/courses");
+            router.push(postVerifyTarget);
           } else {
             authService.updateEmailVerificationStatus(true);
-            router.push("/courses");
+            router.push(postVerifyTarget);
           }
         } catch (userError) {
           console.error("Error fetching user data:", userError);
           const { default: AuthService } = await import('@/services/auth');
           const authService = AuthService.getInstance();
           authService.updateEmailVerificationStatus(true);
-          router.push("/courses");
+          router.push(postVerifyTarget);
         }
         return;
       }
@@ -285,15 +319,15 @@ export default function VerifyEmailPage() {
 
         if (updatedUserData) {
           // Premium → /courses; non-premium also → /courses (free lesson 1 + community)
-          router.push("/courses");
+          router.push(postVerifyTarget);
         } else {
           authService.updateEmailVerificationStatus(true);
-          router.push("/courses");
+          router.push(postVerifyTarget);
         }
       } catch (userError) {
         console.error("Error fetching user data:", userError);
         authService.updateEmailVerificationStatus(true);
-        router.push("/courses");
+        router.push(postVerifyTarget);
       }
     } catch (err: unknown) {
       const errorMessage =
@@ -320,7 +354,7 @@ export default function VerifyEmailPage() {
       setIsResending(true);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
+        `${API_BASE_URL}/api/auth/resend-verification/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -353,17 +387,17 @@ export default function VerifyEmailPage() {
             const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
             if (updatedUserData) {
-              router.push("/courses");
+              router.push(postVerifyTarget);
             } else {
               authService.updateEmailVerificationStatus(true);
-              router.push("/courses");
+              router.push(postVerifyTarget);
             }
           } catch (userError) {
             console.error("Error fetching user data:", userError);
             const { default: AuthService } = await import('@/services/auth');
             const authService = AuthService.getInstance();
             authService.updateEmailVerificationStatus(true);
-            router.push("/courses");
+            router.push(postVerifyTarget);
           }
           return;
         }
@@ -383,9 +417,12 @@ export default function VerifyEmailPage() {
   };
 
   const handleGoBackToRegistration = () => {
-    // Back to signup/onboarding only — leave as /welcome per requirements.
-    // Form data is restored from localStorage when the welcome page loads.
-    router.push('/welcome');
+    const r = searchParams.get("redirect");
+    if (r && isAllowedRedirect(r)) {
+      router.push(`/welcome?redirect=${encodeURIComponent(r)}`);
+      return;
+    }
+    router.push("/welcome");
   };
 
   return (
@@ -450,6 +487,18 @@ export default function VerifyEmailPage() {
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-4">
+          <div className="text-center w-full">
+            <Link
+              href={postVerifyTarget}
+              className="inline-flex items-center justify-center text-sm font-semibold text-primary hover:underline"
+            >
+              Continue to your first lesson →
+            </Link>
+            <p className="text-xs text-muted-foreground mt-1">
+              Ku sii wad casharkaaga haddii aadan weli xaqiijin
+            </p>
+          </div>
+
           <div className="text-center text-sm text-muted-foreground">
             Ma heshin koodka?{" "}
             <button

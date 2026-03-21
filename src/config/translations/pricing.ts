@@ -5,8 +5,11 @@ export const pricingTranslations = {
 
   // Explorer card
   explorer_name: "Explorer",
+  explorer_popular_badge: "Ugu caansan",
   explorer_tagline: "Ku baro xawaarahaaga",
   explorer_per_month: "/bishii",
+  /** Shown under monthly price on plan card (yearly option). */
+  explorer_yearly_hint: "Sanadkiiba €290",
   explorer_cta: "Bilow Waxbarashada",
   explorer_feature_1: "Dhammaan 54-ta cashar ee la daabacay",
   explorer_feature_2: "6 koorso oo isugu jira tech, xisaab iyo AI",
@@ -19,7 +22,7 @@ export const pricingTranslations = {
   challenge_badge: "Lagu taliyay",
   challenge_tagline:
     "Shaqo ku hel ama ku dhis alaabtaada 90 maalmood gudahood",
-  challenge_per_month: "/bishii",
+  challenge_per_one_time: "hal mar",
   challenge_cta: "Ku biir Challenge-ka",
   challenge_feature_1: "Wax kasta oo ku jira Explorer",
   challenge_feature_2:
@@ -38,8 +41,8 @@ export const pricingTranslations = {
   modal_card_label: "Kaarka Bangiga (Stripe)",
   modal_phone_placeholder: "Lambarka telefoonka tusaale: 252615000000",
   modal_phone_label: "Lambarka telefoonka Waafi",
-  modal_pay_explorer: "Bixi $29",
-  modal_pay_challenge: "Bixi $149",
+  modal_pay_explorer: "Bixi €29",
+  modal_pay_challenge: "Bixi €149",
   modal_processing: "Waa lagu guda jiraa...",
 
   // Success banners
@@ -75,4 +78,28 @@ export const pricingTranslations = {
     "Lacag bixintu way fashilantay. Fadlan isku day markale ama nala soo xiriir.",
   error_login_required: "Fadlan soo gal si aad isku diiwaangeliso",
   already_subscribed: "Hadda ayaad leedahay is-diiwaangelin firfircoon",
+
+  // Subscribe comparison (Free vs Explorer vs Challenge)
+  compare_title: "Isbar dhig qorshayaasha",
+  compare_col_features: "Astaamaha",
+  compare_row_lessons: "Helitaanka casharada",
+  compare_row_courses: "Koorsaska",
+  compare_row_support: "Taageero",
+  compare_free_lessons: "Casharka 1aad ee koorso kasta",
+  compare_explorer_lessons: "Dhammaan 40+ cashar",
+  compare_challenge_lessons: "Dhammaan + mashruuca 90 maalmood",
+  compare_free_courses: "Muuqaal koorsada",
+  compare_explorer_courses: "Dhammaan 6 koorso",
+  compare_challenge_courses: "Dhammaan + koox & wicitaan",
+  compare_free_support: "Bulshada (bilaash)",
+  compare_explorer_support: "XP, streaks, bulshada",
+  compare_challenge_support: "WhatsApp + wicitaan toddobaadle",
+
+  compare_row_price: "Qiimaha",
+  compare_free_price: "Bilaash",
+  compare_explorer_price: "€29/bilaan",
+  compare_challenge_price: "€149 hal mar",
+
+  subscribe_social_month:
+    "Ku biir {n}+ barayaal Soomaali ah bishaan — waxaad ku jirtaa kooxda",
 } as const;
