@@ -26,6 +26,7 @@ export class RootErrorBoundary extends React.Component<Props, State> {
     console.error("ErrorBoundary caught an error:", error, info);
   }
 
+  /** Full document reload after a render crash — router.refresh() cannot recover a broken React tree. */
   handleReload = () => {
     window.location.reload();
   };

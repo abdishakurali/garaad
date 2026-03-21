@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { analyticsService, UserAnalytics, RevenueAnalytics, CourseAnalytics, RecentActivity } from "@/lib/admin/analytics";
 import type { UserListItem, AdminUsersResponse, AdminUserRow } from "@/lib/admin/analytics";
 import KPICard from "@/components/admin/dashboard/KPICard";
@@ -67,31 +67,31 @@ export default function DashboardPage() {
         setFilterLevel(ALL);
     };
 
-    useEffect(() => {
-        const fetchAllData = async () => {
-            try {
-                setLoading(true);
-                const [u, r, c, a] = await Promise.all([
-                    analyticsService.getUsers(),
-                    analyticsService.getRevenue(),
-                    analyticsService.getCourses(),
-                    analyticsService.getActivity()
-                ]);
-                setUserStats(u);
-                setRevenueStats(r);
-                setCourseStats(c);
-                setActivityStats(a);
-                setError(null);
-            } catch (err) {
-                console.error("Error fetching analytics data:", err);
-                setError("Could not load analytics data. Please make sure the backend is running and you are logged in as an admin.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchAllData();
+    const fetchAllData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const [u, r, c, a] = await Promise.all([
+                analyticsService.getUsers(),
+                analyticsService.getRevenue(),
+                analyticsService.getCourses(),
+                analyticsService.getActivity()
+            ]);
+            setUserStats(u);
+            setRevenueStats(r);
+            setCourseStats(c);
+            setActivityStats(a);
+            setError(null);
+        } catch (err) {
+            console.error("Error fetching analytics data:", err);
+            setError("Could not load analytics data. Please make sure the backend is running and you are logged in as an admin.");
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchAllData();
+    }, [fetchAllData]);
 
     const usersFilters = useMemo(() => ({
         goal: usersFilterGoal,
@@ -133,7 +133,11 @@ export default function DashboardPage() {
                 <h2 className="text-2xl font-black text-gray-900 mb-4">Khalad ayaa dhacay</h2>
                 <p className="text-gray-500 font-medium max-w-sm mx-auto mb-10 leading-relaxed">{error}</p>
                 <button
-                    onClick={() => window.location.reload()}
+                    type="button"
+                    onClick={() => {
+                        setError(null);
+                        void fetchAllData();
+                    }}
                     className="px-10 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-100"
                 >
                     Isku day markale

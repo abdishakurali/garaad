@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import React from "react";
 import type { JSX } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
@@ -53,8 +53,9 @@ import {
   learningGoals
 } from "@/config/onboarding-data";
 
-export default function Page() {
+function WelcomeOnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState<Record<number, number | string>>({});
   const [selectedTopic, setSelectedTopic] = useState<string>("saas_challenge");
@@ -138,14 +139,15 @@ export default function Page() {
         setSelectedTopic(savedSelectedTopic);
       }
 
-      // Check for referral code in URL
-      const params = new URLSearchParams(window.location.search);
-      const ref = params.get('ref');
-      if (ref) {
-        setUserData((prev) => ({ ...prev, referralCode: ref }));
-      }
     }
   }, [steps.length]);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setUserData((prev) => ({ ...prev, referralCode: ref }));
+    }
+  }, [searchParams]);
 
   // Save data to localStorage whenever it changes
   useEffect(() => {
@@ -1006,5 +1008,19 @@ export default function Page() {
         </CardContent>
       </Card>
     </div >
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <WelcomeOnboardingPage />
+    </Suspense>
   );
 }

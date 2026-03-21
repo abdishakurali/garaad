@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAdminAuthStore } from "@/store/admin/auth";
 import { adminApi as api, ApiError } from "@/lib/admin-api";
 import { Lock, Mail, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
@@ -28,19 +28,19 @@ interface LoginResponse {
     user: User;
 }
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
+    const urlSearchParams = useSearchParams();
     const { setTokens, token, clearTokens } = useAdminAuthStore();
 
     useEffect(() => {
         if (typeof window === "undefined") return;
 
-        const searchParams = new URLSearchParams(window.location.search);
-        const reason = searchParams.get("reason");
+        const reason = urlSearchParams.get("reason");
 
         // More robust loop detection using sessionStorage
         const lastRedirectTime = sessionStorage.getItem("admin_redirect_loop_check");
@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
             // Add a hint about clearing cache if PWA is suspected
             setError(`${errorMsg} (Haddii ay ku soo noqnoqoto, fadlan nadiifi cache-ka browser-ka ama isticmaal Incognito)`);
         }
-    }, [token, router, clearTokens]);
+    }, [token, router, clearTokens, urlSearchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -228,5 +228,19 @@ export default function AdminLoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function AdminLoginPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+                </div>
+            }
+        >
+            <AdminLoginForm />
+        </Suspense>
     );
 }

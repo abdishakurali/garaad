@@ -2,6 +2,29 @@ import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import Link from "next/link";
 
+/** Origins that should use client-side <Link> instead of <a> (avoids full page reload). */
+function internalLinkOrigins(): Set<string> {
+  const origins = new Set<string>([
+    "https://garaad.org",
+    "http://garaad.org",
+    "https://www.garaad.org",
+    "http://www.garaad.org",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+  ]);
+  const base = process.env.NEXT_PUBLIC_BASE_URL;
+  if (base) {
+    try {
+      origins.add(new URL(base).origin);
+    } catch {
+      /* ignore */
+    }
+  }
+  return origins;
+}
+
+const INTERNAL_ORIGINS = internalLinkOrigins();
+
 const customCodeRenderer = (node: any) => {
   const { value } = node.content[0];
   return (
@@ -20,10 +43,22 @@ const customImageRenderer = (node: any) => {
   return <img src={`https:${url}`} alt={description || title} />;
 };
 
-/** Internal path: relative URL on same origin (e.g. /blog/foo). Use Link to avoid full page reload. */
+/** Same-site URLs (relative or absolute) → use Next.js Link for client navigation. */
 function isInternalHref(uri: string): boolean {
   if (typeof uri !== "string" || !uri) return false;
-  return uri.startsWith("/") && !uri.startsWith("//");
+  if (uri.startsWith("/") && !uri.startsWith("//")) return true;
+  try {
+    const u = new URL(uri);
+    return INTERNAL_ORIGINS.has(u.origin);
+  } catch {
+    return false;
+  }
+}
+
+function toAppPath(uri: string): string {
+  if (uri.startsWith("/")) return uri;
+  const u = new URL(uri);
+  return `${u.pathname}${u.search}${u.hash}`;
 }
 
 const customLinkRenderer = (node: any) => {
@@ -33,7 +68,7 @@ const customLinkRenderer = (node: any) => {
   const text = content[0]?.value ?? "";
   if (isInternalHref(uri)) {
     return (
-      <Link href={uri} className="text-primary hover:underline">
+      <Link href={toAppPath(uri)} className="text-primary hover:underline">
         {text}
       </Link>
     );
