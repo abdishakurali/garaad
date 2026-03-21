@@ -10,6 +10,7 @@ import { AlertCircle, ChevronRight, CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { usePostHog } from "posthog-js/react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn, getAbsoluteImageUrl, getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
@@ -81,6 +82,7 @@ const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string
 export function CoursesListClient() {
     const { categories, isLoading: isSWRLoading, isError } = useCategories();
     const { enrollments } = useEnrollments();
+    const posthog = usePostHog();
     const searchParams = useSearchParams();
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const { isAuthenticated } = useAuthStore();
@@ -403,6 +405,20 @@ export function CoursesListClient() {
                         }
                     )}
                 </div>
+
+                {isAuthenticated && (
+                    <div className="mt-20 mb-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 px-5 py-4 text-center shadow-sm">
+                        <Link
+                            href="/community"
+                            className="text-sm font-semibold text-primary hover:underline inline-block"
+                            onClick={() =>
+                                posthog?.capture("community_cta_clicked", { source: "courses_page" })
+                            }
+                        >
+                            Ku biir bulshada Soomaalida baranaysa → Dadweynaha
+                        </Link>
+                    </div>
+                )}
             </main >
         </div >
     );

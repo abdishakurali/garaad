@@ -59,7 +59,7 @@ interface ProblemData {
     id: number;
     question_text: string;
     which: string;
-    options: { text: string }[];
+    options: { id?: string | number; text: string; wrong_explanation?: string }[];
     correct_answer: { text: string }[];
     explanation?: string;
     diagram_config?: DiagramConfig;
@@ -436,6 +436,17 @@ export function LessonDetailClient() {
                 options: Array.isArray(pd.options)
                     ? pd.options.map((opt: any) => typeof opt === 'string' ? opt : opt.text)
                     : [],
+                optionsDetail: Array.isArray(pd.options)
+                    ? pd.options.map((opt: any) =>
+                        typeof opt === 'object' && opt && opt.text != null
+                            ? {
+                                id: opt.id,
+                                text: String(opt.text),
+                                wrong_explanation: opt.wrong_explanation,
+                            }
+                            : { text: typeof opt === 'string' ? opt : '' }
+                    )
+                    : [],
                 correct_answer: Array.isArray(pd.correct_answer)
                     ? pd.correct_answer.map((ans: any, index: number) => ({
                         id: `answer-${ans.id || index}`,
@@ -741,7 +752,7 @@ export function LessonDetailClient() {
         } else if (currentProblem.question_type === "short_input") {
             const correctAnswers = currentProblem.correct_answer?.map((ans) => (ans.text || "").toLowerCase().trim()) || [];
             isCorrect = correctAnswers.includes((userSelections[0] || "").toLowerCase().trim());
-        } else if (currentProblem.question_type === "multiple_choice" || currentProblem.question_type === "single_choice") {
+        } else if (currentProblem.question_type === "multiple_choice" || currentProblem.question_type === "single_choice" || currentProblem.question_type === "mcq") {
             // Compare by option text (trimmed); only one option is selected at a time
             const correctTexts = new Set(
                 (currentProblem.correct_answer || [])
@@ -757,6 +768,60 @@ export function LessonDetailClient() {
 
         if (isCorrect) {
             setCurrentXp(currentProblem.xp || currentProblem.points || 10);
+        }
+
+        const rawExpl = currentProblem.explanation;
+        const explPlain =
+            typeof rawExpl === "string"
+                ? rawExpl
+                : rawExpl && typeof rawExpl === "object"
+                  ? Object.values(rawExpl)
+                        .filter((t): t is string => typeof t === "string" && Boolean(t.trim()))
+                        .join("\n\n")
+                  : "";
+
+        const selectedText = (userSelections[0] || "").trim();
+        const optDetail = currentProblem.optionsDetail?.find(
+            (o) => (o.text || "").trim() === selectedText
+        );
+
+        const toHtmlParagraphs = (plain: string) =>
+            plain.includes("<") && plain.includes(">")
+                ? plain
+                : plain
+                      .replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/\n\n/g, "</p><p>")
+                      .replace(/\n/g, "<br/>");
+
+        if (isCorrect) {
+            const correctHtml = explPlain
+                ? `<div class="feedback-prose text-xs sm:text-sm leading-relaxed text-zinc-300 [&_p]:mb-2 [&_strong]:text-emerald-200/90"><p><strong>Sababta jawaabtu sax tahay:</strong></p><p>${toHtmlParagraphs(explPlain)}</p></div>`
+                : "";
+            setExplanationData({
+                explanation: correctHtml,
+                image: "",
+                type: currentProblem.content?.type || "",
+            });
+        } else {
+            const wrongFromOpt = optDetail?.wrong_explanation?.trim();
+            let wrongHtml = wrongFromOpt || "";
+            if (!wrongHtml && explPlain) {
+                const inner = toHtmlParagraphs(explPlain);
+                wrongHtml = `<div class="feedback-prose text-xs sm:text-sm leading-relaxed text-zinc-300 [&_p]:mb-2"><p><strong>Maxaa loo qaldantahay?</strong></p><p>${inner}</p></div>`;
+            } else if (wrongHtml && !wrongHtml.includes("Maxaa loo qaldantahay")) {
+                wrongHtml = `<div class="feedback-prose text-xs sm:text-sm leading-relaxed text-zinc-300 [&_p]:mb-2"><p><strong>Maxaa loo qaldantahay?</strong></p><div>${wrongHtml}</div></div>`;
+            } else if (wrongHtml) {
+                wrongHtml = `<div class="feedback-prose text-xs sm:text-sm leading-relaxed text-zinc-300 [&_p]:mb-2">${wrongHtml}</div>`;
+            } else {
+                wrongHtml = `<div class="feedback-prose text-xs sm:text-sm text-zinc-400"><p><strong>Maxaa loo qaldantahay?</strong></p><p>Dib u eeg cutubka casharka oo isku day mar kale.</p></div>`;
+            }
+            setExplanationData({
+                explanation: wrongHtml,
+                image: "",
+                type: currentProblem.content?.type || "",
+            });
         }
 
         setIsCorrect(isCorrect);

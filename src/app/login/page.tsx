@@ -19,9 +19,20 @@ function LoginPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const posthog = usePostHog();
-    const redirectTo = useMemo(() => {
+    const [redirectTo, setRedirectTo] = useState<string | null>(null);
+    useEffect(() => {
         const r = searchParams.get("redirect");
-        return isAllowedRedirect(r) ? r : null;
+        if (isAllowedRedirect(r)) {
+            setRedirectTo(r);
+            return;
+        }
+        try {
+            const stored = sessionStorage.getItem("post_login_redirect");
+            if (isAllowedRedirect(stored)) setRedirectTo(stored);
+            else setRedirectTo(null);
+        } catch {
+            setRedirectTo(null);
+        }
     }, [searchParams]);
     const reason = searchParams.get("reason");
     const lessonIdFromPath = useMemo(
@@ -109,6 +120,11 @@ function LoginPageContent() {
                 });
             }
 
+            try {
+                sessionStorage.removeItem("post_login_redirect");
+            } catch {
+                /* ignore */
+            }
             if (redirectTo) {
                 router.refresh();
                 router.push(redirectTo);

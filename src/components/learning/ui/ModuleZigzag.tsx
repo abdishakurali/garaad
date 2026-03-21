@@ -20,6 +20,8 @@ interface ModuleZigzagProps {
     /** Course URL segments — used to open locked lessons in-place (upgrade modal) instead of /subscribe. */
     categoryId: string;
     courseSlug: string;
+    /** When true, hide the fixed bottom CTA bar (course overview uses a single primary CTA above). */
+    suppressBottomCta?: boolean;
 }
 
 export default function ModuleZigzag({
@@ -31,6 +33,7 @@ export default function ModuleZigzag({
     xp,
     categoryId,
     courseSlug,
+    suppressBottomCta = false,
 }: ModuleZigzagProps) {
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -295,7 +298,7 @@ export default function ModuleZigzag({
             </ul>
 
             {/* Fixed Bottom Action Bar */}
-            {uniqueModules.length > 0 && (
+            {uniqueModules.length > 0 && !suppressBottomCta && (
                 <div className="fixed bottom-0 md:w-96 left-4 right-4 md:left-auto md:right-1/3 md:transform md:translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 shadow-lg border-t border-gray-100 dark:border-slate-800 z-50" style={{ maxWidth: '40rem' }}>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-4">
                         {selectedModule?.title || uniqueModules[0]?.title || 'Select a module'}

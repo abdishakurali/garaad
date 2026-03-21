@@ -208,11 +208,20 @@ Single diagram format:
 }
 */
 
+/** Raw option row from API (parallel to `options` string list in ProblemContent). */
+export interface ProblemOptionDetail {
+  id?: string | number;
+  text: string;
+  wrong_explanation?: string;
+}
+
 export interface ProblemContent {
   id: number;
   question: string;
   which: string;
   options: string[];
+  /** Per-option metadata (e.g. wrong_explanation) preserved from API. */
+  optionsDetail?: ProblemOptionDetail[];
   correct_answer: { id: string; text: string }[];
   explanation?: string | ExplanationText;
   diagram_config?: DiagramConfig | DiagramConfig[];
@@ -222,7 +231,10 @@ export interface ProblemContent {
   | "mcq"
   | "short_input"
   | "diagram"
-  | "multiple_choice";
+  | "multiple_choice"
+  | "single_choice"
+  | "matching"
+  | "calculator";
   img?: string;
   alt?: string;
   content: {

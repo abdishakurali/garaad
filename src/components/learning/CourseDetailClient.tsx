@@ -5,8 +5,8 @@ import {
     useMemo,
     useState,
     useEffect,
+    useLayoutEffect,
     useCallback,
-    useRef,
     useSyncExternalStore,
 } from "react";
 import Image from "next/image";
@@ -87,6 +87,7 @@ export function CourseDetailClient() {
     } = useCourse(String(categoryId), String(courseSlug));
 
     const { isAuthenticated } = useAuthStore();
+    const authHydrated = useAuthStore((s) => s._hasHydrated);
     const isPremiumUser = useAuthStore((s) => s.user?.is_premium ?? false);
 
     const {
@@ -181,6 +182,15 @@ export function CourseDetailClient() {
         );
     }, [sortedLessonIds, courseProgressEntries]);
 
+    const hasCompletedAtLeastOne = useMemo(() => {
+        if (sortedLessonIds.length === 0) return false;
+        return sortedLessonIds.some((lid) =>
+            courseProgressEntries.some(
+                (e: any) => Number(e.lesson) === lid && e.status === "completed"
+            )
+        );
+    }, [sortedLessonIds, courseProgressEntries]);
+
     const showContinueCta = useMemo(() => {
         if (!isAuthenticated || sortedLessonIds.length === 0) return false;
         if (enrollmentProgress > 0) return true;
@@ -195,9 +205,16 @@ export function CourseDetailClient() {
     ]);
 
     const primaryCtaLessonId = useMemo(() => {
-        if (showContinueCta && resumeLessonId != null) return resumeLessonId;
+        if (isAuthenticated && showContinueCta && resumeLessonId != null) {
+            return resumeLessonId;
+        }
         return firstLessonIdOfCourse;
-    }, [showContinueCta, resumeLessonId, firstLessonIdOfCourse]);
+    }, [isAuthenticated, showContinueCta, resumeLessonId, firstLessonIdOfCourse]);
+
+    const primaryCtaLabel = useMemo(() => {
+        if (isAuthenticated && showContinueCta) return "Sii wad";
+        return "Bilow";
+    }, [isAuthenticated, showContinueCta]);
 
 
     const lessonPath = useCallback(
@@ -248,57 +265,39 @@ export function CourseDetailClient() {
     };
 
     const nextLessonParam = searchParams.get("nextLessonId");
-    const didRedirectNextLesson = useRef(false);
-    useEffect(() => {
-        didRedirectNextLesson.current = false;
-    }, [categoryId, courseSlug, nextLessonParam]);
+    const nextLessonIdNum = useMemo(() => {
+        if (!nextLessonParam) return NaN;
+        const n = Number(nextLessonParam);
+        return Number.isFinite(n) && n > 0 ? n : NaN;
+    }, [nextLessonParam]);
+    const hasNextLessonRedirect = !Number.isNaN(nextLessonIdNum);
 
-    useEffect(() => {
-        const nextLessonId = searchParams.get("nextLessonId");
-        if (
-            !nextLessonId ||
-            !currentCourse?.modules?.length ||
-            !hasMounted ||
-            isLoading
-        )
-            return;
-        if (didRedirectNextLesson.current) return;
-
-        const idNum = Number(nextLessonId);
-        if (!Number.isFinite(idNum)) return;
-
-        const belongs = sortedLessonIds.includes(idNum);
-        if (!belongs) return;
-
-        didRedirectNextLesson.current = true;
-
+    useLayoutEffect(() => {
+        if (!hasNextLessonRedirect || !hasMounted || !authHydrated) return;
+        const cat = String(categoryId);
+        const slug = String(courseSlug);
+        const path = `/courses/${cat}/${slug}/lessons/${nextLessonIdNum}`;
         if (!isAuthenticated) {
+            try {
+                sessionStorage.setItem("post_login_redirect", path);
+            } catch {
+                /* ignore quota / private mode */
+            }
             router.replace(
-                `/login?redirect=${encodeURIComponent(lessonPath(idNum))}`
+                `/login?reason=unauthenticated&redirect=${encodeURIComponent(path)}`
             );
             return;
         }
-
-        const isFirst =
-            firstLessonIdOfCourse != null &&
-            idNum === Number(firstLessonIdOfCourse);
-        if (!isPremiumUser && !isFirst) {
-            router.replace("/subscribe");
-            return;
-        }
-
-        router.replace(lessonPath(idNum));
+        router.replace(path);
     }, [
-        searchParams,
-        currentCourse?.modules,
-        hasMounted,
-        isLoading,
-        sortedLessonIds,
+        hasNextLessonRedirect,
+        nextLessonIdNum,
+        categoryId,
+        courseSlug,
         isAuthenticated,
-        isPremiumUser,
-        firstLessonIdOfCourse,
+        authHydrated,
+        hasMounted,
         router,
-        lessonPath,
     ]);
 
     if (!hasMounted) {
@@ -314,6 +313,30 @@ export function CourseDetailClient() {
                     </div>
                 </div>
             </div>
+        );
+    }
+
+    if (hasNextLessonRedirect) {
+        if (!authHydrated) {
+            return (
+                <div className="min-h-screen bg-slate-50 dark:bg-black">
+                    <div className="max-w-7xl mx-auto p-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                            <Skeleton className="h-[400px] w-full rounded-[2.5rem]" />
+                            <div className="space-y-8">
+                                <Skeleton className="h-20 w-3/4 rounded-2xl" />
+                                <Skeleton className="h-40 w-full rounded-2xl" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        return (
+            <div
+                className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500"
+                aria-busy="true"
+            />
         );
     }
 
@@ -363,7 +386,7 @@ export function CourseDetailClient() {
         <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-500">
             <div className="max-w-7xl mx-auto p-8 mb-20">
                 {primaryCtaLessonId != null && (
-                    <div className="mb-8 flex justify-center lg:justify-start">
+                    <div className="mb-8 flex flex-col items-center lg:items-start gap-2">
                         <Button
                             type="button"
                             size="xl"
@@ -375,8 +398,27 @@ export function CourseDetailClient() {
                             }
                         >
                             <PlayCircle className="size-7 shrink-0" aria-hidden />
-                            {showContinueCta ? "Sii wad" : "Bilow"}
+                            {primaryCtaLabel}
                         </Button>
+                        {!isAuthenticated && (
+                            <p className="text-center lg:text-left text-sm text-muted-foreground font-medium px-1">
+                                Xisaab u fur bilaash ah
+                            </p>
+                        )}
+                        {isAuthenticated && hasCompletedAtLeastOne && firstLessonIdOfCourse != null && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="text-muted-foreground hover:text-foreground text-sm font-semibold h-auto py-2"
+                                onClick={() =>
+                                    navigateToLesson(firstLessonIdOfCourse, {
+                                        review: true,
+                                    })
+                                }
+                            >
+                                Muraajacee
+                            </Button>
+                        )}
                     </div>
                 )}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -474,6 +516,7 @@ export function CourseDetailClient() {
                                     xp={xp}
                                     categoryId={String(categoryId)}
                                     courseSlug={String(courseSlug)}
+                                    suppressBottomCta
                                 />
                             )}
                         </div>
