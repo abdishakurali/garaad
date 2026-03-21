@@ -22,6 +22,8 @@ export interface User {
   profile_picture?: string;
   bio?: string;
   is_premium: boolean;
+  /** Backend: monthly | yearly | lifetime | challenge — use `challenge` for Challenge plan badge. */
+  subscription_type?: string | null;
   is_email_verified?: boolean;
   preferences?: {
     language: string;

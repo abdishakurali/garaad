@@ -44,10 +44,15 @@ export async function GET(request: NextRequest) {
 
       if (updateSuccess) {
         console.log("User premium status updated successfully");
-        // Redirect to courses page with success message
-        return NextResponse.redirect(
-          new URL("/courses?success=payment_completed", request.url)
-        );
+        const metaPlan = session.metadata?.plan;
+        const subscribed =
+          metaPlan === "challenge" || metaPlan === "explorer"
+            ? metaPlan
+            : null;
+        const path = subscribed
+          ? `/dashboard?subscribed=${subscribed}`
+          : "/courses?success=payment_completed";
+        return NextResponse.redirect(new URL(path, request.url));
       } else {
         console.error("Failed to update user premium status");
         return NextResponse.redirect(

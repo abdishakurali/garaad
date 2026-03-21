@@ -199,7 +199,18 @@ class OrderService {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+          error?: string;
+        };
+        const msg =
+          (typeof errorData.message === "string" && errorData.message) ||
+          (typeof errorData.error === "string" && errorData.error);
+        if (msg) {
+          const apiError = new Error(msg) as ApiError;
+          apiError.status = response.status;
+          throw apiError;
+        }
         this.handleApiError(errorData, response);
       }
 

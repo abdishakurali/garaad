@@ -15,6 +15,7 @@ import { ProfileDropdown } from "./layout/ProfileDropdown";
 import ReferralModal from "./referrals/ReferralModal";
 import StreakDisplay from "./StreakDisplay";
 import { useGamificationData } from "@/hooks/useGamificationData";
+import { pricingTranslations as pricingT } from "@/config/translations/pricing";
 
 export function Header() {
   const { user } = useAuthStore();
@@ -208,6 +209,28 @@ export function Header() {
                   <span>{xpValue} XP</span>
                 </span>
               )}
+              {mounted && user && !isPremium && (
+                <Link
+                  href="/subscribe"
+                  className="hidden md:inline-flex text-xs font-bold px-3 py-1 rounded-full bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-colors"
+                >
+                  {pricingT.nav_upgrade} →
+                </Link>
+              )}
+              {mounted && user && isPremium && (
+                <span
+                  className={clsx(
+                    "hidden md:inline-flex text-xs font-bold px-3 py-1 rounded-full",
+                    user.subscription_type === "challenge"
+                      ? "bg-black text-white dark:bg-white dark:text-black"
+                      : "bg-gray-100 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100"
+                  )}
+                >
+                  {user.subscription_type === "challenge"
+                    ? `⚡ ${pricingT.nav_badge_challenge}`
+                    : `🌍 ${pricingT.nav_badge_explorer}`}
+                </span>
+              )}
               <ThemeToggle />
               {mounted && user ? (
                 <ProfileDropdown />
@@ -225,6 +248,33 @@ export function Header() {
             {/* Mobile: Only show essential icons + hamburger */}
             <div className="flex md:hidden items-center gap-2">
               {mounted && user && <NotificationPanel />}
+              {mounted && user && !isPremium && (
+                <Link
+                  href="/subscribe"
+                  className="text-[10px] font-bold px-2 py-1 rounded-full bg-black text-white dark:bg-white dark:text-black shrink-0"
+                >
+                  {pricingT.nav_upgrade} →
+                </Link>
+              )}
+              {mounted && user && isPremium && (
+                <span
+                  className={clsx(
+                    "text-[10px] font-bold px-2 py-1 rounded-full shrink-0 max-w-[5.5rem] truncate",
+                    user.subscription_type === "challenge"
+                      ? "bg-black text-white"
+                      : "bg-gray-100 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100"
+                  )}
+                  title={
+                    user.subscription_type === "challenge"
+                      ? pricingT.nav_badge_challenge
+                      : pricingT.nav_badge_explorer
+                  }
+                >
+                  {user.subscription_type === "challenge"
+                    ? `⚡ ${pricingT.nav_badge_challenge}`
+                    : `🌍 ${pricingT.nav_badge_explorer}`}
+                </span>
+              )}
               {authReady && user && isPremium && (
                 <span
                   className={clsx(

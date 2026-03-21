@@ -99,7 +99,7 @@ class WaafiPayService {
     this.config = config;
     this.baseUrl = config.isTestMode
       ? "http://sandbox.waafipay.net/asm"
-      : "https://api.waafipay.com/asm";
+      : "https://api.waafipay.net/asm";
   }
 
   private getTimestamp(): string {

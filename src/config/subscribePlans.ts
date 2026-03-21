@@ -1,35 +1,64 @@
-/**
- * Subscribe page — public plan copy and USD amounts ($29 Explorer, $149 Challenge / month).
- * Backend mirrors amounts in `payment.services.PLAN_PRICING`.
- */
+import { pricingTranslations as t } from "./translations/pricing";
+
 export const PLANS = {
   explorer: {
-    name: "Explorer",
+    key: "explorer" as const,
+    name: t.explorer_name,
+    tagline: t.explorer_tagline,
     price: 29,
     currency: "USD",
-    per: "month",
-    description: "All courses, lesson tracking, community",
+    per: t.explorer_per_month,
+    highlight: false,
+    badge: null as string | null,
     features: [
-      "All published courses",
-      "Lesson progress tracking",
-      "Community access",
-      "30 min/day learning path",
+      t.explorer_feature_1,
+      t.explorer_feature_2,
+      t.explorer_feature_3,
+      t.explorer_feature_4,
+      t.explorer_feature_5,
     ],
+    cta: t.explorer_cta,
+    payButton: t.modal_pay_explorer,
   },
   challenge: {
-    name: "Challenge",
+    key: "challenge" as const,
+    name: t.challenge_name,
+    tagline: t.challenge_tagline,
     price: 149,
     currency: "USD",
-    per: "month",
-    description: "Full stack intensive with direct support",
+    per: t.challenge_per_month,
+    highlight: true,
+    badge: t.challenge_badge,
     features: [
-      "Everything in Explorer",
-      "Fullstack MERN track",
-      "Direct support from founder",
-      "Certificate on completion",
-      "Project reviews",
+      t.challenge_feature_1,
+      t.challenge_feature_2,
+      t.challenge_feature_3,
+      t.challenge_feature_4,
+      t.challenge_feature_5,
+      t.challenge_feature_6,
     ],
+    cta: t.challenge_cta,
+    payButton: t.modal_pay_challenge,
   },
-} as const;
+};
 
 export type SubscribePlanKey = keyof typeof PLANS;
+export type SubscribePlan = (typeof PLANS)[SubscribePlanKey];
+
+/** Optional Stripe Price IDs — if unset, checkout uses USD `price_data` ($29 / $149 per month). */
+export const SUBSCRIBE_STRIPE_PRICE_IDS = {
+  explorer: process.env.NEXT_PUBLIC_STRIPE_EXPLORER_PRICE_ID ?? "",
+  challenge: process.env.NEXT_PUBLIC_STRIPE_CHALLENGE_PRICE_ID ?? "",
+};
+
+export function isValidSubscribeStripePriceId(id: string | undefined): boolean {
+  return typeof id === "string" && id.startsWith("price_");
+}
+
+export const FAQ = [
+  { q: t.faq_1_q, a: t.faq_1_a },
+  { q: t.faq_2_q, a: t.faq_2_a },
+  { q: t.faq_3_q, a: t.faq_3_a },
+  { q: t.faq_4_q, a: t.faq_4_a },
+  { q: t.faq_5_q, a: t.faq_5_a },
+];

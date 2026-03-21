@@ -1,492 +1,202 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Check } from "lucide-react";
-import { useAuthStore } from "@/store/useAuthStore";
-import AuthService from "@/services/auth";
-import StripeService from "@/services/stripe";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { PLANS, FAQ, type SubscribePlanKey } from "@/config/subscribePlans";
+import { pricingTranslations as t } from "@/config/translations/pricing";
+import PaymentModal from "@/components/PaymentModal";
+import AuthService from "@/services/auth";
 import Logo from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { TechIcon } from "@/components/launchpad/TechIcon";
-import { API_BASE_URL } from "@/lib/constants";
-import OrderService from "@/services/orders";
-import { PLANS, type SubscribePlanKey } from "@/config/subscribePlans";
 
-type PaymentProvider = "stripe" | "waafi";
-
-/** Optional Stripe Price IDs — if unset, checkout uses USD `price_data` ($29 / $149 per month). */
-const STRIPE_PRICE_IDS = {
-  explorer: process.env.NEXT_PUBLIC_STRIPE_EXPLORER_PRICE_ID ?? "",
-  challenge: process.env.NEXT_PUBLIC_STRIPE_CHALLENGE_PRICE_ID ?? "",
-};
-
-function isValidStripePriceId(id: string | undefined): boolean {
-  return typeof id === "string" && id.startsWith("price_");
-}
-
-const plans: {
-  key: SubscribePlanKey;
-  name: string;
-  popular: boolean;
-  tagline: string;
-  saveBadge: string | null;
-  stripe: { priceId: string; amount: string; billing: "subscription" };
-  waafi: { amount: string; billing: "subscription" };
-  features: string[];
-}[] = [
-  {
-    key: "explorer",
-    name: PLANS.explorer.name,
-    popular: true,
-    tagline: PLANS.explorer.description,
-    saveBadge: null,
-    stripe: {
-      priceId: STRIPE_PRICE_IDS.explorer,
-      amount: `$${PLANS.explorer.price}`,
-      billing: "subscription",
-    },
-    waafi: { amount: `$${PLANS.explorer.price}`, billing: "subscription" },
-    features: [...PLANS.explorer.features],
-  },
-  {
-    key: "challenge",
-    name: PLANS.challenge.name,
-    popular: false,
-    tagline: PLANS.challenge.description,
-    saveBadge: null,
-    stripe: {
-      priceId: STRIPE_PRICE_IDS.challenge,
-      amount: `$${PLANS.challenge.price}`,
-      billing: "subscription",
-    },
-    waafi: { amount: `$${PLANS.challenge.price}`, billing: "subscription" },
-    features: [...PLANS.challenge.features],
-  },
-];
-
-const ERROR_TRANSLATIONS: Record<string, string> = {
-  "Payment Failed (Receiver is Locked)":
-    "Bixinta waa guuldareysatay (Qofka qaataha waa la xidhay)",
-  "Payment Failed (Haraaga xisaabtaadu kuguma filna, mobile No: 252618995283)":
-    "Bixinta waa guuldareysatay (Haraaga xisaabtaadu kuguma filna, lambarka: 252618995283)",
-    "RCS_USER_REJECTED": "Bixinta waa la joojiyay adiga ayaa diiday",
-    "Invalid card number": "Lambarka kaarka waa khaldan",
-    "Invalid or expired card": "Kaarka waa khaldan ama waa dhammaystiran",
-    "Invalid CVV": "CVV-ga waa khaldan",
-};
-
-function translateError(error: string) {
-    for (const key in ERROR_TRANSLATIONS) {
-        if (error.includes(key) || error === key) return ERROR_TRANSLATIONS[key];
-    }
-    return error;
-}
-
-const TRUST_LOGOS = ["Stripe", "Vercel", "Supabase", "Notion"];
-
-type WaafiOperator = "evc" | "zaad" | "sahal" | null;
-const WAAFI_OPERATORS: { id: WaafiOperator; label: string; prefix: string; placeholder: string }[] = [
-  { id: "evc", label: "EVC Plus (Hormuud)", prefix: "25261", placeholder: "25261xxxxxxx" },
-  { id: "zaad", label: "Zaad (Telesom)", prefix: "25263", placeholder: "25263xxxxxxx" },
-  { id: "sahal", label: "Sahal (Golis)", prefix: "25270", placeholder: "25270 or 25290xxxxxxx" },
-];
+const PLAN_KEYS: SubscribePlanKey[] = ["explorer", "challenge"];
 
 export default function SubscribePage() {
-    const router = useRouter();
-    useAuthStore();
-    const [selectedProvider, setSelectedProvider] = useState<PaymentProvider>("stripe");
-    const [error, setError] = useState<string | null>(null);
-    const [loadingPlanName, setLoadingPlanName] = useState<string | null>(null);
-  const [waafiPhone, setWaafiPhone] = useState("");
-  const [selectedOperator, setSelectedOperator] = useState<WaafiOperator>(null);
-  const [liveStats, setLiveStats] = useState<{ students_count: number; courses_count: number } | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscribePlanKey | null>(
+    null
+  );
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const router = useRouter();
 
-  const handleSelectOperator = (op: WaafiOperator) => {
-    if (op === null) {
-      setSelectedOperator(null);
-      setWaafiPhone("");
-      return;
+  useEffect(() => {
+    if (AuthService.getInstance().isPremium()) {
+      router.replace("/dashboard");
     }
-    const row = WAAFI_OPERATORS.find((o) => o.id === op);
-    if (row) {
-      setSelectedOperator(op);
-      setWaafiPhone(row.prefix);
-    }
+  }, [router]);
+
+  const handlePaymentSuccess = (planKey: SubscribePlanKey) => {
+    router.push(`/dashboard?subscribed=${planKey}`);
   };
 
-  // UPDATED: Optional auto-detect provider from locale / timezone
-  useEffect(() => {
-    const locale = typeof navigator !== "undefined" ? navigator.language || "en" : "en";
-    const tz = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
-    if (locale.startsWith("so") || tz.includes("Mogadishu")) {
-      setSelectedProvider("waafi");
-    }
-  }, []);
-
-  // UPDATED: Fetch live stats from backend (Django public endpoint)
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`${API_BASE_URL}/api/public/landing-stats/`)
-      .then((r) => r.json())
-      .then((data: { students_count?: number; courses_count?: number }) => {
-        if (!cancelled)
-          setLiveStats({
-            students_count: data.students_count ?? 0,
-            courses_count: data.courses_count ?? 0,
-          });
-      })
-      .catch(() => {
-        if (!cancelled) setLiveStats(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Premium redirect
-    useEffect(() => {
-        const authService = AuthService.getInstance();
-        if (authService.isPremium()) {
-            router.push("/courses");
-        }
-    }, [router]);
-
-    if (AuthService.getInstance().isPremium()) {
-        return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-2 border-gray-300 border-t-purple-500 dark:border-white/20" />
-            </div>
-        );
-    }
-
-    const handleStripeCheckout = async (plan: (typeof plans)[number]) => {
-        setError(null);
-        setLoadingPlanName(plan.name);
-        try {
-            const planKey = plan.key;
-            const orderService = OrderService.getInstance();
-            const orderBody = {
-                payment_method: "stripe" as const,
-                currency: "USD" as const,
-                plan: planKey,
-                ...(planKey === "explorer" ? { subscription_type: "monthly" as const } : {}),
-            };
-            const created = await orderService.createSubscriptionOrder(orderBody);
-            const orderId = created.data?.id;
-            if (!orderId) {
-                throw new Error("Dalbashada Stripe: ma helin aqoonsiga dalbashada");
-            }
-            const stripeService = StripeService.getInstance();
-            const usePriceId = isValidStripePriceId(plan.stripe.priceId);
-            await stripeService.createCheckoutSessionWithPrice(
-                usePriceId ? plan.stripe.priceId : "",
-                "subscription",
-                orderId,
-                planKey
-            );
-        } catch (err) {
-            setError(translateError(err instanceof Error ? err.message : String(err)));
-        } finally {
-            setLoadingPlanName(null);
-        }
-    };
-
-    const handleWaafiCheckout = async (plan: (typeof plans)[number]) => {
-        setError(null);
-        setLoadingPlanName(plan.name);
-        try {
-            const phoneDigits = waafiPhone.replace(/\D/g, "").trim();
-            if (!phoneDigits) {
-                setError("Geli lambarka Waafi (tusaale 252615000000)");
-                return;
-            }
-            const planKey = plan.key;
-            const orderService = OrderService.getInstance();
-            const orderBody = {
-                payment_method: "waafi" as const,
-                currency: "USD" as const,
-                phone: phoneDigits,
-                plan: planKey,
-                ...(planKey === "explorer" ? { subscription_type: "monthly" as const } : {}),
-            };
-            const result = await orderService.createSubscriptionOrder(orderBody);
-            if (result.payment_success) {
-                router.push("/courses?payment=success");
-                return;
-            }
-            setError(translateError(result.message || "Bixinta waa guuldareysatay"));
-        } catch (err) {
-            setError(translateError(err instanceof Error ? err.message : String(err)));
-        } finally {
-            setLoadingPlanName(null);
-        }
-    };
-
-    return (
-    <div className="min-h-screen flex flex-col items-center font-dmsans bg-gray-50 text-gray-900 dark:bg-[#0a0a0f] dark:text-white">
-      {/* Header: logo + dark mode toggle only */}
-      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-gray-50/95 backdrop-blur dark:border-white/10 dark:bg-[#0a0a0f]/95 supports-[backdrop-filter]:bg-gray-50/80 dark:supports-[backdrop-filter]:bg-[#0a0a0f/80">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2 py-2" aria-label="Garaad home">
-            <Logo priority loading="eager" className="h-14 w-auto sm:h-16" sizes="(max-width: 640px) 160px, 220px" />
+  return (
+    <div className="min-h-screen bg-white dark:bg-zinc-950 text-gray-900 dark:text-zinc-100">
+      <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
+          <Link href="/" className="flex items-center py-1" aria-label="Garaad home">
+            <Logo
+              priority
+              loading="eager"
+              className="h-10 w-auto sm:h-11"
+              sizes="(max-width: 640px) 140px, 180px"
+            />
           </Link>
           <ThemeToggle />
         </div>
       </header>
 
-      <div className="w-full max-w-5xl flex-1 py-10 px-4">
-        <motion.div
-          className="flex flex-col items-center mb-8"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <h1 className="font-syne text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white text-center mb-2">
-            Dooro Bulaagaaga
+      <div className="px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            {t.pricing_title}
           </h1>
-          <p className="text-gray-600 dark:text-zinc-400 text-center text-base sm:text-lg max-w-xl">
-            Bara koorsooyinka. Ku biir bulshada. Bilaab fikraddaaga.
+          <p className="text-gray-500 dark:text-zinc-400 text-base">
+            {t.pricing_subtitle}
           </p>
-          {liveStats != null && liveStats.students_count > 0 && (
-            <p className="mt-2 text-xs text-gray-500 dark:text-zinc-500">
-              Ku biir {liveStats.students_count.toLocaleString()}+ arday · {liveStats.courses_count} koorso
-            </p>
-          )}
-        </motion.div>
+        </div>
 
-        {/* Trust strip */}
-        <motion.div
-          className="flex justify-center items-center gap-8 sm:gap-12 py-6 overflow-x-auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-        >
-          <span className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-500 shrink-0">
-            Qalab lagu kalsoonaado
-          </span>
-          <div className="flex items-center gap-6 sm:gap-10 text-gray-500 dark:text-zinc-500">
-            {TRUST_LOGOS.map((name) => (
-              <span
-                key={name}
-                className="inline-flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity"
-                title={name}
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+          {PLAN_KEYS.map((key) => {
+            const plan = PLANS[key];
+            return (
+              <div
+                key={plan.key}
+                className={`relative rounded-2xl border-2 p-8 flex flex-col ${
+                  plan.key === "challenge"
+                    ? "order-1 md:order-2"
+                    : "order-2 md:order-1"
+                } ${
+                  plan.highlight
+                    ? "border-black bg-black text-white"
+                    : "border-gray-200 bg-white text-gray-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                }`}
               >
-                <TechIcon name={name} className="w-6 h-6 sm:w-7 sm:h-7" />
-              </span>
-            ))}
-                </div>
-        </motion.div>
+                {plan.badge && (
+                  <span className="absolute -top-3 left-6 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    ★ {plan.badge}
+                  </span>
+                )}
 
-        {/* UPDATED: Payment method toggle — pill-style, lime active, helper text below */}
-        <motion.div
-          className="flex flex-col items-center mb-8"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.4 }}
-        >
-          <div
-            className="inline-flex p-1 rounded-full bg-gray-200 border border-gray-300 dark:bg-[#0a0a0f] dark:border-white/15 transition-all duration-300"
-            role="tablist"
-          >
-                        <button
-                            type="button"
-                            role="tab"
-                            aria-selected={selectedProvider === "stripe"}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                selectedProvider === "stripe"
-                  ? "bg-[#C8F135] text-gray-900 shadow-sm"
-                  : "bg-transparent text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-300 border border-transparent"
-                                }`}
-                            onClick={() => setSelectedProvider("stripe")}
-                        >
-                            🌍 Caalami (Stripe)
-                        </button>
-                        <button
-                            type="button"
-                            role="tab"
-                            aria-selected={selectedProvider === "waafi"}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                selectedProvider === "waafi"
-                  ? "bg-[#C8F135] text-gray-900 shadow-sm"
-                  : "bg-transparent text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-300 border border-transparent"
-                                }`}
-                            onClick={() => setSelectedProvider("waafi")}
-                        >
-                            🇸🇴 Soomaali (Waafi)
-                        </button>
-                    </div>
-          <p className="mt-2 text-xs text-gray-500 dark:text-zinc-500 text-center max-w-sm">
-            {selectedProvider === "stripe"
-              ? "Ku bixi kaarka, Apple Pay ama Google Pay"
-              : "Ku bixi lacagta Waafi Pay — Soomaali ku habboon"}
-          </p>
-          {selectedProvider === "waafi" && (
-            <div className="mt-4 w-full max-w-sm mx-auto space-y-3">
-              <p className="text-left text-xs font-medium text-gray-600 dark:text-zinc-400">
-                Dooro shirkadda — prefix si toos ah loo daro
-              </p>
-              <div className="flex flex-wrap gap-2" role="group" aria-label="Waafi operator">
-                {WAAFI_OPERATORS.map((op) => (
-                  <button
-                    key={op.id}
-                    type="button"
-                    onClick={() => handleSelectOperator(selectedOperator === op.id ? null : op.id)}
-                    className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
-                      selectedOperator === op.id
-                        ? "border-[#C8F135] bg-[#C8F135]/20 text-[#C8F135]"
-                        : "border-gray-300 bg-gray-100 text-gray-600 hover:border-gray-400 hover:text-gray-800 dark:border-white/20 dark:bg-white/5 dark:text-zinc-400 dark:hover:border-white/30 dark:hover:text-zinc-300"
+                <h2
+                  className={`text-xl font-bold mb-1 ${
+                    plan.highlight
+                      ? "text-white"
+                      : "text-gray-900 dark:text-white"
+                  }`}
+                >
+                  {plan.name}
+                </h2>
+
+                <p
+                  className={`text-sm mb-6 ${
+                    plan.highlight
+                      ? "text-gray-300"
+                      : "text-gray-500 dark:text-zinc-400"
+                  }`}
+                >
+                  {plan.tagline}
+                </p>
+
+                <div className="flex items-end gap-1 mb-8">
+                  <span
+                    className={`text-5xl font-extrabold ${
+                      plan.highlight
+                        ? "text-white"
+                        : "text-gray-900 dark:text-white"
                     }`}
                   >
-                    {op.label}
-                  </button>
-                ))}
-              </div>
-              <div>
-                <label htmlFor="waafi-phone" className="block text-left text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1">
-                  Lambarkaaga (full international)
-                </label>
-                <input
-                  id="waafi-phone"
-                  type="tel"
-                  placeholder={selectedOperator ? WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.placeholder : "e.g. 252612345678"}
-                  value={waafiPhone}
-                  onChange={(e) => setWaafiPhone(e.target.value.replace(/\D/g, "").slice(0, 12))}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder-zinc-500 dark:focus:border-purple-500/50 dark:focus:ring-purple-500/50"
-                />
-                {selectedOperator && (
-                  <p className="mt-1 text-[11px] text-gray-500 dark:text-zinc-500 text-left">
-                    Prefix {WAAFI_OPERATORS.find((o) => o.id === selectedOperator)?.prefix} waa la dejiyay. Ku dar inta kale ee lambarkaaga.
-                  </p>
-                )}
-              </div>
-              <p className="text-[11px] text-gray-500 dark:text-zinc-500 text-left">
-                Ka bixin madhan si aad u isku daydo kaar; dooro shirkadda oo geli lambarkaaga waadhiga mobilka.
-              </p>
+                    ${plan.price}
+                  </span>
+                  <span
+                    className={`text-base mb-2 ${
+                      plan.highlight
+                        ? "text-gray-400"
+                        : "text-gray-400 dark:text-zinc-500"
+                    }`}
+                  >
+                    {plan.per}
+                  </span>
                 </div>
-          )}
-        </motion.div>
 
-                {error && (
-          <Alert
-            variant="destructive"
-            className="mb-6 border-red-500/30 bg-red-500/10 text-red-200 dark:bg-red-950/40 dark:border-red-500/30 dark:text-red-200"
-          >
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                )}
-
-        {/* 2 plan cards — price fade 150ms on toggle, CTA text by provider */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          {plans.map((plan, i) => {
-                        const isStripe = selectedProvider === "stripe";
-                        const amount = isStripe ? plan.stripe.amount : plan.waafi.amount;
-                        const billingLabel = "/ month";
-                        const isLoading = loadingPlanName === plan.name;
-
-                        return (
-              <motion.div
-                                key={plan.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 + i * 0.1, duration: 0.45 }}
-                className="group relative"
-              >
-                <div
-                  className="h-full p-6 rounded-2xl bg-white backdrop-blur border border-gray-200 shadow-sm hover:border-purple-400 hover:shadow-lg dark:bg-white/5 dark:border-white/10 dark:hover:border-purple-500/50 dark:hover:shadow-[0_0_40px_-8px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
-                      Ugu caansan
-                    </span>
-                  )}
-                  {plan.saveBadge && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-lg">
-                      {plan.saveBadge}
-                    </span>
-                  )}
-                  <h3 className="font-syne text-xl font-bold text-gray-900 dark:text-white mb-1">
-                    {plan.name}
-                  </h3>
-                  {plan.tagline && (
-                    <p className="text-sm text-gray-500 dark:text-zinc-400 mb-2">{plan.tagline}</p>
-                  )}
-                  {/* Price amount with 150ms fade when provider changes */}
-                  <div className="flex items-baseline gap-1.5 mb-4">
-                    <motion.span
-                      key={`${plan.name}-${selectedProvider}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.15 }}
-                      className="text-3xl font-bold text-gray-900 dark:text-white"
-                    >
-                      {amount}
-                    </motion.span>
-                    <span className="text-sm text-gray-500 dark:text-zinc-500">{billingLabel === "/ month" ? "/ bil" : "hal mar"}</span>
-                                    </div>
-                  <ul className="space-y-2 mb-6">
-                    {plan.features.map((f) => (
-                      <li
-                        key={f}
-                        className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300"
+                <ul className="space-y-3 mb-8 flex-1">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <span
+                        className={`mt-0.5 font-bold ${
+                          plan.highlight
+                            ? "text-green-400"
+                            : "text-green-600 dark:text-green-500"
+                        }`}
                       >
-                        <span className="flex-shrink-0 w-4 h-4 rounded-full bg-purple-500/30 flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-purple-400" />
-                        </span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                                        <Button
-                    className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-6 relative overflow-hidden group/btn disabled:opacity-70"
-                    disabled={!!loadingPlanName}
-                                            onClick={() =>
-                      isStripe
-                        ? handleStripeCheckout(plan)
-                        : handleWaafiCheckout(plan)
-                                            }
-                                        >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                            {isLoading ? (
-                                                <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                                                    Soo dejineysa...
-                                                </>
-                      ) : isStripe ? (
-                        "Ku bixi Stripe"
-                                            ) : (
-                        "Ku Bixi Waafi"
-                                            )}
-                    </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-[length:200%_100%] animate-shimmer" />
-                                        </Button>
-                                    </div>
-              </motion.div>
-                        );
-                    })}
-                </div>
+                        ✓
+                      </span>
+                      <span
+                        className={
+                          plan.highlight
+                            ? "text-gray-200"
+                            : "text-gray-700 dark:text-zinc-300"
+                        }
+                      >
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
-        <motion.div
-          className="flex justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded-lg border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-white/20 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
-            onClick={() => router.back()}
-          >
-            Ka noqo
-          </Button>
-        </motion.div>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPlan(plan.key)}
+                  className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
+                    plan.highlight
+                      ? "bg-white text-black hover:bg-gray-100"
+                      : "bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                  }`}
+                >
+                  {plan.cta}
+                </button>
+              </div>
+            );
+          })}
         </div>
-    );
-} 
+
+        <div className="max-w-2xl mx-auto">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            {t.faq_title}
+          </h3>
+          <div className="space-y-3">
+            {FAQ.map((item, i) => (
+              <div
+                key={i}
+                className="border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900"
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full text-left px-5 py-4 font-medium text-gray-900 dark:text-white flex justify-between items-center hover:bg-gray-50 dark:hover:bg-zinc-800"
+                >
+                  <span>{item.q}</span>
+                  <span className="text-gray-400 ml-4 shrink-0">
+                    {openFaq === i ? "−" : "+"}
+                  </span>
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-4 text-sm text-gray-600 dark:text-zinc-400 leading-relaxed">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {selectedPlan && (
+          <PaymentModal
+            plan={PLANS[selectedPlan]}
+            onClose={() => setSelectedPlan(null)}
+            onSuccess={() => handlePaymentSuccess(selectedPlan)}
+          />
+        )}
+      </div>
+    </div>
+  );
+}

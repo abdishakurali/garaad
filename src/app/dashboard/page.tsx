@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ProgressCard } from "@/components/progress/ProgressCard";
 import { PracticeSet } from "@/components/practice/PracticeSet";
@@ -14,6 +15,19 @@ import { useCategories, useEnrollments } from "@/hooks/useApi";
 import type { UserProgress } from "@/services/progress";
 import type { PracticeSet as PracticeSetType } from "@/services/practice";
 import type { Course } from "@/types/lms";
+import { pricingTranslations as t } from "@/config/translations/pricing";
+
+function SubscribedSuccessBanner() {
+  const searchParams = useSearchParams();
+  const subscribed = searchParams.get("subscribed");
+  if (!subscribed) return null;
+  return (
+    <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl px-5 py-4 mb-6 text-sm text-green-800 dark:text-green-200 font-medium">
+      🎉{" "}
+      {subscribed === "challenge" ? t.success_challenge : t.success_explorer}
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const [progress, setProgress] = useState<UserProgress[]>([]);
@@ -111,6 +125,9 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Suspense fallback={null}>
+        <SubscribedSuccessBanner />
+      </Suspense>
       <h1 className="text-3xl font-bold mb-8">Boorka Shaqada</h1>
 
       {continueData && (
