@@ -11,6 +11,8 @@ interface PostListProps {
     userProfile: UserProfile | null;
     categoryId?: string;
     showInlineInput?: boolean;
+    /** When true, hides replies and write actions (e.g. premium lock preview). */
+    readOnly?: boolean;
     expandedReplyId?: string | null;
     onScrollComplete?: () => void;
     isRefreshing?: boolean;
@@ -23,6 +25,7 @@ export function PostList({
     userProfile,
     categoryId,
     showInlineInput,
+    readOnly = false,
     expandedReplyId,
     onScrollComplete,
     isRefreshing
@@ -79,6 +82,7 @@ export function PostList({
                                 userProfile={userProfile}
                                 initiallyShowReplies={!!expandedReplyId && post.replies?.some(r => r.id === expandedReplyId)}
                                 targetReplyId={expandedReplyId}
+                                isReadOnly={readOnly}
                             />
                         ))}
                     </div>

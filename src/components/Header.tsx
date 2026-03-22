@@ -143,6 +143,7 @@ export function Header() {
           >
             {navLinks.map(({ name, href }) => {
               const active = isLinkActive(href);
+              const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
               return (
                 <Link
                   key={href}
@@ -155,8 +156,13 @@ export function Header() {
                       : "text-slate-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
                   )}
                 >
-                  <span className="relative">
+                  <span className="relative inline-flex items-center gap-1">
                     {name}
+                    {showCommunityLock && (
+                      <span className="text-xs leading-none shrink-0" aria-hidden>
+                        🔒
+                      </span>
+                    )}
                     <span
                       className={clsx(
                         "absolute -bottom-0.5 left-0 h-px bg-primary transition-all duration-200 rounded-full",
@@ -333,6 +339,7 @@ export function Header() {
             <nav className="px-4 py-3 space-y-0.5">
               {navLinks.map(({ name, href }) => {
                 const active = isLinkActive(href);
+                const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
                 return (
                   <Link
                     key={href}
@@ -346,7 +353,14 @@ export function Header() {
                         : "text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
                     )}
                   >
-                    {name}
+                    <span className="inline-flex items-center gap-1">
+                      {name}
+                      {showCommunityLock && (
+                        <span className="text-xs leading-none shrink-0" aria-hidden>
+                          🔒
+                        </span>
+                      )}
+                    </span>
                   </Link>
                 );
               })}

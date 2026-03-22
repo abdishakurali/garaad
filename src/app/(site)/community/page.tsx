@@ -33,10 +33,10 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
-import AuthService from '@/services/auth';
 
 export default function CommunityPage() {
     const {
@@ -61,6 +61,7 @@ export default function CommunityPage() {
 
     const unreadCount = useMemo(() => notifications.filter(n => !n.is_read).length, [notifications]);
     const { user, isAuthenticated } = useAuthStore();
+    const isPremium = !!user?.is_premium;
     const [loading, setLoading] = useState({ categories: false, posts: false, profile: false });
     const [errors, setErrors] = useState({ posts: null });
     const router = useRouter();
@@ -195,9 +196,9 @@ export default function CommunityPage() {
         }
     };
 
-    // Manage WebSocket connection for active category
+    // Manage WebSocket connection for active category (premium only)
     useEffect(() => {
-        if (!isAuthenticated) return;
+        if (!isAuthenticated || !isPremium) return;
 
         const connectToCategory = () => {
             const roomId = selectedCategory ? selectedCategory.id : 'global';
@@ -205,7 +206,7 @@ export default function CommunityPage() {
         };
 
         connectToCategory();
-    }, [selectedCategory, isAuthenticated]);
+    }, [selectedCategory, isAuthenticated, isPremium]);
 
     useEffect(() => {
         return () => {
@@ -344,8 +345,52 @@ export default function CommunityPage() {
         </div>
     );
 
+    const premiumLockOverlay = !isPremium ? (
+        <div
+            className="absolute inset-0 z-[60] flex items-center justify-center bg-white/80 dark:bg-black/80 backdrop-blur-sm px-4"
+            role="dialog"
+            aria-labelledby="community-premium-title"
+            aria-describedby="community-premium-desc"
+        >
+            <div className="text-center max-w-sm px-6 py-8 bg-white dark:bg-gray-950 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10">
+                <div className="text-4xl mb-4" aria-hidden>
+                    🔒
+                </div>
+                <h2
+                    id="community-premium-title"
+                    className="text-xl font-bold text-gray-900 dark:text-white mb-2"
+                >
+                    Bulshada Garaad
+                </h2>
+                <p
+                    id="community-premium-desc"
+                    className="text-gray-500 dark:text-gray-400 text-sm mb-6"
+                >
+                    Ku biir bulshada — is-weydii su&apos;aalo, la wadaag horumarkaaga, la xiriir
+                    barayaasha kale.
+                </p>
+                <Link
+                    href="/subscribe?plan=explorer"
+                    className="block w-full bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-bold text-sm hover:bg-gray-900 dark:hover:bg-gray-200 text-center"
+                >
+                    Bilow Explorer — $29/bishii
+                </Link>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
+                    Horumarkaaga muhiim ma aha — bulshadu waxay kaa dhigaysaa mid xisaabtama
+                </p>
+            </div>
+        </div>
+    ) : null;
+
     return (
-        <div className="flex h-screen bg-background overflow-hidden">
+        <div className="relative flex h-screen bg-background overflow-hidden">
+            <div
+                className={
+                    !isPremium
+                        ? 'flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden blur-sm pointer-events-none select-none opacity-60'
+                        : 'flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden'
+                }
+            >
             <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
                 <div className="h-20 ml-0 pl-0 px-8 flex items-center justify-center">
                     <div className="relative w-32 h-12 pl-0 px-8  overflow-hidden flex-shrink-0">
@@ -423,7 +468,8 @@ export default function CommunityPage() {
                                 error={errors.posts}
                                 userProfile={userProfile}
                                 categoryId={selectedCategory.id}
-                                showInlineInput={true}
+                                showInlineInput={isPremium}
+                                readOnly={!isPremium}
                                 expandedReplyId={pendingScrollReplyId}
                                 onScrollComplete={() => {
                                     setPendingScrollPostId(null);
@@ -453,6 +499,8 @@ export default function CommunityPage() {
                     </>
                 )}
             </div>
+            </div>
+            {premiumLockOverlay}
             <UserProfileModal
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}

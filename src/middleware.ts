@@ -17,7 +17,8 @@ import type { NextRequest } from "next/server";
  *   /community, /community/* (not community-preview),
  *   /courses/.../lessons/[lessonId]
  *
- * Premium gating (lesson 2+, etc.) is done in-app and by backend, not here.
+ * Premium gating: /community shows a blur + upgrade overlay for free users (no redirect).
+ * Lesson 2+, etc. is enforced in-app and by backend, not here.
  */
 
 const protectedRoots = [
