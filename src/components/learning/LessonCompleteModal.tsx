@@ -7,6 +7,8 @@ import { usePostHog } from "posthog-js/react";
 import { CheckCircle2, RotateCcw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PLANS } from "@/config/subscribePlans";
+import { EXPLORER_IS_FREE } from "@/config/featureFlags";
+import { pricingTranslations as pricingT } from "@/config/translations/pricing";
 import { cn } from "@/lib/utils";
 
 export interface LessonCompleteModalProps {
@@ -218,19 +220,37 @@ export function LessonCompleteModal({
         <div className="pointer-events-auto shrink-0 w-full max-w-lg mx-auto pb-4 px-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-zinc-900/95 px-4 py-3 text-sm text-zinc-200 shadow-lg">
             <p className="text-left leading-snug">
-              Fur 54+ casharo —{" "}
-              <span className="font-semibold text-white">
-                {PLANS.explorer.priceDisplay}
-                {PLANS.explorer.per}
-              </span>
+              {EXPLORER_IS_FREE ? (
+                <>
+                  Fur 54+ casharo —{" "}
+                  <span className="font-semibold text-white">
+                    {pricingT.explorer_free_price_display}
+                  </span>{" "}
+                  (samee akoon)
+                </>
+              ) : (
+                <>
+                  Fur 54+ casharo —{" "}
+                  <span className="font-semibold text-white">
+                    {PLANS.explorer.priceDisplay}
+                    {PLANS.explorer.per}
+                  </span>
+                </>
+              )}
             </p>
             <Button
               asChild
               size="sm"
               className="shrink-0 rounded-lg bg-violet-600 hover:bg-violet-500 text-white"
             >
-              <Link href="/subscribe?plan=explorer&ref=lesson_complete_banner">
-                Ku biir
+              <Link
+                href={
+                  EXPLORER_IS_FREE
+                    ? "/signup?ref=lesson_complete_banner"
+                    : "/subscribe?plan=explorer&ref=lesson_complete_banner"
+                }
+              >
+                {EXPLORER_IS_FREE ? "Samee akoon" : "Ku biir"}
               </Link>
             </Button>
           </div>

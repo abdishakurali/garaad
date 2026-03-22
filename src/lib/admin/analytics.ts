@@ -72,6 +72,18 @@ export interface RevenueAnalytics {
     };
 }
 
+export interface LessonDropOffRow {
+    lessonId: number;
+    lessonTitle: string;
+    lessonNumber: number;
+    courseId: number;
+    courseTitle: string;
+    learnersReached: number;
+    learnersCompleted: number;
+    completionRate: number;
+    dropOffRate: number;
+}
+
 export interface CourseAnalytics {
     topCourses: {
         id: number;
@@ -87,6 +99,8 @@ export interface CourseAnalytics {
         courseTitle: string;
         dropOffRate: number;
     }[];
+    /** Per-lesson reach vs complete (sorted by drop-off). */
+    lessonDropOff?: LessonDropOffRow[];
 }
 
 export interface RecentActivity {

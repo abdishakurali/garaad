@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthService from "@/services/auth";
+import { userHasExplorerContentAccess } from "@/config/featureFlags";
 
 interface PremiumContentProps {
     children: React.ReactNode;
@@ -22,7 +23,7 @@ export default function PremiumContent({ children }: PremiumContentProps) {
             return;
         }
 
-        if (!user.is_premium) {
+        if (!userHasExplorerContentAccess(user)) {
             router.push("/subscribe");
             return;
         }

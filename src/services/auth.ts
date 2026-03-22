@@ -3,6 +3,7 @@ import { User } from "@/types/auth";
 import { validateEmail } from "@/lib/email-validation";
 import { api } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/constants";
+import { userHasExplorerContentAccess } from "@/config/featureFlags";
 
 export interface SignUpData {
   email: string;
@@ -30,6 +31,8 @@ export interface OnboardingData {
   math_level: string;
   minutes_per_day: number;
   preferred_study_time: string;
+  /** Welcome wizard snapshot from the server (merged on PATCH progress). */
+  wizard_progress?: Record<string, unknown>;
 }
 
 export interface DashboardProfile {
@@ -161,10 +164,15 @@ export class AuthService {
   }
 
   /**
-   * Check if the current user has premium status
+   * Explorer-tier access (lessons, community): paid subscriber or free Explorer when enabled.
    */
   public isPremium(): boolean {
-    return this.user?.is_premium || false;
+    return userHasExplorerContentAccess(this.user);
+  }
+
+  /** True when the user has an active paid subscription record (Challenge or legacy Explorer). */
+  public isPayingSubscriber(): boolean {
+    return !!this.user?.is_premium;
   }
 
   public async signUp(data: SignUpData): Promise<SignUpResponse> {
@@ -375,6 +383,13 @@ export class AuthService {
   /** Update learning path (goal, track, level, time) from settings. Uses PATCH for partial update. */
   public async updateOnboarding(data: Partial<OnboardingData>): Promise<OnboardingData & { has_completed_onboarding?: boolean }> {
     return api.patch("/api/auth/complete-onboarding/", data);
+  }
+
+  /** Merge welcome wizard state (step, selections) without completing onboarding. */
+  public async patchOnboardingWizardProgress(
+    data: Record<string, unknown>
+  ): Promise<{ wizard_progress: Record<string, unknown>; success?: boolean }> {
+    return api.patch("/api/auth/onboarding/progress/", data);
   }
 
   /**

@@ -7,8 +7,10 @@ import useSWR from "swr";
 import { usePostHog } from "posthog-js/react";
 import { PLANS, FAQ, type SubscribePlanKey } from "@/config/subscribePlans";
 import { pricingTranslations as t } from "@/config/translations/pricing";
+import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 import PaymentModal from "@/components/PaymentModal";
 import AuthService from "@/services/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 import Logo from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { API_BASE_URL } from "@/lib/constants";
@@ -24,12 +26,22 @@ interface LandingStats {
   learners_this_month?: number;
 }
 
+interface ChallengeStatusResponse {
+  success?: boolean;
+  data?: {
+    spots_remaining: number;
+    next_cohort_start_date: string | null;
+    is_waitlist_only: boolean;
+  };
+}
+
 function PlanComparisonTable() {
+  const explorerPrice = EXPLORER_IS_FREE ? t.compare_explorer_price_free : t.compare_explorer_price;
   const rows = [
     {
       label: t.compare_row_price,
       free: t.compare_free_price,
-      explorer: t.compare_explorer_price,
+      explorer: explorerPrice,
       challenge: t.compare_challenge_price,
     },
     {
@@ -104,6 +116,8 @@ function SubscribePageInner() {
   const searchParams = useSearchParams();
   const posthog = usePostHog();
   const viewCaptured = useRef(false);
+  const storeUser = useAuthStore((s) => s.user);
+  const explorerCtaUser = storeUser ?? AuthService.getInstance().getCurrentUser();
 
   const planFromQuery = searchParams.get("plan") as SubscribePlanKey | null;
   const refParam = searchParams.get("ref") ?? "";
@@ -114,6 +128,12 @@ function SubscribePageInner() {
     { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
   );
 
+  const { data: challengeStatus, error: challengeStatusError } = useSWR<ChallengeStatusResponse>(
+    "/api/challenge/status",
+    fetcher,
+    { revalidateOnFocus: true, dedupingInterval: 30_000 }
+  );
+
   const joinCount =
     typeof stats?.learners_this_month === "number" && stats.learners_this_month > 0
       ? stats.learners_this_month
@@ -122,7 +142,15 @@ function SubscribePageInner() {
         : 186;
 
   useEffect(() => {
-    if (AuthService.getInstance().isPremium()) {
+    const auth = AuthService.getInstance();
+    const u = auth.getCurrentUser();
+    if (EXPLORER_IS_FREE) {
+      if (u?.is_premium && u?.subscription_type === "challenge") {
+        router.replace("/dashboard");
+      }
+      return;
+    }
+    if (auth.isPremium()) {
       router.replace("/dashboard");
     }
   }, [router]);
@@ -209,6 +237,11 @@ function SubscribePageInner() {
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-16 md:mb-20">
           {PLAN_KEYS.map((key) => {
             const plan = PLANS[key];
+            const explorerFree = key === "explorer" && EXPLORER_IS_FREE;
+            const priceLabel = explorerFree ? t.explorer_free_price_display : plan.priceDisplay;
+            const perLabel = explorerFree ? t.explorer_free_per : plan.per;
+            const yearlyNote =
+              explorerFree ? null : "yearlyPriceNote" in plan ? plan.yearlyPriceNote : null;
             const isHighlightedFromUrl = planFromQuery === plan.key;
             return (
               <div
@@ -266,7 +299,7 @@ function SubscribePageInner() {
                           : "text-foreground"
                       }`}
                     >
-                      {plan.priceDisplay}
+                      {priceLabel}
                     </span>
                     <span
                       className={`text-base mb-2 ${
@@ -275,10 +308,10 @@ function SubscribePageInner() {
                           : "text-muted-foreground"
                       }`}
                     >
-                      {plan.per}
+                      {perLabel}
                     </span>
                   </div>
-                  {"yearlyPriceNote" in plan && plan.yearlyPriceNote ? (
+                  {yearlyNote ? (
                     <p
                       className={`mt-2 text-sm ${
                         plan.highlight
@@ -286,10 +319,45 @@ function SubscribePageInner() {
                           : "text-muted-foreground"
                       }`}
                     >
-                      {plan.yearlyPriceNote}
+                      {yearlyNote}
                     </p>
                   ) : null}
                 </div>
+
+                {plan.key === "challenge" && !challengeStatusError ? (
+                  <div
+                    className={`mb-6 text-sm leading-snug ${
+                      plan.highlight ? "text-primary-foreground/90" : "text-muted-foreground"
+                    }`}
+                  >
+                    {!challengeStatus?.data ? (
+                      <div
+                        className="h-10 rounded-md bg-muted/40 animate-pulse"
+                        aria-hidden
+                      />
+                    ) : (
+                      <>
+                        <p className="font-medium">
+                          {challengeStatus.data.is_waitlist_only
+                            ? t.challenge_waitlist_only
+                            : t.challenge_spots_remaining.replace(
+                                "{n}",
+                                String(challengeStatus.data.spots_remaining)
+                              )}
+                        </p>
+                        {challengeStatus.data.is_waitlist_only &&
+                        challengeStatus.data.next_cohort_start_date ? (
+                          <p className="mt-1.5 text-xs opacity-90">
+                            {t.challenge_next_cohort.replace(
+                              "{date}",
+                              challengeStatus.data.next_cohort_start_date
+                            )}
+                          </p>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
+                ) : null}
 
                 <ul className="space-y-3.5 mb-8 flex-1">
                   {plan.features.map((feature, i) => (
@@ -316,17 +384,30 @@ function SubscribePageInner() {
                   ))}
                 </ul>
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedPlan(plan.key)}
-                  className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${
-                    plan.highlight
-                      ? "bg-primary-foreground text-primary shadow-md hover:bg-primary-foreground/90"
-                      : "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
-                  }`}
-                >
-                  {plan.cta}
-                </button>
+                {explorerFree ? (
+                  <Link
+                    href={explorerCtaUser ? "/dashboard" : "/signup"}
+                    className={`w-full py-3.5 rounded-xl font-bold text-base transition-all text-center block ${
+                      plan.highlight
+                        ? "bg-primary-foreground text-primary shadow-md hover:bg-primary-foreground/90"
+                        : "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
+                    }`}
+                  >
+                    {explorerCtaUser ? t.explorer_free_cta_logged_in : t.explorer_free_cta_signup}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlan(plan.key)}
+                    className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${
+                      plan.highlight
+                        ? "bg-primary-foreground text-primary shadow-md hover:bg-primary-foreground/90"
+                        : "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
+                    }`}
+                  >
+                    {plan.cta}
+                  </button>
+                )}
               </div>
             );
           })}

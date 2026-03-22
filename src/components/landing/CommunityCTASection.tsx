@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 import { Users, ArrowRight } from "lucide-react";
 import Image from "next/image";
 
@@ -45,15 +46,21 @@ export function CommunityCTASection() {
                         </p>
 
                         <p className="text-sm text-muted-foreground mb-6 max-w-lg">
-                            Bulshada waxaa laga helaa subscription-ka Explorer iyo Challenge.
+                            {EXPLORER_IS_FREE
+                                ? "Bulshada waxaa loo furay dhammaan isticmaalayaasha diiwaangashan — Challenge waa qorshaha casriga ah."
+                                : "Bulshada waxaa laga helaa subscription-ka Explorer iyo Challenge."}
                         </p>
 
                         <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                             <Link
-                                href="/subscribe?plan=explorer"
+                                href={EXPLORER_IS_FREE ? "/signup" : "/subscribe?plan=explorer"}
                                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all"
                             >
-                                <span>Bilow Explorer — $29/bishii</span>
+                                <span>
+                                    {EXPLORER_IS_FREE
+                                        ? "Samee akoon — Explorer waa bilaash"
+                                        : "Bilow Explorer — $29/bishii"}
+                                </span>
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
                             <Link

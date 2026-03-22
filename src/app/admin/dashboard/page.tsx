@@ -7,7 +7,7 @@ import KPICard from "@/components/admin/dashboard/KPICard";
 import TrendChart from "@/components/admin/dashboard/TrendChart";
 import Link from "next/link";
 import { Users, DollarSign, TrendingUp, ShoppingCart, Award, AlertCircle, Loader2, ArrowRight, CheckCircle, Target, RotateCcw } from "lucide-react";
-import type { OnboardingStats } from "@/lib/admin/analytics";
+import type { OnboardingStats, LessonDropOffRow } from "@/lib/admin/analytics";
 
 // Display labels for filters (must match backend admin_dashboard GOAL_LABELS / TRACK_LABELS / LEVEL_LABELS)
 const GOAL_LABELS = [
@@ -457,6 +457,42 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Per-lesson completion funnel */}
+            {courseStats.lessonDropOff && courseStats.lessonDropOff.length > 0 && (
+                <div className="bg-white rounded-3xl p-8 border border-gray-50 shadow-sm overflow-x-auto">
+                    <h2 className="text-base font-black text-gray-900 mb-6 tracking-tight flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-violet-600" />
+                        Lesson completion &amp; drop-off
+                    </h2>
+                    <table className="w-full text-left text-[10px] min-w-[640px]">
+                        <thead>
+                            <tr className="text-gray-400 font-black uppercase tracking-widest border-b border-gray-100">
+                                <th className="pb-3 pr-4">Lesson</th>
+                                <th className="pb-3 pr-4">Course</th>
+                                <th className="pb-3 pr-2 text-right">Reached</th>
+                                <th className="pb-3 pr-2 text-right">Done</th>
+                                <th className="pb-3 pr-2 text-right">Complete %</th>
+                                <th className="pb-3 text-right">Drop-off %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {courseStats.lessonDropOff.slice(0, 25).map((row: LessonDropOffRow) => (
+                                <tr key={row.lessonId} className="border-b border-gray-50/80">
+                                    <td className="py-2.5 pr-4 font-bold text-gray-900 truncate max-w-[200px]">
+                                        #{row.lessonNumber} {row.lessonTitle}
+                                    </td>
+                                    <td className="py-2.5 pr-4 text-gray-500 truncate max-w-[160px]">{row.courseTitle}</td>
+                                    <td className="py-2.5 pr-2 text-right font-mono text-gray-700">{row.learnersReached}</td>
+                                    <td className="py-2.5 pr-2 text-right font-mono text-gray-700">{row.learnersCompleted}</td>
+                                    <td className="py-2.5 pr-2 text-right font-mono text-emerald-600">{row.completionRate}%</td>
+                                    <td className="py-2.5 text-right font-mono text-red-600">{row.dropOffRate}%</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Onboarding Insights */}
             {userStats.onboardingStats && (

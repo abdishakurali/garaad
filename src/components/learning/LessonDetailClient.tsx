@@ -38,6 +38,7 @@ import { LessonStepBullets } from "@/components/learning/LessonStepBullets";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
 import type { Course, Lesson } from "@/types/lms";
 import AuthService from "@/services/auth";
+import { userHasExplorerContentAccess } from "@/config/featureFlags";
 import katex from 'katex';
 
 import 'katex/dist/katex.min.css';
@@ -358,7 +359,7 @@ export function LessonDetailClient() {
     const isLockedLesson = useMemo(() => {
         if (typeof window === "undefined") return false;
         const user = AuthService.getInstance().getCurrentUser();
-        if (user?.is_premium) return false;
+        if (userHasExplorerContentAccess(user)) return false;
         if (!courseLessons.length || !currentLesson?.id) return false;
         const sorted = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
         const firstId = sorted[0]?.id;
@@ -643,14 +644,14 @@ export function LessonDetailClient() {
             (b) => b.block_type === "problem" && b.problem != null && b.problem !== undefined
         );
         const hasQuiz = problemBlocks.length > 0;
+        const quizTotal = problemBlocks.length;
+        const quizScore = hasQuiz
+            ? Math.round(
+                  (Math.min(solvedProblemIdsRef.current.size, quizTotal) / quizTotal) * 100
+              )
+            : 100;
         setCompletionHasQuiz(hasQuiz);
-        if (hasQuiz) {
-            const n = problemBlocks.length;
-            const solved = solvedProblemIdsRef.current.size;
-            setCompletionScore(Math.round((Math.min(solved, n) / n) * 100));
-        } else {
-            setCompletionScore(0);
-        }
+        setCompletionScore(quizScore);
         setCompletionNavigateMeta(null);
         setShowCompletionAnimation(true);
 
@@ -669,45 +670,50 @@ export function LessonDetailClient() {
                 console.error("LocalStorage error", err);
             }
 
-            try {
-                const completedProblemIds = sortedBlocks
-                    .filter((b) => b.block_type === "problem" && b.problem)
-                    .map((b) => b.problem);
+            const auth = AuthService.getInstance();
+            if (auth.isAuthenticated()) {
+                try {
+                    const completedProblemIds = sortedBlocks
+                        .filter((b) => b.block_type === "problem" && b.problem)
+                        .map((b) => b.problem);
 
-                const res = await AuthService.getInstance().makeAuthenticatedRequest<LessonCompleteApiResponse>(
-                    "post",
-                    `/api/lms/lessons/${currentLesson.id}/complete/`,
-                    {
-                        completed_problems: completedProblemIds,
-                        total_score: isCorrect ? 100 : 0,
+                    const res = await auth.makeAuthenticatedRequest<LessonCompleteApiResponse>(
+                        "post",
+                        `/api/lms/lessons/${currentLesson.id}/complete/`,
+                        {
+                            completed_problems: completedProblemIds,
+                            total_score: quizScore,
+                        }
+                    );
+                    mutateAll();
+                    void mutateStreak?.();
+                    if (res?.status === "success") {
+                        if ("next_lesson_id" in res) {
+                            navMeta = {
+                                nextLessonId: res.next_lesson_id ?? null,
+                                nextLessonTitle: res.next_lesson_title ?? null,
+                            };
+                        } else {
+                            const ordered = [...courseLessons].sort(
+                                (a, b) =>
+                                    ((a as { lesson_number?: number }).lesson_number ?? 0) -
+                                    ((b as { lesson_number?: number }).lesson_number ?? 0)
+                            );
+                            const currentIdx = ordered.findIndex((l) => l.id === currentLesson.id);
+                            const nextLesson =
+                                currentIdx !== -1 && currentIdx < ordered.length - 1
+                                    ? ordered[currentIdx + 1]
+                                    : null;
+                            navMeta = {
+                                nextLessonId: nextLesson?.id ?? null,
+                                nextLessonTitle: nextLesson?.title ?? null,
+                            };
+                        }
                     }
-                );
-                mutateAll();
-                void mutateStreak?.();
-                if (res?.status === "success") {
-                    if ("next_lesson_id" in res) {
-                        navMeta = {
-                            nextLessonId: res.next_lesson_id ?? null,
-                            nextLessonTitle: res.next_lesson_title ?? null,
-                        };
-                    } else {
-                        const ordered = [...courseLessons].sort(
-                            (a, b) => ((a as { lesson_number?: number }).lesson_number ?? 0) - ((b as { lesson_number?: number }).lesson_number ?? 0)
-                        );
-                        const currentIdx = ordered.findIndex((l) => l.id === currentLesson.id);
-                        const nextLesson =
-                            currentIdx !== -1 && currentIdx < ordered.length - 1
-                                ? ordered[currentIdx + 1]
-                                : null;
-                        navMeta = {
-                            nextLessonId: nextLesson?.id ?? null,
-                            nextLessonTitle: nextLesson?.title ?? null,
-                        };
-                    }
+                } catch (err) {
+                    console.error("Completion error", err);
+                    navMeta = null;
                 }
-            } catch (err) {
-                console.error("Completion error", err);
-                navMeta = null;
             }
         }
 
@@ -1015,6 +1021,7 @@ export function LessonDetailClient() {
                         content={videoContent}
                         onContinue={handleContinue}
                         isLastBlock={isLastBlock}
+                        lessonId={currentLesson?.id != null ? Number(currentLesson.id) : undefined}
                     />
                 );
 
@@ -1080,6 +1087,7 @@ export function LessonDetailClient() {
         isCorrect,
         disabledOptions,
         isReviewMode,
+        currentLesson,
     ]);
 
 

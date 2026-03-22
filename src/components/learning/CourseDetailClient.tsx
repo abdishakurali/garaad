@@ -21,6 +21,7 @@ import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { cn, getCourseThumbnailUrl } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
+import { EXPLORER_IS_FREE, userHasExplorerContentAccess } from "@/config/featureFlags";
 const ModuleZigzag = dynamic(
     () =>
         import("@/components/learning/ui/ModuleZigzag").then((m) => ({
@@ -86,7 +87,7 @@ export function CourseDetailClient() {
 
     const { isAuthenticated } = useAuthStore();
     const authHydrated = useAuthStore((s) => s._hasHydrated);
-    const isPremiumUser = useAuthStore((s) => s.user?.is_premium ?? false);
+    const isPremiumUser = useAuthStore((s) => userHasExplorerContentAccess(s.user));
 
     const {
         enrollments,
@@ -546,7 +547,9 @@ export function CourseDetailClient() {
                                                     className="h-14 w-full rounded-xl text-base font-bold shadow-md bg-amber-600 hover:bg-amber-700 text-white"
                                                     onClick={() =>
                                                         router.push(
-                                                            "/subscribe?plan=explorer&ref=course_detail_cta"
+                                                            EXPLORER_IS_FREE
+                                                                ? "/signup?ref=course_detail_cta"
+                                                                : "/subscribe?plan=explorer&ref=course_detail_cta"
                                                         )
                                                     }
                                                 >
@@ -554,7 +557,7 @@ export function CourseDetailClient() {
                                                         className="size-5 shrink-0"
                                                         aria-hidden
                                                     />
-                                                    Ku biir
+                                                    {EXPLORER_IS_FREE ? "Samee akoon" : "Ku biir"}
                                                 </Button>
                                             ) : ctaLessonCompleted ? (
                                                 <Button

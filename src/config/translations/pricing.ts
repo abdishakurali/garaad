@@ -11,6 +11,10 @@ export const pricingTranslations = {
   /** Shown under monthly price on plan card (yearly option). */
   explorer_yearly_hint: "Sanadkiiba $290",
   explorer_cta: "Bilow Waxbarashada",
+  explorer_free_price_display: "Bilaash",
+  explorer_free_per: "",
+  explorer_free_cta_signup: "Samee akoon — Explorer waa bilaash",
+  explorer_free_cta_logged_in: "Tag dashboard-ka",
   explorer_feature_1: "Dhammaan 54-ta cashar ee la daabacay",
   explorer_feature_2: "6 koorso oo isugu jira tech, xisaab iyo AI",
   explorer_feature_3: "Dabagalka horumarka casharrada",
@@ -31,6 +35,11 @@ export const pricingTranslations = {
   challenge_feature_4: "Shahaadada dhammaystirka MERN",
   challenge_feature_5: "Koox gaar ah — ugu badnaan 10 qof",
   challenge_feature_6: "Taageero toos ah oo WhatsApp ah",
+  /** Live cohort capacity (from /api/challenge/status). */
+  challenge_spots_remaining: "{n} boos oo hadda baxsan",
+  challenge_waitlist_only:
+    "Kooxda hadda waa buuxda — liiska sugitaanka ayaa laguugu daray; waxaan kuu soo wargelin doonnaa kooxda xigta.",
+  challenge_next_cohort: "Kooxda xigta waxay bilaabmayso {date}.",
 
   // Payment modal
   modal_title: "Dhammaystir is-diiwaangelintaada",
@@ -98,6 +107,7 @@ export const pricingTranslations = {
   compare_row_price: "Qiimaha",
   compare_free_price: "Bilaash",
   compare_explorer_price: "$29/bilaan",
+  compare_explorer_price_free: "Bilaash",
   compare_challenge_price: "$149 hal mar",
 
   subscribe_social_month:

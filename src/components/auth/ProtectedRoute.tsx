@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
+import { userHasExplorerContentAccess } from "@/config/featureFlags";
 import { Loader } from "lucide-react";
 
 interface ProtectedRouteProps {
@@ -50,7 +51,7 @@ export function ProtectedRoute({
             }
 
             // If premium is required, check premium status
-            if (requirePremium && !currentUser.is_premium) {
+            if (requirePremium && !userHasExplorerContentAccess(currentUser)) {
                 router.push('/subscribe');
                 return;
             }

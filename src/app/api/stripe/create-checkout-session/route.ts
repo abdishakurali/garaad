@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerStripe, STRIPE_PRICE_IDS } from "@/lib/stripe";
 import { STRIPE_USD_FALLBACK } from "@/config/stripeUsdFallback";
+import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 import { jwtDecode } from "jwt-decode";
 
 // More flexible JWT payload interface to handle different token structures
@@ -132,6 +133,19 @@ export async function POST(request: NextRequest) {
     if (!emailRegex.test(finalEmail)) {
       return NextResponse.json(
         { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      EXPLORER_IS_FREE &&
+      (billingPlan === "explorer" || plan === "monthly")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Explorer is included free. Sign in with your account to access all lessons.",
+        },
         { status: 400 }
       );
     }

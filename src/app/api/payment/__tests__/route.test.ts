@@ -1,4 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+vi.hoisted(() => {
+    process.env.NEXT_PUBLIC_EXPLORER_IS_FREE = "false";
+});
+
 import { POST } from "../route";
 import { waafipayService } from "@/services/waafipay";
 

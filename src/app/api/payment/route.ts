@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { waafipayService } from "@/services/waafipay";
+import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 
 interface WaafiPayError extends Error {
   code?: string;
@@ -47,6 +48,15 @@ export async function POST(request: Request) {
 
     // Waafi subscribe flow: plan + amount (+ optional accountNo for mobile wallet). Waafi uses USD.
     if (!cardInfo && plan && amountStr) {
+      if (EXPLORER_IS_FREE && plan.toUpperCase().includes("EXPLORER")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Explorer is free; sign in on garaad.org to access all lessons.",
+          },
+          { status: 400 }
+        );
+      }
       const amountNum = getWaafiAmountUsd(plan, amountStr);
       if (amountNum <= 0) {
         return NextResponse.json(
@@ -131,6 +141,16 @@ export async function POST(request: Request) {
     if (!description) {
       return NextResponse.json(
         { error: "Missing required fields: description" },
+        { status: 400 }
+      );
+    }
+
+    if (EXPLORER_IS_FREE) {
+      return NextResponse.json(
+        {
+          error: "Explorer is free; no payment required for monthly access.",
+          success: false,
+        },
         { status: 400 }
       );
     }

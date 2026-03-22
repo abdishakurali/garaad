@@ -38,6 +38,7 @@ import { useAuthReady } from '@/hooks/useAuthReady';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
+import { EXPLORER_IS_FREE, userHasExplorerContentAccess } from '@/config/featureFlags';
 
 export default function CommunityPage() {
     const {
@@ -63,7 +64,7 @@ export default function CommunityPage() {
     const unreadCount = useMemo(() => notifications.filter(n => !n.is_read).length, [notifications]);
     const { user, isAuthenticated, hydrate: hydrateAuthFromCookies } = useAuthStore();
     const authReady = useAuthReady();
-    const isPremium = !!user?.is_premium;
+    const isPremium = userHasExplorerContentAccess(user ?? undefined);
     const [loading, setLoading] = useState({ categories: false, posts: false, profile: false });
     const [errors, setErrors] = useState({ posts: null });
     const router = useRouter();
@@ -380,10 +381,12 @@ export default function CommunityPage() {
                     barayaasha kale.
                 </p>
                 <Link
-                    href="/subscribe?plan=explorer"
+                    href={EXPLORER_IS_FREE ? "/signup" : "/subscribe?plan=explorer"}
                     className="block w-full bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-bold text-sm hover:bg-gray-900 dark:hover:bg-gray-200 text-center"
                 >
-                    Bilow Explorer — $29/bishii
+                    {EXPLORER_IS_FREE
+                        ? "Samee akoon — Explorer waa bilaash"
+                        : "Bilow Explorer — $29/bishii"}
                 </Link>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
                     Horumarkaaga muhiim ma aha — bulshadu waxay kaa dhigaysaa mid xisaabtama

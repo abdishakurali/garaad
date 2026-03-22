@@ -11,6 +11,7 @@ import AuthService from "@/services/auth";
 import OrderService from "@/services/orders";
 import StripeService from "@/services/stripe";
 import { useAuthStore } from "@/store/useAuthStore";
+import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 
 interface Props {
   plan: SubscribePlan;
@@ -37,6 +38,13 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     if (u?.is_email_verified === false) {
       setError(
         "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin. Hubi sanduuqaaga emaylka."
+      );
+      return;
+    }
+
+    if (plan.key === "explorer" && EXPLORER_IS_FREE) {
+      setError(
+        "Explorer hadda waa bilaash. Soo gal akoonkaaga si aad u hesho dhammaan casharrada."
       );
       return;
     }

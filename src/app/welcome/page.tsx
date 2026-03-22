@@ -89,6 +89,8 @@ function WelcomeOnboardingPage() {
   const [actualError, setActualError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showAllStepOptions, setShowAllStepOptions] = useState(false);
+  /** True after server or localStorage wizard state has been applied */
+  const [wizardHydrated, setWizardHydrated] = useState(false);
   const { playSound } = useSoundManager();
   const posthog = usePostHog();
   const posthogRef = useRef(posthog);
@@ -104,63 +106,130 @@ function WelcomeOnboardingPage() {
   const { user, error: authStoreError, setError: setAuthStoreError, setUser: setAuthStoreUser } = useAuthStore();
   const authError = authStoreError;
 
-  // Load saved data from localStorage on mount
+  // Hydrate wizard: authenticated users load server snapshot first; otherwise localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Load saved user data
-      const savedUserData = localStorage.getItem('welcome_user_data');
+    if (typeof window === "undefined") return;
+    let cancelled = false;
+
+    const loadFromLocalStorage = () => {
+      const savedUserData = localStorage.getItem("welcome_user_data");
       if (savedUserData) {
         try {
-          const parsedUserData = JSON.parse(savedUserData);
-          setUserData(parsedUserData);
+          setUserData(JSON.parse(savedUserData));
         } catch (e) {
-          console.error('Failed to parse saved user data:', e);
+          console.error("Failed to parse saved user data:", e);
         }
       }
-
-      // Load saved selections
-      const savedSelections = localStorage.getItem('welcome_selections');
+      const savedSelections = localStorage.getItem("welcome_selections");
       if (savedSelections) {
         try {
-          const parsedSelections = JSON.parse(savedSelections);
-          setSelections(parsedSelections);
+          setSelections(JSON.parse(savedSelections));
         } catch (e) {
-          console.error('Failed to parse saved selections:', e);
+          console.error("Failed to parse saved selections:", e);
         }
       }
-
-      // Load saved current step
-      const savedStep = localStorage.getItem('welcome_current_step');
+      const savedStep = localStorage.getItem("welcome_current_step");
       if (savedStep) {
         try {
-          const step = parseInt(savedStep);
+          const step = parseInt(savedStep, 10);
           if (!isNaN(step) && step >= 0 && step <= steps.length + 1) {
             setCurrentStep(step);
           }
         } catch (e) {
-          console.error('Failed to parse saved step:', e);
+          console.error("Failed to parse saved step:", e);
         }
       }
-
-      // Load saved topic levels
-      const savedTopicLevels = localStorage.getItem('welcome_topic_levels');
+      const savedTopicLevels = localStorage.getItem("welcome_topic_levels");
       if (savedTopicLevels) {
         try {
-          const parsedTopicLevels = JSON.parse(savedTopicLevels);
-          setTopicLevels(parsedTopicLevels);
+          setTopicLevels(JSON.parse(savedTopicLevels));
         } catch (e) {
-          console.error('Failed to parse saved topic levels:', e);
+          console.error("Failed to parse saved topic levels:", e);
         }
       }
-
-      // Load selected topic
-      const savedSelectedTopic = localStorage.getItem('welcome_selected_topic');
+      const savedSelectedTopic = localStorage.getItem("welcome_selected_topic");
       if (savedSelectedTopic) {
         setSelectedTopic(savedSelectedTopic);
       }
+    };
 
-    }
+    (async () => {
+      const auth = AuthService.getInstance();
+      if (auth.isAuthenticated()) {
+        try {
+          const data = await auth.getOnboarding();
+          const w = data.wizard_progress;
+          if (
+            !cancelled &&
+            w &&
+            typeof w === "object" &&
+            Object.keys(w as object).length > 0
+          ) {
+            const wp = w as Record<string, unknown>;
+            if (typeof wp.current_step === "number" && wp.current_step >= 0) {
+              setCurrentStep(wp.current_step);
+            }
+            if (wp.user_data && typeof wp.user_data === "object") {
+              setUserData((prev) => ({
+                ...prev,
+                ...(wp.user_data as typeof prev),
+              }));
+            }
+            if (wp.selections && typeof wp.selections === "object") {
+              setSelections(wp.selections as Record<number, number | string>);
+            }
+            if (wp.topic_levels && typeof wp.topic_levels === "object") {
+              setTopicLevels((prev) => ({
+                ...prev,
+                ...(wp.topic_levels as typeof prev),
+              }));
+            }
+            if (typeof wp.selected_topic === "string") {
+              setSelectedTopic(wp.selected_topic);
+            }
+            setWizardHydrated(true);
+            return;
+          }
+        } catch {
+          /* use local fallback */
+        }
+      }
+      if (!cancelled) {
+        loadFromLocalStorage();
+        setWizardHydrated(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [steps.length]);
+
+  // Sync wizard to backend when signed in (debounced). localStorage still updated by effects below.
+  useEffect(() => {
+    if (!wizardHydrated) return;
+    const auth = AuthService.getInstance();
+    if (!auth.isAuthenticated()) return;
+    const t = window.setTimeout(() => {
+      auth
+        .patchOnboardingWizardProgress({
+          current_step: currentStep,
+          user_data: userData,
+          selections,
+          topic_levels: topicLevels,
+          selected_topic: selectedTopic,
+        })
+        .catch(() => {});
+    }, 600);
+    return () => clearTimeout(t);
+  }, [
+    wizardHydrated,
+    currentStep,
+    userData,
+    selections,
+    topicLevels,
+    selectedTopic,
+  ]);
 
   useEffect(() => {
     const ref = searchParams.get("ref");
