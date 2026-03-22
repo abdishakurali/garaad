@@ -29,6 +29,30 @@ export async function GET(request: NextRequest) {
       // Payment was successful
       console.log("Payment successful for session:", sessionId);
 
+      const apiBase = (
+        process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org"
+      ).replace(/\/$/, "");
+      try {
+        const syncRes = await fetch(
+          `${apiBase}/api/payment/stripe/complete-checkout/`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_id: sessionId }),
+          }
+        );
+        if (!syncRes.ok) {
+          const body = await syncRes.text();
+          console.error(
+            "stripe complete-checkout failed",
+            syncRes.status,
+            body
+          );
+        }
+      } catch (e) {
+        console.error("stripe complete-checkout error", e);
+      }
+
       // Update user's premium status
       const userService = UserService.getInstance();
 
