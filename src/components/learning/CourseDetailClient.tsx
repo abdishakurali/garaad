@@ -13,16 +13,14 @@ import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle2, PlayCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Lock, PlayCircle, Reply } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
 import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
-import { getCourseThumbnailUrl } from "@/lib/utils";
+import { cn, getCourseThumbnailUrl } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
-import { TrackLessonList } from "@/components/learning/TrackLessonList";
-
 const ModuleZigzag = dynamic(
     () =>
         import("@/components/learning/ui/ModuleZigzag").then((m) => ({
@@ -122,16 +120,13 @@ export function CourseDetailClient() {
         () => false
     );
 
-    // Determine active module based on nextLessonId param
-    const activeModuleId = useMemo(() => {
-        const nextLessonId = searchParams.get('nextLessonId');
-        if (!nextLessonId || !currentCourse?.modules) return undefined;
+    const [zigzagSelectedLessonId, setZigzagSelectedLessonId] = useState<
+        number | null
+    >(null);
 
-        const foundModule = currentCourse.modules.find(m =>
-            m.lessons?.some(l => String(l.id) === String(nextLessonId))
-        );
-        return foundModule?.id;
-    }, [searchParams, currentCourse]);
+    useEffect(() => {
+        setZigzagSelectedLessonId(null);
+    }, [categoryId, courseSlug]);
 
     // First lesson of course by lesson_number to match backend (Lesson has no order field)
     const firstLessonIdOfCourse = useMemo(() => {
@@ -173,23 +168,28 @@ export function CourseDetailClient() {
         return sortedLessonIds[sortedLessonIds.length - 1] ?? null;
     }, [sortedLessonIds, courseProgressEntries, firstLessonIdOfCourse]);
 
-    const allLessonsCompleted = useMemo(() => {
-        if (sortedLessonIds.length === 0) return false;
-        return sortedLessonIds.every((lid) =>
-            courseProgressEntries.some(
-                (e: any) => Number(e.lesson) === lid && e.status === "completed"
-            )
-        );
-    }, [sortedLessonIds, courseProgressEntries]);
+    // Zigzag highlight: URL nextLessonId, user’s tapped module, or resume lesson
+    const activeModuleId = useMemo(() => {
+        if (!currentCourse?.modules?.length) return undefined;
 
-    const hasCompletedAtLeastOne = useMemo(() => {
-        if (sortedLessonIds.length === 0) return false;
-        return sortedLessonIds.some((lid) =>
-            courseProgressEntries.some(
-                (e: any) => Number(e.lesson) === lid && e.status === "completed"
-            )
-        );
-    }, [sortedLessonIds, courseProgressEntries]);
+        const nextLessonId = searchParams.get("nextLessonId");
+        const fromParam =
+            nextLessonId &&
+            currentCourse.modules.find((m) =>
+                m.lessons?.some((l) => String(l.id) === String(nextLessonId))
+            );
+        if (fromParam) return fromParam.id;
+
+        const lessonIdForZigzag =
+            zigzagSelectedLessonId ?? resumeLessonId;
+        if (lessonIdForZigzag != null) {
+            const fromLesson = currentCourse.modules.find((m) =>
+                m.lessons?.some((l) => String(l.id) === String(lessonIdForZigzag))
+            );
+            if (fromLesson) return fromLesson.id;
+        }
+        return undefined;
+    }, [searchParams, currentCourse, resumeLessonId, zigzagSelectedLessonId]);
 
     const showContinueCta = useMemo(() => {
         if (!isAuthenticated || sortedLessonIds.length === 0) return false;
@@ -216,6 +216,46 @@ export function CourseDetailClient() {
         return "Bilow";
     }, [isAuthenticated, showContinueCta]);
 
+    const ctaLessonId =
+        zigzagSelectedLessonId !== null
+            ? zigzagSelectedLessonId
+            : primaryCtaLessonId;
+
+    const ctaLessonTitle = useMemo(() => {
+        if (ctaLessonId == null || !currentCourse?.modules?.length) return null;
+        for (const m of currentCourse.modules as any[]) {
+            const lessons = m.lessons ?? [];
+            const lesson = lessons.find(
+                (l: { id?: number }) => Number(l.id) === Number(ctaLessonId)
+            );
+            if (lesson) {
+                return (lesson.title as string) ?? null;
+            }
+        }
+        return null;
+    }, [currentCourse, ctaLessonId]);
+
+    const ctaLessonCompleted = useMemo(() => {
+        if (ctaLessonId == null) return false;
+        return courseProgressEntries.some(
+            (e: any) =>
+                Number(e.lesson) === Number(ctaLessonId) &&
+                e.status === "completed"
+        );
+    }, [courseProgressEntries, ctaLessonId]);
+
+    const ctaLocked = useMemo(() => {
+        if (!isAuthenticated || ctaLessonId == null || firstLessonIdOfCourse == null) {
+            return false;
+        }
+        if (isPremiumUser) return false;
+        return Number(ctaLessonId) !== Number(firstLessonIdOfCourse);
+    }, [
+        isAuthenticated,
+        isPremiumUser,
+        ctaLessonId,
+        firstLessonIdOfCourse,
+    ]);
 
     const lessonPath = useCallback(
         (lessonId: number, review?: boolean) =>
@@ -384,43 +424,7 @@ export function CourseDetailClient() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-500">
-            <div className="max-w-7xl mx-auto p-8 mb-20">
-                {primaryCtaLessonId != null && (
-                    <div className="mb-8 flex flex-col items-center lg:items-start gap-2">
-                        <Button
-                            type="button"
-                            size="xl"
-                            className="w-full max-w-xl lg:max-w-md h-14 text-lg font-bold shadow-lg rounded-2xl bg-violet-600 hover:bg-violet-700 text-white"
-                            onClick={() =>
-                                navigateToLesson(primaryCtaLessonId, {
-                                    review: allLessonsCompleted,
-                                })
-                            }
-                        >
-                            <PlayCircle className="size-7 shrink-0" aria-hidden />
-                            {primaryCtaLabel}
-                        </Button>
-                        {!isAuthenticated && (
-                            <p className="text-center lg:text-left text-sm text-muted-foreground font-medium px-1">
-                                Xisaab u fur bilaash ah
-                            </p>
-                        )}
-                        {isAuthenticated && hasCompletedAtLeastOne && firstLessonIdOfCourse != null && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                className="text-muted-foreground hover:text-foreground text-sm font-semibold h-auto py-2"
-                                onClick={() =>
-                                    navigateToLesson(firstLessonIdOfCourse, {
-                                        review: true,
-                                    })
-                                }
-                            >
-                                Muraajacee
-                            </Button>
-                        )}
-                    </div>
-                )}
+            <div className="max-w-7xl mx-auto p-8 pb-48 sm:pb-52">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Course Info */}
                     <aside className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white dark:bg-slate-900 rounded-xl shadow-md border-gray-200 dark:border-slate-800 md:sticky md:top-32">
@@ -486,30 +490,14 @@ export function CourseDetailClient() {
                             )}
                         </div>
 
-                        {currentCourse.modules && (
-                            <TrackLessonList
-                                modules={currentCourse.modules as any}
-                                progress={progress ?? []}
-                                firstLessonIdOfCourse={firstLessonIdOfCourse}
-                                resumeLessonId={resumeLessonId}
-                                isPremium={isPremiumUser}
-                                isAuthenticated={isAuthenticated}
-                                onLessonClick={(id) => {
-                                    const completed = progress?.some(
-                                        (p: any) =>
-                                            Number(p.lesson) === id &&
-                                            p.status === "completed"
-                                    );
-                                    navigateToLesson(id, { review: Boolean(completed) });
-                                }}
-                            />
-                        )}
-
                         <div className="relative flex flex-col items-center gap-12 mt-10">
                             {currentCourse.modules && (
                                 <ModuleZigzag
                                     modules={currentCourse.modules as any}
                                     onModuleClick={handleModuleClick}
+                                    onModuleSelect={(_moduleId, firstLessonId) => {
+                                        setZigzagSelectedLessonId(firstLessonId);
+                                    }}
                                     progress={progress ?? []}
                                     activeModuleId={activeModuleId}
                                     firstLessonIdOfCourse={firstLessonIdOfCourse}
@@ -523,6 +511,99 @@ export function CourseDetailClient() {
                     </section>
                 </div>
             </div>
+
+            {ctaLessonId != null && (
+                <div
+                    className="pointer-events-none fixed inset-x-0 bottom-0 z-50"
+                    style={{
+                        paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+                    }}
+                    role="presentation"
+                >
+                    <div className="mx-auto max-w-7xl px-8">
+                        <div className="grid grid-cols-1 gap-0 lg:grid-cols-2 lg:gap-12">
+                            <div className="hidden lg:block" aria-hidden />
+                            <div className="flex justify-center">
+                                <div
+                                    className={cn(
+                                        "pointer-events-auto flex min-h-[168px] w-full max-w-md flex-col justify-between gap-4 rounded-2xl border border-gray-200/90 bg-white px-5 py-5 shadow-lg ring-1 ring-black/5",
+                                        "dark:border-slate-700 dark:bg-slate-900 dark:ring-white/10 dark:shadow-2xl"
+                                    )}
+                                    role="region"
+                                    aria-label="Casharka la doorbiday"
+                                >
+                                    <div className="flex min-h-0 flex-1 flex-col gap-4">
+                                        <div className="min-w-0 flex-1 text-center">
+                                            <p className="line-clamp-4 text-lg font-bold leading-tight text-gray-900 dark:text-white sm:text-xl">
+                                                {ctaLessonTitle ?? "Cashar"}
+                                            </p>
+                                        </div>
+                                        <div className="mt-auto flex w-full shrink-0 flex-col gap-2">
+                                            {ctaLocked ? (
+                                                <Button
+                                                    type="button"
+                                                    size="lg"
+                                                    className="h-14 w-full rounded-xl text-base font-bold shadow-md bg-amber-600 hover:bg-amber-700 text-white"
+                                                    onClick={() =>
+                                                        router.push(
+                                                            "/subscribe?plan=explorer&ref=course_detail_cta"
+                                                        )
+                                                    }
+                                                >
+                                                    <Lock
+                                                        className="size-5 shrink-0"
+                                                        aria-hidden
+                                                    />
+                                                    Ku biir
+                                                </Button>
+                                            ) : ctaLessonCompleted ? (
+                                                <Button
+                                                    type="button"
+                                                    size="lg"
+                                                    className="h-14 w-full rounded-xl text-base font-bold shadow-md bg-violet-600 hover:bg-violet-700 text-white"
+                                                    onClick={() =>
+                                                        navigateToLesson(ctaLessonId, {
+                                                            review: true,
+                                                        })
+                                                    }
+                                                >
+                                                    <Reply
+                                                        className="size-5 shrink-0"
+                                                        aria-hidden
+                                                    />
+                                                    Muraajacee
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    type="button"
+                                                    size="lg"
+                                                    className="h-14 w-full rounded-xl text-base font-bold shadow-md bg-violet-600 hover:bg-violet-700 text-white"
+                                                    onClick={() =>
+                                                        navigateToLesson(ctaLessonId, {
+                                                            review: false,
+                                                        })
+                                                    }
+                                                >
+                                                    <PlayCircle
+                                                        className="size-5 shrink-0"
+                                                        aria-hidden
+                                                    />
+                                                    {primaryCtaLabel}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {!isAuthenticated && (
+                                        <p className="border-t border-gray-100 pt-3 text-center text-xs text-muted-foreground dark:border-slate-800">
+                                            Xisaab u fur bilaash ah
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

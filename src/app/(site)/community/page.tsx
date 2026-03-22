@@ -34,6 +34,7 @@ import {
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAuthReady } from '@/hooks/useAuthReady';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
@@ -60,7 +61,8 @@ export default function CommunityPage() {
     }, [allCategories]);
 
     const unreadCount = useMemo(() => notifications.filter(n => !n.is_read).length, [notifications]);
-    const { user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated, hydrate: hydrateAuthFromCookies } = useAuthStore();
+    const authReady = useAuthReady();
     const isPremium = !!user?.is_premium;
     const [loading, setLoading] = useState({ categories: false, posts: false, profile: false });
     const [errors, setErrors] = useState({ posts: null });
@@ -129,12 +131,20 @@ export default function CommunityPage() {
         }
     }, [posts, pendingScrollPostId]);
 
-    // If auth state says not authenticated, send to login with return URL (middleware already protects /community)
+    // After persist rehydrates (and cookie sync), redirect only if truly logged out.
+    // Before rehydration, isAuthenticated is false — do not treat that as logged out.
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!authReady) return;
+        hydrateAuthFromCookies();
+    }, [authReady, hydrateAuthFromCookies]);
+
+    useEffect(() => {
+        if (!authReady) return;
+        // Read store after hydrate() (same tick) — hook closure can still be false briefly.
+        if (!useAuthStore.getState().isAuthenticated) {
             router.push('/login?redirect=' + encodeURIComponent('/community'));
         }
-    }, [isAuthenticated, router]);
+    }, [authReady, isAuthenticated, router]);
 
 
     // Proactively ensure token is valid on mount
@@ -150,7 +160,7 @@ export default function CommunityPage() {
 
     // Initialize data (fetch once)
     useEffect(() => {
-        if (!isAuthenticated) return;
+        if (!authReady || !isAuthenticated) return;
 
         const initData = async () => {
             try {
@@ -171,7 +181,7 @@ export default function CommunityPage() {
         };
 
         initData();
-    }, [isAuthenticated]);
+    }, [authReady, isAuthenticated]);
 
     // Select first category by default when categories load
     useEffect(() => {
@@ -220,7 +230,7 @@ export default function CommunityPage() {
         fetchPostsForCategory(selectedCategory.id);
     }, [selectedCategory]);
 
-    if (loading.categories || loading.profile) {
+    if (!authReady || loading.categories || loading.profile) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-white dark:bg-[#1E1F22]">
                 <div className="flex flex-col items-center gap-4">

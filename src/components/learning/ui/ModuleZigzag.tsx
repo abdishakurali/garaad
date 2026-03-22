@@ -12,6 +12,8 @@ interface ModuleZigzagProps {
     modules: Module[];
     progress: UserProgress[];
     onModuleClick: (moduleId: number) => void;
+    /** Fired when user taps a module row (selection only); used to sync external lesson CTAs. */
+    onModuleSelect?: (moduleId: number, firstLessonId: number) => void;
     activeModuleId?: number;
     /** First lesson of the course by order (same as LessonDetailClient). Free tier can only start this lesson. */
     firstLessonIdOfCourse?: number | null;
@@ -28,6 +30,7 @@ export default function ModuleZigzag({
     modules,
     progress,
     onModuleClick,
+    onModuleSelect,
     activeModuleId,
     firstLessonIdOfCourse = null,
     xp,
@@ -70,8 +73,19 @@ export default function ModuleZigzag({
 
     // Handle module box click
     const handleModuleClick = (module: Module) => {
+        const lessons = module.lessons ?? [];
+        if (lessons.length > 0) {
+            const sorted = [...lessons].sort(
+                (a, b) =>
+                    ((a as { lesson_number?: number }).lesson_number ?? 0) -
+                    ((b as { lesson_number?: number }).lesson_number ?? 0)
+            );
+            const firstId = sorted[0]?.id;
+            if (firstId != null) {
+                onModuleSelect?.(module.id, Number(firstId));
+            }
+        }
         setSelectedModule(module);
-        // Don't call onModuleClick here - only select for viewing
     };
 
     // Free tier: first lesson of course by lesson_number to match backend (Lesson has no order field)
@@ -188,7 +202,12 @@ export default function ModuleZigzag({
     );
 
     return (
-        <div className="max-w-md mx-auto p-4 pb-32">
+        <div
+            className={cn(
+                "max-w-md mx-auto p-4",
+                suppressBottomCta ? "pb-4" : "pb-32"
+            )}
+        >
             {/* Progress summary at top */}
             <div className="flex items-center justify-between mb-8 px-2">
                 <div className="flex items-center gap-3">
