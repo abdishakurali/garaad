@@ -10,7 +10,7 @@ export function FooterSection() {
     ],
     company: [
       { name: "Nagu saabsan", href: "/about" },
-      { name: "Shaqo", href: "#" },
+      { name: "Shaqo", href: "mailto:info@garaad.org" },
     ],
     legal: [
       { name: "Shuruudaha Isticmaalka", href: "/terms" },
@@ -43,13 +43,14 @@ export function FooterSection() {
               <h3 className="text-sm font-semibold">Alaabta</h3>
               <ul className="mt-6 flex flex-col gap-4 list-none p-0">
                 {navigation.product.map((item) => (
-                  <Link
-                    href={item.href}
-                    key={item.name}
-                    className="text-sm text-gray-300 hover:text-white"
-                  >
-                    {item.name}
-                  </Link>
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-sm text-gray-300 hover:text-white"
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>

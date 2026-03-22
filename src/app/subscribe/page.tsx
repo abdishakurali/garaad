@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { usePostHog } from "posthog-js/react";
 import { PLANS, FAQ, type SubscribePlanKey } from "@/config/subscribePlans";
@@ -100,6 +100,7 @@ function SubscribePageInner() {
   const [selectedPlan, setSelectedPlan] = useState<SubscribePlanKey | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const posthog = usePostHog();
   const viewCaptured = useRef(false);
@@ -137,6 +138,23 @@ function SubscribePageInner() {
     const el = document.getElementById(`plan-card-${planFromQuery}`);
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [planFromQuery]);
+
+  /** Smooth scroll when arriving from home hero (e.g. /subscribe#plan-card-explorer). */
+  useEffect(() => {
+    if (pathname !== "/subscribe" || typeof window === "undefined") return;
+    const scrollToHash = () => {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash !== "plan-card-explorer" && hash !== "plan-card-challenge") return;
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    scrollToHash();
+    const raf = requestAnimationFrame(scrollToHash);
+    const t = window.setTimeout(scrollToHash, 200);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(t);
+    };
+  }, [pathname]);
 
   const handlePaymentSuccess = (planKey: SubscribePlanKey) => {
     router.push(`/dashboard?subscribed=${planKey}`);

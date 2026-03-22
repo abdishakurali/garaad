@@ -9,19 +9,25 @@ const reviewImages = [
     {
         id: 1,
         src: "/images/review/1.png",
-        alt: "Student Review 1"
+        alt: "Ilyas Omar — dib u eegis WhatsApp",
+        name: "Ilyas Omar",
+        outcome: "Bartay Tailwind CSS",
     },
     {
         id: 2,
         src: "/images/review/2.png",
-        alt: "Student Review 2"
+        alt: "Abdiladif Salah — dib u eegis WhatsApp",
+        name: "Abdiladif Salah",
+        outcome: "Front Developer noqday",
     },
     {
         id: 3,
         src: "/images/review/3.jpeg",
-        alt: "Student Review 3"
-    }
-];
+        alt: "Abdiaziz — dib u eegis WhatsApp",
+        name: "Abdiaziz",
+        outcome: "Website la dhisay Sofaritech",
+    },
+] as const;
 
 const videos = [
     {
@@ -56,12 +62,41 @@ export function TestimonialsSection() {
                 </Reveal>
 
                 <div className="space-y-12">
-                    {/* Unified Testimonials Section */}
+                    {/* 1. WhatsApp / screenshot reviews (above the fold priority) */}
+                    <Reveal>
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+                            {reviewImages.map((img, index) => (
+                                <div
+                                    key={img.id}
+                                    className="flex flex-col gap-4"
+                                    style={{ animationDelay: `${index * 150}ms` }}
+                                >
+                                    <div
+                                        className="relative aspect-square sm:aspect-[4/5] rounded-[2rem] overflow-hidden border-2 border-border/60 shadow-xl bg-muted/20 group hover:border-primary/40 transition-all duration-500"
+                                    >
+                                        <Image
+                                            src={img.src}
+                                            alt={img.alt}
+                                            fill
+                                            className="object-contain p-4 group-hover:scale-[1.02] transition-transform duration-500"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            unoptimized
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
+                                    </div>
+                                    <div className="text-center sm:text-left px-1">
+                                        <p className="text-sm font-bold text-foreground">{img.name}</p>
+                                        <p className="text-sm text-muted-foreground mt-0.5">{img.outcome}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </Reveal>
 
-                    {/* 1. Videos First */}
+                    {/* 2. Video testimonials */}
                     <Reveal>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-                            {videos.map((vid, index) => (
+                            {videos.map((vid) => (
                                 <div
                                     key={vid.id}
                                     className="relative group cursor-pointer"
@@ -88,30 +123,6 @@ export function TestimonialsSection() {
                                             <p className="text-white/80 text-sm italic">{vid.subtitle}</p>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Reveal>
-
-                    {/* 2. Review Images Second */}
-                    <Reveal>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                            {reviewImages.map((img, index) => (
-                                <div
-                                    key={img.id}
-                                    className="relative aspect-square sm:aspect-[4/5] rounded-[2rem] overflow-hidden border-2 border-border/60 shadow-xl bg-muted/20 group hover:border-primary/40 transition-all duration-500"
-                                    style={{ animationDelay: `${index * 150}ms` }}
-                                >
-                                    <Image
-                                        src={img.src}
-                                        alt={img.alt}
-                                        fill
-                                        className="object-contain p-4 group-hover:scale-[1.02] transition-transform duration-500"
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        unoptimized
-                                    />
-                                    {/* Subtle gradient for depth */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                                 </div>
                             ))}
                         </div>

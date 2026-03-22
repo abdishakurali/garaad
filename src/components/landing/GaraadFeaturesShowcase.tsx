@@ -9,9 +9,11 @@ import {
   Users,
   MessageCircle,
   Code2,
+  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
 
 /** Small Vercel-style triangle accent */
 function VercelMark({ className }: { className?: string }) {
@@ -29,36 +31,57 @@ function VercelMark({ className }: { className?: string }) {
   );
 }
 
-const features = [
+type FeatureDef = {
+  title: string;
+  desc: string;
+  icon: LucideIcon;
+  ctaLabel: string;
+  /** Use "__FIRST_LESSON__" for dynamic first-lesson href from hook */
+  ctaHref: string;
+};
+
+const features: FeatureDef[] = [
   {
     title: "Koorsooyin Af-Soomaali",
     desc: "Full-Stack, AI, iyo STEM — dhammaan waxaa lagu sharxayaa afkaaga hooyo.",
     icon: BookOpen,
+    ctaLabel: "Arag koorsooyinka →",
+    ctaHref: "/courses",
   },
   {
     title: "Casharro isdhexgal ah",
     desc: "Video, su’aalaha tooska ah, iyo tallaabo tallaabo — ma aha kaliya fiidiyowyo.",
     icon: Sparkles,
+    ctaLabel: "Bilow cashar →",
+    ctaHref: "__FIRST_LESSON__",
   },
   {
     title: "Horumar & XP",
     desc: "Streak, dhibco, iyo aragti ku saabsan sida aad u socotid.",
     icon: Zap,
+    ctaLabel: "Arag heerkaaga →",
+    ctaHref: "/dashboard",
   },
   {
     title: "Bulshada",
     desc: "La wadaag, weydii, kora asxaabtaada baraya.",
     icon: Users,
+    ctaLabel: "Ku biir bulshada →",
+    ctaHref: "/community",
   },
   {
     title: "Caawiye AI",
     desc: "Weydii su’aal kasta oo ku saabsan koorsooyinka — mar walba diyaar.",
     icon: MessageCircle,
+    ctaLabel: "Isku day →",
+    ctaHref: "/courses",
   },
   {
     title: "Tech casri ah",
     desc: "Next.js, React, AI APIs — waxa suuqa u baahan yahay.",
     icon: Code2,
+    ctaLabel: "Bilow maanta →",
+    ctaHref: "/subscribe",
   },
 ];
 
@@ -66,12 +89,17 @@ function FeatureCard({
   title,
   desc,
   icon: Icon,
-}: (typeof features)[0]) {
+  ctaLabel,
+  ctaHref,
+  firstFreeLessonHref,
+}: FeatureDef & { firstFreeLessonHref: string }) {
+  const resolvedHref = ctaHref === "__FIRST_LESSON__" ? firstFreeLessonHref : ctaHref;
+
   return (
     <Reveal>
       <div
         className={cn(
-          "group relative h-full rounded-2xl border p-5 sm:p-6 transition-all duration-300",
+          "group relative flex h-full flex-col rounded-2xl border p-5 sm:p-6 transition-all duration-300",
           "bg-background/60 dark:bg-white/[0.03] backdrop-blur-sm",
           "border-black/[0.06] dark:border-white/[0.08]",
           "hover:border-primary/25 dark:hover:border-primary/30",
@@ -97,12 +125,22 @@ function FeatureCard({
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           {desc}
         </p>
+        <div className="mt-4 pt-2">
+          <Link
+            href={resolvedHref}
+            className="text-sm font-semibold text-primary hover:underline underline-offset-4"
+          >
+            {ctaLabel}
+          </Link>
+        </div>
       </div>
     </Reveal>
   );
 }
 
 export function GaraadFeaturesShowcase() {
+  const { href: firstFreeLessonHref } = useFirstFreeLessonHref();
+
   return (
     <section className="relative py-16 sm:py-24 px-4 overflow-hidden border-t border-border/40">
       {/* Dot grid — Vercel-ish subtle texture */}
@@ -217,7 +255,7 @@ export function GaraadFeaturesShowcase() {
           <div className="relative z-10 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-3 md:gap-6 md:pt-4 md:pb-8">
             {features.slice(0, 3).map((f) => (
               <div key={f.title} className="md:pt-8 md:pb-4">
-                <FeatureCard {...f} />
+                <FeatureCard {...f} firstFreeLessonHref={firstFreeLessonHref} />
               </div>
             ))}
           </div>
@@ -237,7 +275,7 @@ export function GaraadFeaturesShowcase() {
 
           <div className="relative z-10 mt-0 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-3 md:gap-6 md:mt-0">
             {features.slice(3, 6).map((f) => (
-              <FeatureCard key={f.title} {...f} />
+              <FeatureCard key={f.title} {...f} firstFreeLessonHref={firstFreeLessonHref} />
             ))}
           </div>
         </div>

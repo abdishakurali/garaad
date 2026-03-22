@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
+import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -41,9 +42,16 @@ function parseCategories(data: unknown): HeroCourseWithCategory[] {
   );
 }
 
+const AVATAR_SAMPLES = [
+  { initials: "IO", className: "bg-emerald-600/90 text-white" },
+  { initials: "AS", className: "bg-violet-600/90 text-white" },
+  { initials: "A", className: "bg-amber-600/90 text-white" },
+] as const;
+
 export function HeroSection() {
   const user = useAuthStore((s) => s.user);
   const isLoggedIn = !!user;
+  const { href: firstFreeHref } = useFirstFreeLessonHref();
 
   const { data: stats, error: statsError } = useSWR<LandingStats>(
     `${API_BASE_URL}/api/public/landing-stats/`,
@@ -51,7 +59,10 @@ export function HeroSection() {
     { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
   );
   const studentCount = stats?.students_count ?? 0;
-  const showStats = !statsError && stats != null && typeof studentCount === "number" && studentCount > 0;
+  const learnersLabel =
+    !statsError && stats != null && studentCount > 0
+      ? `${studentCount}+ arday ayaa bilaabay`
+      : "85+ arday ayaa bilaabay";
 
   const { data: categoriesData } = useSWR<unknown>(CATEGORIES_SWR_KEY, fetcher, {
     revalidateOnFocus: false,
@@ -81,72 +92,86 @@ export function HeroSection() {
           />
         </div>
 
-        <div className="relative z-10 grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">
-          {/* Left — Copy */}
-          <div className="hero-animate-done">
+        <div className="relative z-10 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+          {/* Copy first on mobile; cards follow */}
+          <div className="hero-animate-done order-1 lg:order-none">
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
               Af-Soomaali · Full-Stack & AI
             </p>
-            <h1 className="font-display text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight text-white text-left">
+            <h1 className="text-left font-display text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight text-white">
               Baro
               <br />
               Full-Stack
               <br />
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Dev & AI
+                Horumarinta &amp; AI
               </span>
             </h1>
             <p className="mt-6 max-w-md text-base leading-relaxed text-white/60">
-              Build real apps in Somali. Step-by-step courses in React, Next.js, and AI—designed for the next generation of builders.
+              Koorsooyinka HTML, JavaScript, React, iyo AI — af Soomaali. 30 daqiiqo maalintiiba. Bilow
+              maanta.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                href={isLoggedIn ? "/courses" : "/welcome"}
+                href={firstFreeHref}
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
               >
-                {isLoggedIn ? "Koorsooyinka" : "Bilow bilaash ah"}
+                Bilow Lacag La&apos;aan →
               </Link>
               <Link
-                href="/challenge"
+                href="/subscribe#plan-card-explorer"
                 className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-white/90 no-underline transition hover:bg-white/10"
               >
-                Challenge
+                Arag Qiimaha
               </Link>
             </div>
-            {showStats && (
-              <p className="mt-6 text-sm text-white/40">
-                <span className="font-semibold tabular-nums text-white/70">{studentCount}+</span> learners started
+            <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/45">
+              <span>✓ Jooji xilli kasta</span>
+              <span>✓ Waafi &amp; Stripe</span>
+              <span>✓ Af Soomaali 100%</span>
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <div className="flex -space-x-2" aria-hidden>
+                {AVATAR_SAMPLES.map((a) => (
+                  <div
+                    key={a.initials}
+                    className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#050508] text-[10px] font-bold ${a.className}`}
+                  >
+                    {a.initials}
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-white/40">
+                <span className="font-semibold tabular-nums text-white/70">{learnersLabel}</span>
               </p>
-            )}
+            </div>
           </div>
 
-          {/* Right — Koorsooyin card, courses list, AI course section */}
-          <div className="hero-animate-done relative space-y-5">
-            {/* Koorsooyin — Full-Stack & AI in Somali */}
+          {/* Cards */}
+          <div className="hero-animate-done relative order-2 space-y-5 lg:order-none">
             <Link
-              href={isLoggedIn ? "/courses" : "/welcome"}
+              href={firstFreeHref}
               className="block rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-primary/20 hover:bg-white/8"
             >
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
                 <BookOpen className="h-3.5 w-3.5" />
                 Koorsooyin
               </div>
-              <h3 className="font-display text-xl font-semibold text-white">
-                Full-Stack & AI in Somali
-              </h3>
+              <h3 className="font-display text-xl font-semibold text-white">Full-Stack &amp; AI af Soomaali</h3>
               <p className="mt-2 text-sm text-white/50">
-                Step-by-step. Build a portfolio. Get job-ready.
+                Tallaabo tallaabo. Dhis portfolio. Diyaar u noqo shaqada tech-ka.
               </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-primary">
-                Start now →
-              </span>
+              <span className="mt-4 inline-block text-sm font-semibold text-primary">Bilow hadda →</span>
             </Link>
 
-           
-
-            {/* AI course section */}
             <Link
-              href={isLoggedIn ? (aiCourse ? `/courses/${aiCourse.categoryId}/${aiCourse.slug}` : "/courses") : "/welcome"}
+              href={
+                isLoggedIn
+                  ? aiCourse
+                    ? `/courses/${aiCourse.categoryId}/${aiCourse.slug}`
+                    : "/courses"
+                  : "/welcome"
+              }
               className="block rounded-2xl border border-primary/20 bg-primary/10 p-6 transition hover:border-primary/30 hover:bg-primary/15"
             >
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
@@ -161,29 +186,25 @@ export function HeroSection() {
                   ? "Ku baro AI si habboon — bilaaw maanta."
                   : "Ku baro AI, machine learning iyo automation — tallaabo tallaabo."}
               </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-primary">
-                Bilaaw koorsada AI →
-              </span>
+              <span className="mt-4 inline-block text-sm font-semibold text-primary">Bilaaw koorsada AI →</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Tech strip — centered, no animation */}
+      {/* Tech strip */}
       <div className="border-y border-white/10 bg-white/[0.02] py-6">
-        <div className="mx-auto flex justify-center flex-wrap items-center gap-12 sm:gap-16 px-6" style={{ maxWidth: 1200 }}>
-            {TECH_ICONS.map(({ name, Icon }) => (
-              <span
-                key={name}
-                className="flex shrink-0 items-center justify-center gap-2.5 text-white/50"
-                title={name}
-              >
-                <Icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
-                <span className="font-mono text-xs font-medium uppercase tracking-wider">
-                  {name}
-                </span>
-              </span>
-            ))}
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-center gap-12 px-6 sm:gap-16">
+          {TECH_ICONS.map(({ name, Icon }) => (
+            <span
+              key={name}
+              className="flex shrink-0 items-center justify-center gap-2.5 text-white/50"
+              title={name}
+            >
+              <Icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
+              <span className="font-mono text-xs font-medium uppercase tracking-wider">{name}</span>
+            </span>
+          ))}
         </div>
       </div>
     </div>

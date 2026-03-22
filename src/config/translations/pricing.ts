@@ -52,7 +52,7 @@ export const pricingTranslations = {
     "Kusoo dhawaaw Challenge-ka! Hubi WhatsApp-kaaga — Cabdishakuur ayaa kula soo xiriiri doona 24 saac gudahood.",
 
   // Dashboard nav
-  nav_upgrade: "Sare u qaad",
+  nav_upgrade: "Sare u qaad — $29",
   nav_badge_explorer: "Explorer",
   nav_badge_challenge: "Challenge",
 

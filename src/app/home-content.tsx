@@ -50,11 +50,11 @@ export function HomeContent() {
                     <HeroSection />
 
                     <Suspense fallback={<SectionSkeleton />}>
-                        <GaraadFeaturesShowcase />
+                        <TestimonialsSection />
                     </Suspense>
 
                     <Suspense fallback={<SectionSkeleton />}>
-                        <TestimonialsSection />
+                        <GaraadFeaturesShowcase />
                     </Suspense>
 
                     <Suspense fallback={<SectionSkeleton />}>
