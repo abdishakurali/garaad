@@ -15,12 +15,15 @@ import {
 } from "@/components/ui/dialog";
 import { Lock, Sparkles, ArrowLeft } from "lucide-react";
 import { PLANS } from "@/config/subscribePlans";
+import { grantLessonGatePreview } from "@/lib/lessonGatePreview";
 
 const SUBSCRIBE_EXPLORER_HREF =
   "/subscribe?plan=explorer&ref=lesson_gate" as const;
 
 export interface LessonUpgradeModalProps {
   coursePath: string;
+  /** Numeric course id (for one-time preview token). */
+  courseId: number | string;
   courseTitle?: string;
   lessonTitle?: string;
   lessonId: number | string;
@@ -31,6 +34,7 @@ export interface LessonUpgradeModalProps {
  */
 export function LessonUpgradeModal({
   coursePath,
+  courseId,
   courseTitle,
   lessonTitle,
   lessonId,
@@ -38,6 +42,11 @@ export function LessonUpgradeModal({
   const router = useRouter();
   const posthog = usePostHog();
   const captured = useRef(false);
+
+  const grantPreviewAndGoCourse = () => {
+    grantLessonGatePreview(courseId, Number(lessonId));
+    router.push(coursePath);
+  };
 
   useEffect(() => {
     if (captured.current || !posthog) return;
@@ -55,21 +64,26 @@ export function LessonUpgradeModal({
     <Dialog
       open
       onOpenChange={(next) => {
-        if (!next) router.push(coursePath);
+        if (!next) grantPreviewAndGoCourse();
       }}
     >
-      <DialogContent className="sm:max-w-md border-2 border-primary/20 shadow-xl">
+      <DialogContent
+        className="sm:max-w-md border-2 border-primary/20 bg-background shadow-xl dark:border-violet-500/35 dark:bg-slate-950 dark:shadow-[0_0_0_1px_rgba(139,92,246,0.15),0_25px_50px_-12px_rgba(0,0,0,0.6)]"
+      >
         <DialogHeader className="text-center sm:text-center space-y-3">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20">
-            <Lock className="h-8 w-8 text-primary" aria-hidden />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 dark:from-violet-500/25 dark:to-purple-600/20 dark:ring-1 dark:ring-violet-500/30">
+            <Lock
+              className="h-8 w-8 text-primary dark:text-violet-400"
+              aria-hidden
+            />
           </div>
-          <DialogTitle className="text-xl font-bold">
+          <DialogTitle className="text-xl font-bold text-foreground dark:text-slate-50">
             Fur dhammaan casharada koorsadan
           </DialogTitle>
           <DialogDescription asChild>
-            <div className="space-y-3 text-left text-muted-foreground text-sm leading-relaxed">
+            <div className="space-y-3 text-left text-muted-foreground text-sm leading-relaxed dark:text-slate-400">
               <p>
-                <span className="font-medium text-foreground">
+                <span className="font-medium text-foreground dark:text-slate-100">
                   Waxaad isku dayaysaa inaad furto:{" "}
                 </span>
                 {lessonTitle
@@ -80,24 +94,24 @@ export function LessonUpgradeModal({
                   ? ` Koorsada ${courseTitle} waxay leedahay casharo badan oo kaliya ku jira qorshaha Explorer.`
                   : " Dhammaan casharada ka baxsan casharka 1aad waxay u baahan yihiin Explorer."}
               </p>
-              <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-foreground">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+              <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-foreground dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground dark:text-slate-500 mb-1">
                   Qiimaha
                 </p>
                 <p className="text-lg font-bold tabular-nums">
                   {explorer.name} — {explorer.priceDisplay}
-                  <span className="text-sm font-normal text-muted-foreground">
+                  <span className="text-sm font-normal text-muted-foreground dark:text-slate-400">
                     {" "}
                     {explorer.per}
                   </span>
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground dark:text-slate-500 mt-1">
                   Jooji xilli kasta · Lacag bixinta ammaan ah
                 </p>
               </div>
               <p className="flex items-start gap-2 text-xs">
-                <Sparkles className="h-4 w-4 shrink-0 text-primary mt-0.5" />
-                <span>
+                <Sparkles className="h-4 w-4 shrink-0 text-primary dark:text-violet-400 mt-0.5" />
+                <span className="dark:text-slate-300">
                   Hel dhammaan casharada, XP, streaks, iyo bulshada — casharka
                   1aad wali waa bilaash.
                 </span>
@@ -108,16 +122,17 @@ export function LessonUpgradeModal({
         <DialogFooter className="flex-col gap-2 sm:flex-col">
           <Button
             asChild
-            className="w-full font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+            className="w-full font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 dark:from-violet-600 dark:to-purple-600 dark:hover:from-violet-500 dark:hover:to-purple-500"
           >
             <Link href={SUBSCRIBE_EXPLORER_HREF}>
-              Subscribe Now — {explorer.priceDisplay}/mo
+              Bilow Hadda — {explorer.priceDisplay}
+              {explorer.per}
             </Link>
           </Button>
           <Button
             variant="ghost"
-            className="w-full gap-2 text-muted-foreground"
-            onClick={() => router.push(coursePath)}
+            className="w-full gap-2 text-muted-foreground hover:text-foreground dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+            onClick={grantPreviewAndGoCourse}
           >
             <ArrowLeft className="h-4 w-4" />
             Ku noqo bogga koorsada

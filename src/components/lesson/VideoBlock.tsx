@@ -155,15 +155,13 @@ const VideoBlock: React.FC<{
   const showPlayOverlay = !isPlaying && !isLoading;
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
-      {/* Title hidden in lesson UI — keeps focus on the player */}
-
+    <div className="w-full">
       <div
         ref={containerRef}
         className={cn(
-          "relative overflow-hidden bg-zinc-950 aspect-video w-full",
-          "mx-0 rounded-none sm:mx-auto sm:rounded-2xl sm:border sm:border-zinc-800",
-          isFullscreen && "rounded-none w-screen h-screen aspect-auto mx-0 border-0"
+          "relative w-full aspect-video overflow-hidden rounded-xl bg-zinc-900",
+          "border border-zinc-800",
+          isFullscreen && "rounded-none w-screen h-screen aspect-auto border-0"
         )}
       >
         {optimizedUrl ? (
@@ -173,7 +171,7 @@ const VideoBlock: React.FC<{
             ) : (
               <>
             {isLoading && (
-              <div className="absolute inset-0 z-30 flex items-center justify-center bg-zinc-800 animate-pulse rounded-none sm:rounded-2xl">
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-zinc-800 animate-pulse rounded-xl">
                 <div className="flex flex-col items-center gap-2">
                   <Loader2 className="w-8 h-8 text-zinc-500 animate-spin" />
                   <p className="text-xs text-zinc-500">Soo dejinaya...</p>
@@ -191,7 +189,7 @@ const VideoBlock: React.FC<{
             )}
 
             {showTryAgain && (
-              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-zinc-900 rounded-none sm:rounded-2xl">
+              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-zinc-900 rounded-xl">
                 <p className="text-sm text-zinc-500 text-center px-4">Muuqaalka lama soo dejin karin.</p>
                 <Button
                   size="sm"
@@ -221,7 +219,7 @@ const VideoBlock: React.FC<{
               {...(typeof optimizedUrl === "string" && optimizedUrl.includes("api/media/") ? { crossOrigin: "anonymous" as const } : {})}
               className={cn(
                 "w-full h-full object-cover bg-zinc-950",
-                isFullscreen ? "rounded-none object-contain" : "sm:rounded-2xl"
+                isFullscreen ? "rounded-none object-contain" : "rounded-xl"
               )}
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
@@ -334,7 +332,7 @@ const VideoBlock: React.FC<{
 
       <Button
         onClick={onContinue}
-        className="mt-5 w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors duration-150 min-h-[44px]"
+        className="mt-4 w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors duration-150 min-h-[44px]"
       >
         {isLastBlock ? "Dhamee" : "Sii wado"}
         <ChevronRight className="ml-2 h-4 w-4" />

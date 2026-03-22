@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils";
 
 export interface LessonCompleteModalProps {
   lessonTitle: string;
-  /** Score from the lesson (frontend value: e.g. isCorrect ? 100 : 0) */
+  /** Quiz score 0–100 when the lesson had problem blocks; ignored when hasQuiz is false */
   score: number;
+  /** When false, the score stat is hidden */
+  hasQuiz?: boolean;
   /** XP earned this lesson — hardcoded for now, ready for real value */
   xpEarned?: number;
   /** Current streak from useGamificationData (stub: 0) */
@@ -23,8 +25,10 @@ export interface LessonCompleteModalProps {
   completedLessonsCount: number;
   /** Total lessons in course (e.g. 10) */
   totalLessonsCount: number;
-  /** Whether there is a next lesson */
+  /** Whether there is a next lesson in the course sequence */
   hasNextLesson: boolean;
+  /** True when every lesson in the course is completed (including this one) */
+  courseFullyComplete: boolean;
   onNextLesson: () => void;
   onReview: () => void;
   onDashboard: () => void;
@@ -36,18 +40,25 @@ export interface LessonCompleteModalProps {
 export function LessonCompleteModal({
   lessonTitle,
   score,
+  hasQuiz = false,
   xpEarned = 20,
   currentStreak = 0,
   courseProgressPercent,
   completedLessonsCount,
   totalLessonsCount,
   hasNextLesson,
+  courseFullyComplete,
   onNextLesson,
   onReview,
   onDashboard,
   lessonId,
   showExplorerUpsell = false,
 }: LessonCompleteModalProps) {
+  const primaryCtaLabel = hasNextLesson
+    ? "Casharka xiga →"
+    : courseFullyComplete
+      ? "Koorsada dhamee ✓"
+      : "Ku laabo koorsada →";
   const router = useRouter();
   const posthog = usePostHog();
   const [upsellVisible, setUpsellVisible] = useState(showExplorerUpsell);
@@ -127,7 +138,12 @@ export function LessonCompleteModal({
           </div>
 
           {/* 2. STATS ROW — 3 cards */}
-          <div className="grid grid-cols-3 gap-3">
+          <div
+            className={cn(
+              "grid gap-3",
+              hasQuiz ? "grid-cols-3" : "grid-cols-2"
+            )}
+          >
             <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
               <p className="text-xs text-gray-400 uppercase tracking-wide">XP</p>
               <p className="text-lg font-bold text-purple-400">+{xpEarned} XP</p>
@@ -138,10 +154,12 @@ export function LessonCompleteModal({
                 🔥 {currentStreak} maalmood
               </p>
             </div>
-            <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-wide">Score</p>
-              <p className="text-lg font-bold text-white">{score}</p>
-            </div>
+            {hasQuiz && (
+              <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
+                <p className="text-xs text-gray-400 uppercase tracking-wide">Score</p>
+                <p className="text-lg font-bold text-white">{score}%</p>
+              </div>
+            )}
           </div>
 
           {/* 3. PROGRESS BAR */}
@@ -170,7 +188,7 @@ export function LessonCompleteModal({
             className="w-full h-12 text-base font-semibold rounded-xl bg-purple-600 hover:bg-purple-700 text-white border-0"
             style={{ backgroundColor: "#7c3aed" }}
           >
-            {hasNextLesson ? "Casharka xiga →" : "Koorsada dhamee ✓"}
+            {primaryCtaLabel}
           </Button>
 
           {/* 5. SECONDARY ACTIONS */}
@@ -200,9 +218,10 @@ export function LessonCompleteModal({
         <div className="pointer-events-auto shrink-0 w-full max-w-lg mx-auto pb-4 px-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-zinc-900/95 px-4 py-3 text-sm text-zinc-200 shadow-lg">
             <p className="text-left leading-snug">
-              Unlock all 40+ lessons —{" "}
+              Fur 54+ casharo —{" "}
               <span className="font-semibold text-white">
-                {PLANS.explorer.priceDisplay}/mo
+                {PLANS.explorer.priceDisplay}
+                {PLANS.explorer.per}
               </span>
             </p>
             <Button
@@ -211,7 +230,7 @@ export function LessonCompleteModal({
               className="shrink-0 rounded-lg bg-violet-600 hover:bg-violet-500 text-white"
             >
               <Link href="/subscribe?plan=explorer&ref=lesson_complete_banner">
-                Subscribe
+                Ku biir
               </Link>
             </Button>
           </div>

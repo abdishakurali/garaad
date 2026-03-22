@@ -6,7 +6,7 @@ export const PLANS = {
     name: t.explorer_name,
     tagline: t.explorer_tagline,
     /** Shown in UI only; backend still settles in USD for Waafi/Stripe as configured. */
-    priceDisplay: "€29",
+    priceDisplay: "$29",
     yearlyPriceNote: t.explorer_yearly_hint,
     per: t.explorer_per_month,
     highlight: false,
@@ -25,7 +25,7 @@ export const PLANS = {
     key: "challenge" as const,
     name: t.challenge_name,
     tagline: t.challenge_tagline,
-    priceDisplay: "€149",
+    priceDisplay: "$149",
     per: t.challenge_per_one_time,
     highlight: true,
     badge: t.challenge_badge,

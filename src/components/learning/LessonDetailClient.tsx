@@ -1,7 +1,14 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import {
+    useEffect,
+    useLayoutEffect,
+    useState,
+    useRef,
+    useCallback,
+    useMemo,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -47,8 +54,13 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { LessonCompleteModal } from "@/components/learning/LessonCompleteModal";
 import { LessonUpgradeModal } from "@/components/learning/LessonUpgradeModal";
+import {
+    peekLessonGatePreviewMatch,
+    clearLessonGatePreview,
+} from "@/lib/lessonGatePreview";
 import { EmailVerificationBanner } from "@/components/learning/EmailVerificationBanner";
 import dynamic from "next/dynamic";
+import { useStreak } from "@/services/gamification";
 
 const ShikiCode = dynamic(() => import("@/components/lesson/ShikiCode"), {
     ssr: false,
@@ -95,6 +107,40 @@ type CompletionNavigateMeta = {
     nextLessonId: number | null;
     nextLessonTitle: string | null;
 };
+
+async function fetchAllCourseLessons(courseId: number | string): Promise<Lesson[]> {
+    const all: Lesson[] = [];
+    let url: string | null = `${API_BASE_URL}/api/lms/lessons/?course=${courseId}&page_size=100`;
+    while (url) {
+        const res = await fetch(url);
+        if (!res.ok) break;
+        const raw = (await res.json()) as
+            | Lesson[]
+            | { results?: Lesson[]; next?: string | null };
+        const page = Array.isArray(raw) ? raw : raw.results ?? [];
+        all.push(...page);
+        const next = !Array.isArray(raw) ? raw.next : undefined;
+        url = next && typeof next === "string" && next.length > 0 ? next : null;
+    }
+    return all;
+}
+
+/** Remove CMS heading so we do not repeat the label in the feedback banner. */
+function stripDuplicateCorrectExplanationLead(plain: string): string {
+    let s = plain.trim();
+    let prev = "";
+    while (s !== prev) {
+        prev = s;
+        s = s
+            .replace(/^Sababta jawaabtu sax tahay:?\s*/i, "")
+            .replace(
+                /^<p>\s*<strong>Sababta jawaabtu sax tahay:?<\/strong>\s*<\/p>\s*/i,
+                ""
+            )
+            .trim();
+    }
+    return s;
+}
 
 const LoadingSpinner = ({ message }: { message: string }) => (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -190,8 +236,10 @@ export function LessonDetailClient() {
     // Local state
     const [mounted, setMounted] = useState(false);
     const [showCompletionAnimation, setShowCompletionAnimation] = useState(false);
-    /** Score at completion (frontend value) for the modal */
+    /** Quiz score 0–100 for the completion modal when the lesson had problems */
     const [completionScore, setCompletionScore] = useState(0);
+    const [completionHasQuiz, setCompletionHasQuiz] = useState(false);
+    const solvedProblemIdsRef = useRef<Set<number>>(new Set());
     const [error, setError] = useState<string | null>(null);
     const [isCorrect, setIsCorrect] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
@@ -217,13 +265,17 @@ export function LessonDetailClient() {
     /** Set after complete API succeeds; drives auto-advance toast + redirect */
     const [completionNavigateMeta, setCompletionNavigateMeta] = useState<CompletionNavigateMeta | null>(null);
 
-    const { streak, leaderboard, mutateAll } = useGamificationData();
+    const { mutateAll } = useGamificationData();
+    const { streak: streakFromApi, mutate: mutateStreak } = useStreak();
     const { enrollments } = useEnrollments();
     const { progress: userProgress } = useUserProgress();
 
     const { playSound } = useSoundManager();
     const { toast } = useToast();
     const continueRef = useRef<() => void>(() => { });
+
+    const streakCurrent =
+        (streakFromApi as { current_streak?: number } | null | undefined)?.current_streak ?? 0;
 
     const coursePath = useMemo(
         () => `/courses/${params.categoryId}/${params.courseSlug}`,
@@ -244,34 +296,30 @@ export function LessonDetailClient() {
     }, [courses, params.courseSlug, params.categoryId]);
 
     const [courseLessons, setCourseLessons] = useState<Lesson[]>([]);
+    /** After user leaves the upgrade modal, allow one view of this lesson (session). */
+    const [gatePreviewConsumed, setGatePreviewConsumed] = useState(false);
 
-    // Fetch course lessons
+    // Fetch all course lessons (paginated API)
     useEffect(() => {
-        const fetchCourseLessons = async () => {
+        const run = async () => {
             if (!courseIdFromSlug) return;
-
             try {
-                // Ensure we only fetch for the current course
-                const response = await fetch(
-                    `${API_BASE_URL}/api/lms/lessons/?course=${courseIdFromSlug}`
-                );
-                if (!response.ok) throw new Error('Failed to fetch lessons');
-
-                const raw = await response.json();
-                const lessons = Array.isArray(raw)
-                    ? raw
-                    : Array.isArray((raw as any)?.results)
-                        ? (raw as any).results
-                        : [];
+                const lessons = await fetchAllCourseLessons(courseIdFromSlug);
                 setCourseLessons(lessons);
             } catch (error) {
-                console.error('Error fetching course lessons:', error);
+                console.error("Error fetching course lessons:", error);
             }
         };
-
-        fetchCourseLessons();
+        run();
     }, [courseIdFromSlug]);
 
+    useEffect(() => {
+        solvedProblemIdsRef.current = new Set();
+    }, [currentLesson?.id]);
+
+    useEffect(() => {
+        setGatePreviewConsumed(false);
+    }, [currentLesson?.id]);
 
     // Check if lesson is in review mode
     const isReviewMode = useMemo(() => {
@@ -316,6 +364,22 @@ export function LessonDetailClient() {
         const firstId = sorted[0]?.id;
         return firstId != null && Number(currentLesson.id) !== Number(firstId);
     }, [courseLessons, currentLesson?.id]);
+
+    const gatePreviewStorageMatch = useMemo(() => {
+        if (courseIdFromSlug == null || currentLesson?.id == null) return false;
+        return peekLessonGatePreviewMatch(courseIdFromSlug, Number(currentLesson.id));
+    }, [courseIdFromSlug, currentLesson?.id]);
+
+    useLayoutEffect(() => {
+        if (!isLockedLesson || !gatePreviewStorageMatch || gatePreviewConsumed) return;
+        clearLessonGatePreview();
+        setGatePreviewConsumed(true);
+    }, [isLockedLesson, gatePreviewStorageMatch, gatePreviewConsumed]);
+
+    const hasGatePreviewBypass =
+        isLockedLesson && (gatePreviewStorageMatch || gatePreviewConsumed);
+
+    const showLessonUpgradeGate = isLockedLesson && !hasGatePreviewBypass;
 
     // Memoized derived values
     const currentProblemBlock = useMemo(() => {
@@ -575,7 +639,18 @@ export function LessonDetailClient() {
         }
 
         // Handle completion with modal
-        setCompletionScore(isCorrect ? 100 : 0);
+        const problemBlocks = sortedBlocks.filter(
+            (b) => b.block_type === "problem" && b.problem != null && b.problem !== undefined
+        );
+        const hasQuiz = problemBlocks.length > 0;
+        setCompletionHasQuiz(hasQuiz);
+        if (hasQuiz) {
+            const n = problemBlocks.length;
+            const solved = solvedProblemIdsRef.current.size;
+            setCompletionScore(Math.round((Math.min(solved, n) / n) * 100));
+        } else {
+            setCompletionScore(0);
+        }
         setCompletionNavigateMeta(null);
         setShowCompletionAnimation(true);
 
@@ -608,6 +683,7 @@ export function LessonDetailClient() {
                     }
                 );
                 mutateAll();
+                void mutateStreak?.();
                 if (res?.status === "success") {
                     if ("next_lesson_id" in res) {
                         navMeta = {
@@ -638,11 +714,11 @@ export function LessonDetailClient() {
         setCompletionNavigateMeta(navMeta);
     }, [
         currentBlockIndex,
-        isCorrect,
         playSound,
         sortedBlocks,
         currentLesson?.id,
         mutateAll,
+        mutateStreak,
         courseLessons,
     ]);
 
@@ -768,6 +844,9 @@ export function LessonDetailClient() {
 
         if (isCorrect) {
             setCurrentXp(currentProblem.xp || currentProblem.points || 10);
+            if (currentProblem.id != null) {
+                solvedProblemIdsRef.current.add(Number(currentProblem.id));
+            }
         }
 
         const rawExpl = currentProblem.explanation;
@@ -796,8 +875,9 @@ export function LessonDetailClient() {
                       .replace(/\n/g, "<br/>");
 
         if (isCorrect) {
-            const correctHtml = explPlain
-                ? `<div class="feedback-prose text-xs sm:text-sm leading-relaxed text-zinc-300 [&_p]:mb-2 [&_strong]:text-emerald-200/90"><p><strong>Sababta jawaabtu sax tahay:</strong></p><p>${toHtmlParagraphs(explPlain)}</p></div>`
+            const explBody = explPlain ? stripDuplicateCorrectExplanationLead(explPlain) : "";
+            const correctHtml = explBody
+                ? `<div class="feedback-prose text-xs sm:text-sm leading-relaxed text-zinc-300 [&_p]:mb-2 [&_strong]:text-emerald-200/90"><p><strong>Sababta jawaabtu sax tahay:</strong></p><p>${toHtmlParagraphs(explBody)}</p></div>`
                 : "";
             setExplanationData({
                 explanation: correctHtml,
@@ -1018,11 +1098,12 @@ export function LessonDetailClient() {
     }
 
     // Guests / free users: only lesson 1 per course is free; lesson 2+ shows upgrade modal
-    if (isLockedLesson) {
+    if (showLessonUpgradeGate) {
         return (
-            <div className="min-h-screen bg-zinc-950">
+            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
                 <LessonUpgradeModal
                     coursePath={coursePath}
+                    courseId={courseIdFromSlug ?? ""}
                     courseTitle={currentCourse?.title}
                     lessonTitle={currentLesson?.title}
                     lessonId={currentLesson.id}
@@ -1032,18 +1113,20 @@ export function LessonDetailClient() {
     }
 
     if (showCompletionAnimation) {
+        const courseSlug = params.courseSlug as string;
         // Ordered by lesson_number to match backend
         const sortedLessons = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
         const currentIdx = sortedLessons.findIndex(l => l.id === currentLesson?.id);
         const nextLesson = currentIdx !== -1 && currentIdx < sortedLessons.length - 1 ? sortedLessons[currentIdx + 1] : null;
-        const totalLessonsCount = sortedLessons.length || 1;
+        const listCount = sortedLessons.length;
+        const declaredCount = (currentCourse as { lesson_count?: number } | null)?.lesson_count ?? 0;
+        const totalLessonsCount = Math.max(listCount, declaredCount, 1);
         const enrollmentProgressPercent = courseIdFromSlug && enrollments
             ? (enrollments.find((e: { course: number }) => e.course === courseIdFromSlug) as { progress_percent?: number } | undefined)?.progress_percent ?? 0
             : 0;
-        const currentCourseTitle = currentCourse?.title;
         const completedForCourse = (userProgress ?? []).filter(
-            (p: { status: string; course_title?: string }) =>
-                p.status === "completed" && (!currentCourseTitle || p.course_title === currentCourseTitle)
+            (p: { status: string; course_slug?: string }) =>
+                p.status === "completed" && p.course_slug === courseSlug
         );
         const completedLessonsCount = Math.min(
             completedForCourse.length + 1,
@@ -1052,18 +1135,20 @@ export function LessonDetailClient() {
         const courseProgressPercent = totalLessonsCount > 0
             ? Math.round((completedLessonsCount / totalLessonsCount) * 100)
             : enrollmentProgressPercent;
-        const currentStreak = (streak as { current_streak?: number } | null)?.current_streak ?? 0;
+        const courseFullyComplete = completedLessonsCount >= totalLessonsCount;
 
         return (
             <LessonCompleteModal
                 lessonTitle={currentLesson?.title || ""}
                 score={completionScore}
+                hasQuiz={completionHasQuiz}
                 xpEarned={20}
-                currentStreak={currentStreak}
+                currentStreak={streakCurrent}
                 courseProgressPercent={courseProgressPercent}
                 completedLessonsCount={completedLessonsCount}
                 totalLessonsCount={totalLessonsCount}
                 hasNextLesson={!!nextLesson}
+                courseFullyComplete={courseFullyComplete}
                 onNextLesson={handleCompletionAnimationFinish}
                 onReview={() => {
                     setCompletionNavigateMeta(null);
@@ -1088,7 +1173,7 @@ export function LessonDetailClient() {
     if (!mounted) return null;
 
     return (
-        <div className="relative min-h-screen bg-zinc-950 overflow-x-hidden overscroll-y-contain">
+        <div className="relative min-h-screen bg-zinc-950 flex flex-col overflow-x-hidden overscroll-y-contain">
             <div
                 className="pointer-events-none fixed inset-0 z-0"
                 aria-hidden
@@ -1097,7 +1182,7 @@ export function LessonDetailClient() {
                         "radial-gradient(ellipse 85% 45% at 50% -8%, rgba(139, 92, 246, 0.11), transparent 55%), radial-gradient(ellipse 60% 40% at 100% 50%, rgba(59, 130, 246, 0.05), transparent 50%)",
                 }}
             />
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col flex-1 min-h-0">
             <EmailVerificationBanner />
             <LessonStepBullets
                 currentIndex={currentBlockIndex}
@@ -1105,7 +1190,7 @@ export function LessonDetailClient() {
                 onStepClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
                 coursePath={coursePath}
                 onBackRequest={() => setShowQuitConfirm(true)}
-                currentStreak={(streak as { current_streak?: number } | null)?.current_streak ?? 0}
+                currentStreak={streakCurrent}
             />
 
             <AlertDialog open={showQuitConfirm} onOpenChange={setShowQuitConfirm}>
@@ -1132,7 +1217,12 @@ export function LessonDetailClient() {
                 </AlertDialogContent>
             </AlertDialog>
 
-            <main className="px-0 pb-32 pt-1 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]">
+            <main
+                className={cn(
+                    "flex-1 flex flex-col items-center justify-center min-h-0 w-full px-0 pt-1 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]",
+                    showFeedback ? "pb-44" : "pb-6"
+                )}
+            >
                 <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-0">
                     <div className="flex flex-col w-full overflow-hidden">
                         <AnimatePresence mode="wait">
@@ -1142,7 +1232,7 @@ export function LessonDetailClient() {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0 }}
-                                className="w-full mb-4 sm:mb-5"
+                                className="w-full"
                             >
                                 {renderBlock(sortedBlocks[currentBlockIndex], currentBlockIndex)}
                             </motion.div>

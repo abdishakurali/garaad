@@ -9,7 +9,7 @@ export const pricingTranslations = {
   explorer_tagline: "Ku baro xawaarahaaga",
   explorer_per_month: "/bishii",
   /** Shown under monthly price on plan card (yearly option). */
-  explorer_yearly_hint: "Sanadkiiba €290",
+  explorer_yearly_hint: "Sanadkiiba $290",
   explorer_cta: "Bilow Waxbarashada",
   explorer_feature_1: "Dhammaan 54-ta cashar ee la daabacay",
   explorer_feature_2: "6 koorso oo isugu jira tech, xisaab iyo AI",
@@ -41,8 +41,8 @@ export const pricingTranslations = {
   modal_card_label: "Kaarka Bangiga (Stripe)",
   modal_phone_placeholder: "Lambarka telefoonka tusaale: 252615000000",
   modal_phone_label: "Lambarka telefoonka Waafi",
-  modal_pay_explorer: "Bixi €29",
-  modal_pay_challenge: "Bixi €149",
+  modal_pay_explorer: "Bixi $29",
+  modal_pay_challenge: "Bixi $149",
   modal_processing: "Waa lagu guda jiraa...",
 
   // Success banners
@@ -97,8 +97,8 @@ export const pricingTranslations = {
 
   compare_row_price: "Qiimaha",
   compare_free_price: "Bilaash",
-  compare_explorer_price: "€29/bilaan",
-  compare_challenge_price: "€149 hal mar",
+  compare_explorer_price: "$29/bilaan",
+  compare_challenge_price: "$149 hal mar",
 
   subscribe_social_month:
     "Ku biir {n}+ barayaal Soomaali ah bishaan — waxaad ku jirtaa kooxda",
