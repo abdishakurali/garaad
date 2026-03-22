@@ -1,4 +1,5 @@
 import { getBlogPost, getBlogPosts } from "@/lib/blog";
+import { getBlogAuthorDisplayName } from "@/lib/blogAuthor";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { BlogDetailClient } from "@/components/blog/BlogDetailClient";
@@ -45,6 +46,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         descriptionFromBody(post.body, 155);
     const descFinal = (description || post.title).slice(0, 155).trim();
     const ogDescription = descFinal.length >= 155 ? descFinal + "…" : descFinal;
+    const authorDisplay = getBlogAuthorDisplayName(post);
 
     // Cover from API is always absolute bridge URL when present
     const absoluteCoverImage = coverImage
@@ -56,7 +58,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         title: `${post.title} | Garaad Blog`,
         description: description || post.title,
         keywords,
-        authors: post.author_name ? [{ name: post.author_name }] : undefined,
+        authors: [{ name: authorDisplay }],
         alternates: { canonical: canonicalUrl },
         openGraph: {
             title: `${post.title} | Garaad Blog`,
@@ -67,7 +69,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
             locale: "so_SO",
             publishedTime: post.published_at ?? undefined,
             modifiedTime: post.updated_at ?? undefined,
-            authors: post.author_name ? [post.author_name] : undefined,
+            authors: [authorDisplay],
             images: [{ url: ogImage, width: 1200, height: 630 }],
         },
         twitter: {
@@ -89,11 +91,15 @@ export default async function BlogPostPage({ params }: PostPageProps) {
         notFound();
     }
 
-    // Fetch related posts (same tag if possible)
     const allPosts = await getBlogPosts();
-    const relatedPosts = allPosts
-        .filter(p => p.slug !== slug)
-        .slice(0, 3);
+    const primaryTagSlug = post.tags[0]?.slug;
+    const others = allPosts.filter((p) => p.slug !== slug);
+    const sameCategory = primaryTagSlug
+        ? others.filter((p) => p.tags.some((t) => t.slug === primaryTagSlug))
+        : [];
+    const rest = others.filter((p) => !sameCategory.includes(p));
+    const relatedPosts = [...sameCategory, ...rest].slice(0, 2);
+    const authorDisplay = getBlogAuthorDisplayName(post);
 
     const keywordsForSeo = post.tags?.length
         ? [...post.tags.map((t: { name: string }) => t.name), "Garaad Blog", "STEM Soomaali"]
@@ -106,7 +112,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
         "image": post.cover || post.cover_image_url || "https://garaad.org/images/og-blog.jpg",
         "datePublished": post.published_at,
         "dateModified": post.updated_at || post.published_at,
-        "author": { "@type": "Person", "name": post.author_name },
+        "author": { "@type": "Person", "name": authorDisplay },
         "publisher": {
             "@type": "Organization",
             "name": "Garaad STEM",

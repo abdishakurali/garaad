@@ -1,10 +1,8 @@
 import { getBlogPosts, getBlogTags } from "@/lib/blog";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, BookOpen, ArrowRight, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { SharePost } from "@/components/SharePost";
 import { Metadata } from "next";
+import { BlogCard } from "@/components/blog/BlogCard";
 
 export const revalidate = 60;
 
@@ -51,22 +49,8 @@ export default async function TagPage({ params }: TagPageProps) {
     const posts = await getBlogPosts(tag).catch(() => []);
     const tagName = tag.charAt(0).toUpperCase() + tag.slice(1).replace(/-/g, " ");
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("so-SO", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
-    };
-
-    const calculateReadingTime = (content: string) => {
-        const wordsPerMinute = 200;
-        const words = content.split(/\s+/).length;
-        return Math.max(1, Math.ceil(words / wordsPerMinute));
-    };
-
     return (
-        <main className="min-h-screen bg-white">
+        <main className="min-h-screen bg-white dark:bg-black">
                 <section className="bg-primary/5 py-12 md:py-20">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <Link
@@ -91,62 +75,9 @@ export default async function TagPage({ params }: TagPageProps) {
                             <h2 className="text-xl font-medium text-slate-800">Mowduucan qoraal lagama helin</h2>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
                             {posts.map((post) => (
-                                <Card key={post.id} className="group overflow-hidden border-none bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
-                                    <div className="relative aspect-video w-full overflow-hidden">
-                                        <Link href={`/blog/${post.slug}`} className="absolute inset-0 z-10">
-                                            <span className="sr-only">Akhri: {post.title}</span>
-                                        </Link>
-                                        {post.cover || post.cover_image_url ? (
-                                            <img
-                                                src={post.cover || post.cover_image_url!}
-                                                alt={post.title}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                loading="lazy"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                                                <span className="text-zinc-600 text-xs font-medium tracking-wide">Garaad</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <CardContent className="p-5">
-                                        <div className="flex flex-wrap gap-3 mb-3 text-xs text-slate-500">
-                                            <div className="flex items-center">
-                                                <Calendar className="mr-1 h-3 w-3" />
-                                                <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <Clock className="mr-1 h-3 w-3" />
-                                                <span>{calculateReadingTime(post.body)} daqiiqo</span>
-                                            </div>
-                                        </div>
-
-                                        <Link href={`/blog/${post.slug}`} className="block group-hover:text-primary transition-colors">
-                                            <h3 className="font-semibold text-xl mb-3 line-clamp-2">
-                                                {post.title}
-                                            </h3>
-                                        </Link>
-
-                                        <p className="line-clamp-3 text-sm text-slate-600 mb-4">
-                                            {post.excerpt}
-                                        </p>
-                                    </CardContent>
-
-                                    <CardFooter className="px-5 py-4 bg-slate-50 flex justify-between items-center">
-                                        <Link
-                                            href={`/blog/${post.slug}`}
-                                            className="inline-flex items-center text-sm font-medium text-primary hover:underline"
-                                        >
-                                            <BookOpen className="mr-1.5 h-4 w-4" />
-                                            Akhri
-                                            <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                                        </Link>
-                                        <SharePost title={post.title} slug={post.slug} />
-                                    </CardFooter>
-                                </Card>
+                                <BlogCard key={post.id} post={post} />
                             ))}
                         </div>
                     )}

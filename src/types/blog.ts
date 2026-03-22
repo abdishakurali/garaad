@@ -4,6 +4,12 @@ export interface Tag {
     slug: string;
 }
 
+export interface BlogAuthor {
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+}
+
 export interface BlogPost {
     id: number;
     title: string;
@@ -12,6 +18,7 @@ export interface BlogPost {
     cover: string | null;           // bridge URL, preferred
     cover_image_url: string | null; // same value, kept for compat
     author_name: string;
+    author?: BlogAuthor | null;
     published_at: string;
     tags: Tag[];
     excerpt: string;
