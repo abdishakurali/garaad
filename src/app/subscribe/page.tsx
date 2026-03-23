@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { usePostHog } from "posthog-js/react";
 import { PLANS, FAQ, type SubscribePlanKey } from "@/config/subscribePlans";
 import { pricingTranslations as t } from "@/config/translations/pricing";
@@ -16,8 +17,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { API_BASE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const PLAN_KEYS: SubscribePlanKey[] = ["explorer", "challenge"];
-
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 interface LandingStats {
@@ -26,60 +25,38 @@ interface LandingStats {
   learners_this_month?: number;
 }
 
-interface ChallengeStatusResponse {
-  success?: boolean;
-  data?: {
-    spots_remaining: number;
-    next_cohort_start_date: string | null;
-    is_waitlist_only: boolean;
-  };
-}
-
 function PlanComparisonTable() {
-  const explorerPrice = EXPLORER_IS_FREE ? t.compare_explorer_price_free : t.compare_explorer_price;
   const rows = [
     {
-      label: t.compare_row_price,
-      free: t.compare_free_price,
-      explorer: explorerPrice,
-      challenge: t.compare_challenge_price,
-    },
-    {
-      label: t.compare_row_lessons,
-      free: t.compare_free_lessons,
-      explorer: t.compare_explorer_lessons,
-      challenge: t.compare_challenge_lessons,
-    },
-    {
       label: t.compare_row_courses,
-      free: t.compare_free_courses,
-      explorer: t.compare_explorer_courses,
+      bilaash: t.compare_explorer_courses,
       challenge: t.compare_challenge_courses,
     },
     {
       label: t.compare_row_support,
-      free: t.compare_free_support,
-      explorer: t.compare_explorer_support,
+      bilaash: t.compare_explorer_support,
       challenge: t.compare_challenge_support,
+    },
+    {
+      label: t.compare_row_certificate,
+      bilaash: t.compare_bilaash_certificate,
+      challenge: t.compare_challenge_certificate,
     },
   ];
 
   return (
     <div className="mb-10 sm:mb-12 overflow-x-auto rounded-2xl border border-border bg-card/50 shadow-sm">
-      <table className="w-full min-w-[520px] text-left text-sm">
+      <table className="w-full min-w-[400px] text-left text-sm">
         <caption className="sr-only">{t.compare_title}</caption>
         <thead>
           <tr className="border-b border-border bg-muted/40">
-            <th scope="col" className="p-3 sm:p-4 font-semibold text-foreground w-[28%]">
+            <th scope="col" className="p-3 sm:p-4 font-semibold text-foreground w-[34%]">
               {t.compare_col_features}
             </th>
-            <th scope="col" className="p-3 sm:p-4 font-semibold text-muted-foreground">
-              Free
+            <th scope="col" className="p-3 sm:p-4 font-semibold text-foreground">
+              Bilaash
             </th>
             <th scope="col" className="p-3 sm:p-4 font-semibold text-primary">
-              Explorer
-            </th>
-            <th scope="col" className="p-3 sm:p-4 font-semibold text-muted-foreground">
               Challenge
             </th>
           </tr>
@@ -93,10 +70,7 @@ function PlanComparisonTable() {
               >
                 {row.label}
               </th>
-              <td className="p-3 sm:p-4 text-muted-foreground align-top">
-                {row.free}
-              </td>
-              <td className="p-3 sm:p-4 text-foreground align-top">{row.explorer}</td>
+              <td className="p-3 sm:p-4 text-foreground align-top">{row.bilaash}</td>
               <td className="p-3 sm:p-4 text-muted-foreground align-top">
                 {row.challenge}
               </td>
@@ -128,11 +102,7 @@ function SubscribePageInner() {
     { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
   );
 
-  const { data: challengeStatus, error: challengeStatusError } = useSWR<ChallengeStatusResponse>(
-    "/api/challenge/status",
-    fetcher,
-    { revalidateOnFocus: true, dedupingInterval: 30_000 }
-  );
+  const { data: challengeStatus, loading: challengeStatusLoading } = useChallengeStatus();
 
   const joinCount =
     typeof stats?.learners_this_month === "number" && stats.learners_this_month > 0
@@ -234,8 +204,8 @@ function SubscribePageInner() {
           <PlanComparisonTable />
         </div>
 
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-16 md:mb-20">
-          {PLAN_KEYS.map((key) => {
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 mb-16 md:mb-20 items-stretch">
+          {(["challenge", "explorer"] as const).map((key) => {
             const plan = PLANS[key];
             const explorerFree = key === "explorer" && EXPLORER_IS_FREE;
             const priceLabel = explorerFree ? t.explorer_free_price_display : plan.priceDisplay;
@@ -243,119 +213,128 @@ function SubscribePageInner() {
             const yearlyNote =
               explorerFree ? null : "yearlyPriceNote" in plan ? plan.yearlyPriceNote : null;
             const isHighlightedFromUrl = planFromQuery === plan.key;
+            const cohortStart =
+              challengeStatus?.cohort_start_date ?? challengeStatus?.next_cohort_start_date;
+            const cohortStartFmt =
+              cohortStart != null
+                ? new Date(cohortStart).toLocaleDateString("so-SO", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : null;
+
             return (
               <div
                 id={`plan-card-${plan.key}`}
                 key={plan.key}
                 className={cn(
-                  `relative rounded-2xl border-2 p-8 flex flex-col`,
+                  "relative rounded-3xl border-2 p-8 sm:p-9 flex flex-col h-full",
                   plan.key === "challenge"
-                    ? "order-1 md:order-2"
-                    : "order-2 md:order-1",
-                  plan.highlight
-                    ? "border-primary bg-gradient-to-b from-primary to-violet-700 text-primary-foreground shadow-xl shadow-primary/20"
-                    : "border-border bg-card text-card-foreground hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5 transition-shadow",
+                    ? "border-violet-500/60 bg-gradient-to-br from-violet-700 via-primary to-purple-900 text-primary-foreground shadow-2xl shadow-violet-500/25 lg:scale-[1.02] lg:z-10"
+                    : "border-border bg-card/80 text-card-foreground backdrop-blur-sm",
                   isHighlightedFromUrl && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                 )}
               >
-                {plan.badge && (
+                {plan.badge && String(plan.badge).trim() !== "" ? (
                   <span
                     className={`absolute -top-3 left-6 text-xs font-bold px-3 py-1 rounded-full shadow-sm ${
-                      plan.key === "explorer"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
+                      plan.key === "challenge"
+                        ? "bg-amber-400 text-amber-950"
+                        : "bg-primary text-primary-foreground"
                     }`}
                   >
                     ★ {plan.badge}
                   </span>
-                )}
+                ) : null}
 
                 <h2
-                  className={`text-xl font-bold mb-1 ${
-                    plan.highlight
-                      ? "text-primary-foreground"
-                      : "text-card-foreground"
-                  }`}
+                  className={cn(
+                    "text-xl font-bold mb-1",
+                    plan.highlight ? "text-primary-foreground" : "text-card-foreground"
+                  )}
                 >
                   {plan.name}
                 </h2>
 
                 <p
-                  className={`text-sm mb-6 leading-relaxed ${
-                    plan.highlight
-                      ? "text-primary-foreground/80"
-                      : "text-muted-foreground"
-                  }`}
+                  className={cn(
+                    "text-sm mb-6 leading-relaxed",
+                    plan.highlight ? "text-primary-foreground/85" : "text-muted-foreground"
+                  )}
                 >
                   {plan.tagline}
                 </p>
 
-                <div className="mb-8">
-                  <div className="flex items-end gap-1">
+                <div className="mb-6">
+                  <div className="flex items-end gap-1 flex-wrap">
                     <span
-                      className={`text-5xl font-extrabold tabular-nums ${
-                        plan.highlight
-                          ? "text-primary-foreground"
-                          : "text-foreground"
-                      }`}
+                      className={cn(
+                        "text-5xl sm:text-6xl font-extrabold tabular-nums",
+                        plan.highlight ? "text-primary-foreground" : "text-foreground"
+                      )}
                     >
                       {priceLabel}
                     </span>
                     <span
-                      className={`text-base mb-2 ${
-                        plan.highlight
-                          ? "text-primary-foreground/70"
-                          : "text-muted-foreground"
-                      }`}
+                      className={cn(
+                        "text-base mb-2 font-semibold",
+                        plan.highlight ? "text-primary-foreground/80" : "text-muted-foreground"
+                      )}
                     >
                       {perLabel}
                     </span>
                   </div>
                   {yearlyNote ? (
                     <p
-                      className={`mt-2 text-sm ${
-                        plan.highlight
-                          ? "text-primary-foreground/75"
-                          : "text-muted-foreground"
-                      }`}
+                      className={cn(
+                        "mt-2 text-sm",
+                        plan.highlight ? "text-primary-foreground/75" : "text-muted-foreground"
+                      )}
                     >
                       {yearlyNote}
                     </p>
                   ) : null}
                 </div>
 
-                {plan.key === "challenge" && !challengeStatusError ? (
+                {plan.key === "challenge" ? (
                   <div
-                    className={`mb-6 text-sm leading-snug ${
-                      plan.highlight ? "text-primary-foreground/90" : "text-muted-foreground"
-                    }`}
+                    className={cn(
+                      "mb-6 text-sm leading-snug",
+                      plan.highlight ? "text-primary-foreground/95" : "text-muted-foreground"
+                    )}
                   >
-                    {!challengeStatus?.data ? (
-                      <div
-                        className="h-10 rounded-md bg-muted/40 animate-pulse"
-                        aria-hidden
-                      />
-                    ) : (
+                    {challengeStatusLoading && !challengeStatus ? (
+                      <div className="h-14 rounded-md bg-primary-foreground/10 animate-pulse" aria-hidden />
+                    ) : challengeStatus ? (
                       <>
-                        <p className="font-medium">
-                          {challengeStatus.data.is_waitlist_only
+                        <p className="font-bold">
+                          {challengeStatus.is_waitlist_only
                             ? t.challenge_waitlist_only
                             : t.challenge_spots_remaining.replace(
                                 "{n}",
-                                String(challengeStatus.data.spots_remaining)
+                                String(challengeStatus.spots_remaining)
                               )}
                         </p>
-                        {challengeStatus.data.is_waitlist_only &&
-                        challengeStatus.data.next_cohort_start_date ? (
+                        <p className="text-sm mt-1 font-semibold opacity-95">
+                          {challengeStatus.spots_remaining} boos oo hadhay kohortan
+                        </p>
+                        {cohortStartFmt ? (
+                          <p className="mt-2 text-xs font-semibold opacity-95">
+                            Kohorta waxay bilaabantaa: {cohortStartFmt}
+                          </p>
+                        ) : null}
+                        {challengeStatus.is_waitlist_only &&
+                        challengeStatus.next_cohort_start_date ? (
                           <p className="mt-1.5 text-xs opacity-90">
                             {t.challenge_next_cohort.replace(
                               "{date}",
-                              challengeStatus.data.next_cohort_start_date
+                              challengeStatus.next_cohort_start_date
                             )}
                           </p>
                         ) : null}
                       </>
-                    )}
+                    ) : null}
                   </div>
                 ) : null}
 
@@ -363,19 +342,18 @@ function SubscribePageInner() {
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm leading-snug">
                       <span
-                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                        className={cn(
+                          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                           plan.highlight
                             ? "bg-primary-foreground/20 text-primary-foreground"
                             : "bg-primary/10 text-primary"
-                        }`}
+                        )}
                       >
                         ✓
                       </span>
                       <span
                         className={
-                          plan.highlight
-                            ? "text-primary-foreground/90"
-                            : "text-muted-foreground"
+                          plan.highlight ? "text-primary-foreground/90" : "text-muted-foreground"
                         }
                       >
                         {feature}
@@ -387,11 +365,7 @@ function SubscribePageInner() {
                 {explorerFree ? (
                   <Link
                     href={explorerCtaUser ? "/dashboard" : "/signup"}
-                    className={`w-full py-3.5 rounded-xl font-bold text-base transition-all text-center block ${
-                      plan.highlight
-                        ? "bg-primary-foreground text-primary shadow-md hover:bg-primary-foreground/90"
-                        : "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
-                    }`}
+                    className="w-full py-4 rounded-xl font-bold text-base transition-all text-center block border-2 border-primary text-primary bg-transparent hover:bg-primary/10"
                   >
                     {explorerCtaUser ? t.explorer_free_cta_logged_in : t.explorer_free_cta_signup}
                   </Link>
@@ -399,18 +373,43 @@ function SubscribePageInner() {
                   <button
                     type="button"
                     onClick={() => setSelectedPlan(plan.key)}
-                    className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${
-                      plan.highlight
-                        ? "bg-primary-foreground text-primary shadow-md hover:bg-primary-foreground/90"
+                    className={cn(
+                      "w-full py-4 rounded-xl font-bold text-base transition-all",
+                      plan.key === "challenge"
+                        ? cn(
+                            "bg-primary-foreground text-primary shadow-lg hover:bg-primary-foreground/90",
+                            challengeStatus?.is_waitlist_only && "opacity-75"
+                          )
                         : "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
-                    }`}
+                    )}
                   >
-                    {plan.cta}
+                    {plan.key === "challenge" && challengeStatus?.is_waitlist_only
+                      ? t.challenge_cta_waitlist
+                      : plan.cta}
                   </button>
                 )}
               </div>
             );
           })}
+        </div>
+
+        <div className="max-w-3xl mx-auto mb-16 grid gap-6 sm:grid-cols-2">
+          <figure className="rounded-2xl border border-border bg-card/60 p-5">
+            <blockquote className="text-sm text-muted-foreground leading-relaxed">
+              &ldquo;Ugu mahadsanid — waxaan noqday developer Challenge-ka kadib.&rdquo;
+            </blockquote>
+            <figcaption className="mt-3 text-xs font-bold text-primary">
+              — Abdiladif Salah · <span className="font-semibold text-muted-foreground">Front Developer</span>
+            </figcaption>
+          </figure>
+          <figure className="rounded-2xl border border-border bg-card/60 p-5">
+            <blockquote className="text-sm text-muted-foreground leading-relaxed">
+              &ldquo;Waxaan dhisay shirkadda Sofaritech thanks to Garaad.&rdquo;
+            </blockquote>
+            <figcaption className="mt-3 text-xs font-bold text-primary">
+              — Abdiaziz · <span className="font-semibold text-muted-foreground">Aasaasaha Sofaritech</span>
+            </figcaption>
+          </figure>
         </div>
 
         <div className="max-w-2xl mx-auto">

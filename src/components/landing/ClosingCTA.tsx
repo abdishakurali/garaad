@@ -38,7 +38,7 @@ export function ClosingCTA() {
 
                 {/* Body */}
                 <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-8">
-                    Challenge: 4–6 toddobaad oo mentorship (4x sannadkii). Koorsooyinka joogta ah waxaad ka heli kartaa <strong className="text-white">Explorer</strong>.
+                    Challenge: 4–6 toddobaad oo mentorship (4x sannadkii). Koorsooyinka joogta ah waxaad ka heli kartaa heerka <strong className="text-white">Bilaash</strong>.
                 </p>
 
                 {/* CTA Buttons */}

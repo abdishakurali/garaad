@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Module } from "@/types/learning";
 import { UserProgress } from "@/services/progress";
-import { PlayCircle, ReplyIcon, CheckCircle, UserPlus, Lock } from "lucide-react";
+import { PlayCircle, ReplyIcon, CheckCircle, UserPlus, Lock, Sparkles } from "lucide-react";
 import AuthService from "@/services/auth";
 import { cn } from "@/lib/utils";
 
@@ -15,8 +15,12 @@ interface ModuleZigzagProps {
     /** Fired when user taps a module row (selection only); used to sync external lesson CTAs. */
     onModuleSelect?: (moduleId: number, firstLessonId: number) => void;
     activeModuleId?: number;
-    /** First lesson of the course by order (same as LessonDetailClient). Free tier can only start this lesson. */
+    /** First lesson of the course by order (same as LessonDetailClient). */
     firstLessonIdOfCourse?: number | null;
+    /** First N lessons (by course order) unlocked without premium. */
+    freeLessonIdSet?: ReadonlySet<number>;
+    /** Premium / paid: all lessons unlocked. */
+    hasFullLessonAccess?: boolean;
     /** Total XP from gamification (optional). Shown in progress summary. */
     xp?: number;
     /** Course URL segments — used to open locked lessons in-place (upgrade modal) instead of /subscribe. */
@@ -33,6 +37,8 @@ export default function ModuleZigzag({
     onModuleSelect,
     activeModuleId,
     firstLessonIdOfCourse = null,
+    freeLessonIdSet = new Set<number>(),
+    hasFullLessonAccess = false,
     xp,
     categoryId,
     courseSlug,
@@ -97,22 +103,20 @@ export default function ModuleZigzag({
         );
         return sorted[0]?.id ?? null;
     }, [selectedModule]);
-    const isFirstLessonOfCourse =
-        firstLessonIdOfCourse != null &&
+    const selectedLessonUnlocked =
         selectedModuleFirstLessonId != null &&
-        Number(selectedModuleFirstLessonId) === Number(firstLessonIdOfCourse);
+        (hasFullLessonAccess || freeLessonIdSet.has(Number(selectedModuleFirstLessonId)));
 
     // Handle button click based on authentication and premium status
     const handleButtonClick = () => {
         const user = authService.getCurrentUser();
         const isAuthenticated = !!user;
-        const isPremium = authService.isPremium();
 
         if (!isAuthenticated) {
             if (
                 selectedModule &&
                 selectedModuleFirstLessonId != null &&
-                !isFirstLessonOfCourse
+                freeLessonIdSet.has(Number(selectedModuleFirstLessonId))
             ) {
                 router.push(
                     `/courses/${categoryId}/${courseSlug}/lessons/${selectedModuleFirstLessonId}`
@@ -123,8 +127,7 @@ export default function ModuleZigzag({
             return;
         }
 
-        // Free users: open the lesson URL so the in-lesson upgrade modal appears (intentful path)
-        if (!isPremium && !isFirstLessonOfCourse && selectedModuleFirstLessonId != null) {
+        if (!hasFullLessonAccess && !selectedLessonUnlocked && selectedModuleFirstLessonId != null) {
             router.push(
                 `/courses/${categoryId}/${courseSlug}/lessons/${selectedModuleFirstLessonId}`
             );
@@ -168,12 +171,14 @@ export default function ModuleZigzag({
 
     const user = authService.getCurrentUser();
     const isAuthenticated = !!user;
-    const isPremium = authService.isPremium();
-    const canStartLesson = isAuthenticated && (isPremium || isFirstLessonOfCourse);
+    const canStartLesson = isAuthenticated && selectedLessonUnlocked;
     const opensUpgradeFromLesson =
-        !isPremium && !isFirstLessonOfCourse && !!selectedModule;
+        !hasFullLessonAccess && !selectedLessonUnlocked && !!selectedModule;
     const needsLoginForFreeFirst =
-        !isAuthenticated && isFirstLessonOfCourse && !!selectedModule;
+        !isAuthenticated &&
+        !!selectedModule &&
+        selectedModuleFirstLessonId != null &&
+        freeLessonIdSet.has(Number(selectedModuleFirstLessonId));
 
     const completedCount = useMemo(
         () => progress.filter((p) => p.status === "completed" && uniqueModules.some((m) => m.title === p.lesson_title)).length,
@@ -184,7 +189,7 @@ export default function ModuleZigzag({
 
     const isModuleLocked = useCallback(
         (moduleId: number) => {
-            if (isPremium) return false;
+            if (hasFullLessonAccess) return false;
             const mod = uniqueModules.find((m) => m.id === moduleId);
             const lessons = mod?.lessons ?? [];
             if (lessons.length === 0) return false;
@@ -193,12 +198,10 @@ export default function ModuleZigzag({
             );
             const firstLessonId = sorted[0]?.id;
             return (
-                firstLessonId != null &&
-                firstLessonIdOfCourse != null &&
-                Number(firstLessonId) !== Number(firstLessonIdOfCourse)
+                firstLessonId != null && !freeLessonIdSet.has(Number(firstLessonId))
             );
         },
-        [isPremium, uniqueModules, firstLessonIdOfCourse]
+        [hasFullLessonAccess, uniqueModules, freeLessonIdSet]
     );
 
     return (
@@ -363,8 +366,8 @@ export default function ModuleZigzag({
                                 </>
                             ) : opensUpgradeFromLesson ? (
                                 <>
-                                    <Lock className="inline w-4 h-4 mr-2" />
-                                    Fur dhammaan casharada
+                                    <Sparkles className="inline w-4 h-4 mr-2" />
+                                    Ku biir Challenge-ka
                                 </>
                             ) : needsLoginForFreeFirst ? (
                                 <>

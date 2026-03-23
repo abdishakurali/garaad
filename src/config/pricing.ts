@@ -4,13 +4,13 @@
  */
 
 export const PRICING = {
-  /** Explorer — $29/mo display; charged per backend. */
+  /** Bilaash (free forever); legacy paid Explorer removed from marketing UI. */
   EXPLORER: {
-    priceUsd: 29,
-    priceDisplay: "$29",
+    priceUsd: 0,
+    priceDisplay: "$0",
     interval: "month" as const,
-    name: "Explorer",
-    nameSo: "Explorer",
+    name: "Bilaash",
+    nameSo: "Bilaash",
     description: "Dhammaan koorsooyinka hadda jira, raadinta casharrada, bulshada.",
     descriptionEn: "All current courses, lesson progress, community.",
   },
@@ -26,7 +26,7 @@ export const PRICING = {
   },
 } as const;
 
-/** Explorer monthly price (USD) for copy / helpers. */
+/** Free tier display price (USD); legacy Explorer billing uses backend constants if still enabled. */
 export const EXPLORER_PRICE_NUMERIC = PRICING.EXPLORER.priceUsd;
 
 /** Challenge monthly price (USD). */

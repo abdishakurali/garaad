@@ -1,11 +1,8 @@
-import { ChallengeHero } from "@/components/landing/ChallengeHero";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
+import { ChallengePageClient } from "@/components/challenge/ChallengePageClient";
 
 const OurStorySection = dynamic(() => import("@/components/landing/OurStorySection").then(mod => mod.OurStorySection), { ssr: true });
-const TransformationSection = dynamic(() => import("@/components/landing/TransformationSection").then(mod => mod.TransformationSection), { ssr: true });
-const FAQSection = dynamic(() => import("@/components/landing/FAQSection").then(mod => mod.FAQSection), { ssr: true });
-const ClosingCTA = dynamic(() => import("@/components/landing/ClosingCTA").then(mod => mod.ClosingCTA), { ssr: true });
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
@@ -74,11 +71,8 @@ export default function ChallengePage() {
             />
 
             <main>
-                <ChallengeHero />
+                <ChallengePageClient />
                 <OurStorySection />
-                <TransformationSection />
-                <FAQSection />
-                <ClosingCTA />
             </main>
 
             <WhatsAppFloat />

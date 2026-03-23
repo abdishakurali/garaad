@@ -38,7 +38,7 @@ import { LessonStepBullets } from "@/components/learning/LessonStepBullets";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
 import type { Course, Lesson } from "@/types/lms";
 import AuthService from "@/services/auth";
-import { userHasExplorerContentAccess } from "@/config/featureFlags";
+import { userHasFullLessonAccess, freeTierLessonIdSet } from "@/lib/lessonTierAccess";
 import katex from 'katex';
 
 import 'katex/dist/katex.min.css';
@@ -297,6 +297,32 @@ export function LessonDetailClient() {
     }, [courses, params.courseSlug, params.categoryId]);
 
     const [courseLessons, setCourseLessons] = useState<Lesson[]>([]);
+    const lessonMainRef = useRef<HTMLElement | null>(null);
+
+    const sortedCourseLessonsOrdered = useMemo(() => {
+        return [...courseLessons].sort(
+            (a, b) => ((a as { lesson_number?: number }).lesson_number ?? 0) - ((b as { lesson_number?: number }).lesson_number ?? 0)
+        );
+    }, [courseLessons]);
+
+    const lessonNumberInCourse = useMemo(() => {
+        if (!currentLesson?.id) return 0;
+        const i = sortedCourseLessonsOrdered.findIndex(
+            (l) => Number(l.id) === Number(currentLesson.id)
+        );
+        return i >= 0 ? i + 1 : 0;
+    }, [sortedCourseLessonsOrdered, currentLesson?.id]);
+
+    const lessonPositionLabel =
+        lessonNumberInCourse > 0 && sortedCourseLessonsOrdered.length > 0
+            ? `Casharka ${lessonNumberInCourse} / ${sortedCourseLessonsOrdered.length}`
+            : undefined;
+
+    const handleVideoPlaybackEnded = useCallback(() => {
+        const el = lessonMainRef.current;
+        if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }, []);
+
     /** After user leaves the upgrade modal, allow one view of this lesson (session). */
     const [gatePreviewConsumed, setGatePreviewConsumed] = useState(false);
 
@@ -348,6 +374,11 @@ export function LessonDetailClient() {
             .sort((a, b) => (a.order || 0) - (b.order || 0));
     }, [currentLesson?.content_blocks]);
 
+    const estMinutesRemaining = useMemo(() => {
+        const blocksLeft = Math.max(0, sortedBlocks.length - currentBlockIndex - 1);
+        return Math.max(2, blocksLeft * 3);
+    }, [sortedBlocks.length, currentBlockIndex]);
+
     // Current problem derived from problems state and current block
     const currentProblem = useMemo(() => {
         if (!problems || (problems?.length || 0) === 0) return null;
@@ -355,15 +386,14 @@ export function LessonDetailClient() {
         return problems.find(p => p.id === problemId) || problems[0];
     }, [problems, sortedBlocks, currentBlockIndex]);
 
-    // Free tier / guests: locked if not premium and this is not the first lesson (by lesson_number)
+    // Free tier: first 3 lessons by lesson_number; full access if premium
     const isLockedLesson = useMemo(() => {
         if (typeof window === "undefined") return false;
         const user = AuthService.getInstance().getCurrentUser();
-        if (userHasExplorerContentAccess(user)) return false;
+        if (userHasFullLessonAccess(user)) return false;
         if (!courseLessons.length || !currentLesson?.id) return false;
-        const sorted = [...courseLessons].sort((a, b) => ((a as any).lesson_number ?? 0) - ((b as any).lesson_number ?? 0));
-        const firstId = sorted[0]?.id;
-        return firstId != null && Number(currentLesson.id) !== Number(firstId);
+        const free = freeTierLessonIdSet(courseLessons as { id: number; lesson_number?: number }[]);
+        return !free.has(Number(currentLesson.id));
     }, [courseLessons, currentLesson?.id]);
 
     const gatePreviewStorageMatch = useMemo(() => {
@@ -653,7 +683,6 @@ export function LessonDetailClient() {
         setCompletionHasQuiz(hasQuiz);
         setCompletionScore(quizScore);
         setCompletionNavigateMeta(null);
-        setShowCompletionAnimation(true);
 
         let navMeta: CompletionNavigateMeta | null = null;
 
@@ -718,6 +747,7 @@ export function LessonDetailClient() {
         }
 
         setCompletionNavigateMeta(navMeta);
+        setShowCompletionAnimation(true);
     }, [
         currentBlockIndex,
         playSound,
@@ -742,23 +772,23 @@ export function LessonDetailClient() {
             const { dismiss } = toast({
                 title:
                     nextLessonId != null
-                        ? `Up next: ${nextLessonTitle || "Next lesson"}`
-                        : "Track complete",
+                        ? `Xiga: ${nextLessonTitle || "casharka xiga"}`
+                        : "Koorsada waa la soo celinayaa",
                 description:
                     nextLessonId != null
-                        ? "Taking you there in a moment…"
-                        : "Returning to course overview…",
+                        ? "Waxaan kugu wareejinaynaa xilli yar…"
+                        : "Waxaad ku noqonaysaa bogga koorsada…",
                 duration: 4000,
                 action: (
                     <ToastAction
-                        altText="Skip auto-advance"
+                        altText="Jooji toos u wareejinta"
                         onClick={() => {
                             cancelled.v = true;
                             if (redirectTimer) clearTimeout(redirectTimer);
                             dismiss();
                         }}
                     >
-                        Skip
+                        Jooji
                     </ToastAction>
                 ),
             });
@@ -780,7 +810,7 @@ export function LessonDetailClient() {
             }, 3000);
         };
 
-        const afterAnimationMs = setTimeout(run, 500);
+            const afterAnimationMs = setTimeout(run, 2000);
 
         return () => {
             cancelled.v = true;
@@ -1022,6 +1052,7 @@ export function LessonDetailClient() {
                         onContinue={handleContinue}
                         isLastBlock={isLastBlock}
                         lessonId={currentLesson?.id != null ? Number(currentLesson.id) : undefined}
+                        onPlaybackEnded={handleVideoPlaybackEnded}
                     />
                 );
 
@@ -1088,6 +1119,7 @@ export function LessonDetailClient() {
         disabledOptions,
         isReviewMode,
         currentLesson,
+        handleVideoPlaybackEnded,
     ]);
 
 
@@ -1150,7 +1182,7 @@ export function LessonDetailClient() {
                 lessonTitle={currentLesson?.title || ""}
                 score={completionScore}
                 hasQuiz={completionHasQuiz}
-                xpEarned={20}
+                xpEarned={currentXp}
                 currentStreak={streakCurrent}
                 courseProgressPercent={courseProgressPercent}
                 completedLessonsCount={completedLessonsCount}
@@ -1199,6 +1231,8 @@ export function LessonDetailClient() {
                 coursePath={coursePath}
                 onBackRequest={() => setShowQuitConfirm(true)}
                 currentStreak={streakCurrent}
+                lessonPositionLabel={lessonPositionLabel}
+                estMinutesRemaining={estMinutesRemaining}
             />
 
             <AlertDialog open={showQuitConfirm} onOpenChange={setShowQuitConfirm}>
@@ -1226,6 +1260,7 @@ export function LessonDetailClient() {
             </AlertDialog>
 
             <main
+                ref={lessonMainRef}
                 className={cn(
                     "flex-1 flex flex-col items-center justify-center min-h-0 w-full px-0 pt-1 overflow-y-auto overflow-x-hidden overscroll-y-contain [-webkit-overflow-scrolling:touch]",
                     showFeedback ? "pb-44" : "pb-6"

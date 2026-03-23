@@ -1,5 +1,5 @@
 "use client";
-import React, { memo, useMemo, useCallback } from "react";
+import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import { useLearningStore } from "@/store/useLearningStore";
 import { ExplanationText, Lesson } from "@/types/learning";
 import { Button } from "@/components/ui/button";
@@ -45,10 +45,28 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
             return Object.values(ex).some((t) => typeof t === "string" && t.trim());
         }, [explanationData?.explanation]);
 
+        const autoAdvancedRef = useRef(false);
+
         const handleContinueClick = useCallback(() => {
+            autoAdvancedRef.current = true;
             resetAnswerState();
             onContinue?.();
         }, [resetAnswerState, onContinue]);
+
+        useEffect(() => {
+            autoAdvancedRef.current = false;
+        }, [isCorrect]);
+
+        useEffect(() => {
+            if (!isCorrect) return;
+            const t = window.setTimeout(() => {
+                if (autoAdvancedRef.current) return;
+                autoAdvancedRef.current = true;
+                resetAnswerState();
+                onContinue?.();
+            }, 1500);
+            return () => window.clearTimeout(t);
+        }, [isCorrect, onContinue, resetAnswerState]);
 
         const { title, subtitle, buttonText, buttonAction } = useMemo(() => {
             if (isCorrect) {

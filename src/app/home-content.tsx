@@ -1,6 +1,7 @@
 "use client";
 
 import { HeroSection } from "@/components/landing/HeroSection";
+import { UrgencyStrip } from "@/components/ui/UrgencyStrip";
 import { SectionSkeleton } from "@/components/landing/SkeletonLoader";
 import { Suspense, useEffect } from "react";
 import dynamic from "next/dynamic";
@@ -48,6 +49,8 @@ export function HomeContent() {
             ) : (
                 <>
                     <HeroSection />
+
+                    <UrgencyStrip />
 
                     <Suspense fallback={<SectionSkeleton />}>
                         <TestimonialsSection />

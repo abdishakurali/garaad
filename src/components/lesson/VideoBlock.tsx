@@ -25,13 +25,35 @@ function getVimeoEmbedUrl(raw: string): string | null {
   return m ? `https://player.vimeo.com/video/${m[1]}` : null;
 }
 
+function loadVimeoPlayerScript(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  const w = window as unknown as { Vimeo?: { Player: unknown } };
+  if (w.Vimeo?.Player) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[src="https://player.vimeo.com/api/player.js"]');
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(), { once: true });
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = "https://player.vimeo.com/api/player.js";
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject();
+    document.body.appendChild(s);
+  });
+}
+
 const VideoBlock: React.FC<{
   content: VideoContent | string;
   onContinue: () => void;
   isLastBlock: boolean;
   /** When set, load failures are reported to the LMS API */
   lessonId?: number;
-}> = ({ content, onContinue, isLastBlock, lessonId }) => {
+  /** Fires when Vimeo or HTML5 playback reaches the end (scroll / nudge in parent). */
+  onPlaybackEnded?: () => void;
+}> = ({ content, onContinue, isLastBlock, lessonId, onPlaybackEnded }) => {
   const videoUrl =
     (typeof content === "object" && content !== null
       ? (content.url ?? content.source)
@@ -57,6 +79,12 @@ const VideoBlock: React.FC<{
   /** Bump to remount video/iframe for automatic retry */
   const [reloadKey, setReloadKey] = useState(0);
   const [loadFatal, setLoadFatal] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  /** Shown after 3s delay once playback ends (Vimeo or HTML5). */
+  const [videoEndPrompt, setVideoEndPrompt] = useState(false);
+  const videoEndTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playbackEndScheduledRef = useRef(false);
+  const [vimeoIframeGeneration, setVimeoIframeGeneration] = useState(0);
 
   const vimeoEmbed = videoUrl ? getVimeoEmbedUrl(videoUrl) : null;
   const isVimeo = Boolean(vimeoEmbed);
@@ -102,6 +130,58 @@ const VideoBlock: React.FC<{
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const clearVideoEndTimer = useCallback(() => {
+    if (videoEndTimerRef.current) {
+      clearTimeout(videoEndTimerRef.current);
+      videoEndTimerRef.current = null;
+    }
+  }, []);
+
+  const scheduleVideoEndPrompt = useCallback(() => {
+    if (playbackEndScheduledRef.current) return;
+    playbackEndScheduledRef.current = true;
+    clearVideoEndTimer();
+    videoEndTimerRef.current = window.setTimeout(() => {
+      videoEndTimerRef.current = null;
+      setVideoEndPrompt(true);
+      onPlaybackEnded?.();
+    }, 3000);
+  }, [clearVideoEndTimer, onPlaybackEnded]);
+
+  useEffect(() => {
+    playbackEndScheduledRef.current = false;
+    setVideoEndPrompt(false);
+    clearVideoEndTimer();
+    setVimeoIframeGeneration(0);
+  }, [vimeoEmbed, reloadKey, clearVideoEndTimer]);
+
+  useEffect(() => {
+    if (!isVimeo || !vimeoEmbed || !mounted || !onPlaybackEnded || vimeoIframeGeneration === 0) return;
+    const iframeEl = iframeRef.current;
+    if (!iframeEl) return;
+    let cancelled = false;
+    const onEnded = () => {
+      scheduleVideoEndPrompt();
+    };
+    (async () => {
+      try {
+        await loadVimeoPlayerScript();
+        if (cancelled || !iframeRef.current) return;
+        const Vimeo = (window as unknown as {
+          Vimeo?: { Player: new (el: HTMLIFrameElement) => { on: (e: string, fn: () => void) => void } };
+        }).Vimeo;
+        if (!Vimeo?.Player) return;
+        const player = new Vimeo.Player(iframeRef.current);
+        player.on("ended", onEnded);
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isVimeo, vimeoEmbed, mounted, reloadKey, scheduleVideoEndPrompt, vimeoIframeGeneration]);
 
   useEffect(() => {
     if (!videoUrl) return;
@@ -271,18 +351,38 @@ const VideoBlock: React.FC<{
                 )}
 
                 {isVimeo && vimeoEmbed ? (
-                  <iframe
-                    key={`vimeo-${reloadKey}`}
-                    title={contentObj.title || "Vimeo video"}
-                    src={`${vimeoEmbed}?dnt=1`}
-                    className={cn(
-                      "w-full h-full border-0 bg-zinc-950",
-                      isFullscreen ? "rounded-none min-h-[60vh]" : "rounded-xl"
+                  <>
+                    <iframe
+                      ref={iframeRef}
+                      key={`vimeo-${reloadKey}`}
+                      title={contentObj.title || "Vimeo video"}
+                      src={`${vimeoEmbed}?dnt=1`}
+                      className={cn(
+                        "w-full h-full border-0 bg-zinc-950",
+                        isFullscreen ? "rounded-none min-h-[60vh]" : "rounded-xl"
+                      )}
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      onLoad={() => {
+                        markVideoReady();
+                        setVimeoIframeGeneration((g) => g + 1);
+                      }}
+                    />
+                    {videoEndPrompt && (
+                      <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-2 max-w-[90%]">
+                        <p className="text-xs font-bold text-white/90 text-center drop-shadow-md">
+                          Muuqaalka waa dhammaadey
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => onContinue()}
+                          className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg motion-safe:animate-pulse"
+                        >
+                          Sii wad →
+                        </button>
+                      </div>
                     )}
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                    onLoad={markVideoReady}
-                  />
+                  </>
                 ) : optimizedUrl ? (
                   <video
                     key={`html5-${reloadKey}-${optimizedUrl}`}
@@ -313,6 +413,7 @@ const VideoBlock: React.FC<{
                     onEnded={() => {
                       setIsPlaying(false);
                       setIsEnded(true);
+                      scheduleVideoEndPrompt();
                     }}
                     onError={(e) => {
                       console.error("Video error:", e);
@@ -400,6 +501,20 @@ const VideoBlock: React.FC<{
                         </div>
                       </div>
                     </div>
+                    {!isVimeo && videoEndPrompt && (
+                      <div className="absolute bottom-24 left-1/2 z-25 flex -translate-x-1/2 flex-col items-center gap-2 max-w-[90%] pointer-events-auto">
+                        <p className="text-xs font-bold text-white/90 text-center drop-shadow-md">
+                          Muuqaalka waa dhammaadey
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => onContinue()}
+                          className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg motion-safe:animate-pulse"
+                        >
+                          Sii wad →
+                        </button>
+                      </div>
+                    )}
                   </>
                 ) : null}
               </>

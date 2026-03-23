@@ -165,16 +165,23 @@ export default function NotificationPanel() {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 rounded-full hover:bg-gray-100 transition-colors"
+            className={`relative h-9 w-9 rounded-full hover:bg-gray-100 transition-colors ${totalUnreadCount > 0 ? "motion-safe:ring-2 motion-safe:ring-red-400/50 motion-safe:animate-pulse" : ""}`}
+            aria-label={totalUnreadCount > 0 ? `Ogeysiisyo aan la akhrin: ${totalUnreadCount}` : "Ogeysiisyo"}
           >
             <Bell className="h-5 w-5 text-gray-600" />
             {totalUnreadCount > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute text-white -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-[10px] font-bold"
-              >
-                {totalUnreadCount > 9 ? "9+" : totalUnreadCount}
-              </Badge>
+              <>
+                <span
+                  className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-zinc-900 motion-safe:animate-pulse"
+                  aria-hidden
+                />
+                <Badge
+                  variant="destructive"
+                  className="absolute text-white -top-1.5 -right-1.5 min-h-5 min-w-5 flex items-center justify-center p-0 px-0.5 text-[10px] font-bold"
+                >
+                  {totalUnreadCount > 9 ? "9+" : totalUnreadCount}
+                </Badge>
+              </>
             )}
           </Button>
         </PopoverTrigger>

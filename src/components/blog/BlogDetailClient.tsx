@@ -226,9 +226,9 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
               href="/subscribe"
               className="inline-block rounded-xl bg-white px-6 py-3 font-bold text-black hover:bg-gray-100"
             >
-              Bilow Maanta — $29/bishii →
+              Bilow Bilaash — Weligeed →
             </Link>
-            <p className="mt-3 text-xs text-gray-600">Jooji xilli kasta</p>
+            <p className="mt-3 text-xs text-gray-600">Challenge: $149/bishii — jooji xilli kasta</p>
           </div>
 
           {relatedPosts.length > 0 && (

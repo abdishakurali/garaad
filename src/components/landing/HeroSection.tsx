@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -52,6 +53,8 @@ export function HeroSection() {
   const user = useAuthStore((s) => s.user);
   const isLoggedIn = !!user;
   const { href: firstFreeHref } = useFirstFreeLessonHref();
+  const { data: cohort, loading: cohortStatusLoading } = useChallengeStatus();
+  const heroSpots = cohort?.spots_remaining ?? 0;
 
   const { data: stats, error: statsError } = useSWR<LandingStats>(
     `${API_BASE_URL}/api/public/landing-stats/`,
@@ -111,18 +114,22 @@ export function HeroSection() {
               Koorsooyinka HTML, JavaScript, React, iyo AI — af Soomaali. 30 daqiiqo maalintiiba. Bilow
               maanta.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
               <Link
                 href={firstFreeHref}
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
               >
-                Bilow Lacag La&apos;aan →
+                Bilow Bilaash →
               </Link>
               <Link
-                href="/subscribe#plan-card-explorer"
-                className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-white/90 no-underline transition hover:bg-white/10"
+                href="/challenge"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-purple-400 underline underline-offset-4 decoration-purple-500/60 hover:text-purple-300"
               >
-                Arag Qiimaha
+                {cohortStatusLoading && !cohort ? (
+                  <>Ama ku biir Challenge-ka →</>
+                ) : (
+                  <>Ama ku biir Challenge-ka — {heroSpots} boos ayaa hadhay →</>
+                )}
               </Link>
             </div>
             <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/45">

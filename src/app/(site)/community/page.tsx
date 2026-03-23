@@ -38,8 +38,6 @@ import { useAuthReady } from '@/hooks/useAuthReady';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
-import { EXPLORER_IS_FREE, userHasExplorerContentAccess } from '@/config/featureFlags';
-
 export default function CommunityPage() {
     const {
         posts,
@@ -64,7 +62,12 @@ export default function CommunityPage() {
     const unreadCount = useMemo(() => notifications.filter(n => !n.is_read).length, [notifications]);
     const { user, isAuthenticated, hydrate: hydrateAuthFromCookies } = useAuthStore();
     const authReady = useAuthReady();
-    const isPremium = userHasExplorerContentAccess(user ?? undefined);
+    /** Full community (post, WS, clear UI) is Challenge-only; others see a blurred preview + CTA. */
+    const hasCommunityAccess = useMemo(() => {
+        if (!user) return false;
+        if (user.is_staff || user.is_superuser) return true;
+        return (user.subscription_type ?? "").toLowerCase() === "challenge";
+    }, [user]);
     const [loading, setLoading] = useState({ categories: false, posts: false, profile: false });
     const [errors, setErrors] = useState({ posts: null });
     const router = useRouter();
@@ -207,9 +210,9 @@ export default function CommunityPage() {
         }
     };
 
-    // Manage WebSocket connection for active category (premium only)
+    // Manage WebSocket connection for active category (Challenge / staff only)
     useEffect(() => {
-        if (!isAuthenticated || !isPremium) return;
+        if (!isAuthenticated || !hasCommunityAccess) return;
 
         const connectToCategory = () => {
             const roomId = selectedCategory ? selectedCategory.id : 'global';
@@ -217,7 +220,7 @@ export default function CommunityPage() {
         };
 
         connectToCategory();
-    }, [selectedCategory, isAuthenticated, isPremium]);
+    }, [selectedCategory, isAuthenticated, hasCommunityAccess]);
 
     useEffect(() => {
         return () => {
@@ -356,40 +359,41 @@ export default function CommunityPage() {
         </div>
     );
 
-    const premiumLockOverlay = !isPremium ? (
+    const challengeLockOverlay = !hasCommunityAccess ? (
         <div
-            className="absolute inset-0 z-[60] flex items-center justify-center bg-white/80 dark:bg-black/80 backdrop-blur-sm px-4"
-            role="dialog"
-            aria-labelledby="community-premium-title"
-            aria-describedby="community-premium-desc"
+            className="absolute inset-0 z-[60] flex items-center justify-center bg-gradient-to-b from-white/40 via-white/70 to-white/85 dark:from-black/30 dark:via-black/65 dark:to-black/85 backdrop-blur-[2px] px-4 pointer-events-none"
+            aria-hidden={false}
         >
-            <div className="text-center max-w-sm px-6 py-8 bg-white dark:bg-gray-950 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10">
-                <div className="text-4xl mb-4" aria-hidden>
-                    🔒
+            <div
+                className="pointer-events-auto text-center max-w-md px-6 py-8 bg-white/95 dark:bg-gray-950/95 rounded-2xl shadow-2xl border border-violet-200/80 dark:border-violet-500/30 ring-1 ring-violet-500/10"
+                role="dialog"
+                aria-labelledby="community-challenge-title"
+                aria-describedby="community-challenge-desc"
+            >
+                <div className="text-4xl mb-3" aria-hidden>
+                    👥
                 </div>
                 <h2
-                    id="community-premium-title"
-                    className="text-xl font-bold text-gray-900 dark:text-white mb-2"
+                    id="community-challenge-title"
+                    className="text-xl font-black text-gray-900 dark:text-white mb-2 tracking-tight"
                 >
-                    Bulshada Garaad
+                    Bulshada Challenge-ka
                 </h2>
                 <p
-                    id="community-premium-desc"
-                    className="text-gray-500 dark:text-gray-400 text-sm mb-6"
+                    id="community-challenge-desc"
+                    className="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed"
                 >
-                    Ku biir bulshada — is-weydii su&apos;aalo, la wadaag horumarkaaga, la xiriir
-                    barayaasha kale.
+                    Ardayda Challenge-ka ayaa buuxda ku wadaagta su&apos;aalo, mashaariic, iyo
+                    taageero. Ku biir kohorta si aad u furto bulshada oo dhan.
                 </p>
                 <Link
-                    href={EXPLORER_IS_FREE ? "/signup" : "/subscribe?plan=explorer"}
-                    className="block w-full bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-bold text-sm hover:bg-gray-900 dark:hover:bg-gray-200 text-center"
+                    href="/challenge"
+                    className="block w-full bg-violet-600 hover:bg-violet-500 text-white py-3.5 rounded-xl font-bold text-sm text-center shadow-lg shadow-violet-600/25 transition-colors"
                 >
-                    {EXPLORER_IS_FREE
-                        ? "Samee akoon — Explorer waa bilaash"
-                        : "Bilow Explorer — $29/bishii"}
+                    Ku biir Challenge-ka
                 </Link>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
-                    Horumarkaaga muhiim ma aha — bulshadu waxay kaa dhigaysaa mid xisaabtama
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+                    Koorsooyinka bilaashka ah wali waxaad ka heli kartaa /courses
                 </p>
             </div>
         </div>
@@ -399,9 +403,9 @@ export default function CommunityPage() {
         <div className="relative flex h-screen bg-background overflow-hidden">
             <div
                 className={
-                    !isPremium
-                        ? 'flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden blur-sm pointer-events-none select-none opacity-60'
-                        : 'flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden'
+                    !hasCommunityAccess
+                        ? "flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden blur-[3px] sm:blur-[5px] pointer-events-none select-none opacity-[0.72] scale-[0.99]"
+                        : "flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden"
                 }
             >
             <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
@@ -481,8 +485,8 @@ export default function CommunityPage() {
                                 error={errors.posts}
                                 userProfile={userProfile}
                                 categoryId={selectedCategory.id}
-                                showInlineInput={isPremium}
-                                readOnly={!isPremium}
+                                showInlineInput={hasCommunityAccess}
+                                readOnly={!hasCommunityAccess}
                                 expandedReplyId={pendingScrollReplyId}
                                 onScrollComplete={() => {
                                     setPendingScrollPostId(null);
@@ -513,7 +517,7 @@ export default function CommunityPage() {
                 )}
             </div>
             </div>
-            {premiumLockOverlay}
+            {challengeLockOverlay}
             <UserProfileModal
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}

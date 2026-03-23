@@ -14,6 +14,10 @@ interface LessonStepBulletsProps {
   onBackRequest?: () => void;
   /** Current learning streak for compact display (right side) */
   currentStreak?: number;
+  /** e.g. "Casharka 2 / 12" */
+  lessonPositionLabel?: string;
+  /** Estimated minutes left in this lesson */
+  estMinutesRemaining?: number;
 }
 
 /**
@@ -26,6 +30,8 @@ export function LessonStepBullets({
   coursePath,
   onBackRequest,
   currentStreak = 0,
+  lessonPositionLabel,
+  estMinutesRemaining,
 }: LessonStepBulletsProps) {
   const router = useRouter();
   const total = Math.max(1, totalSteps);
@@ -59,6 +65,20 @@ export function LessonStepBullets({
         </button>
 
         <div className="flex-1 min-w-0 pt-0.5">
+          {(lessonPositionLabel || estMinutesRemaining != null) && (
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1">
+              {lessonPositionLabel ? (
+                <p className="text-sm font-black text-white tracking-tight">{lessonPositionLabel}</p>
+              ) : (
+                <span />
+              )}
+              {estMinutesRemaining != null ? (
+                <p className="text-[11px] font-bold text-zinc-500 tabular-nums">
+                  ~{estMinutesRemaining} daqiiqo ayaa hadhay
+                </p>
+              ) : null}
+            </div>
+          )}
           <div
             className={cn(
               "flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 py-3 px-3 sm:px-4 rounded-2xl",

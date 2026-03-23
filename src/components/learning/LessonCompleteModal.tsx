@@ -63,8 +63,14 @@ export function LessonCompleteModal({
       : "Ku laabo koorsada →";
   const router = useRouter();
   const posthog = usePostHog();
+  const [celebrationIntro, setCelebrationIntro] = useState(true);
   const [upsellVisible, setUpsellVisible] = useState(showExplorerUpsell);
   const upsellCaptured = useRef(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setCelebrationIntro(false), 1500);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!showExplorerUpsell) return;
@@ -86,6 +92,56 @@ export function LessonCompleteModal({
     onDashboard();
     router.push("/dashboard");
   }, [onDashboard, router]);
+
+  if (celebrationIntro) {
+    return (
+      <div
+        className="fixed inset-0 z-[55] flex flex-col items-center justify-center bg-black/85 p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="lesson-celebration-heading"
+      >
+        <style>{`
+          @keyframes lessonConfetti {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+          }
+          .lesson-confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            animation: lessonConfetti 2s ease-in forwards;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .lesson-confetti-piece { animation: none; opacity: 0.3; }
+          }
+        `}</style>
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          {["#7c3aed", "#a78bfa", "#22c55e", "#38bdf8", "#f472b6"].map((color, i) => (
+            <span
+              key={i}
+              className="lesson-confetti-piece"
+              style={{
+                left: `${12 + i * 18}%`,
+                top: "-5%",
+                backgroundColor: color,
+                animationDelay: `${i * 0.12}s`,
+              }}
+            />
+          ))}
+        </div>
+        <span className="text-6xl motion-safe:animate-bounce" aria-hidden>
+          🎉
+        </span>
+        <h2 id="lesson-celebration-heading" className="mt-4 text-2xl font-black text-white">
+          Hambalyo!
+        </h2>
+        <p className="mt-2 text-zinc-300 text-center text-sm font-semibold">Casharka waxaad dhammaystay</p>
+        <p className="mt-3 text-lg font-black text-purple-400 tabular-nums">+{xpEarned} XP</p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -134,7 +190,7 @@ export function LessonCompleteModal({
               className="text-2xl font-extrabold text-white"
               style={{ fontFamily: "var(--font-display), Inter, sans-serif" }}
             >
-              Casharku wuu dhameystirmay!
+              Hambalyo! Casharka waa la dhammaystay
             </h2>
             <p className="text-sm text-gray-400">{lessonTitle}</p>
           </div>
@@ -184,6 +240,21 @@ export function LessonCompleteModal({
             </p>
           </div>
 
+          {courseFullyComplete && (
+            <div className="rounded-xl border border-emerald-500/35 bg-emerald-950/50 p-4 text-center space-y-2">
+              <h3 className="text-base font-black text-white">Koorsada waxaad dhammaystay! 🏆</h3>
+              <div className="mx-auto h-20 max-w-[200px] rounded-lg border-2 border-dashed border-emerald-500/40 bg-emerald-900/20 flex items-center justify-center text-[10px] font-bold text-emerald-200/70 px-2">
+                Shahaadada (preview)
+              </div>
+              <Button
+                asChild
+                className="w-full h-10 text-sm font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white border-0"
+              >
+                <Link href="/dashboard">Shahaadada Soo Qaado</Link>
+              </Button>
+            </div>
+          )}
+
           {/* 4. NEXT LESSON CTA */}
           <Button
             onClick={onNextLesson}
@@ -191,6 +262,14 @@ export function LessonCompleteModal({
             style={{ backgroundColor: "#7c3aed" }}
           >
             {primaryCtaLabel}
+          </Button>
+
+          <Button
+            variant="outline"
+            asChild
+            className="w-full h-10 rounded-xl border-white/20 text-zinc-200 hover:bg-white/10"
+          >
+            <Link href="/courses">Casharro Dheeraad ah →</Link>
           </Button>
 
           {/* 5. SECONDARY ACTIONS */}

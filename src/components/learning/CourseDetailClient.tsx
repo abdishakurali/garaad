@@ -10,10 +10,11 @@ import {
     useSyncExternalStore,
 } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle2, Lock, PlayCircle, Reply } from "lucide-react";
+import { AlertCircle, CheckCircle2, PlayCircle, Reply } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
@@ -21,7 +22,8 @@ import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { cn, getCourseThumbnailUrl } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
-import { EXPLORER_IS_FREE, userHasExplorerContentAccess } from "@/config/featureFlags";
+import { freeTierLessonIdSet, userHasFullLessonAccess } from "@/lib/lessonTierAccess";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 const ModuleZigzag = dynamic(
     () =>
         import("@/components/learning/ui/ModuleZigzag").then((m) => ({
@@ -52,25 +54,54 @@ function CourseThumbnailImage({
     courseImageSrc,
     title,
     unoptimized,
+    progressPercent = 0,
 }: {
     courseImageSrc: string;
     title: string;
     unoptimized: boolean;
+    progressPercent?: number;
 }) {
     const [courseImageError, setCourseImageError] = useState(false);
     const imageSrcToShow = courseImageError ? defaultCourseImage : courseImageSrc;
+    const pct = Math.min(100, Math.max(0, progressPercent));
+    const dash = (pct / 100) * 175;
+    const complete = pct >= 100;
     return (
-        <div className="relative w-16 h-16 shrink-0 overflow-hidden rounded-md">
-            <Image
-                src={imageSrcToShow}
-                alt={title}
-                fill
-                className="object-cover"
-                sizes="64px"
-                priority
-                unoptimized={unoptimized}
-                onError={() => setCourseImageError(true)}
-            />
+        <div className="relative w-[4.75rem] h-[4.75rem] shrink-0">
+            <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 64 64" aria-hidden>
+                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-slate-200 dark:text-slate-700" />
+                <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeDasharray={`${dash} 175`}
+                    className={complete ? "text-emerald-500 transition-all duration-500" : "text-violet-500 transition-all duration-500"}
+                />
+            </svg>
+            <div className="absolute inset-[5px] overflow-hidden rounded-md">
+                <Image
+                    src={imageSrcToShow}
+                    alt={title}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                    priority
+                    unoptimized={unoptimized}
+                    onError={() => setCourseImageError(true)}
+                />
+            </div>
+            {complete ? (
+                <div
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none z-[2] rounded-full bg-black/35"
+                    aria-hidden
+                >
+                    <CheckCircle2 className="w-9 h-9 text-emerald-400 drop-shadow-md" strokeWidth={2.2} />
+                </div>
+            ) : null}
         </div>
     );
 }
@@ -87,7 +118,8 @@ export function CourseDetailClient() {
 
     const { isAuthenticated } = useAuthStore();
     const authHydrated = useAuthStore((s) => s._hasHydrated);
-    const isPremiumUser = useAuthStore((s) => userHasExplorerContentAccess(s.user));
+    const hasFullLessonAccess = useAuthStore((s) => userHasFullLessonAccess(s.user));
+    const { data: challengeStatus } = useChallengeStatus();
 
     const {
         enrollments,
@@ -114,6 +146,15 @@ export function CourseDetailClient() {
     }, [enrollments, currentCourse]);
 
     const trackJustCompleted = searchParams.get("completed") === "true";
+
+    useEffect(() => {
+        if (!trackJustCompleted || typeof window === "undefined") return;
+        const t = window.setTimeout(() => {
+            const el = document.getElementById("course-celebration-burst");
+            if (el) el.classList.add("opacity-0");
+        }, 2200);
+        return () => window.clearTimeout(t);
+    }, [trackJustCompleted]);
 
     const hasMounted = useSyncExternalStore(
         () => () => {},
@@ -151,6 +192,30 @@ export function CourseDetailClient() {
             );
         return pairs.map((l: any) => Number(l.id));
     }, [currentCourse]);
+
+    const allLessonsFlat = useMemo(() => {
+        const modules = currentCourse?.modules ?? [];
+        return modules.flatMap((m: any) => m.lessons ?? []);
+    }, [currentCourse]);
+
+    const freeLessonIdSet = useMemo(
+        () => freeTierLessonIdSet(allLessonsFlat),
+        [allLessonsFlat]
+    );
+
+    const completedLessonsInCourse = useMemo(() => {
+        if (!progress?.length || sortedLessonIds.length === 0) return 0;
+        const idSet = new Set(sortedLessonIds);
+        return progress.filter(
+            (p: any) => idSet.has(Number(p.lesson)) && p.status === "completed"
+        ).length;
+    }, [progress, sortedLessonIds]);
+
+    const courseCompletionPercent = useMemo(() => {
+        const t = sortedLessonIds.length;
+        if (t <= 0) return 0;
+        return Math.round((completedLessonsInCourse / t) * 100);
+    }, [sortedLessonIds.length, completedLessonsInCourse]);
 
     const courseProgressEntries = useMemo(() => {
         if (!progress?.length || sortedLessonIds.length === 0) return [];
@@ -246,17 +311,10 @@ export function CourseDetailClient() {
     }, [courseProgressEntries, ctaLessonId]);
 
     const ctaLocked = useMemo(() => {
-        if (!isAuthenticated || ctaLessonId == null || firstLessonIdOfCourse == null) {
-            return false;
-        }
-        if (isPremiumUser) return false;
-        return Number(ctaLessonId) !== Number(firstLessonIdOfCourse);
-    }, [
-        isAuthenticated,
-        isPremiumUser,
-        ctaLessonId,
-        firstLessonIdOfCourse,
-    ]);
+        if (!isAuthenticated || ctaLessonId == null) return false;
+        if (hasFullLessonAccess) return false;
+        return !freeLessonIdSet.has(Number(ctaLessonId));
+    }, [isAuthenticated, hasFullLessonAccess, ctaLessonId, freeLessonIdSet]);
 
     const lessonPath = useCallback(
         (lessonId: number, review?: boolean) =>
@@ -268,21 +326,18 @@ export function CourseDetailClient() {
         (lessonId: number, opts?: { review?: boolean }) => {
             if (!lessonId) return;
             if (!isAuthenticated) {
+                if (freeLessonIdSet.has(Number(lessonId))) {
+                    router.push(lessonPath(lessonId, opts?.review));
+                    return;
+                }
                 router.push(
                     `/login?redirect=${encodeURIComponent(lessonPath(lessonId, opts?.review))}`
                 );
                 return;
             }
-            const isFirst =
-                firstLessonIdOfCourse != null &&
-                Number(lessonId) === Number(firstLessonIdOfCourse);
-            if (!isPremiumUser && !isFirst) {
-                router.push("/subscribe");
-                return;
-            }
             router.push(lessonPath(lessonId, opts?.review));
         },
-        [isAuthenticated, isPremiumUser, firstLessonIdOfCourse, router, lessonPath]
+        [isAuthenticated, freeLessonIdSet, router, lessonPath]
     );
 
     const handleModuleClick = (moduleId: number) => {
@@ -428,19 +483,26 @@ export function CourseDetailClient() {
             <div className="max-w-7xl mx-auto p-8 pb-48 sm:pb-52">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Course Info */}
-                    <aside className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white dark:bg-slate-900 rounded-xl shadow-md border-gray-200 dark:border-slate-800 md:sticky md:top-32">
+                    <aside
+                        id="free-lessons"
+                        className="max-w-sm md:max-w-lg h-fit border-2 p-6 bg-white dark:bg-slate-900 rounded-xl shadow-md border-gray-200 dark:border-slate-800 md:sticky md:top-32 scroll-mt-28"
+                    >
                         <div className="flex mb-6 border-border dark:border-slate-800 border-2 px-4 py-2 rounded-md w-fit bg-slate-50 dark:bg-black">
                             <CourseThumbnailImage
                                 key={`${String(categoryId)}-${String(courseSlug)}`}
                                 courseImageSrc={courseImageSrc}
                                 title={currentCourse.title}
                                 unoptimized={thumbUnoptimized}
+                                progressPercent={courseCompletionPercent}
                             />
                         </div>
 
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                             {currentCourse.title}
                         </h1>
+                        <p className="text-sm font-semibold text-violet-600 dark:text-violet-400 mb-2">
+                            {completedLessonsInCourse}/{sortedLessonIds.length} casharro dhammaystay
+                        </p>
 
                         {enrollmentProgress > 0 && (
                             <CourseProgress progress={enrollmentProgress} />
@@ -472,15 +534,24 @@ export function CourseDetailClient() {
                     {/* Learning Path */}
                     <section className="relative space-y-12">
                         {trackJustCompleted && (
-                            <Alert className="max-w-2xl mx-auto rounded-2xl border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 dark:border-emerald-500/30">
-                                <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                <AlertTitle className="text-emerald-900 dark:text-emerald-100">
-                                    Waad ku dhameysatay casharka ugu dambeeya ee taxanahan!
-                                </AlertTitle>
-                                <AlertDescription className="text-emerald-800/90 dark:text-emerald-200/90">
-                                    Horumar wanaagsan. Waxaad ka dooran kartaa cashar kale ama dib u eegi kartaa kuwa aad horey u dhameysay.
-                                </AlertDescription>
-                            </Alert>
+                            <>
+                                <div
+                                    id="course-celebration-burst"
+                                    className="pointer-events-none fixed inset-0 z-[60] flex items-start justify-center pt-32 transition-opacity duration-500"
+                                    aria-hidden
+                                >
+                                    <span className="text-6xl animate-bounce">🎉</span>
+                                </div>
+                                <Alert className="max-w-2xl mx-auto rounded-2xl border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 dark:border-emerald-500/30 animate-pulse">
+                                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                    <AlertTitle className="text-emerald-900 dark:text-emerald-100">
+                                        Hambalyo! Cashar baa la dhammaystay!
+                                    </AlertTitle>
+                                    <AlertDescription className="text-emerald-800/90 dark:text-emerald-200/90">
+                                        Horumar wanaagsan. Waxaad ka dooran kartaa cashar kale ama dib u eegi kartaa kuwa aad horey u dhameysay.
+                                    </AlertDescription>
+                                </Alert>
+                            </>
                         )}
                         <div className="text-center mb-8">
                             <h2 className="text-3xl font-bold mb-4 dark:text-white">Naqshada Barashada</h2>
@@ -502,6 +573,8 @@ export function CourseDetailClient() {
                                     progress={progress ?? []}
                                     activeModuleId={activeModuleId}
                                     firstLessonIdOfCourse={firstLessonIdOfCourse}
+                                    freeLessonIdSet={freeLessonIdSet}
+                                    hasFullLessonAccess={hasFullLessonAccess}
                                     xp={xp}
                                     categoryId={String(categoryId)}
                                     courseSlug={String(courseSlug)}
@@ -541,24 +614,29 @@ export function CourseDetailClient() {
                                         </div>
                                         <div className="mt-auto flex w-full shrink-0 flex-col gap-2">
                                             {ctaLocked ? (
-                                                <Button
-                                                    type="button"
-                                                    size="lg"
-                                                    className="h-14 w-full rounded-xl text-base font-bold shadow-md bg-amber-600 hover:bg-amber-700 text-white"
-                                                    onClick={() =>
-                                                        router.push(
-                                                            EXPLORER_IS_FREE
-                                                                ? "/signup?ref=course_detail_cta"
-                                                                : "/subscribe?plan=explorer&ref=course_detail_cta"
-                                                        )
-                                                    }
-                                                >
-                                                    <Lock
-                                                        className="size-5 shrink-0"
-                                                        aria-hidden
-                                                    />
-                                                    {EXPLORER_IS_FREE ? "Samee akoon" : "Ku biir"}
-                                                </Button>
+                                                <div className="flex w-full flex-col gap-3 rounded-xl border border-violet-500/40 bg-violet-950/30 p-4 text-center">
+                                                    <p className="text-sm font-bold text-white">
+                                                        🔓 Casharkaan wuxuu u baahan yahay Challenge
+                                                    </p>
+                                                    <p className="text-xs text-violet-200/90">
+                                                        {challengeStatus
+                                                            ? `${challengeStatus.spots_remaining} boos oo hadhay kohortan`
+                                                            : "Boosyo xaddidan — ku biir Challenge"}
+                                                    </p>
+                                                    <Button
+                                                        type="button"
+                                                        size="lg"
+                                                        className="h-12 w-full rounded-xl text-base font-bold bg-violet-600 hover:bg-violet-500 text-white"
+                                                        asChild
+                                                    >
+                                                        <Link href="/subscribe?plan=challenge&ref=course_locked">
+                                                            Ku biir Challenge-ka — $149/bishii
+                                                        </Link>
+                                                    </Button>
+                                                    <p className="text-[11px] text-muted-foreground">
+                                                        Ama sii wad bilaash — casharka 1-3 fur
+                                                    </p>
+                                                </div>
                                             ) : ctaLessonCompleted ? (
                                                 <Button
                                                     type="button"

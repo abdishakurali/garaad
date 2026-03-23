@@ -44,7 +44,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
     if (plan.key === "explorer" && EXPLORER_IS_FREE) {
       setError(
-        "Explorer hadda waa bilaash. Soo gal akoonkaaga si aad u hesho dhammaan casharrada."
+        "Bilaash — Weligeed: soo gal akoonkaaga si aad u hesho dhammaan casharrada."
       );
       return;
     }

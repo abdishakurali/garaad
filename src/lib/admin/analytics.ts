@@ -57,6 +57,11 @@ export interface UserAnalytics {
 export interface RevenueAnalytics {
     total: number;
     change: number;
+    collected_total?: number;
+    attempted_total?: number;
+    failed_payment_count?: number;
+    failed_payment_total?: number;
+    payment_attempt_users_count?: number;
     arpu: number;
     arpuChange: number;
     conversionRate: number;
@@ -142,6 +147,8 @@ export interface AdminUserRow {
     recommended_courses: string[];
     completions: number;
     last_active: string | null;
+    has_failed_payment?: boolean;
+    whatsapp_href?: string;
 }
 
 export interface AdminUsersResponse {
@@ -171,6 +178,7 @@ export const analyticsService = {
             track?: string;
             is_premium?: "true" | "false" | "";
             is_email_verified?: "true" | "false" | "";
+            user_filter?: string;
         }
     ): Promise<AdminUsersResponse> => {
         const params = new URLSearchParams();
@@ -182,7 +190,40 @@ export const analyticsService = {
         if (filters?.is_premium === "false") params.set("is_premium", "false");
         if (filters?.is_email_verified === "true") params.set("is_email_verified", "true");
         if (filters?.is_email_verified === "false") params.set("is_email_verified", "false");
+        if (filters?.user_filter) params.set("user_filter", filters.user_filter);
         const response = await api.get(`/admin/users/?${params.toString()}`);
+        return response.data;
+    },
+    getCohortEnrollments: async (): Promise<{
+        success: boolean;
+        data: {
+            cohort: {
+                id: string;
+                name: string;
+                start_date: string;
+                end_date: string;
+                max_students: number;
+            } | null;
+            enrollments: {
+                id: string;
+                user_id: number;
+                name: string;
+                email: string;
+                enrolled_at: string | null;
+                weekly_calls_attended_count: number;
+                code_reviews_completed: number;
+                certificate_issued: boolean;
+            }[];
+        };
+    }> => {
+        const response = await api.get("/cohorts/enrollments/");
+        return response.data;
+    },
+    patchCohortEnrollment: async (
+        enrollmentId: string,
+        action: "mark_call_attended" | "issue_certificate"
+    ): Promise<unknown> => {
+        const response = await api.patch(`/cohorts/enrollments/${enrollmentId}/`, { action });
         return response.data;
     },
     getRevenue: async (): Promise<RevenueAnalytics> => {

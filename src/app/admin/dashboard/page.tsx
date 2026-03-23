@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { analyticsService, UserAnalytics, RevenueAnalytics, CourseAnalytics, RecentActivity } from "@/lib/admin/analytics";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import type { UserListItem, AdminUsersResponse, AdminUserRow } from "@/lib/admin/analytics";
 import KPICard from "@/components/admin/dashboard/KPICard";
 import TrendChart from "@/components/admin/dashboard/TrendChart";
 import Link from "next/link";
-import { Users, DollarSign, TrendingUp, ShoppingCart, Award, AlertCircle, Loader2, ArrowRight, CheckCircle, Target, RotateCcw } from "lucide-react";
+import { Users, DollarSign, TrendingUp, ShoppingCart, Award, AlertCircle, Loader2, ArrowRight, CheckCircle, Target, RotateCcw, MessageCircle, GraduationCap } from "lucide-react";
 import type { OnboardingStats, LessonDropOffRow } from "@/lib/admin/analytics";
 
 // Display labels for filters (must match backend admin_dashboard GOAL_LABELS / TRACK_LABELS / LEVEL_LABELS)
@@ -30,6 +32,9 @@ const LEVEL_OPTIONS = ["Beginner", "Intermediate", "Advanced", "Bilowga"];
 const ALL = "All";
 
 export default function DashboardPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { data: cohortLive } = useChallengeStatus();
     const [userStats, setUserStats] = useState<UserAnalytics | null>(null);
     const [revenueStats, setRevenueStats] = useState<RevenueAnalytics | null>(null);
     const [courseStats, setCourseStats] = useState<CourseAnalytics | null>(null);
@@ -50,6 +55,18 @@ export default function DashboardPage() {
     const [usersFilterTrack, setUsersFilterTrack] = useState<string>(ALL);
     const [usersFilterPremium, setUsersFilterPremium] = useState<string>("");
     const [usersFilterVerified, setUsersFilterVerified] = useState<string>("");
+    const [usersTabFilter, setUsersTabFilter] = useState<string>("");
+    const [cohortEnrollments, setCohortEnrollments] = useState<Awaited<ReturnType<typeof analyticsService.getCohortEnrollments>>["data"] | null>(null);
+    const [cohortTableLoading, setCohortTableLoading] = useState(false);
+
+    useEffect(() => {
+        const tab = searchParams.get("tab");
+        const uf = searchParams.get("user_filter") ?? "";
+        setUsersTabFilter(uf);
+        if (tab === "users") setActiveTab("users");
+        else if (tab === "overview") setActiveTab("overview");
+        if (uf) setActiveTab("users");
+    }, [searchParams]);
 
     const filteredUserList = useMemo((): UserListItem[] => {
         const list = userStats?.userList ?? [];
@@ -93,6 +110,21 @@ export default function DashboardPage() {
         fetchAllData();
     }, [fetchAllData]);
 
+    useEffect(() => {
+        if (activeTab !== "overview") return;
+        let cancelled = false;
+        setCohortTableLoading(true);
+        analyticsService.getCohortEnrollments().then((res) => {
+            if (!cancelled) {
+                setCohortEnrollments(res.data ?? null);
+                setCohortTableLoading(false);
+            }
+        }).catch(() => {
+            if (!cancelled) setCohortTableLoading(false);
+        });
+        return () => { cancelled = true; };
+    }, [activeTab]);
+
     const usersFilters = useMemo(() => ({
         goal: usersFilterGoal,
         track: usersFilterTrack,
@@ -104,7 +136,10 @@ export default function DashboardPage() {
         if (activeTab !== "users") return;
         let cancelled = false;
         setAdminUsersLoading(true);
-        analyticsService.getAdminUsers(usersPage, usersSearch || undefined, usersFilters).then((data) => {
+        analyticsService.getAdminUsers(usersPage, usersSearch || undefined, {
+            ...usersFilters,
+            user_filter: usersTabFilter || undefined,
+        }).then((data) => {
             if (!cancelled) {
                 setAdminUsersData(data);
                 setAdminUsersLoading(false);
@@ -113,7 +148,7 @@ export default function DashboardPage() {
             if (!cancelled) setAdminUsersLoading(false);
         });
         return () => { cancelled = true; };
-    }, [activeTab, usersPage, usersSearch, usersFilters]);
+    }, [activeTab, usersPage, usersSearch, usersFilters, usersTabFilter]);
 
     if (loading) {
         return (
@@ -172,14 +207,24 @@ export default function DashboardPage() {
             <div className="flex gap-2 border-b border-gray-100 pb-0">
                 <button
                     type="button"
-                    onClick={() => setActiveTab("overview")}
+                    onClick={() => {
+                        setActiveTab("overview");
+                        setUsersTabFilter("");
+                        router.replace("/admin/dashboard?tab=overview");
+                    }}
                     className={`px-4 py-2.5 text-sm font-bold rounded-t-xl border-b-2 transition-colors ${activeTab === "overview" ? "border-blue-600 text-blue-700 bg-blue-50/50" : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}
                 >
                     Overview
                 </button>
                 <button
                     type="button"
-                    onClick={() => setActiveTab("users")}
+                    onClick={() => {
+                        setActiveTab("users");
+                        const p = new URLSearchParams();
+                        p.set("tab", "users");
+                        if (usersTabFilter) p.set("user_filter", usersTabFilter);
+                        router.replace(`/admin/dashboard?${p.toString()}`);
+                    }}
                     className={`px-4 py-2.5 text-sm font-bold rounded-t-xl border-b-2 transition-colors ${activeTab === "users" ? "border-blue-600 text-blue-700 bg-blue-50/50" : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}
                 >
                     Isticmaalayaasha
@@ -212,13 +257,23 @@ export default function DashboardPage() {
                     goalLabels={GOAL_LABELS}
                     trackLabels={TRACK_LABELS}
                     allLabel={ALL}
+                    usersTabFilter={usersTabFilter}
+                    onUsersTabFilterChange={(v) => {
+                        setUsersTabFilter(v);
+                        setUsersPage(1);
+                        const p = new URLSearchParams(searchParams.toString());
+                        p.set("tab", "users");
+                        if (v) p.set("user_filter", v);
+                        else p.delete("user_filter");
+                        router.replace(`/admin/dashboard?${p.toString()}`);
+                    }}
                 />
             )}
 
             {activeTab === "overview" && (
             <>
             {/* Top KPIs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <KPICard
                     title="Wadarta Users-ka"
                     value={userStats.total}
@@ -234,23 +289,121 @@ export default function DashboardPage() {
                     icon={<TrendingUp className="w-5 h-5" />}
                 />
                 <KPICard
-                    title="Dhakhliga (Revenue)"
-                    value={revenueStats.total}
+                    title="Lacag la ururiyay"
+                    value={revenueStats.collected_total ?? revenueStats.total}
+                    subValue={`La isku dayay (oo dhan): $${(revenueStats.attempted_total ?? revenueStats.collected_total ?? revenueStats.total).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     change={revenueStats.change}
                     trend={revenueStats.change >= 0 ? "up" : "down"}
                     prefix="$"
                     decimals={2}
                     icon={<DollarSign className="w-5 h-5" />}
                 />
+                <button
+                    type="button"
+                    onClick={() => router.push("/admin/dashboard?tab=users&user_filter=failed_payment")}
+                    className="text-left rounded-3xl focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                >
+                    <KPICard
+                        title="Lacag La' — Failed Payments"
+                        value={revenueStats.failed_payment_count ?? 0}
+                        subValue={`Wadarta isku dayay: $${(revenueStats.failed_payment_total ?? 0).toFixed(2)}`}
+                        className="bg-red-50 border-red-100 border-2 h-full hover:bg-red-100/80 transition-colors"
+                        icon={<AlertCircle className="w-5 h-5 text-red-600" />}
+                    />
+                </button>
                 <KPICard
-                    title="Conversion Rate"
-                    value={revenueStats.conversionRate}
-                    change={revenueStats.conversionChange}
-                    trend={revenueStats.conversionChange >= 0 ? "up" : "down"}
-                    suffix="%"
-                    decimals={1}
-                    icon={<ShoppingCart className="w-5 h-5" />}
+                    title="Kohorta Hadda"
+                    value={cohortLive?.active_cohort_name ?? "—"}
+                    subValue={
+                        cohortLive?.max_students != null
+                            ? `${cohortLive.enrolled_count ?? 0}/${cohortLive.max_students} arday · ${cohortLive.cohort_start_date ?? cohortLive.next_cohort_start_date ?? "—"}`
+                            : "Kohorto firfircoon ma jirto"
+                    }
+                    className="bg-violet-50 border-violet-100 border-2"
+                    icon={<GraduationCap className="w-5 h-5 text-violet-600" />}
                 />
+                <div
+                    title="Heerka beddelka waa tirada isticmaalayaasha premium marka loo eego wadarta isticmaalayaasha. Haddii ay 0% tahay, dad badan ayaa iska diiwaan geliyey laakiin aan weli lacag bixin."
+                    className="rounded-3xl"
+                >
+                    <KPICard
+                        title="Heerka Beddelka"
+                        value={revenueStats.conversionRate}
+                        subValue={`${revenueStats.payment_attempt_users_count ?? 0} qof ayaa lacag isku dayay`}
+                        change={revenueStats.conversionChange}
+                        trend={revenueStats.conversionChange >= 0 ? "up" : "down"}
+                        suffix="%"
+                        decimals={1}
+                        icon={<ShoppingCart className="w-5 h-5" />}
+                    />
+                </div>
+            </div>
+
+            {/* Kohorta Ardayda */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-50 shadow-sm overflow-x-auto">
+                <h2 className="text-lg font-black text-gray-900 mb-4 tracking-tight flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-violet-600" />
+                    Kohorta Ardayda
+                </h2>
+                {cohortTableLoading ? (
+                    <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
+                ) : !cohortEnrollments?.cohort ? (
+                    <p className="text-sm text-gray-500 font-medium">Kohorto firfircoon lama helin.</p>
+                ) : (
+                    <table className="w-full text-left text-xs min-w-[720px]">
+                        <thead>
+                            <tr className="text-gray-400 font-black uppercase tracking-widest border-b border-gray-100">
+                                <th className="pb-2 pr-3">Magaca</th>
+                                <th className="pb-2 pr-3">Email</th>
+                                <th className="pb-2 pr-3">Bilaabay</th>
+                                <th className="pb-2 pr-3">Wicitaanada</th>
+                                <th className="pb-2 pr-3">Koodhka</th>
+                                <th className="pb-2 pr-3">Shahaadada</th>
+                                <th className="pb-2">Ficil</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {cohortEnrollments.enrollments.map((row) => (
+                                <tr key={row.id} className="border-b border-gray-50">
+                                    <td className="py-2 pr-3 font-bold text-gray-900">{row.name}</td>
+                                    <td className="py-2 pr-3 text-gray-600">{row.email}</td>
+                                    <td className="py-2 pr-3 text-gray-600">
+                                        {row.enrolled_at ? new Date(row.enrolled_at).toLocaleDateString() : "—"}
+                                    </td>
+                                    <td className="py-2 pr-3 font-mono">
+                                        {row.weekly_calls_attended_count}/6
+                                    </td>
+                                    <td className="py-2 pr-3">{row.code_reviews_completed}</td>
+                                    <td className="py-2 pr-3">{row.certificate_issued ? "Haa" : "Maya"}</td>
+                                    <td className="py-2 flex flex-wrap gap-1">
+                                        <button
+                                            type="button"
+                                            className="px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold"
+                                            onClick={() => {
+                                                void analyticsService.patchCohortEnrollment(row.id, "mark_call_attended").then(() => {
+                                                    void analyticsService.getCohortEnrollments().then((r) => setCohortEnrollments(r.data));
+                                                });
+                                            }}
+                                        >
+                                            ✓ Wicitaan
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="px-2 py-1 rounded-lg bg-violet-100 text-violet-800 font-bold"
+                                            onClick={() => {
+                                                void analyticsService.patchCohortEnrollment(row.id, "issue_certificate").then(() => {
+                                                    void analyticsService.getCohortEnrollments().then((r) => setCohortEnrollments(r.data));
+                                                });
+                                            }}
+                                        >
+                                            📜 Shahaado
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
 
             {/* Main Content Grid */}
@@ -595,6 +748,14 @@ function truncateRecommended(titles: string[], maxLen: number = 30): string {
     return joined.slice(0, maxLen).trim() + "...";
 }
 
+const USER_SEGMENT_TABS: { label: string; value: string }[] = [
+    { label: "Dhammaan", value: "" },
+    { label: "Premium", value: "premium" },
+    { label: "Lacag Isku Dayay", value: "payment_attempt" },
+    { label: "Lacag La'", value: "failed_payment" },
+    { label: "7 Maalmood Maqan", value: "inactive_7" },
+];
+
 function AdminUsersTab({
     data,
     loading,
@@ -614,6 +775,8 @@ function AdminUsersTab({
     goalLabels,
     trackLabels,
     allLabel,
+    usersTabFilter,
+    onUsersTabFilterChange,
 }: {
     data: AdminUsersResponse | null;
     loading: boolean;
@@ -633,6 +796,8 @@ function AdminUsersTab({
     goalLabels: string[];
     trackLabels: string[];
     allLabel: string;
+    usersTabFilter: string;
+    onUsersTabFilterChange: (v: string) => void;
 }) {
     const summary = data?.summary;
     const results = data?.results ?? [];
@@ -662,6 +827,25 @@ function AdminUsersTab({
                 <Users className="w-5 h-5 text-blue-600" />
                 Isticmaalayaasha
             </h2>
+            <div className="flex flex-wrap gap-2 mb-6">
+                {USER_SEGMENT_TABS.map((tab) => {
+                    const active = (usersTabFilter || "") === tab.value;
+                    return (
+                        <button
+                            key={tab.value || "all"}
+                            type="button"
+                            onClick={() => onUsersTabFilterChange(tab.value)}
+                            className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-colors ${
+                                active
+                                    ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                    : "bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-100"
+                            }`}
+                        >
+                            {tab.label}
+                        </button>
+                    );
+                })}
+            </div>
             {summary && (
                 <div className="flex flex-wrap gap-6 mb-6 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                     <span className="text-xs font-bold text-gray-700">Total users: <strong className="text-gray-900">{summary.total_users}</strong></span>
@@ -780,17 +964,21 @@ function AdminUsersTab({
                                 <tr className="border-b border-gray-100">
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Name / Email</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Joined</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Xaaladda Lacagta</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Goal</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Track</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Recommended</th>
-                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Premium</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Email verified</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Completions</th>
+                                    <th className="pb-3 pr-2 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">WhatsApp</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredResults.map((row: AdminUserRow) => (
-                                    <tr key={row.id} className="border-b border-gray-50 hover:bg-white/[0.04]">
+                                    <tr
+                                        key={row.id}
+                                        className={`border-b border-gray-50 hover:bg-gray-50/80 ${row.has_failed_payment ? "border-l-4 border-l-orange-400" : ""}`}
+                                    >
                                         <td className="py-3 pr-4">
                                             <div className="text-xs font-bold text-gray-900">{row.name || "—"}</div>
                                             <div className="text-[9px] text-gray-500 truncate max-w-[200px]" title={row.email}>{row.email}</div>
@@ -798,17 +986,19 @@ function AdminUsersTab({
                                         <td className="py-3 pr-4 text-xs text-gray-700">
                                             {row.date_joined ? new Date(row.date_joined).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                                         </td>
+                                        <td className="py-3 pr-4">
+                                            {row.is_premium ? (
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-100 text-emerald-800">Premium</span>
+                                            ) : row.has_failed_payment ? (
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-orange-100 text-orange-900">Isku dayay</span>
+                                            ) : (
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-gray-100 text-gray-500">Bilaash</span>
+                                            )}
+                                        </td>
                                         <td className="py-3 pr-4 text-xs text-gray-700">{row.onboarding?.goal_label ?? "—"}</td>
                                         <td className="py-3 pr-4 text-xs text-gray-700">{row.onboarding?.topic ?? "—"}</td>
                                         <td className={`py-3 pr-4 text-xs ${row.recommended_courses?.length ? "text-gray-700" : "text-zinc-500"}`} title={row.recommended_courses?.join(", ")}>
                                             {row.recommended_courses?.length ? truncateRecommended(row.recommended_courses, 30) : "—"}
-                                        </td>
-                                        <td className="py-3 pr-4">
-                                            {row.is_premium ? (
-                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-green-100 text-green-800">Pro</span>
-                                            ) : (
-                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-gray-100 text-gray-500">Free</span>
-                                            )}
                                         </td>
                                         <td className="py-3 pr-4">
                                             {row.is_email_verified ? (
@@ -820,6 +1010,17 @@ function AdminUsersTab({
                                             )}
                                         </td>
                                         <td className="py-3 pr-4 text-xs text-gray-700 text-center">{row.completions ?? 0}</td>
+                                        <td className="py-3 pr-2 text-center">
+                                            <a
+                                                href={row.whatsapp_href || "https://wa.me/"}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 transition-colors"
+                                                title="WhatsApp"
+                                            >
+                                                <MessageCircle className="w-4 h-4" />
+                                            </a>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

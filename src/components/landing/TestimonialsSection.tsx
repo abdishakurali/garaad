@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Play, X } from "lucide-react";
 import { Reveal } from "./Reveal";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 const reviewImages = [
     {
@@ -12,6 +13,8 @@ const reviewImages = [
         alt: "Ilyas Omar — dib u eegis WhatsApp",
         name: "Ilyas Omar",
         outcome: "Bartay Tailwind CSS",
+        nowTag: "Tailwind CSS Developer",
+        featured: false,
     },
     {
         id: 2,
@@ -19,6 +22,8 @@ const reviewImages = [
         alt: "Abdiladif Salah — dib u eegis WhatsApp",
         name: "Abdiladif Salah",
         outcome: "Front Developer noqday",
+        nowTag: "Front-End Developer",
+        featured: false,
     },
     {
         id: 3,
@@ -26,6 +31,9 @@ const reviewImages = [
         alt: "Abdiaziz — dib u eegis WhatsApp",
         name: "Abdiaziz",
         outcome: "Website la dhisay Sofaritech",
+        nowTag: "Aasaasaha Sofaritech",
+        featured: true,
+        companyHref: "https://sofaritech-global-it-solutions.vercel.app",
     },
 ] as const;
 
@@ -68,25 +76,49 @@ export function TestimonialsSection() {
                             {reviewImages.map((img, index) => (
                                 <div
                                     key={img.id}
-                                    className="flex flex-col gap-4"
+                                    className={cn(
+                                        "flex flex-col gap-4",
+                                        img.featured && "sm:col-span-2 lg:col-span-2"
+                                    )}
                                     style={{ animationDelay: `${index * 150}ms` }}
                                 >
                                     <div
-                                        className="relative aspect-square sm:aspect-[4/5] rounded-[2rem] overflow-hidden border-2 border-border/60 shadow-xl bg-muted/20 group hover:border-primary/40 transition-all duration-500"
+                                        className={cn(
+                                            "relative rounded-[2rem] overflow-hidden border-2 border-border/60 shadow-xl bg-muted/20 group hover:border-primary/40 transition-all duration-500",
+                                            img.featured
+                                                ? "aspect-[16/9] sm:aspect-[21/9] min-h-[220px]"
+                                                : "aspect-square sm:aspect-[4/5]"
+                                        )}
                                     >
                                         <Image
                                             src={img.src}
                                             alt={img.alt}
                                             fill
                                             className="object-contain p-4 group-hover:scale-[1.02] transition-transform duration-500"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            sizes={img.featured ? "(max-width:1024px) 100vw, 66vw" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
                                             unoptimized
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                                     </div>
                                     <div className="text-center sm:text-left px-1">
                                         <p className="text-sm font-bold text-foreground">{img.name}</p>
+                                        {img.featured ? (
+                                            <span className="mt-1 inline-block rounded-full bg-emerald-600/90 px-2.5 py-0.5 text-[10px] font-black text-white">
+                                                🏢 Shirkad Dhisay
+                                            </span>
+                                        ) : null}
+                                        <p className="text-xs font-semibold text-primary mt-1">Hadda {img.nowTag}</p>
                                         <p className="text-sm text-muted-foreground mt-0.5">{img.outcome}</p>
+                                        {"companyHref" in img && img.companyHref ? (
+                                            <a
+                                                href={img.companyHref}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-block mt-2 text-xs font-bold text-violet-500 hover:underline"
+                                            >
+                                                sofaritech-global-it-solutions.vercel.app →
+                                            </a>
+                                        ) : null}
                                     </div>
                                 </div>
                             ))}
@@ -95,6 +127,9 @@ export function TestimonialsSection() {
 
                     {/* 2. Video testimonials */}
                     <Reveal>
+                        <h3 className="text-center text-xl font-black text-foreground mb-6">
+                            Muuqaallada <span className="text-primary">dhiirigelinta</span>
+                        </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
                             {videos.map((vid) => (
                                 <div
@@ -102,7 +137,7 @@ export function TestimonialsSection() {
                                     className="relative group cursor-pointer"
                                     onClick={() => setShowVideoModal(vid.id)}
                                 >
-                                    <div className="relative aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800 transition-all duration-500 group-hover:shadow-primary/20 group-hover:translate-y-[-4px]">
+                                    <div className="relative aspect-video min-h-[200px] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-primary/30 dark:border-violet-500/40 ring-2 ring-primary/10 transition-all duration-500 group-hover:shadow-primary/30 group-hover:translate-y-[-4px]">
                                         <Image
                                             src={vid.thumbnail}
                                             alt={vid.title}
@@ -123,6 +158,7 @@ export function TestimonialsSection() {
                                             <p className="text-white/80 text-sm italic">{vid.subtitle}</p>
                                         </div>
                                     </div>
+                                    <p className="mt-3 text-center text-sm font-black text-foreground">{vid.title}</p>
                                 </div>
                             ))}
                         </div>

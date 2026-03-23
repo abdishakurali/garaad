@@ -48,7 +48,7 @@ export function CommunityCTASection() {
                         <p className="text-sm text-muted-foreground mb-6 max-w-lg">
                             {EXPLORER_IS_FREE
                                 ? "Bulshada waxaa loo furay dhammaan isticmaalayaasha diiwaangashan — Challenge waa qorshaha casriga ah."
-                                : "Bulshada waxaa laga helaa subscription-ka Explorer iyo Challenge."}
+                                : "Bulshada waxaa laga helaa heerka Bilaash iyo Challenge."}
                         </p>
 
                         <div className="flex flex-col sm:flex-row flex-wrap gap-3">
@@ -58,8 +58,8 @@ export function CommunityCTASection() {
                             >
                                 <span>
                                     {EXPLORER_IS_FREE
-                                        ? "Samee akoon — Explorer waa bilaash"
-                                        : "Bilow Explorer — $29/bishii"}
+                                        ? "Samee akoon — Bilaash waa weligeed"
+                                        : "Bilow Bilaash — weligeed"}
                                 </span>
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                             </Link>

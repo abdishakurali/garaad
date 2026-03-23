@@ -3,7 +3,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Shuruudaha Isticmaalka — Terms of Use | Garaad",
   description:
-    "Shuruudaha isticmaalka Garaad.org — gelitaan, subscription-yada Explorer iyo Challenge, iyo isticmaalka madalka. Terms of Use in Somali and English.",
+    "Shuruudaha isticmaalka Garaad.org — gelitaan, heerarka Bilaash iyo Challenge, iyo isticmaalka madalka. Terms of Use in Somali and English.",
   alternates: { canonical: "https://garaad.org/terms" },
   openGraph: {
     type: "website",

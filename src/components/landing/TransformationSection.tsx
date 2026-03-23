@@ -1,7 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { Clock, Zap, Target, CheckCircle2, ArrowRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+    Clock,
+    Zap,
+    Target,
+    CheckCircle2,
+    Rocket,
+    TrendingUp,
+    Search,
+    Database,
+    Plug,
+    Brain,
+    Cog,
+    Megaphone,
+    CreditCard,
+    Award,
+    BookOpen,
+    BarChart3,
+    Users,
+    Globe,
+} from "lucide-react";
 
 interface Week {
     number: number;
@@ -109,6 +129,25 @@ const weeks: Week[] = [
             "Deji qorshaha koboca ee 30-ka maalmood ee soo socda",
         ],
     },
+    {
+        number: 6,
+        title: "Xaqiijinta & Shahaadada MERN",
+        hours: "10-14 saacadood",
+        difficulty: "Advanced",
+        win: "Mashruucaaga oo diyaar ah, shahaadada MERN, iyo qorshe xiga oo cad",
+        skills: [
+            "Dib-u-eegista koodka (Code review)",
+            "Hagaajinta waxqabadka (Performance)",
+            "Diyaarinta portfolio & CV",
+            "Wicitaanka xiga & taageerada joogtada ah",
+        ],
+        actions: [
+            "Dhammaystir mashruuca ugu dambeeya ee MERN",
+            "Soo gudbi dib-u-eegis kooxda",
+            "Diyaari demo iyo sharaxaad ganacsi",
+            "Ka qayb gal wicitaanka toddobaadlaha ah",
+        ],
+    },
 ];
 
 const difficultyColors = {
@@ -117,9 +156,45 @@ const difficultyColors = {
     Advanced: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 };
 
-export function TransformationSection() {
+function skillIconFor(text: string): LucideIcon {
+    const s = text.toLowerCase();
+    if (/market|suuq|baaritaan|tartam|validation|xaqiijin/i.test(s)) return Search;
+    if (/database|xog|mongo|postgres|sql/i.test(s)) return Database;
+    if (/api|xiriir|stripe|lacag/i.test(s)) return Plug;
+    if (/ai|openai|prompt|otomaatig/i.test(s)) return Brain;
+    if (/auth|login|signup|aqoons/i.test(s)) return Users;
+    if (/deploy|internet|bog|landing|daah/i.test(s)) return Globe;
+    if (/pricing|qiime|macaami|haysash/i.test(s)) return CreditCard;
+    if (/marketing|suuqgeyn|koboc/i.test(s)) return Megaphone;
+    if (/review|dib-u-eeg|portfolio|shahaad|performance/i.test(s)) return Award;
+    if (/web|horumar|react|frontend/i.test(s)) return Cog;
+    if (/qorshe|strategy|falanqayn/i.test(s)) return BarChart3;
+    if (/tijaab|beta|macmiil/i.test(s)) return Users;
+    return BookOpen;
+}
+
+function SkillIcon({ text }: { text: string }) {
+    const Icon = skillIconFor(text);
+    return <Icon className="w-5 h-5 text-violet-600 dark:text-violet-400 flex-shrink-0" aria-hidden />;
+}
+
+export interface TransformationSectionProps {
+    /** Max weeks to show (default 6). Challenge page uses 5. */
+    weekCount?: number;
+}
+
+export function TransformationSection({ weekCount = 6 }: TransformationSectionProps) {
+    const weeksShown = useMemo(() => weeks.slice(0, Math.min(weekCount, weeks.length)), [weekCount]);
     const [selectedWeek, setSelectedWeek] = useState(0);
-    const currentWeek = weeks[selectedWeek];
+
+    const safeIndex = Math.min(selectedWeek, Math.max(0, weeksShown.length - 1));
+    const currentWeek = weeksShown[safeIndex];
+
+    useEffect(() => {
+        if (selectedWeek > weeksShown.length - 1) {
+            setSelectedWeek(Math.max(0, weeksShown.length - 1));
+        }
+    }, [weeksShown.length, selectedWeek]);
 
     return (
         <section className="relative py-20 md:py-32 bg-slate-50 dark:bg-slate-900 overflow-hidden">
@@ -129,28 +204,31 @@ export function TransformationSection() {
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter text-slate-900 dark:text-white">
                         <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
-                            Transformation
+                            Wadada Todobaadka
                         </span>
                     </h2>
-                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-bold uppercase tracking-widest">
-                        Builder to Founder
+                    <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-bold uppercase tracking-widest">
+                        Ka dhise ilaa aasaasaha
                     </p>
                 </div>
 
                 {/* Week Selector */}
-                <div className="flex flex-wrap justify-center gap-3 mb-12">
-                    {weeks.map((week, index) => (
+                <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-12">
+                    {weeksShown.map((week, index) => (
                         <button
                             key={week.number}
+                            type="button"
                             onClick={() => setSelectedWeek(index)}
-                            className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 ${selectedWeek === index
-                                ? "bg-primary text-white shadow-lg shadow-primary/30 scale-105"
-                                : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                            className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold transition-all duration-300 ${safeIndex === index
+                                ? "bg-violet-600 text-white shadow-lg shadow-violet-500/40 scale-[1.02] ring-2 ring-violet-400/50"
+                                : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 border-2 border-slate-300 dark:border-slate-600"
                                 }`}
                         >
-                            Toddobaadka {week.number}
+                            <span className="text-lg tabular-nums opacity-90">{week.number}</span>
+                            <span className="hidden sm:inline">Todobaadka {week.number}</span>
+                            <span className="sm:hidden">T{week.number}</span>
                         </button>
                     ))}
                 </div>
@@ -162,7 +240,7 @@ export function TransformationSection() {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-8 border-b border-slate-200 dark:border-slate-700">
                             <div>
                                 <div className="flex items-center gap-3 mb-3">
-                                    <span className="text-5xl font-black text-primary">
+                                    <span className="text-5xl font-black text-violet-600 dark:text-violet-400">
                                         {currentWeek.number}
                                     </span>
                                     <div>
@@ -174,7 +252,7 @@ export function TransformationSection() {
                             </div>
                             <div className="flex flex-wrap gap-3">
                                 <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700">
-                                    <Clock className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                                    <Clock className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                                     <span className="font-bold text-sm text-slate-900 dark:text-white">
                                         {currentWeek.hours}
                                     </span>
@@ -187,12 +265,12 @@ export function TransformationSection() {
                         </div>
 
                         {/* The Win */}
-                        <div className="mb-8 p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20">
+                        <div className="mb-8 p-6 rounded-2xl bg-gradient-to-br from-violet-500/15 to-purple-600/10 border border-violet-500/25">
                             <div className="flex items-start gap-3">
-                                <Target className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                                <Target className="w-6 h-6 text-violet-600 dark:text-violet-400 flex-shrink-0 mt-1" />
                                 <div>
                                     <h4 className="font-bold text-lg mb-2 text-slate-900 dark:text-white">
-                                        Guusha Toddobaadka (Weekly Win)
+                                        Guusha Todobaadka (Weekly Win)
                                     </h4>
                                     <p className="text-slate-700 dark:text-slate-300 text-lg">
                                         {currentWeek.win}
@@ -204,7 +282,7 @@ export function TransformationSection() {
                         {/* Skills to Master */}
                         <div className="mb-8">
                             <h4 className="font-bold text-lg mb-4 text-slate-900 dark:text-white flex items-center gap-2">
-                                <Zap className="w-5 h-5 text-primary" />
+                                <Rocket className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                                 Maxaad Baran doontaa? (Skills)
                             </h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -213,7 +291,7 @@ export function TransformationSection() {
                                         key={index}
                                         className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
                                     >
-                                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                                        <SkillIcon text={skill} />
                                         <span className="font-medium text-slate-700 dark:text-slate-300">
                                             {skill}
                                         </span>
@@ -225,7 +303,7 @@ export function TransformationSection() {
                         {/* Weekly Actions */}
                         <div>
                             <h4 className="font-bold text-lg mb-4 text-slate-900 dark:text-white flex items-center gap-2">
-                                <ArrowRight className="w-5 h-5 text-primary" />
+                                <TrendingUp className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                                 Qorsha Hawleedka (Action Plan)
                             </h4>
                             <div className="space-y-3">
@@ -234,10 +312,8 @@ export function TransformationSection() {
                                         key={index}
                                         className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-primary/50 dark:hover:border-primary/50 transition-colors"
                                     >
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                            <span className="text-primary font-bold text-sm">
-                                                {index + 1}
-                                            </span>
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/15 flex items-center justify-center">
+                                            <TrendingUp className="w-4 h-4 text-violet-600 dark:text-violet-400" aria-hidden />
                                         </div>
                                         <p className="text-slate-700 dark:text-slate-300 pt-1">
                                             {action}
@@ -250,11 +326,11 @@ export function TransformationSection() {
 
                     {/* Progress Indicator */}
                     <div className="mt-8 flex items-center justify-center gap-2">
-                        {weeks.map((_, index) => (
+                        {weeksShown.map((_, index) => (
                             <div
                                 key={index}
-                                className={`h-2 rounded-full transition-all duration-300 ${index === selectedWeek
-                                    ? "w-12 bg-primary"
+                                className={`h-2 rounded-full transition-all duration-300 ${index === safeIndex
+                                    ? "w-12 bg-violet-600"
                                     : "w-2 bg-slate-300 dark:bg-slate-700"
                                     }`}
                             />

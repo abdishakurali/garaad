@@ -6,7 +6,7 @@ export const PLANS = {
     name: t.explorer_name,
     tagline: t.explorer_tagline,
     /** Shown in UI only; backend still settles in USD for Waafi/Stripe as configured. */
-    priceDisplay: "$29",
+    priceDisplay: "$0",
     yearlyPriceNote: t.explorer_yearly_hint,
     per: t.explorer_per_month,
     highlight: false,

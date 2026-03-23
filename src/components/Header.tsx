@@ -16,6 +16,7 @@ import ReferralModal from "./referrals/ReferralModal";
 import StreakDisplay from "./StreakDisplay";
 import { useGamificationData } from "@/hooks/useGamificationData";
 import { pricingTranslations as pricingT } from "@/config/translations/pricing";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 
 export function Header() {
   const { user } = useAuthStore();
@@ -34,6 +35,12 @@ export function Header() {
   const [prevXp, setPrevXp] = useState(xpValue);
   const [xpPulse, setXpPulse] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const { data: challengeNav, loading: challengeNavLoading } = useChallengeStatus();
+  const challengeSpots = challengeNav?.spots_remaining ?? 0;
+  const showChallengeNavCta =
+    !user ||
+    !user.is_premium ||
+    (user.subscription_type ?? "").toLowerCase() !== "challenge";
 
   useEffect(() => {
     setMounted(true);
@@ -215,13 +222,31 @@ export function Header() {
                   <span>{xpValue} XP</span>
                 </span>
               )}
-              {mounted && user && !isPremium && (
-                <Link
-                  href="/subscribe"
-                  className="hidden md:inline-flex text-xs font-bold px-3 py-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/20 transition-colors"
-                >
-                  {pricingT.nav_upgrade} →
-                </Link>
+              {mounted && showChallengeNavCta && (
+                challengeNavLoading && !challengeNav ? (
+                  <Link
+                    href="/challenge"
+                    className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-500/25 transition-colors"
+                  >
+                    Challenge →
+                  </Link>
+                ) : (
+                  <Link
+                    href="/challenge"
+                    className={clsx(
+                      "hidden md:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-500/25 transition-colors",
+                      challengeSpots <= 3 && "relative pl-3"
+                    )}
+                  >
+                    {challengeSpots <= 3 && (
+                      <span
+                        className="absolute left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-red-500 motion-safe:animate-pulse"
+                        aria-hidden
+                      />
+                    )}
+                    Challenge — {challengeSpots} boos →
+                  </Link>
+                )
               )}
               {mounted && user && isPremium && (
                 <span
@@ -254,13 +279,25 @@ export function Header() {
             {/* Mobile: Only show essential icons + hamburger */}
             <div className="flex md:hidden items-center gap-2">
               {mounted && user && <NotificationPanel />}
-              {mounted && user && !isPremium && (
-                <Link
-                  href="/subscribe"
-                  className="text-[10px] font-bold px-2 py-1 rounded-full bg-primary text-primary-foreground shrink-0 shadow-sm shadow-primary/20"
-                >
-                  {pricingT.nav_upgrade} →
-                </Link>
+              {mounted && showChallengeNavCta && (
+                challengeNavLoading && !challengeNav ? (
+                  <Link
+                    href="/challenge"
+                    className="text-[10px] font-bold px-2 py-1 rounded-full bg-violet-600 text-white shrink-0 shadow-sm shadow-violet-500/25"
+                  >
+                    Challenge →
+                  </Link>
+                ) : (
+                  <Link
+                    href="/challenge"
+                    className={clsx(
+                      "text-[10px] font-bold px-2 py-1 rounded-full bg-violet-600 text-white shrink-0 shadow-sm shadow-violet-500/25 max-w-[9rem] truncate",
+                      challengeSpots <= 3 && "ring-2 ring-red-500/60"
+                    )}
+                  >
+                    {challengeSpots} boos →
+                  </Link>
+                )
               )}
               {mounted && user && isPremium && (
                 <span
