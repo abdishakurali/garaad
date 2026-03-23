@@ -286,25 +286,7 @@ export function Header() {
                   </Link>
                 )
               )}
-              {mounted && user && isPremium && (
-                <span
-                  className={clsx(
-                    "text-[10px] font-bold px-2 py-1 rounded-full shrink-0 max-w-[5.5rem] truncate",
-                    user.subscription_type === "challenge"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-primary/15 text-primary border border-primary/25"
-                  )}
-                  title={
-                    user.subscription_type === "challenge"
-                      ? pricingT.nav_badge_challenge
-                      : pricingT.nav_badge_explorer
-                  }
-                >
-                  {user.subscription_type === "challenge"
-                    ? `⚡ ${pricingT.nav_badge_challenge}`
-                    : `🌍 ${pricingT.nav_badge_explorer}`}
-                </span>
-              )}
+               
               {authReady && user && isPremium && (
                 <span
                   className={clsx(

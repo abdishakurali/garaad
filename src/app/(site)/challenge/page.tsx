@@ -5,9 +5,9 @@ import { ChallengePageClient } from "@/components/challenge/ChallengePageClient"
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
-  title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
+  title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup (6 toddobaad)",
   description:
-    "Garaad Challenge: 4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup-kaaga). Quarterly program for Somali builders. Program for Somali tech founders.",
+    "6 toddobaad: ka bilow eber, gaar shaqo tech ama dhis startup-kaaga. Mentor af Soomaali, koox 10 qof, lacag celin 7 maalmood. $149/bilaan.",
   keywords: [
     "Tartanka dhisidda software-ka",
     "Barashada IT-ga casriga ah",
@@ -25,22 +25,22 @@ export const metadata: Metadata = {
     locale: "so_SO",
     url: "https://garaad.org/challenge",
     siteName: "Garaad",
-    title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
+    title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup",
     description:
-      "4–6 toddobaad oo mentorship, mentor access, launchpad (gudbi startup). Quarterly program for Somali tech founders.",
+      "6 toddobaad: mentor af Soomaali, koox, lacag celin 7 maalmood. $149/bilaan.",
     images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Garaad Challenge — 4–6 Toddobaad Mentorship & Launchpad",
-    description: "Quarterly mentorship and launchpad program for Somali builders.",
+    title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup",
+    description: "6 toddobaad, mentor af Soomaali, $149/bilaan.",
   },
   robots: { index: true, follow: true },
 };
 
 export default function ChallengePage() {
     return (
-        <div className="min-h-screen bg-background">
+        <div className="dark min-h-screen bg-zinc-950 text-zinc-100 antialiased">
             {/* JSON-LD for Search Engines */}
             <script
                 type="application/ld+json"

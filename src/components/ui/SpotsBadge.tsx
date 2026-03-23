@@ -15,7 +15,7 @@ export function SpotsBadge({ spots, loading, className }: SpotsBadgeProps) {
   if (loading) {
     return (
       <div
-        className={cn("h-9 w-56 max-w-full rounded-full bg-white/10 animate-pulse mx-auto", className)}
+        className={cn("mx-auto h-9 w-48 max-w-full animate-pulse rounded-lg bg-zinc-800", className)}
         aria-hidden
       />
     );
@@ -23,21 +23,20 @@ export function SpotsBadge({ spots, loading, className }: SpotsBadgeProps) {
 
   const tone =
     spots <= 3
-      ? "bg-red-500/20 text-red-300 border-red-500/50 motion-safe:animate-pulse"
+      ? "border-violet-500/35 text-violet-200"
       : spots <= 6
-        ? "bg-orange-500/20 text-orange-200 border-orange-500/40"
-        : "bg-emerald-500/15 text-emerald-300 border-emerald-500/35";
+        ? "border-white/15 text-zinc-300"
+        : "border-white/10 text-zinc-400";
 
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2 text-sm sm:text-base font-black",
+        "inline-flex items-center justify-center rounded-lg border bg-zinc-900 px-3 py-2 text-sm font-medium sm:text-base",
         tone,
         className
       )}
       role="status"
     >
-      <span aria-hidden>{spots <= 3 ? "🔴" : spots <= 6 ? "🟠" : "🟢"}</span>
       <span>
         {spots} boos oo hadhay
       </span>

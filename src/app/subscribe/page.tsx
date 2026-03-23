@@ -317,11 +317,11 @@ function SubscribePageInner() {
                               )}
                         </p>
                         <p className="text-sm mt-1 font-semibold opacity-95">
-                          {challengeStatus.spots_remaining} boos oo hadhay kohortan
+                          {challengeStatus.spots_remaining} boos oo hadhay kooxdan
                         </p>
                         {cohortStartFmt ? (
                           <p className="mt-2 text-xs font-semibold opacity-95">
-                            Kohorta waxay bilaabantaa: {cohortStartFmt}
+                            Kooxdu waxay bilaabaysaa: {cohortStartFmt}
                           </p>
                         ) : null}
                         {challengeStatus.is_waitlist_only &&

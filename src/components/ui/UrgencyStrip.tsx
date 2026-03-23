@@ -35,12 +35,7 @@ export function UrgencyStrip() {
   if (!mounted || dismissed) return null;
 
   if (loading && !data) {
-    return (
-      <div
-        className="w-full py-2 px-4 bg-purple-600 animate-pulse"
-        aria-hidden
-      />
-    );
+    return <div className="h-10 w-full animate-pulse bg-zinc-900" aria-hidden />;
   }
 
   if (!data?.active_cohort_name) return null;
@@ -57,24 +52,22 @@ export function UrgencyStrip() {
       : "—";
 
   return (
-    <div className="relative w-full bg-purple-600 hover:bg-purple-700 transition-colors">
+    <div className="relative w-full border-b border-white/10 bg-zinc-900">
       <Link
         href="/challenge"
-        className="flex w-full items-center justify-center gap-2 py-2 px-10 text-sm font-medium text-white text-center"
+        className="flex w-full items-center justify-center px-10 py-2.5 text-center text-sm text-zinc-300 hover:text-zinc-100"
       >
-        <span aria-hidden>🚀</span>
         <span className="leading-snug">
-          Kohorta {data.active_cohort_name}: {data.spots_remaining} boos oo hadhay · Waxay bilaabantaa{" "}
-          {startFmt}
+          Kooxda {data.active_cohort_name}: {data.spots_remaining} boos oo hadhay · Waxay bilaabaysaa {startFmt}
         </span>
       </Link>
       <button
         type="button"
         onClick={handleDismiss}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white/90 hover:bg-white/15 hover:text-white"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
         aria-label="Xir ogeysiiska"
       >
-        <X className="h-4 w-4" strokeWidth={2.5} />
+        <X className="h-4 w-4" strokeWidth={2} />
       </button>
     </div>
   );

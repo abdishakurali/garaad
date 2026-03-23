@@ -40,8 +40,8 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   const diff = Math.max(0, target - now);
   if (diff === 0) {
     return (
-      <p className={`text-base font-black text-emerald-400 ${className}`}>
-        Kohorta waa bilaabatay!
+      <p className={`text-base font-medium text-zinc-300 ${className}`}>
+        Kooxdu way bilaabatay!
       </p>
     );
   }
@@ -61,16 +61,16 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   return (
     <div className={className}>
       {label ? (
-        <p className="text-sm font-bold text-zinc-300 mb-3 text-center">{label}</p>
+        <p className="mb-3 text-center text-sm text-zinc-500">{label}</p>
       ) : null}
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
         {cells.map((c) => (
           <div
             key={c.label}
-            className="min-w-[4.25rem] rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center backdrop-blur-sm"
+            className="min-w-[4rem] rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-center"
           >
-            <div className="text-xl sm:text-2xl font-black tabular-nums text-white">{c.value}</div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">{c.label}</div>
+            <div className="text-lg font-semibold tabular-nums text-zinc-100 sm:text-xl">{c.value}</div>
+            <div className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">{c.label}</div>
           </div>
         ))}
       </div>

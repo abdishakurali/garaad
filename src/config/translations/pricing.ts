@@ -25,22 +25,24 @@ export const pricingTranslations = {
   challenge_name: "Challenge",
   challenge_badge: "⭐ Lagu taliyay",
   challenge_tagline:
-    "Shaqo ku hel ama ku dhis alaabtaada 90 maalmood gudahood",
+    "6 toddobaad: ka bilow eber ilaa shaqo tech ama startup-kaaga",
   challenge_per_one_time: "/bilaan",
   challenge_cta: "Ku biir Challenge-ka",
   challenge_cta_waitlist: "Liiska Sugitaanka",
   challenge_feature_1: "Wax kasta oo ku jira Bilaash",
   challenge_feature_2:
-    "Wicitaan 30-daqiiqo ah toddobaad kasta oo aad la yeelanayso Cabdishakuur",
-  challenge_feature_3: "Dib-u-eegista koodhka mashaariicdaada",
-  challenge_feature_4: "Shahaadada dhammaystirka MERN",
-  challenge_feature_5: "Koox gaar ah — ugu badnaan 10 qof",
-  challenge_feature_6: "Taageero toos ah oo WhatsApp ah",
+    "Su'aalahaaga ku jawaab toos — maalin kasta (wicitaan toddobaadle)",
+  challenge_feature_3:
+    "Koodhkaaga la eeg si aan khalad loo shaqo qaadin (dib-u-eegis)",
+  challenge_feature_4: "Shahaado aad LinkedIn ku dhejin karto (MERN)",
+  challenge_feature_5: "Saaxiibo tech ah oo adiga kaa horumarsan (koox 10 qof)",
+  challenge_feature_6:
+    "Qof kuu jawaabaya marka aad xanaaqdid (WhatsApp + mentor)",
   /** Live cohort capacity (from /api/challenge/status). */
-  challenge_spots_remaining: "{n} boos oo hadhay kohortan",
+  challenge_spots_remaining: "{n} boos oo hadhay kooxdan",
   challenge_waitlist_only:
-    "Kooxda hadda waa buuxda — liiska sugitaanka ayaa laguugu daray; waxaan kuu soo wargelin doonnaa kooxda xigta.",
-  challenge_next_cohort: "Kooxda xigta waxay bilaabmayso {date}.",
+    "Kooxdu hadda way buuxday — liiska sugitaanku waa laguugu daray; waxaan kuu soo wargelin doonnaa kooxda xigta.",
+  challenge_next_cohort: "Kooxda xigta waxay bilaabmi doontaa {date}.",
 
   // Payment modal
   modal_title: "Dhammaystir is-diiwaangelintaada",

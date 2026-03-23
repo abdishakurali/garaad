@@ -11,49 +11,33 @@ export function ClosingCTA() {
     const ctaHref = isAuthenticated ? "/courses" : "/welcome";
 
     return (
-        <section className="relative py-20 md:py-32 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-black dark:via-slate-950 dark:to-black overflow-hidden">
-            {/* Animated Background */}
-            <div className="absolute inset-0">
-                <div className="absolute top-1/4 -left-48 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-slow" />
-                <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow delay-1000" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-3xl animate-float" />
-            </div>
-
-            {/* Grid Pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
-
-            <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                {/* Icon */}
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 border-2 border-primary/30 mb-8 animate-float">
-                    <Rocket className="w-10 h-10 text-primary" />
+        <section className="border-t border-white/5 bg-zinc-950 py-16 dark:bg-zinc-950 md:py-20">
+            <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+                <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-lg border border-white/10 bg-zinc-900">
+                    <Rocket className="h-6 w-6 text-zinc-400" />
                 </div>
 
-                {/* Headline */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-8 text-white">
-                    Ma diyaar u tahay inaad{" "}
-                    <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                        bilowdo?
-                    </span>
+                <h2 className="mb-4 text-2xl font-bold text-zinc-50 sm:text-3xl md:text-4xl">
+                    Ma diyaar u tahay inaad <span className="text-violet-400">bilowdo</span>?
                 </h2>
 
-                {/* Body */}
-                <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-8">
-                    Challenge: 4–6 toddobaad oo mentorship (4x sannadkii). Koorsooyinka joogta ah waxaad ka heli kartaa heerka <strong className="text-white">Bilaash</strong>.
+                <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-zinc-400 md:text-lg">
+                    Challenge: 6 toddobaad oo mentor. Koorsooyinka joogta ah waxaad ka heli kartaa heerka{" "}
+                    <strong className="font-semibold text-zinc-200">Bilaash</strong>.
                 </p>
 
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                     <Link
                         href="/subscribe"
-                        className="group relative inline-block px-10 py-5 bg-primary hover:bg-primary/90 text-white text-xl font-black rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/50"
+                        className="inline-flex w-full max-w-xs items-center justify-center rounded-lg bg-violet-600 px-8 py-3 text-base font-semibold text-white hover:bg-violet-500 sm:w-auto"
                     >
-                        <span>HEL EXPLORER</span>
+                        Hel Bilaash
                     </Link>
                     <Link
                         href={ctaHref}
-                        className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white text-lg font-bold rounded-2xl border border-white/20 transition-all duration-300"
+                        className="inline-flex w-full max-w-xs items-center justify-center rounded-lg border border-white/15 bg-transparent px-8 py-3 text-base font-medium text-zinc-200 hover:bg-white/5 sm:w-auto"
                     >
-                        {isAuthenticated ? "BILOW KOORSOOYINKA" : "BILOW BILAASH AH"}
+                        {isAuthenticated ? "Bilow koorsada" : "Bilow bilaash"}
                     </Link>
                 </div>
             </div>

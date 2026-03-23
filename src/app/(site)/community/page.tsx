@@ -384,7 +384,7 @@ export default function CommunityPage() {
                     className="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed"
                 >
                     Ardayda Challenge-ka ayaa buuxda ku wadaagta su&apos;aalo, mashaariic, iyo
-                    taageero. Ku biir kohorta si aad u furto bulshada oo dhan.
+                    taageero. Ku biir Kooxda Challenge si aad u furto dhamaan bulshada.
                 </p>
                 <Link
                     href="/challenge"

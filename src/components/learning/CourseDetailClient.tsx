@@ -620,7 +620,7 @@ export function CourseDetailClient() {
                                                     </p>
                                                     <p className="text-xs text-violet-200/90">
                                                         {challengeStatus
-                                                            ? `${challengeStatus.spots_remaining} boos oo hadhay kohortan`
+                                                            ? `${challengeStatus.spots_remaining} boos oo hadhay kooxdan`
                                                             : "Boosyo xaddidan — ku biir Challenge"}
                                                     </p>
                                                     <Button
@@ -676,7 +676,7 @@ export function CourseDetailClient() {
                                     </div>
                                     {!isAuthenticated && (
                                         <p className="border-t border-gray-100 pt-3 text-center text-xs text-muted-foreground dark:border-slate-800">
-                                            Xisaab u fur bilaash ah
+                                            
                                         </p>
                                     )}
                                 </div>

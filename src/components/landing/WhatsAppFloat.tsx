@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageCircle, X } from "lucide-react";
-
-const WHATSAPP_NUMBER = "252618995283"; // Replace with actual number
-const DEFAULT_MESSAGE = "Salaan! Waan rabaa inaan wax weydiiyo Garaad.";
+import { X } from "lucide-react";
+import {
+  DEFAULT_WHATSAPP_MESSAGE,
+  whatsappHref,
+} from "@/lib/whatsapp";
 
 export function WhatsAppFloat() {
     const [isTooltipVisible, setIsTooltipVisible] = useState(false);
@@ -29,11 +30,7 @@ export function WhatsAppFloat() {
     }, [isVisible]);
 
     const handleClick = () => {
-        const encodedMessage = encodeURIComponent(DEFAULT_MESSAGE);
-        window.open(
-            `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`,
-            "_blank"
-        );
+        window.open(whatsappHref(DEFAULT_WHATSAPP_MESSAGE), "_blank");
     };
 
     if (!isVisible) return null;

@@ -312,12 +312,12 @@ export default function DashboardPage() {
                     />
                 </button>
                 <KPICard
-                    title="Kohorta Hadda"
+                    title="Kooxda Hadda"
                     value={cohortLive?.active_cohort_name ?? "—"}
                     subValue={
                         cohortLive?.max_students != null
                             ? `${cohortLive.enrolled_count ?? 0}/${cohortLive.max_students} arday · ${cohortLive.cohort_start_date ?? cohortLive.next_cohort_start_date ?? "—"}`
-                            : "Kohorto firfircoon ma jirto"
+                            : "Koox firfircoon ma jirto"
                     }
                     className="bg-violet-50 border-violet-100 border-2"
                     icon={<GraduationCap className="w-5 h-5 text-violet-600" />}
@@ -339,16 +339,16 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Kohorta Ardayda */}
+            {/* Ardayda kooxda */}
             <div className="bg-white rounded-3xl p-8 border border-gray-50 shadow-sm overflow-x-auto">
                 <h2 className="text-lg font-black text-gray-900 mb-4 tracking-tight flex items-center gap-2">
                     <GraduationCap className="w-5 h-5 text-violet-600" />
-                    Kohorta Ardayda
+                    Ardayda Kooxda
                 </h2>
                 {cohortTableLoading ? (
                     <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
                 ) : !cohortEnrollments?.cohort ? (
-                    <p className="text-sm text-gray-500 font-medium">Kohorto firfircoon lama helin.</p>
+                    <p className="text-sm text-gray-500 font-medium">Koox firfircoon lama helin.</p>
                 ) : (
                     <table className="w-full text-left text-xs min-w-[720px]">
                         <thead>

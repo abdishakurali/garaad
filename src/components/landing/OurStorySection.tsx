@@ -2,6 +2,7 @@
 
 import { MapPin, Calendar, Quote } from "lucide-react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface Era {
     number: number;
@@ -67,13 +68,44 @@ const eras: Era[] = [
     },
 ];
 
-export function OurStorySection() {
-    return (
-        <section id="our-story" className="relative py-20 md:py-32 bg-white dark:bg-slate-950 overflow-hidden">
-            {/* Background Elements */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
+export function OurStorySection({
+    className,
+    innerClassName,
+    /** When true, always use light surfaces/text (for use inside a `.dark` page like /challenge). */
+    forceLight = false,
+}: {
+    className?: string;
+    /** Applied to the max-width content wrapper (horizontal rhythm). */
+    innerClassName?: string;
+    forceLight?: boolean;
+}) {
+    const light = forceLight;
 
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    return (
+        <section
+            id="our-story"
+            className={cn(
+                "relative overflow-hidden py-20 md:py-32",
+                light ? "bg-white" : "bg-white dark:bg-slate-950",
+                className
+            )}
+        >
+            {/* Background Elements */}
+            <div
+                className={cn(
+                    "absolute inset-0 bg-[size:64px_64px]",
+                    light
+                        ? "bg-[linear-gradient(rgba(0,0,0,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,.02)_1px,transparent_1px)]"
+                        : "bg-[linear-gradient(rgba(0,0,0,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)]"
+                )}
+            />
+
+            <div
+                className={cn(
+                    "relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
+                    innerClassName
+                )}
+            >
                 {/* Section Header */}
                 <div className="text-center mb-16 md:mb-24">
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter">
@@ -82,7 +114,12 @@ export function OurStorySection() {
                         </span>{" "}
                         Story
                     </h2>
-                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-bold uppercase tracking-widest">
+                    <p
+                        className={cn(
+                            "mx-auto max-w-2xl text-lg font-bold uppercase tracking-widest md:text-xl",
+                            light ? "text-slate-500" : "text-slate-400"
+                        )}
+                    >
                         Eber ilaa SaaS Builder
                     </p>
                 </div>
@@ -101,15 +138,32 @@ export function OurStorySection() {
                                     } items-center gap-8`}
                             >
                                 {/* Timeline Dot */}
-                                <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary border-4 border-white dark:border-slate-950 shadow-lg items-center justify-center z-10">
+                                <div
+                                    className={cn(
+                                        "absolute left-1/2 z-10 hidden h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-primary shadow-lg md:flex",
+                                        !light && "dark:border-slate-950"
+                                    )}
+                                >
                                     <span className="text-white font-bold text-lg">{era.number}</span>
                                 </div>
 
                                 {/* Content Card */}
                                 <div className={`w-full md:w-[calc(50%-3rem)] ${index % 2 === 0 ? "md:text-right" : "md:text-left"}`}>
-                                    <div className="group relative p-8 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
+                                    <div
+                                        className={cn(
+                                            "group relative -translate-y-0 rounded-3xl border border-slate-200 bg-slate-50 p-8 transition-all duration-500 hover:-translate-y-1 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10",
+                                            light
+                                                ? ""
+                                                : "dark:border-slate-800 dark:bg-slate-900 dark:hover:border-primary/50"
+                                        )}
+                                    >
                                         {/* Image */}
-                                        <div className="relative w-full aspect-video mb-6 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50">
+                                        <div
+                                            className={cn(
+                                                "relative mb-6 aspect-video w-full overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100",
+                                                light ? "" : "dark:border-slate-700 dark:bg-slate-800/50"
+                                            )}
+                                        >
                                             <Image
                                                 src={era.image}
                                                 alt={era.title}
@@ -129,7 +183,13 @@ export function OurStorySection() {
                                         </div>
 
                                         {/* Location & Period */}
-                                        <div className={`flex flex-wrap items-center gap-4 mb-4 text-sm text-slate-600 dark:text-slate-400 ${index % 2 === 0 ? "md:justify-end" : "md:justify-start"}`}>
+                                        <div
+                                            className={cn(
+                                                "mb-4 flex flex-wrap items-center gap-4 text-sm",
+                                                light ? "text-slate-600" : "text-slate-600 dark:text-slate-400",
+                                                index % 2 === 0 ? "md:justify-end" : "md:justify-start"
+                                            )}
+                                        >
                                             <div className="flex items-center gap-1.5">
                                                 <MapPin className="w-4 h-4" />
                                                 <span className="font-medium">{era.location}</span>
@@ -138,25 +198,50 @@ export function OurStorySection() {
                                                 <Calendar className="w-4 h-4" />
                                                 <span className="font-medium">{era.period}</span>
                                             </div>
-                                            <span className="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-bold">
+                                            <span
+                                                className={cn(
+                                                    "rounded-full px-2 py-0.5 text-xs font-bold",
+                                                    light ? "bg-slate-200 text-slate-800" : "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
+                                                )}
+                                            >
                                                 {era.age}
                                             </span>
                                         </div>
 
                                         {/* Title */}
-                                        <h3 className="text-2xl md:text-3xl font-black mb-4 text-slate-900 dark:text-white">
+                                        <h3
+                                            className={cn(
+                                                "mb-4 text-2xl font-black md:text-3xl",
+                                                light ? "text-slate-900" : "text-slate-900 dark:text-white"
+                                            )}
+                                        >
                                             {era.title}
                                         </h3>
 
                                         {/* Body */}
-                                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+                                        <p
+                                            className={cn(
+                                                "mb-6 leading-relaxed",
+                                                light ? "text-slate-700" : "text-slate-700 dark:text-slate-300"
+                                            )}
+                                        >
                                             {era.body}
                                         </p>
 
                                         {/* Quote */}
-                                        <div className="relative p-4 rounded-xl bg-white dark:bg-slate-950 border-l-4 border-primary mb-6">
-                                            <Quote className="absolute top-4 right-4 w-6 h-6 text-primary/20" />
-                                            <p className="text-sm md:text-base font-medium italic text-slate-800 dark:text-slate-200">
+                                        <div
+                                            className={cn(
+                                                "relative mb-6 rounded-xl border-l-4 border-primary p-4",
+                                                light ? "bg-slate-100" : "bg-white dark:bg-slate-950"
+                                            )}
+                                        >
+                                            <Quote className="absolute right-4 top-4 h-6 w-6 text-primary/20" />
+                                            <p
+                                                className={cn(
+                                                    "text-sm font-medium italic md:text-base",
+                                                    light ? "text-slate-800" : "text-slate-800 dark:text-slate-200"
+                                                )}
+                                            >
                                                 "{era.quote}"
                                             </p>
                                         </div>
