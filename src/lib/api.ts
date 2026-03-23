@@ -11,7 +11,8 @@ interface RequestOptions extends RequestInit {
 class ApiClient {
     private static instance: ApiClient;
     private isRefreshing = false;
-    private refreshQueue: ((token: string) => void)[] = [];
+    /** Resolvers must always be called (with token or null) or parallel requests hang forever. */
+    private refreshQueue: ((token: string | null) => void)[] = [];
 
     private constructor() { }
 
@@ -37,6 +38,26 @@ class ApiClient {
         return null;
     }
 
+    /** Match AuthService cookie shape so refresh does not create a conflicting host-only token on www.garaad.org. */
+    private setAccessTokenCookie(access: string, days: number = 1): void {
+        if (typeof document === 'undefined') return;
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        const expires = `expires=${date.toUTCString()}`;
+        const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+        const isLocalhost =
+            typeof window !== 'undefined' &&
+            (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+        const encodedValue = encodeURIComponent(access);
+        const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+        const domain = hostname.includes('garaad.org') ? '; domain=.garaad.org' : '';
+        if (isLocalhost || !isHttps) {
+            document.cookie = `accessToken=${encodedValue}; ${expires}; path=/; SameSite=Lax${domain}`;
+        } else {
+            document.cookie = `accessToken=${encodedValue}; ${expires}; path=/; SameSite=Lax; Secure${domain}`;
+        }
+    }
+
     private async refreshAccessToken(): Promise<string | null> {
         const refreshToken = this.getCookie('refreshToken');
         if (!refreshToken) return null;
@@ -54,10 +75,7 @@ class ApiClient {
             const data = await response.json();
             const newAccessToken = data.access;
 
-            // Set cookie (minimal implementation, AuthService should ideally handle cookie persistence)
-            if (typeof document !== 'undefined') {
-                document.cookie = `accessToken=${encodeURIComponent(newAccessToken)}; path=/; SameSite=Lax`;
-            }
+            this.setAccessTokenCookie(newAccessToken, 1);
 
             return newAccessToken;
         } catch (error) {
@@ -99,8 +117,7 @@ class ApiClient {
             // Handle 401 Unauthorized (Token expired)
             if (response.status === 401 && !path.includes('/auth/signin/') && !path.includes('/auth/refresh/')) {
                 if (this.isRefreshing) {
-                    // Wait for current refresh
-                    const newToken = await new Promise<string>((resolve) => {
+                    const newToken = await new Promise<string | null>((resolve) => {
                         this.refreshQueue.push(resolve);
                     });
 
@@ -111,20 +128,14 @@ class ApiClient {
                 } else {
                     this.isRefreshing = true;
                     const newToken = await this.refreshAccessToken();
+                    const queue = this.refreshQueue;
+                    this.refreshQueue = [];
+                    this.isRefreshing = false;
+                    queue.forEach((cb) => cb(newToken));
 
                     if (newToken) {
-                        this.isRefreshing = false;
-                        this.refreshQueue.forEach((cb) => cb(newToken));
-                        this.refreshQueue = [];
-
                         headers.set('Authorization', `Bearer ${newToken}`);
                         response = await fetch(url, config);
-                    } else {
-                        this.isRefreshing = false;
-                        this.refreshQueue = [];
-                        // Refresh failed, clear isRefreshing and let the request fail
-                        this.isRefreshing = false;
-                        this.refreshQueue = [];
                     }
                 }
             }
