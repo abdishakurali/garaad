@@ -63,7 +63,7 @@ This document describes the full architecture of the Garaad platform (frontend +
 | **Community** | `/community` | Authenticated community (posts, replies, campuses) |
 | **Preview** | `/community-preview`, `/communitypreview` | Public preview of community content |
 | **User** | `/dashboard`, `/profile`, `/orders`, `/orders/[id]`, `/referrals` | Student dashboard, profile, orders, referrals |
-| **Admin** | `/admin`, `/admin/login`, `/admin/dashboard`, `/admin/blog`, `/admin/blog/new`, `/admin/blog/[slug]/edit`, `/admin/casharada`, `/admin/casharada/cusub`, `/admin/casharada/[id]/qeybaha`, `/admin/koorsooyinka`, `/admin/qaybaha`, `/admin/muuqaalada`, `/admin/sualaha`, `/admin/marketing` | Admin UI: dashboard, blog CRUD, lessons/sections, courses, categories, media, questions, marketing |
+| **Admin** | `/admin`, `/admin/login`, `/admin/dashboard`, `/admin/cohorts`, `/admin/blog`, `/admin/blog/new`, `/admin/blog/[slug]/edit`, `/admin/casharada`, `/admin/casharada/cusub`, `/admin/casharada/[id]/qeybaha`, `/admin/koorsooyinka`, `/admin/qaybaha`, `/admin/marketing` | Admin UI: dashboard, cohorts, blog CRUD, lessons/sections, courses, categories, marketing |
 
 ### 2.3 Next.js API Routes (Frontend as BFF)
 
@@ -228,7 +228,7 @@ Used for webhooks, server-only secrets, and proxying where needed:
 | **Blog** | Full CRUD for blog posts and tags. |
 | **Casharada / cusub / qeybaha** | Lessons: create new lesson, manage sections (qeybaha). |
 | **Koorsooyinka / qaybaha** | Courses and categories. |
-| **Muuqaalada / sualaha** | Media and questions. |
+| **Kooxaha** | Challenge cohorts and enrollments. |
 | **Marketing** | Marketing users and campaign sending. |
 
 ### 4.8 SEO, PWA, and Cross-Cutting

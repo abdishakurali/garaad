@@ -50,6 +50,7 @@ Unauthenticated users are sent to `/login?reason=unauthenticated&redirect=<pathn
 |-------|------|
 | `/admin` | Admin dashboard |
 | `/admin/dashboard` | Admin dashboard |
+| `/admin/cohorts` | Challenge cohorts (create, list, enrollments) |
 | `/admin/koorsooyinka` | Courses admin |
 | `/admin/casharada` | Lessons admin |
 | `/admin/casharada/cusub` | New lesson |
@@ -58,9 +59,7 @@ Unauthenticated users are sent to `/login?reason=unauthenticated&redirect=<pathn
 | `/admin/blog/new` | New post |
 | `/admin/blog/[slug]/edit` | Edit post |
 | `/admin/marketing` | Marketing |
-| `/admin/muuqaalada` | Media |
 | `/admin/qaybaha` | Sections |
-| `/admin/sualaha` | Questions |
 
 ### User app
 

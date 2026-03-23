@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
@@ -58,10 +59,14 @@ export function HeroSection() {
     { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
   );
   const studentCount = stats?.students_count ?? 0;
-  const learnersLabel =
-    !statsError && stats != null && studentCount > 0
-      ? `${studentCount}+ arday ayaa bilaabay`
-      : "85+ arday ayaa bilaabay";
+  /** Fixed first paint avoids hydration mismatch (SWR can have cache on client only). */
+  const [learnersLabel, setLearnersLabel] = useState("85+ arday ayaa bilaabay");
+  useEffect(() => {
+    if (statsError || stats == null) return;
+    if (studentCount > 0) {
+      setLearnersLabel(`${studentCount}+ arday ayaa bilaabay`);
+    }
+  }, [stats, statsError, studentCount]);
 
   const { data: categoriesData } = useSWR<unknown>(CATEGORIES_SWR_KEY, fetcher, {
     revalidateOnFocus: false,

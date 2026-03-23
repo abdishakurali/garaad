@@ -7,11 +7,10 @@ import Logo from '../ui/Logo';
 const NAV_ITEMS = [
     { key: "home", label: "Home", icon: "⌂", path: "/admin" },
     { key: "dashboard", label: "Dashboard", icon: "▦", path: "/admin/dashboard" },
+    { key: "cohorts", label: "Kooxaha", icon: "◎", path: "/admin/cohorts" },
     { key: "qaybaha", label: "Qaybaha", icon: "◫", path: "/admin/qaybaha" },
     { key: "koorsooyinka", label: "Koorsooyinka", icon: "◎", path: "/admin/koorsooyinka" },
     { key: "casharada", label: "Casharada", icon: "≡", path: "/admin/casharada" },
-    { key: "muuqaalada", label: "Muuqaalada", icon: "▷", path: "/admin/muuqaalada" },
-    { key: "sualaha", label: "Su'aalaha", icon: "?", path: "/admin/sualaha" },
     { key: "blog", label: "Blog", icon: "▤", path: "/admin/blog" },
     { key: "marketing", label: "Marketing", icon: "◈", path: "/admin/marketing" },
 ];
@@ -49,7 +48,9 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
             <nav className={`flex-1 overflow-y-auto py-2 ${isCollapsed ? 'px-2' : 'px-3'}`}>
                 <div className="space-y-0.5">
                     {NAV_ITEMS.map((item) => {
-                        const isActive = pathname === item.path;
+                        const isActive =
+                            pathname === item.path ||
+                            (item.path !== "/admin" && pathname.startsWith(`${item.path}/`));
                         return (
                             <Link
                                 key={item.key}

@@ -5,7 +5,14 @@ import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 
 export function CommunityChallengeBanner() {
   const { data, loading } = useChallengeStatus();
-  const spots = data?.spots_remaining ?? 0;
+  const spots = data?.spots_remaining;
+
+  const ctaLabel =
+    loading && !data
+      ? "Ku biir — …"
+      : typeof spots === "number"
+        ? `Ku biir — ${spots} boos →`
+        : "Ku biir Challenge-ka →";
 
   return (
     <div className="border-b border-gray-100 bg-gradient-to-r from-violet-950/40 to-transparent px-4 py-6 dark:border-white/5 dark:from-violet-950/30 lg:px-8">
@@ -18,7 +25,7 @@ export function CommunityChallengeBanner() {
         href="/challenge"
         className="mt-4 inline-flex w-full max-w-md items-center justify-center rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold text-white hover:bg-violet-500 sm:w-auto"
       >
-        {loading && !data ? "Ku biir — … boos →" : `Ku biir — ${spots} boos →`}
+        {ctaLabel}
       </Link>
     </div>
   );

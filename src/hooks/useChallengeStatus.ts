@@ -29,9 +29,15 @@ type CacheEntry = {
 let memoryCache: CacheEntry | null = null;
 let sharedFetch: Promise<void> | null = null;
 
+/** Slightly above route upstream timeout so we get a JSON error body, not a hung request. */
+const CLIENT_FETCH_TIMEOUT_MS = 6_000;
+
 async function refreshCache(): Promise<void> {
   try {
-    const res = await fetch("/api/challenge/status", { cache: "no-store" });
+    const res = await fetch("/api/challenge/status", {
+      cache: "no-store",
+      signal: AbortSignal.timeout(CLIENT_FETCH_TIMEOUT_MS),
+    });
     const body = (await res.json()) as ApiShape;
     if (!res.ok || !body?.success || !body.data) {
       memoryCache = {

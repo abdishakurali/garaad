@@ -341,10 +341,18 @@ export default function DashboardPage() {
 
             {/* Ardayda kooxda */}
             <div className="bg-white rounded-3xl p-8 border border-gray-50 shadow-sm overflow-x-auto">
-                <h2 className="text-lg font-black text-gray-900 mb-4 tracking-tight flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-violet-600" />
-                    Ardayda Kooxda
-                </h2>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <h2 className="text-lg font-black text-gray-900 tracking-tight flex items-center gap-2">
+                        <GraduationCap className="w-5 h-5 text-violet-600" />
+                        Ardayda Kooxda
+                    </h2>
+                    <Link
+                        href="/admin/cohorts"
+                        className="text-sm font-bold text-violet-600 hover:text-violet-800 underline-offset-2 hover:underline"
+                    >
+                        Bogga kooxaha (abuur & maamul) →
+                    </Link>
+                </div>
                 {cohortTableLoading ? (
                     <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
                 ) : !cohortEnrollments?.cohort ? (

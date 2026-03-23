@@ -15,10 +15,17 @@ export interface SignUpData {
   promo_code?: string;
   onboarding_data: {
     goal: string;
-    preferred_study_time: string;
     topic: string;
     math_level: string;
     minutes_per_day: number;
+    preferred_study_time: string;
+    learning_approach?: string;
+    learning_goal?: string;
+    project_idea?: string;
+    project_description?: string | null;
+    experience?: string;
+    barrier?: string | null;
+    wizard_progress?: Record<string, unknown>;
   };
   location?: string;
   country_flag?: string;

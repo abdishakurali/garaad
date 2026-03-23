@@ -16,6 +16,28 @@ export default function AdminHomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link
+                    href="/admin/cohorts"
+                    className="group bg-violet-600 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-violet-500"
+                >
+                    <div className="flex items-center gap-3.5 mb-3">
+                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
+                            🎓
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black text-white leading-tight">
+                                Kooxaha Challenge
+                            </h2>
+                            <p className="text-violet-100 text-[8px] font-black uppercase tracking-widest">
+                                Cohorts & signups
+                            </p>
+                        </div>
+                    </div>
+                    <p className="text-violet-50 text-xs font-medium opacity-90">
+                        Abuur koox, arag liiska, maamul diiwaangelinta ardayda
+                    </p>
+                </Link>
+
+                <Link
                     href="/admin/dashboard"
                     className="group bg-blue-600 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-blue-500"
                 >
@@ -92,46 +114,6 @@ export default function AdminHomePage() {
                     </div>
                     <p className="text-gray-500 text-xs font-medium">
                         Maamul casharada iyo qeybaha
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin/muuqaalada"
-                    className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            🎥
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-800 group-hover:text-rose-700 transition-colors leading-tight">
-                                Muuqaalada
-                            </h2>
-                            <p className="text-gray-400 text-[8px] font-black uppercase tracking-widest">Videos</p>
-                        </div>
-                    </div>
-                    <p className="text-gray-500 text-xs font-medium">
-                        Maamul iyo soo geli muuqaalada
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin/sualaha"
-                    className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            ❓
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-800 group-hover:text-amber-700 transition-colors leading-tight">
-                                Su'aalaha
-                            </h2>
-                            <p className="text-gray-400 text-[8px] font-black uppercase tracking-widest">Questions</p>
-                        </div>
-                    </div>
-                    <p className="text-gray-500 text-xs font-medium">
-                        Maamul su'aalaha iyo dhibaatooyinka
                     </p>
                 </Link>
 
