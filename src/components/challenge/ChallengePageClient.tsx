@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
+import { OurStorySection } from "@/components/landing/OurStorySection";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { SpotsBadge } from "@/components/ui/SpotsBadge";
 import { TransformationSection } from "@/components/landing/TransformationSection";
@@ -55,15 +57,6 @@ const graduateCards: GraduateCard[] = [
   },
 ];
 
-const checklist = [
-  "Wicitaan todobaadleh (30 daqiiqo)",
-  "Dib-u-eegista koodka",
-  "Shahaadada MERN",
-  "Koox gaar ah — 10 arday oo kaliya",
-  "Mentor toos ah WhatsApp",
-  "Launchpad — si aad startup u dhisto",
-] as const;
-
 function formatStartDate(iso: string | null | undefined): string {
   if (!iso) return "—";
   try {
@@ -78,6 +71,18 @@ function formatStartDate(iso: string | null | undefined): string {
 }
 
 export function ChallengePageClient() {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://player.vimeo.com/api/player.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
   const { data, loading } = useChallengeStatus();
   const spots = data?.spots_remaining ?? 0;
   const waitlist = data?.is_waitlist_only ?? false;
@@ -88,36 +93,34 @@ export function ChallengePageClient() {
   const primaryHref = "/subscribe?plan=challenge";
   const primaryLabel = waitlist ? "Liiska Sugitaanka ku Biir" : "Ku biir Kohorta — Hadda →";
 
-  const pricingFeatures = [...checklist];
-
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <section className="relative overflow-hidden pt-20 pb-16 sm:pt-24 sm:pb-20 px-4">
+      <section className="relative overflow-hidden px-3 pb-14 pt-20 sm:px-4 sm:pb-16 sm:pt-24 md:px-6 md:pb-20">
         <div className="absolute inset-0 pointer-events-none opacity-40">
           <div className="absolute top-1/4 -left-48 w-96 h-96 bg-violet-600/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-purple-600/15 rounded-full blur-[100px]" />
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <span className="inline-block text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-zinc-500 mb-4">
+        <div className="relative z-10 mx-auto w-full min-w-0 max-w-4xl text-center">
+          <span className="mb-3 inline-block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 sm:mb-4 sm:text-xs sm:tracking-[0.25em]">
             4-6 TODOBAAD · 10 ARDAY KALIYA
           </span>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1] text-white">
+          <h1 className="text-balance text-3xl font-black leading-[1.12] tracking-tight text-white sm:text-5xl md:text-6xl">
             Dhis Ganacsigaaga{" "}
             <span className="text-purple-500">SaaS &amp; AI</span>
           </h1>
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 flex justify-center sm:mt-8">
             <SpotsBadge spots={spots} loading={loading && !data} />
           </div>
 
-          <div className="mt-8 flex flex-col items-center gap-1">
-            <span className="text-5xl sm:text-6xl font-black tabular-nums text-white">$149</span>
-            <span className="text-lg font-bold text-zinc-400">/bilaan</span>
+          <div className="mt-6 flex flex-col items-center gap-0.5 sm:mt-8 sm:gap-1">
+            <span className="text-4xl font-black tabular-nums text-white sm:text-5xl md:text-6xl">$149</span>
+            <span className="text-base font-bold text-zinc-400 sm:text-lg">/bilaan</span>
           </div>
 
-          <div className="mt-10 w-full max-w-xl mx-auto">
+          <div className="mx-auto mt-8 w-full min-w-0 max-w-xl sm:mt-10">
             <CountdownTimer
               targetDate={startForCountdown}
               label="Kohorta waxay bilaabantaa:"
@@ -125,15 +128,15 @@ export function ChallengePageClient() {
           </div>
 
           {waitlist && (
-            <p className="mt-6 text-sm text-amber-200/95 max-w-lg mx-auto font-semibold leading-relaxed">
+            <p className="mx-auto mt-5 max-w-lg px-1 text-sm font-semibold leading-relaxed text-amber-200/95 sm:mt-6">
               Kohorta hadda waa buuxday — kii xiga: {nextLabel}
             </p>
           )}
 
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <Link
               href={primaryHref}
-              className={`inline-flex items-center justify-center w-full max-w-md rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-4 text-base sm:text-lg font-black shadow-lg shadow-purple-900/40 hover:opacity-95 transition-opacity ${
+              className={`inline-flex w-full max-w-md items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-3.5 text-base font-black shadow-lg shadow-purple-900/40 transition-opacity hover:opacity-95 sm:px-8 sm:py-4 sm:text-lg ${
                 waitlist ? "opacity-75" : ""
               }`}
             >
@@ -141,39 +144,54 @@ export function ChallengePageClient() {
             </Link>
           </div>
 
-          <ul className="mt-10 text-left max-w-md mx-auto space-y-2.5 text-sm text-zinc-300 font-medium">
-            {checklist.map((line) => (
-              <li key={line} className="flex gap-3">
-                <span className="text-emerald-400 shrink-0 font-black">✓</span>
-                {line}
-              </li>
-            ))}
-          </ul>
+          <p className="mt-8 text-center text-[11px] font-bold uppercase tracking-widest text-purple-400 sm:mt-10 sm:text-sm">
+            Baro Sida uu u Shaqeeyo →
+          </p>
+          <div className="mx-auto mt-3 w-full min-w-0 max-w-4xl overflow-hidden rounded-xl border-2 border-white/10 bg-white/5 shadow-2xl backdrop-blur-sm sm:mt-4">
+            <div className="relative w-full" style={{ padding: "56.25% 0 0 0" }}>
+              <iframe
+                src="https://player.vimeo.com/video/1152611300?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&controls=1&background=0"
+                frameBorder="0"
+                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                title="Garaad SaaS Challenge"
+                loading="lazy"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-[#0f0f0f] border-y border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-center text-2xl sm:text-3xl font-black text-white mb-2">
-            Sheekooyinka Guusha
-          </h2>
-          <p className="text-center text-sm text-zinc-500 font-bold uppercase tracking-widest mb-10">
-            Ardayda Challenge-ka hore
-          </p>
+      <div className="dark">
+        <OurStorySection />
+      </div>
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-6">
+      <section className="border-y border-white/5 bg-[#0f0f0f] px-3 py-12 sm:px-4 sm:py-16 md:px-6 md:py-20">
+        <div className="mx-auto w-full min-w-0 max-w-7xl">
+          <div className="mx-auto mb-8 max-w-2xl px-1 text-center sm:mb-10 md:mb-12">
+            <h2 className="text-balance text-2xl font-black text-white sm:text-3xl md:text-4xl">
+              Sheekooyinka <span className="text-purple-400">Guusha</span>
+            </h2>
+            <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-500 sm:mt-3 sm:text-sm">
+              Ardayda Challenge-ka hore
+            </p>
+          </div>
+
+          <div className="grid w-full min-w-0 grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
             {graduateCards.map((g) => (
               <div
                 key={g.name}
-                className={`flex flex-col rounded-3xl border overflow-hidden bg-zinc-900/60 ${
+                className={`flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-zinc-900/60 shadow-lg sm:rounded-3xl ${
                   g.featured
-                    ? "lg:col-span-2 border-emerald-500/40 ring-1 ring-emerald-500/20 shadow-2xl shadow-black/50"
+                    ? "border-emerald-500/35 ring-1 ring-emerald-500/15 sm:col-span-2 lg:col-span-2"
                     : "border-white/10"
                 }`}
               >
                 <div
-                  className={`relative w-full ${
-                    g.featured ? "min-h-[280px] sm:min-h-[320px]" : "aspect-[4/5] max-h-[400px]"
+                  className={`relative w-full overflow-hidden ${
+                    g.featured
+                      ? "aspect-video min-h-[200px] sm:min-h-[240px] lg:aspect-[21/9] lg:min-h-[260px]"
+                      : "aspect-square max-h-[min(72vh,480px)] sm:aspect-[4/5] sm:max-h-none"
                   }`}
                 >
                   <Image
@@ -181,32 +199,36 @@ export function ChallengePageClient() {
                     alt={g.name}
                     fill
                     className="object-cover object-top"
-                    sizes={g.featured ? "(max-width:1024px) 100vw, 66vw" : "(max-width:768px) 100vw, 33vw"}
+                    sizes={
+                      g.featured
+                        ? "(max-width:640px) 100vw, (max-width:1280px) 100vw, 66vw"
+                        : "(max-width:640px) 100vw, (max-width:1280px) 50vw, 33vw"
+                    }
                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute left-3 top-3 sm:left-4 sm:top-4">
                     <span
-                      className={`text-xs font-black px-3 py-1 rounded-full ${
-                        g.featured
-                          ? "bg-emerald-500 text-emerald-950"
-                          : "bg-violet-600/90 text-white"
+                      className={`rounded-full px-2.5 py-1 text-[10px] font-black sm:px-3 sm:text-xs ${
+                        g.featured ? "bg-emerald-500 text-emerald-950" : "bg-violet-600/90 text-white"
                       }`}
                     >
                       {g.badge}
                     </span>
                   </div>
                 </div>
-                <div className="p-5 sm:p-6 flex flex-col gap-2 flex-1">
-                  <p className="text-lg font-black text-white">{g.name}</p>
+                <div className="flex flex-1 flex-col gap-1.5 p-4 sm:gap-2 sm:p-6">
+                  <p className="text-base font-black text-white sm:text-lg">{g.name}</p>
                   <p className="text-xs font-bold text-violet-400">{g.tag}</p>
-                  <p className="text-sm text-zinc-400 leading-relaxed italic">&ldquo;{g.quote}&rdquo;</p>
+                  <p className="text-sm leading-relaxed text-zinc-400 italic sm:text-base">
+                    &ldquo;{g.quote}&rdquo;
+                  </p>
                   {g.href ? (
                     <a
                       href={g.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex text-sm font-bold text-emerald-400 hover:underline w-fit"
+                      className="mt-1 inline-flex w-fit text-sm font-bold text-emerald-400 hover:underline sm:mt-2"
                     >
                       Sofaritech →
                     </a>
@@ -226,14 +248,6 @@ export function ChallengePageClient() {
           <p className="text-4xl sm:text-5xl font-black text-white my-4">
             $149<span className="text-lg text-zinc-500 font-bold">/bilaan</span>
           </p>
-          <ul className="text-left text-sm text-zinc-300 space-y-2 mb-8 max-w-md mx-auto">
-            {pricingFeatures.map((c) => (
-              <li key={c} className="flex gap-2">
-                <span className="text-emerald-400 shrink-0">✓</span>
-                {c}
-              </li>
-            ))}
-          </ul>
           {!loading && data && (
             <p className="text-sm font-bold text-violet-200/90 mb-2">
               Kohorta {cohortName}: {spots} boos oo hadhay · Waxay bilaabantaa {nextLabel}

@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { ChallengePageClient } from "@/components/challenge/ChallengePageClient";
 
-const OurStorySection = dynamic(() => import("@/components/landing/OurStorySection").then(mod => mod.OurStorySection), { ssr: true });
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
@@ -72,7 +71,6 @@ export default function ChallengePage() {
 
             <main>
                 <ChallengePageClient />
-                <OurStorySection />
             </main>
 
             <WhatsAppFloat />

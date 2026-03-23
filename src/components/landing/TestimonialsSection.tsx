@@ -56,65 +56,65 @@ export function TestimonialsSection() {
     const [showVideoModal, setShowVideoModal] = useState<string | null>(null);
 
     return (
-        <section className="py-14 sm:py-20 px-4 bg-background overflow-hidden border-t border-border/50">
-            <div className="max-w-7xl mx-auto">
+        <section className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 md:px-6 bg-background overflow-hidden border-t border-border/50">
+            <div className="max-w-7xl mx-auto w-full min-w-0">
                 <Reveal>
-                    <div className="text-center mb-10 sm:mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+                    <div className="text-center mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto px-1">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight text-balance">
                             Sheekooyinka <span className="text-primary">Guusha</span>
                         </h2>
-                        <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+                        <p className="mt-2 sm:mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
                             Ardaydeena iyo muuqaalada dhiirigelinta leh.
                         </p>
                     </div>
                 </Reveal>
 
-                <div className="space-y-12">
-                    {/* 1. WhatsApp / screenshot reviews (above the fold priority) */}
+                <div className="space-y-10 sm:space-y-14 md:space-y-16">
+                    {/* 1. WhatsApp / screenshot reviews */}
                     <Reveal>
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8 w-full min-w-0">
                             {reviewImages.map((img, index) => (
                                 <div
                                     key={img.id}
                                     className={cn(
-                                        "flex flex-col gap-4",
+                                        "flex min-w-0 flex-col gap-3 sm:gap-4",
                                         img.featured && "sm:col-span-2 lg:col-span-2"
                                     )}
                                     style={{ animationDelay: `${index * 150}ms` }}
                                 >
                                     <div
                                         className={cn(
-                                            "relative rounded-[2rem] overflow-hidden border-2 border-border/60 shadow-xl bg-muted/20 group hover:border-primary/40 transition-all duration-500",
+                                            "relative w-full overflow-hidden rounded-2xl border border-border/50 bg-muted/10 shadow-lg sm:rounded-3xl sm:border-border/60 group transition-all duration-300 hover:border-primary/35",
                                             img.featured
-                                                ? "aspect-[16/9] sm:aspect-[21/9] min-h-[220px]"
-                                                : "aspect-square sm:aspect-[4/5]"
+                                                ? "aspect-[4/3] min-h-[180px] sm:aspect-video sm:min-h-[200px] lg:aspect-[21/9] lg:min-h-[220px]"
+                                                : "aspect-square sm:aspect-[4/5] max-h-[min(72vh,520px)] sm:max-h-none"
                                         )}
                                     >
                                         <Image
                                             src={img.src}
                                             alt={img.alt}
                                             fill
-                                            className="object-contain p-4 group-hover:scale-[1.02] transition-transform duration-500"
-                                            sizes={img.featured ? "(max-width:1024px) 100vw, 66vw" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+                                            className="object-contain p-3 sm:p-4 group-hover:scale-[1.01] transition-transform duration-300"
+                                            sizes={img.featured ? "(max-width:640px) 100vw, (max-width:1024px) 100vw, 66vw" : "(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"}
                                             unoptimized
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
+                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/[0.03] to-transparent" />
                                     </div>
-                                    <div className="text-center sm:text-left px-1">
+                                    <div className="px-0.5 text-center sm:text-left">
                                         <p className="text-sm font-bold text-foreground">{img.name}</p>
                                         {img.featured ? (
                                             <span className="mt-1 inline-block rounded-full bg-emerald-600/90 px-2.5 py-0.5 text-[10px] font-black text-white">
                                                 🏢 Shirkad Dhisay
                                             </span>
                                         ) : null}
-                                        <p className="text-xs font-semibold text-primary mt-1">Hadda {img.nowTag}</p>
-                                        <p className="text-sm text-muted-foreground mt-0.5">{img.outcome}</p>
+                                        <p className="mt-1 text-xs font-semibold text-primary">Hadda {img.nowTag}</p>
+                                        <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{img.outcome}</p>
                                         {"companyHref" in img && img.companyHref ? (
                                             <a
                                                 href={img.companyHref}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-block mt-2 text-xs font-bold text-violet-500 hover:underline"
+                                                className="mt-2 inline-block max-w-full break-all text-xs font-bold text-violet-500 hover:underline sm:break-normal"
                                             >
                                                 sofaritech-global-it-solutions.vercel.app →
                                             </a>
@@ -127,38 +127,37 @@ export function TestimonialsSection() {
 
                     {/* 2. Video testimonials */}
                     <Reveal>
-                        <h3 className="text-center text-xl font-black text-foreground mb-6">
+                        <h3 className="mb-5 text-center text-lg font-black text-foreground sm:mb-6 sm:text-xl">
                             Muuqaallada <span className="text-primary">dhiirigelinta</span>
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+                        <div className="grid w-full min-w-0 grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
                             {videos.map((vid) => (
                                 <div
                                     key={vid.id}
-                                    className="relative group cursor-pointer"
+                                    className="relative min-w-0 cursor-pointer group"
                                     onClick={() => setShowVideoModal(vid.id)}
                                 >
-                                    <div className="relative aspect-video min-h-[200px] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-primary/30 dark:border-violet-500/40 ring-2 ring-primary/10 transition-all duration-500 group-hover:shadow-primary/30 group-hover:translate-y-[-4px]">
+                                    <div className="relative aspect-video w-full min-h-[min(52vw,200px)] overflow-hidden rounded-2xl border-2 border-primary/20 shadow-lg transition-all duration-300 dark:border-violet-500/30 sm:min-h-0 sm:rounded-3xl sm:shadow-xl group-hover:border-primary/40 group-hover:shadow-primary/15">
                                         <Image
                                             src={vid.thumbnail}
                                             alt={vid.title}
                                             fill
-                                            className="object-cover opacity-95 group-hover:opacity-100 transition-opacity duration-300"
+                                            className="object-cover opacity-95 transition-opacity duration-300 group-hover:opacity-100"
+                                            sizes="(max-width:768px) 100vw, 50vw"
                                         />
 
-                                        {/* Play Button Overlay */}
                                         <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/95 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-primary transition-all duration-300 shadow-2xl group-hover:scale-110">
-                                                <Play className="w-8 h-8 sm:w-10 sm:h-10 text-white fill-current translate-x-1" />
+                                            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/95 shadow-xl backdrop-blur-sm transition-transform duration-300 group-hover:scale-105 sm:h-20 sm:w-20">
+                                                <Play className="h-7 w-7 translate-x-0.5 fill-current text-white sm:h-9 sm:w-9" />
                                             </div>
                                         </div>
 
-                                        {/* Label Overlay */}
-                                        <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                                            <h4 className="text-white font-black text-xl mb-1">{vid.title}</h4>
-                                            <p className="text-white/80 text-sm italic">{vid.subtitle}</p>
+                                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-4 pb-4 pt-12 sm:p-6 sm:pt-16">
+                                            <h4 className="text-base font-black text-white sm:text-xl">{vid.title}</h4>
+                                            <p className="mt-0.5 text-xs italic text-white/85 sm:text-sm">{vid.subtitle}</p>
                                         </div>
                                     </div>
-                                    <p className="mt-3 text-center text-sm font-black text-foreground">{vid.title}</p>
+                                    <p className="mt-2 text-center text-sm font-bold text-foreground sm:mt-3 sm:font-black">{vid.title}</p>
                                 </div>
                             ))}
                         </div>
@@ -169,8 +168,8 @@ export function TestimonialsSection() {
 
             {/* Video Modal */}
             {showVideoModal && (
-                <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-8">
-                    <div className="relative max-w-5xl w-full aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10 animate-in fade-in zoom-in duration-300">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-3 backdrop-blur-md sm:p-6 md:p-8">
+                    <div className="relative aspect-video w-full max-h-[min(85dvh,100vw*9/16)] max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl sm:rounded-3xl animate-in fade-in zoom-in duration-300">
                         <button
                             onClick={() => setShowVideoModal(null)}
                             className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full p-3 z-10 transition-colors duration-200 border border-white/20 shadow-xl group"

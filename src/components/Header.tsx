@@ -244,24 +244,11 @@ export function Header() {
                         aria-hidden
                       />
                     )}
-                    Challenge — {challengeSpots} boos →
+                    Challenge {challengeSpots} boos
                   </Link>
                 )
               )}
-              {mounted && user && isPremium && (
-                <span
-                  className={clsx(
-                    "hidden md:inline-flex text-xs font-bold px-3 py-1 rounded-full",
-                    user.subscription_type === "challenge"
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                      : "bg-primary/15 text-primary border border-primary/25"
-                  )}
-                >
-                  {user.subscription_type === "challenge"
-                    ? `⚡ ${pricingT.nav_badge_challenge}`
-                    : `🌍 ${pricingT.nav_badge_explorer}`}
-                </span>
-              )}
+               
               <ThemeToggle />
               {mounted && user ? (
                 <ProfileDropdown />
