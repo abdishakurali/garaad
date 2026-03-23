@@ -6,7 +6,6 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
-import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -53,9 +52,6 @@ export function HeroSection() {
   const user = useAuthStore((s) => s.user);
   const isLoggedIn = !!user;
   const { href: firstFreeHref } = useFirstFreeLessonHref();
-  const { data: cohort, loading: cohortStatusLoading } = useChallengeStatus();
-  const heroSpots = cohort?.spots_remaining ?? 0;
-
   const { data: stats, error: statsError } = useSWR<LandingStats>(
     `${API_BASE_URL}/api/public/landing-stats/`,
     fetcher,
@@ -114,22 +110,18 @@ export function HeroSection() {
               Koorsooyinka HTML, JavaScript, React, iyo AI — af Soomaali. 30 daqiiqo maalintiiba. Bilow
               maanta.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
-              <Link
-                href={firstFreeHref}
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
-              >
-                Bilow Bilaash →
-              </Link>
+            <div className="mt-8 flex flex-col items-start gap-3">
               <Link
                 href="/challenge"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-purple-400 underline underline-offset-4 decoration-purple-500/60 hover:text-purple-300"
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
               >
-                {cohortStatusLoading && !cohort ? (
-                  <>Ama ku biir Challenge-ka →</>
-                ) : (
-                  <>Ama ku biir Challenge-ka — {heroSpots} boos ayaa hadhay →</>
-                )}
+                Ku biir Challenge-ka →
+              </Link>
+              <Link
+                href={firstFreeHref}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white/55 underline underline-offset-4 decoration-white/30 hover:text-white/80"
+              >
+                Ama bilaash ku bilow — koorsada 1-aad fur
               </Link>
             </div>
             <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/45">
@@ -158,8 +150,11 @@ export function HeroSection() {
           <div className="hero-animate-done relative order-2 space-y-5 lg:order-none">
             <Link
               href={firstFreeHref}
-              className="block rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-primary/20 hover:bg-white/8"
+              className="relative block overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-primary/20 hover:bg-white/8"
             >
+              <div className="absolute bottom-3 left-3 right-3 z-10 rounded-lg border border-violet-500/40 bg-violet-950/90 px-3 py-2 text-center text-[11px] font-bold text-violet-100 backdrop-blur-sm sm:text-xs">
+                Challenge-ka ku jiro — dhammaan fur →
+              </div>
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
                 <BookOpen className="h-3.5 w-3.5" />
                 Koorsooyin
@@ -179,8 +174,11 @@ export function HeroSection() {
                     : "/courses"
                   : "/welcome"
               }
-              className="block rounded-2xl border border-primary/20 bg-primary/10 p-6 transition hover:border-primary/30 hover:bg-primary/15"
+              className="relative block overflow-hidden rounded-2xl border border-primary/20 bg-primary/10 p-6 transition hover:border-primary/30 hover:bg-primary/15"
             >
+              <div className="absolute bottom-3 left-3 right-3 z-10 rounded-lg border border-violet-500/40 bg-violet-950/90 px-3 py-2 text-center text-[11px] font-bold text-violet-100 backdrop-blur-sm sm:text-xs">
+                Challenge-ka ku jiro — dhammaan fur →
+              </div>
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
                 <Brain className="h-3.5 w-3.5" />
                 Koorsada AI

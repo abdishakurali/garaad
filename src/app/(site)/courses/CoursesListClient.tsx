@@ -14,6 +14,8 @@ import { usePostHog } from "posthog-js/react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn, getAbsoluteImageUrl, getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
+import { CoursesChallengeBanner } from "@/components/challenge/CoursesChallengeBanner";
+import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-category.svg";
@@ -87,6 +89,7 @@ export function CoursesListClient() {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const { isAuthenticated } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
+    const { href: firstFreeHref } = useFirstFreeLessonHref();
 
     const getCourseProgress = (courseId: number) => {
         if (!enrollments || !Array.isArray(enrollments)) return undefined;
@@ -183,6 +186,7 @@ export function CoursesListClient() {
             </div>
 
             <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+                <CoursesChallengeBanner />
                 <div className="space-y-32">
                     {(isLoading ? Array(3).fill(null) : safeCategories
                         .filter(cat => cat?.courses && cat.courses.length > 0)
@@ -300,102 +304,115 @@ export function CoursesListClient() {
                                                 const hasStarted = courseProgress !== undefined && courseProgress > 0;
                                                 const isComplete = courseProgress === 100;
 
+                                                const courseHref = `/courses/${category?.id}/${course.slug}`;
                                                 return (
-                                                    <Link
+                                                    <Card
                                                         key={course.id}
-                                                        href={`/courses/${category?.id}/${course.slug}`}
-                                                        className="group h-full"
+                                                        className="group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border-2 border-slate-100 bg-white shadow-xl shadow-slate-200/50 transition-all duration-500 hover:-translate-y-2 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/10 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
                                                     >
-                                                        <Card
-                                                            className="relative h-full flex flex-col overflow-hidden bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:-translate-y-2 transition-all duration-500 rounded-[2.5rem]"
-                                                        >
-                                                            {/* Completed badge top-right */}
-                                                            {isComplete && (
-                                                                <div className="absolute top-4 right-4 z-20 rounded-2xl bg-emerald-500/90 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-1">
-                                                                    <CheckCircle2 className="w-3.5 h-3.5" /> Dhameystirmay
-                                                                </div>
-                                                            )}
+                                                        {isComplete && (
+                                                            <div className="absolute right-4 top-4 z-20 flex items-center gap-1 rounded-2xl bg-emerald-500/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white">
+                                                                <CheckCircle2 className="h-3.5 w-3.5" /> Dhameystirmay
+                                                            </div>
+                                                        )}
 
-                                                            {/* Deep Glow Effect */}
-                                                            <div className="absolute -inset-2 bg-gradient-to-br from-primary/30 via-blue-500/30 to-purple-500/30 rounded-[3.5rem] opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700" />
+                                                        <div className="absolute -inset-2 rounded-[3.5rem] bg-gradient-to-br from-primary/30 via-blue-500/30 to-purple-500/30 opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-100" />
 
-                                                            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                                                        <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
 
-                                                            <div className="relative h-40 bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center rounded-t-[2.5rem]">
+                                                        <Link href={courseHref} className="relative block">
+                                                            <div className="relative flex h-40 items-center justify-center overflow-hidden rounded-t-[2.5rem] bg-slate-50 dark:bg-slate-950">
                                                                 <CourseImage
                                                                     src={course?.thumbnail}
                                                                     alt={course?.title ?? ""}
                                                                     priority={idx === 0 && index < 3}
                                                                 />
-                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                                                                 {course.is_new && !isComplete && (
-                                                                    <div className="absolute top-4 right-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl z-20 shadow-lg animate-pulse-slow">
+                                                                    <div className="absolute right-4 top-4 z-20 animate-pulse-slow rounded-2xl bg-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
                                                                         CUSUB
                                                                     </div>
                                                                 )}
                                                             </div>
+                                                        </Link>
 
-                                                            <div className="relative p-6 flex-1 flex flex-col bg-white dark:bg-slate-900">
-                                                                <h3 className="font-black text-xl mb-3 line-clamp-1 leading-tight group-hover:text-primary transition-colors duration-300">
+                                                        <div className="relative flex flex-1 flex-col bg-white p-6 dark:bg-slate-900">
+                                                            <Link href={courseHref}>
+                                                                <h3 className="mb-3 line-clamp-1 text-xl font-black leading-tight transition-colors duration-300 group-hover:text-primary">
                                                                     {course?.title}
                                                                 </h3>
+                                                            </Link>
 
-                                                                {course?.description && (
-                                                                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-6 font-medium leading-relaxed">
-                                                                        {course.description}
-                                                                    </p>
+                                                            {course?.description && (
+                                                                <p className="mb-6 line-clamp-2 text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                                                                    {course.description}
+                                                                </p>
+                                                            )}
+
+                                                            <div className="mt-auto flex flex-col gap-5">
+                                                                {(course?.lesson_count && course.lesson_count > 0) ||
+                                                                (course?.estimatedHours && course.estimatedHours > 0) ? (
+                                                                    <div className="flex items-center gap-5 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300">
+                                                                        {course?.lesson_count && course.lesson_count > 0 && (
+                                                                            <span className="flex items-center gap-2">
+                                                                                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                                                                                {course.lesson_count} CASHAR
+                                                                            </span>
+                                                                        )}
+                                                                        {course?.estimatedHours && course.estimatedHours > 0 && (
+                                                                            <span className="flex items-center gap-2">
+                                                                                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                                                                                {course.estimatedHours} SAAC
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="h-4" />
                                                                 )}
 
-                                                                <div className="mt-auto flex flex-col gap-5">
-                                                                    {(course?.lesson_count && course.lesson_count > 0) || (course?.estimatedHours && course.estimatedHours > 0) ? (
-                                                                        <div className="flex items-center gap-5 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
-                                                                            {course?.lesson_count && course.lesson_count > 0 && (
-                                                                                <span className="flex items-center gap-2">
-                                                                                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                                                                    {course.lesson_count} CASHAR
-                                                                                </span>
-                                                                            )}
-                                                                            {course?.estimatedHours && course.estimatedHours > 0 && (
-                                                                                <span className="flex items-center gap-2">
-                                                                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                                                                    {course.estimatedHours} SAAC
-                                                                                </span>
-                                                                            )}
+                                                                {hasStarted && (
+                                                                    <div className="space-y-1">
+                                                                        <div className="h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                                                                            <div
+                                                                                className="motion-safe:animate-in h-full rounded-full bg-purple-600 transition-[width] duration-600 ease-out"
+                                                                                style={{ width: `${courseProgress ?? 0}%` }}
+                                                                            />
                                                                         </div>
-                                                                    ) : (
-                                                                        <div className="h-4" />
-                                                                    )}
-
-                                                                    {/* Progress bar when started */}
-                                                                    {hasStarted && (
-                                                                        <div className="space-y-1">
-                                                                            <div className="h-1 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                                                                                <div
-                                                                                    className="h-full rounded-full bg-purple-600 transition-[width] duration-600 ease-out motion-safe:animate-in"
-                                                                                    style={{ width: `${courseProgress ?? 0}%` }}
-                                                                />
-                                                                            </div>
-                                                                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                {courseProgress}% dhameystirmay
-                                                                            </p>
-                                                                        </div>
-                                                                    )}
-
-                                                                    <div className="flex items-center justify-between pt-5 border-t border-slate-100 dark:border-slate-800 mt-1">
-                                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                                                                            {!hasStarted && (isAuthenticated ? "Bilow" : "KU SOO BIIR")}
-                                                                            {hasStarted && !isComplete && "Sii wad"}
-                                                                            {isComplete && "Muraajacee"}
-                                                                        </span>
-                                                                        <div className="w-9 h-9 rounded-2xl bg-slate-50 dark:bg-black flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300 group-hover:rotate-12">
-                                                                            <ChevronRight size={16} />
-                                                                        </div>
+                                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                            {courseProgress}% dhameystirmay
+                                                                        </p>
                                                                     </div>
+                                                                )}
+
+                                                                <div className="mt-1 flex flex-col gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
+                                                                    <Link
+                                                                        href="/challenge"
+                                                                        className="flex w-full items-center justify-center rounded-xl bg-violet-600 py-3 text-center text-sm font-black text-white transition hover:bg-violet-500"
+                                                                    >
+                                                                        Ku biir Challenge-ka →
+                                                                    </Link>
+                                                                    <Link
+                                                                        href={firstFreeHref}
+                                                                        className="flex w-full items-center justify-center rounded-xl border border-slate-200 py-2.5 text-center text-xs font-bold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                                                    >
+                                                                        Ama bilaash u bilow →
+                                                                    </Link>
+                                                                    <Link
+                                                                        href={courseHref}
+                                                                        className="flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"
+                                                                    >
+                                                                        {isComplete
+                                                                            ? "Muraajacee koorsada"
+                                                                            : hasStarted
+                                                                              ? "Sii wad koorsada"
+                                                                              : "Eeg koorsada"}
+                                                                        <ChevronRight className="h-4 w-4" />
+                                                                    </Link>
                                                                 </div>
                                                             </div>
-                                                        </Card>
-                                                    </Link>
+                                                        </div>
+                                                    </Card>
                                                 );
                                             }
                                         )}
@@ -407,15 +424,15 @@ export function CoursesListClient() {
                 </div>
 
                 {isAuthenticated && (
-                    <div className="mt-20 mb-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 px-5 py-4 text-center shadow-sm">
+                    <div className="mt-20 mb-8 rounded-2xl border border-violet-500/25 bg-violet-950/20 px-5 py-4 text-center shadow-sm dark:bg-violet-950/30">
                         <Link
-                            href="/community"
-                            className="text-sm font-semibold text-primary hover:underline inline-block"
+                            href="/challenge"
+                            className="inline-block text-sm font-bold text-violet-600 hover:underline dark:text-violet-400"
                             onClick={() =>
-                                posthog?.capture("community_cta_clicked", { source: "courses_page" })
+                                posthog?.capture("challenge_cta_clicked", { source: "courses_page" })
                             }
                         >
-                            Ku biir bulshada Soomaalida baranaysa → Dadweynaha
+                            Ku biir Challenge-ka — bulshada iyo taageerada →
                         </Link>
                     </div>
                 )}

@@ -58,10 +58,10 @@ export function ChallengeHero() {
 
                 {/* Sub-headline */}
                 <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-bold mb-4 animate-fade-in-up delay-200 uppercase tracking-widest">
-                    4–6 Toddobaad · Loo qaabily 4x sannadkii
+                    3 bilood · Loo qaabily 4x sannadkii
                 </p>
                 <p className="text-base sm:text-lg text-slate-500 mb-12">
-                    · Mentor access · Launchpad (gudbi startup). wey ku jiraan koorsooyinka
+                    Mentor toos ah · Launchpad (mashruucaaga ku bilow) — dhammaan koorsooyinka ayay ku jiraan.
                 </p>
 
                 {/* CTAs */}
@@ -71,7 +71,7 @@ export function ChallengeHero() {
                         className="group relative inline-block px-12 py-5 bg-primary text-white font-black rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)] overflow-hidden"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                        <span className="relative">{isAuthenticated ? "BILOW HADDA" : "KU SOO BIIR"}</span>
+                        <span className="relative">{isAuthenticated ? "Hadda bilow" : "Ku soo biir"}</span>
                     </Link>
                     <button
                         onClick={handleSecondaryCTA}

@@ -132,13 +132,13 @@ export default function DashboardPage() {
 
       {continueData && (
         <div className="mb-8 rounded-2xl border border-primary/20 bg-violet-50 dark:bg-violet-950/20 p-6">
-          <h2 className="text-xl font-bold mb-2">Continue learning</h2>
+          <h2 className="text-xl font-bold mb-2">Barashada sii wad</h2>
           <div className="text-slate-700 dark:text-slate-200 mb-4">
             {continueData.course_title} &rarr; {continueData.lesson_title}
           </div>
           <Link href={continueData.continue_url}>
             <Button className="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold">
-              Continue &rarr;
+              Sii wad &rarr;
             </Button>
           </Link>
         </div>

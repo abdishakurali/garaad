@@ -105,7 +105,7 @@ export default function StreakCelebration({
 
       {/* Continue Button */}
       <Button className="w-full rounded-lg" onClick={() => onContinue()}>
-        Sii wado
+        Sii wad
       </Button>
     </div>
   );

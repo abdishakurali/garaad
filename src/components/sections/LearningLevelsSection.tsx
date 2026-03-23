@@ -87,7 +87,7 @@ export function LearningLevelsSection() {
                   </div>
 
                   <div className="flex items-center text-primary font-black text-sm uppercase tracking-widest transition-all duration-300">
-                    <span className="mr-1">{isAuthenticated ? "Bilow Hadda" : "KU SOO BIIR"}</span>
+                    <span className="mr-1">{isAuthenticated ? "Hadda bilow" : "Ku soo biir"}</span>
                     <ChevronRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>

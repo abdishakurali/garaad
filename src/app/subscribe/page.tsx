@@ -25,6 +25,11 @@ interface LandingStats {
   learners_this_month?: number;
 }
 
+interface FaqApiResponse {
+  success?: boolean;
+  faqs?: { id: number; question: string; answer: string }[];
+}
+
 function PlanComparisonTable() {
   const rows = [
     {
@@ -103,6 +108,17 @@ function SubscribePageInner() {
   );
 
   const { data: challengeStatus, loading: challengeStatusLoading } = useChallengeStatus();
+
+  const { data: faqApi } = useSWR<FaqApiResponse>(
+    `${API_BASE_URL}/api/public/faqs/?placement=subscribe`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 120_000 }
+  );
+
+  const subscribeFaqs =
+    faqApi?.faqs && faqApi.faqs.length > 0
+      ? faqApi.faqs.map((f) => ({ key: `api-${f.id}`, q: f.question, a: f.answer }))
+      : FAQ.map((item, i) => ({ key: `fallback-${i}`, ...item }));
 
   const joinCount =
     typeof stats?.learners_this_month === "number" && stats.learners_this_month > 0
@@ -256,6 +272,14 @@ function SubscribePageInner() {
                 >
                   {plan.name}
                 </h2>
+                <p
+                  className={cn(
+                    "mb-2 text-xs font-bold uppercase tracking-wide",
+                    plan.highlight ? "text-primary-foreground/90" : "text-muted-foreground"
+                  )}
+                >
+                  {plan.key === "explorer" ? t.plan_label_explorer : t.plan_label_challenge}
+                </p>
 
                 <p
                   className={cn(
@@ -315,9 +339,6 @@ function SubscribePageInner() {
                                 "{n}",
                                 String(challengeStatus.spots_remaining)
                               )}
-                        </p>
-                        <p className="text-sm mt-1 font-semibold opacity-95">
-                          {challengeStatus.spots_remaining} boos oo hadhay kooxdan
                         </p>
                         {cohortStartFmt ? (
                           <p className="mt-2 text-xs font-semibold opacity-95">
@@ -393,18 +414,22 @@ function SubscribePageInner() {
           })}
         </div>
 
+        <p className="mx-auto mb-12 max-w-2xl px-2 text-center text-sm leading-relaxed text-muted-foreground">
+          {t.subscribe_below_cards_note}
+        </p>
+
         <div className="max-w-3xl mx-auto mb-16 grid gap-6 sm:grid-cols-2">
           <figure className="rounded-2xl border border-border bg-card/60 p-5">
             <blockquote className="text-sm text-muted-foreground leading-relaxed">
-              &ldquo;Ugu mahadsanid — waxaan noqday developer Challenge-ka kadib.&rdquo;
+              &ldquo;Waad ku mahadsantahay — waxaan noqday developer Challenge-ka kadib&rdquo;
             </blockquote>
             <figcaption className="mt-3 text-xs font-bold text-primary">
-              — Abdiladif Salah · <span className="font-semibold text-muted-foreground">Front Developer</span>
+              — Abdiladif Salah · <span className="font-semibold text-muted-foreground">Horumariye hore</span>
             </figcaption>
           </figure>
           <figure className="rounded-2xl border border-border bg-card/60 p-5">
             <blockquote className="text-sm text-muted-foreground leading-relaxed">
-              &ldquo;Waxaan dhisay shirkadda Sofaritech thanks to Garaad.&rdquo;
+              &ldquo;Waxaan dhisay shirkadda Sofaritech mahadsanid Garaad&rdquo;
             </blockquote>
             <figcaption className="mt-3 text-xs font-bold text-primary">
               — Abdiaziz · <span className="font-semibold text-muted-foreground">Aasaasaha Sofaritech</span>
@@ -417,9 +442,9 @@ function SubscribePageInner() {
             {t.faq_title}
           </h3>
           <div className="space-y-3">
-            {FAQ.map((item, i) => (
+            {subscribeFaqs.map((item, i) => (
               <div
-                key={i}
+                key={item.key}
                 className="border border-border rounded-xl overflow-hidden bg-card"
               >
                 <button

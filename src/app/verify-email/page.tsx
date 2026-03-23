@@ -492,7 +492,7 @@ export default function VerifyEmailPage() {
               href={postVerifyTarget}
               className="inline-flex items-center justify-center text-sm font-semibold text-primary hover:underline"
             >
-              Continue to your first lesson →
+              Casharka koowaad u gudub →
             </Link>
             <p className="text-xs text-muted-foreground mt-1">
               Ku sii wad casharkaaga haddii aadan weli xaqiijin

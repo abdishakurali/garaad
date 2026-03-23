@@ -9,6 +9,8 @@ import { OurStorySection } from "@/components/landing/OurStorySection";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { SpotsBadge } from "@/components/ui/SpotsBadge";
 import { TransformationSection } from "@/components/landing/TransformationSection";
+import { ChallengeHowItWorks } from "@/components/challenge/ChallengeHowItWorks";
+import { SocialProofChallengeCTA } from "@/components/challenge/SocialProofChallengeCTA";
 import {
   DEFAULT_WHATSAPP_MESSAGE,
   WHATSAPP_DISPLAY,
@@ -24,7 +26,7 @@ const ClosingCTA = dynamic(() =>
 );
 
 const CHALLENGE_GUARANTEE_SO =
-  "Haddaad 7 maalmood gudahood aysan kuu qancin — lacagtaada waan ku celin doonnaa. Su'aal la'aan.";
+  "7-maalmood dammaanad lacag celin ah. Su'aalna lagu weydiin maayo.";
 
 const outcomeBullets: string[] = [
   "Su'aalahaaga ku jawaab toos — maalin kasta",
@@ -68,9 +70,9 @@ const graduateCards: GraduateCard[] = [
   },
   {
     name: "Abdiaziz",
-    tag: "6 toddobaad kadib: shirkad IT + macaamiil",
+    tag: "3 bilood kadib: shirkad IT + macaamiil",
     story:
-      "Abdiaziz wuxuu yimid Challenge-ka isagoo aan waxba garanayn. 6 toddobaad kadib wuxuu dhisay Sofaritech — shirkad IT ah oo macaamiil la leh. Hadda wuxuu macaamiil la shaqeeyaa.",
+      "Abdiaziz wuxuu yimid Challenge-ka isagoo aan waxba garanayn. 3 bilood kadib wuxuu dhisay Sofaritech — shirkad IT ah oo macaamiil la leh. Hadda wuxuu macaamiil la shaqeeyaa.",
     quote: "Waxaan dhisay mustaqbalkayga anigoo adeegsanaya wax kasta oo gacantayda soo galay",
     badge: "🏢 Shirkad Dhisay",
     src: "/images/review/3.jpeg",
@@ -114,14 +116,14 @@ export function ChallengePageClient() {
   const nextLabel = formatStartDate(data?.next_cohort_start_date ?? null);
 
   const primaryHref = "/subscribe?plan=challenge";
-  const primaryLabel = waitlist ? "Liiska Sugitaanka ku Biir" : "Ku biir Kooxda — Hadda →";
+  const primaryLabel = waitlist ? "Liiska sugitaanka gal" : "Ku biir Kooxda — Hadda →";
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <section className="scroll-mt-16 border-b border-white/5 px-3 pb-12 pt-20 sm:px-4 sm:pb-14 sm:pt-24 md:px-6 md:pb-16">
         <div className="mx-auto w-full min-w-0 max-w-4xl text-center">
           <span className="mb-3 inline-block text-[10px] font-semibold uppercase tracking-widest text-zinc-500 sm:mb-4 sm:text-xs">
-            6 toddobaad · 10 arday · Af Soomaali
+            3 bilood · 10 arday · Af Soomaali
           </span>
 
           <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight text-zinc-50 sm:text-4xl md:text-5xl">
@@ -131,7 +133,7 @@ export function ChallengePageClient() {
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-balance px-1 text-base leading-relaxed text-zinc-400 sm:mt-5 sm:text-lg">
-            6 toddobaad — mentor, koox, iyo wadada buuxda (SaaS &amp; AI). Hal bille:{" "}
+            3 bilood — mentor, koox, iyo wadada buuxda (SaaS &amp; AI). Hal mar:{" "}
             <span className="font-semibold text-zinc-200">$149</span>.
           </p>
 
@@ -141,7 +143,7 @@ export function ChallengePageClient() {
 
           <div className="mt-6 flex flex-col items-center gap-0.5 sm:mt-8 sm:gap-1">
             <span className="text-4xl font-bold tabular-nums text-zinc-50 sm:text-5xl">$149</span>
-            <span className="text-sm text-zinc-500 sm:text-base">/ bilaan</span>
+            <span className="text-sm text-zinc-500 sm:text-base">hal mar</span>
           </div>
 
           <div className="mx-auto mt-8 w-full min-w-0 max-w-xl sm:mt-10">
@@ -173,7 +175,7 @@ export function ChallengePageClient() {
               <Shield className="mt-0.5 h-5 w-5 shrink-0 text-zinc-500" aria-hidden />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
-                  Dammanad lacag celin
+                  Dammaanad lacag celin
                 </p>
                 <p className="mt-1.5 text-sm leading-relaxed text-zinc-300 sm:text-base">
                   {CHALLENGE_GUARANTEE_SO}
@@ -200,6 +202,8 @@ export function ChallengePageClient() {
         </div>
       </section>
 
+      <ChallengeHowItWorks />
+
       <section
         aria-labelledby="mentor-heading"
         className="border-b border-white/5 px-3 py-12 sm:px-4 sm:py-14 md:px-6 md:py-16"
@@ -207,7 +211,7 @@ export function ChallengePageClient() {
         <div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-6 rounded-lg border border-white/10 bg-zinc-900/40 p-6 sm:flex-row sm:items-start sm:gap-8 sm:p-8">
           <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-lg border border-white/10 sm:h-40 sm:w-40">
             <Image
-              src="/images/garaad.jpg"
+              src="/images/builder.png"
               alt="Abdishakuur — aasaasaha Garaad"
               fill
               className="object-cover object-top"
@@ -332,7 +336,7 @@ export function ChallengePageClient() {
               <span className="mr-2 text-violet-400" aria-hidden>
                 ✓
               </span>
-              Garaad Challenge — <span className="font-medium text-zinc-50">$149/bilaan</span> · Af Soomaali · mentor ·
+              Garaad Challenge — <span className="font-medium text-zinc-50">$149 hal mar</span> · Af Soomaali · mentor ·
               koox · shahaado
             </div>
           </div>
@@ -417,6 +421,8 @@ export function ChallengePageClient() {
               </div>
             ))}
           </div>
+
+          <SocialProofChallengeCTA />
         </div>
       </section>
 
@@ -426,9 +432,9 @@ export function ChallengePageClient() {
 
       <section className="border-t border-white/5 px-3 py-12 sm:px-4 sm:py-14 md:px-6 md:py-16">
         <div className="mx-auto max-w-2xl rounded-lg border border-white/10 bg-zinc-900/40 p-6 text-center sm:p-8">
-          <h2 className="mb-2 text-lg font-bold text-zinc-50 sm:text-xl">Hal bille — dhammaan kor ku xusan</h2>
+          <h2 className="mb-2 text-lg font-bold text-zinc-50 sm:text-xl">Hal mar — dhammaan kor ku xusan</h2>
           <p className="my-4 text-3xl font-bold text-zinc-50 sm:text-4xl">
-            $149<span className="text-base font-normal text-zinc-500">/bilaan</span>
+            $149<span className="text-base font-normal text-zinc-500"> hal mar</span>
           </p>
           {!loading && data && (
             <p className="mb-3 text-sm text-zinc-400">
@@ -449,7 +455,7 @@ export function ChallengePageClient() {
             <div className="flex gap-3 rounded-lg border border-white/10 bg-zinc-950 px-4 py-4 sm:px-5">
               <Shield className="mt-0.5 h-5 w-5 shrink-0 text-zinc-500" aria-hidden />
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Dammanad lacag celin</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Dammaanad lacag celin</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-zinc-400 sm:text-base">{CHALLENGE_GUARANTEE_SO}</p>
               </div>
             </div>

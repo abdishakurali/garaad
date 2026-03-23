@@ -385,7 +385,7 @@ export default function DashboardPage() {
                                                 });
                                             }}
                                         >
-                                            ✓ Wicitaan
+                                            Calaamadi inuu soo xaadiray
                                         </button>
                                         <button
                                             type="button"
@@ -396,7 +396,7 @@ export default function DashboardPage() {
                                                 });
                                             }}
                                         >
-                                            📜 Shahaado
+                                            Sii shahaadada
                                         </button>
                                     </td>
                                 </tr>
@@ -751,9 +751,9 @@ function truncateRecommended(titles: string[], maxLen: number = 30): string {
 const USER_SEGMENT_TABS: { label: string; value: string }[] = [
     { label: "Dhammaan", value: "" },
     { label: "Premium", value: "premium" },
-    { label: "Lacag Isku Dayay", value: "payment_attempt" },
-    { label: "Lacag La'", value: "failed_payment" },
-    { label: "7 Maalmood Maqan", value: "inactive_7" },
+    { label: "Wixii la isku dayey dhammaan", value: "payment_attempt" },
+    { label: "Lacag bixin dhicisoobay", value: "failed_payment" },
+    { label: "Ma uusan soo galin 7 maalmood", value: "inactive_7" },
 ];
 
 function AdminUsersTab({
@@ -990,7 +990,7 @@ function AdminUsersTab({
                                             {row.is_premium ? (
                                                 <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-100 text-emerald-800">Premium</span>
                                             ) : row.has_failed_payment ? (
-                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-orange-100 text-orange-900">Isku dayay</span>
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-orange-100 text-orange-900">Lacag bixin la isku dayey</span>
                                             ) : (
                                                 <span className="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg bg-gray-100 text-gray-500">Bilaash</span>
                                             )}

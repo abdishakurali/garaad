@@ -1,12 +1,18 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useAdminAuthStore } from "@/store/admin/auth";
 
 const API_URL = (() => {
     const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     return base.endsWith('/api') ? base : (base.endsWith('/') ? `${base}api` : `${base}/api`);
 })();
 
+/** Prefer Next.js admin panel JWT; fall back to main-site cookie (AuthService). */
 const getAuthHeader = () => {
+    const adminToken = typeof window !== "undefined" ? useAdminAuthStore.getState().token : null;
+    if (adminToken) {
+        return { Authorization: `Bearer ${adminToken}` };
+    }
     const token = Cookies.get("accessToken");
     return token ? { Authorization: `Bearer ${token}` } : {};
 };

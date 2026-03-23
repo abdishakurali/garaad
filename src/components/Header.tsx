@@ -189,7 +189,7 @@ export function Header() {
               <div className="hidden lg:block scale-90 origin-right">
                 <StreakDisplay
                   loading={streakLoading}
-                  error={streakError ? "Failed to load streak data" : null}
+                    error={streakError ? "Xogtii waa la soo rari waayey — fadlan mar kale isku day." : null}
                   streakData={streak || null}
                 />
               </div>
@@ -201,7 +201,7 @@ export function Header() {
                   <button
                     onClick={() => setIsReferralModalOpen(true)}
                     className="relative p-2 rounded-lg bg-primary/5 hover:bg-primary/10 transition-all group overflow-hidden border border-primary/10"
-                    title="Share the Opportunity"
+                    title="Fursadda la wadaag dadka kale"
                   >
                     <GraduationCap className="w-4 h-4 text-primary group-hover:scale-105 transition-transform relative z-10" />
                     <span className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

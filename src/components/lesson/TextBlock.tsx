@@ -240,7 +240,7 @@ const TextBlock: React.FC<{
         onClick={onContinue}
         className="mt-5 w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors duration-150 min-h-[44px]"
       >
-        {isLastBlock ? "Dhamee" : "Sii wado"}
+        {isLastBlock ? "Dhamee" : "Sii wad"}
         <ChevronRight className="ml-2 h-4 w-4" />
       </Button>
     </div>

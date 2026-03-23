@@ -11,9 +11,9 @@ import React from "react";
 // 6 steps: goal → track → level → time → project idea → personal info
 export const stepTitles = [
     "Maxaad rabtaa inaad gaarto?",           // 1. What outcome do you want?
-    "Xirfadee kugu haboon ?", // 2. Which track fits you?
+    "Xirfadee ayaa kugu habboon?", // 2. Which track fits you?
     "Heerkaaga hadda?",                       // 3. Current level
-    "Immisa waqti ayad u haysataa maalin kastaa?", // 4. Daily time
+    "Immisa waqti ayaad haysataa maalin kasta?", // 4. Daily time
     "Ma leedahay fikrad project ah?",         // 5. Project idea (new)
     "Geli macluumaadkaaga:",                  // 6. Personal info
 ];
@@ -258,7 +258,7 @@ export const learningGoals = [
     {
         id: "90_min",
         text: "1.5 saac+ — Dhis si degdeg ah",
-        badge: "Heerkan waxaad ku dhisi kartaa MVP dhabta ah 4–6 usbuuc gudahood.",
+        badge: "Heerkan waxaad ku dhisi kartaa MVP dhabta ah 3 bilood gudahood.",
         icon: React.createElement(Clock, { className: "w-5 h-5" }),
     },
 ];
@@ -273,7 +273,7 @@ export const projectIdeaOptions = [
         id: "yes_clear",
         text: "Haa — Fikrad cad ayaan leeyahay",
         badge: "Aad! Waxbarashadaada waxaan ku haynaa project-kaaga si aad si dhakhso ah ugu dhisin.",
-        description: "Gabagabo onboarding-ka waxaad geli doontaa sharaxaad kooban oo projectgaaga ah.",
+        description: "Bilowga barnaamijka waxaad geli doontaa sharaxaad kooban oo mashruucaaga ah.",
         icon: React.createElement(Rocket, { className: "w-5 h-5" }),
     },
     {
@@ -285,7 +285,7 @@ export const projectIdeaOptions = [
     },
     {
         id: "no_idea",
-        text: "Maya — Waxaan rabaa inad ii soo jeediso",
+        text: "Maya — waxaan rabaa inaad adigu mid iisoo jeediso",
         badge: "Dhib ma aha — waxaanu ku siineynaa project ideas la xiriira xirfadahaaga iyo hadafkaaga.",
         description: "Curriculum default waxaan kuu dooran doonaa project faa'iido leh oo heer-kaaga ku habboon.",
         icon: React.createElement(BookOpen, { className: "w-5 h-5" }),

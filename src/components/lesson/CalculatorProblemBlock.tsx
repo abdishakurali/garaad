@@ -330,7 +330,7 @@ const CalculatorProblemBlock: React.FC<CalculatorProblemBlockProps> = ({
               onClick={onContinue}
               className="w-full h-12 rounded-xl text-md font-bold bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
             >
-              Sii wado
+              Sii wad
               <ChevronRight className="ml-2 h-5 w-5" />
             </Button>
           </div>

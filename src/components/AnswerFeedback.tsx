@@ -73,7 +73,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                 return {
                     title: "Jawaab Sax ah!",
                     subtitle: `+${xp} XP`,
-                    buttonText: isLastQuestion ? "Casharka xiga" : "Sii wado",
+                    buttonText: isLastQuestion ? "Casharka xiga" : "Sii wad",
                     buttonAction: handleContinueClick,
                 };
             }

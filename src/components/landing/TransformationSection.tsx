@@ -157,6 +157,12 @@ const difficultyColors = {
     Advanced: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 };
 
+const difficultyLabelSo: Record<Week["difficulty"], string> = {
+    Beginner: "Bilow",
+    Intermediate: "Dhexdhexaad",
+    Advanced: "Heer sare",
+};
+
 function skillIconFor(text: string): LucideIcon {
     const s = text.toLowerCase();
     if (/market|suuq|baaritaan|tartam|validation|xaqiijin/i.test(s)) return Search;
@@ -263,7 +269,7 @@ export function TransformationSection({ weekCount = 6, className }: Transformati
                                 </div>
                                 <div className={`rounded-lg px-3 py-2 text-sm font-medium ${difficultyColors[currentWeek.difficulty]}`}>
                                     <Zap className="w-4 h-4 inline mr-1" />
-                                    {currentWeek.difficulty}
+                                    {difficultyLabelSo[currentWeek.difficulty]}
                                 </div>
                             </div>
                         </div>

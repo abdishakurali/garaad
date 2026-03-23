@@ -12,6 +12,7 @@ const NAV_ITEMS = [
     { key: "casharada", label: "Casharada", icon: "≡", path: "/admin/casharada" },
     { key: "muuqaalada", label: "Muuqaalada", icon: "▷", path: "/admin/muuqaalada" },
     { key: "sualaha", label: "Su'aalaha", icon: "?", path: "/admin/sualaha" },
+    { key: "blog", label: "Blog", icon: "▤", path: "/admin/blog" },
     { key: "marketing", label: "Marketing", icon: "◈", path: "/admin/marketing" },
 ];
 

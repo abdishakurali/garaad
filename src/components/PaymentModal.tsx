@@ -37,7 +37,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     const u = sessionUser || auth.getCurrentUser();
     if (u?.is_email_verified === false) {
       setError(
-        "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin. Hubi sanduuqaaga emaylka."
+        "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin. Email-kaaga iska eeg."
       );
       return;
     }

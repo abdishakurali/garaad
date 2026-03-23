@@ -180,6 +180,9 @@ export function PostCard({ post, userProfile, initiallyShowReplies = false, targ
                                     Dadweynaha
                                 </span>
                             )}
+                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                ✓ Challenge Arday
+                            </span>
                             {isPending && (
                                 <Loader2 className="h-3 w-3 animate-spin text-primary" />
                             )}

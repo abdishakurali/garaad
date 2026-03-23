@@ -74,7 +74,7 @@ export function LessonStepBullets({
               )}
               {estMinutesRemaining != null ? (
                 <p className="text-[11px] font-bold text-zinc-500 tabular-nums">
-                  ~{estMinutesRemaining} daqiiqo ayaa hadhay
+                  ~{estMinutesRemaining} daqiiqo ayaa haray
                 </p>
               ) : null}
             </div>

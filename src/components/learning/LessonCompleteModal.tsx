@@ -135,9 +135,8 @@ export function LessonCompleteModal({
           🎉
         </span>
         <h2 id="lesson-celebration-heading" className="mt-4 text-2xl font-black text-white">
-          Hambalyo!
+          Hambalyo! Waxaad dhamaysay casharkii
         </h2>
-        <p className="mt-2 text-zinc-300 text-center text-sm font-semibold">Casharka waxaad dhammaystay</p>
         <p className="mt-3 text-lg font-black text-purple-400 tabular-nums">+{xpEarned} XP</p>
       </div>
     );
@@ -190,7 +189,7 @@ export function LessonCompleteModal({
               className="text-2xl font-extrabold text-white"
               style={{ fontFamily: "var(--font-display), Inter, sans-serif" }}
             >
-              Hambalyo! Casharka waa la dhammaystay
+              Hambalyo! Waxaad dhamaysay casharkii
             </h2>
             <p className="text-sm text-gray-400">{lessonTitle}</p>
           </div>
@@ -242,7 +241,7 @@ export function LessonCompleteModal({
 
           {courseFullyComplete && (
             <div className="rounded-xl border border-emerald-500/35 bg-emerald-950/50 p-4 text-center space-y-2">
-              <h3 className="text-base font-black text-white">Koorsada waxaad dhammaystay! 🏆</h3>
+              <h3 className="text-base font-black text-white">Kooras-kii waad dhamaysay! 🏆</h3>
               <div className="mx-auto h-20 max-w-[200px] rounded-lg border-2 border-dashed border-emerald-500/40 bg-emerald-900/20 flex items-center justify-center text-[10px] font-bold text-emerald-200/70 px-2">
                 Shahaadada (preview)
               </div>
@@ -250,7 +249,7 @@ export function LessonCompleteModal({
                 asChild
                 className="w-full h-10 text-sm font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white border-0"
               >
-                <Link href="/dashboard">Shahaadada Soo Qaado</Link>
+                <Link href="/dashboard">Download-gareyso shahaadada</Link>
               </Button>
             </div>
           )}
@@ -269,7 +268,7 @@ export function LessonCompleteModal({
             asChild
             className="w-full h-10 rounded-xl border-white/20 text-zinc-200 hover:bg-white/10"
           >
-            <Link href="/courses">Casharro Dheeraad ah →</Link>
+            <Link href="/courses">Koorsooyin kale →</Link>
           </Button>
 
           {/* 5. SECONDARY ACTIONS */}

@@ -99,7 +99,7 @@ export function RecommendedCoursesSection({
                   )}
                   <div className="mt-auto flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                     <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                      {!hasStarted && (isAuthenticated ? "Bilow" : "KU SOO BIIR")}
+                      {!hasStarted && (isAuthenticated ? "Bilow" : "Ku soo biir")}
                       {hasStarted && !isComplete && "Sii wad"}
                       {isComplete && "Muraajacee"}
                     </span>

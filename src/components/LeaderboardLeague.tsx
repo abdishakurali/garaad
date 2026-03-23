@@ -131,7 +131,7 @@ export default function LeaderboardLeague({
 
         {/* Continue Button */}
         <Button className="w-full rounded-md mt-10" onClick={onContinue}>
-          Sii wado
+          Sii wad
         </Button>
       </div>
     </div>

@@ -8,6 +8,8 @@ import { BlogPost } from "@/types/blog";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { getBlogAuthorDisplayName } from "@/lib/blogAuthor";
+import { BlogChallengeCTA } from "@/components/challenge/BlogChallengeCTA";
+import { BlogSidebarChallengeCTA } from "@/components/challenge/BlogSidebarChallengeCTA";
 
 interface BlogDetailClientProps {
   post: BlogPost;
@@ -125,7 +127,9 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
       </div>
 
       <main className="min-h-screen bg-white pb-24 pt-10 transition-colors duration-500 dark:bg-black">
-        <div className="mx-auto mb-10 max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-12">
+            <div className="min-w-0 max-w-3xl lg:max-w-none">
           <Link
             href="/blog"
             className="group mb-8 inline-flex items-center text-sm font-bold text-slate-500 transition-colors hover:text-primary dark:text-zinc-400"
@@ -188,9 +192,7 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
               <span className="text-xs font-medium tracking-wide text-zinc-600">Garaad</span>
             </div>
           )}
-        </div>
 
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <div
             id="article-content"
             className="prose prose-lg max-w-none font-sans prose-headings:font-black prose-headings:font-serif prose-headings:tracking-tight prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:leading-relaxed prose-p:text-slate-700 dark:prose-p:text-zinc-300 prose-a:font-bold prose-a:text-primary hover:prose-a:underline prose-img:rounded-3xl prose-img:shadow-2xl prose-code:rounded prose-code:bg-primary/5 prose-code:px-1 prose-code:text-primary dark:prose-code:bg-primary/10 prose-blockquote:border-l-4 prose-blockquote:border-gray-200 prose-blockquote:pl-4 prose-blockquote:font-normal prose-blockquote:not-italic dark:prose-blockquote:border-zinc-600 dark:prose-blockquote:text-zinc-400"
@@ -217,19 +219,7 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
             <BlogShareBar postTitle={post.title} shareUrl={shareUrl} />
           </div>
 
-          <div className="mt-16 rounded-2xl bg-black p-8 text-center">
-            <h3 className="mb-2 text-xl font-bold text-white">Diyaar baad u tahay inaad bilaabasho?</h3>
-            <p className="mb-6 text-sm text-gray-400">
-              Ku biir 85+ arday oo af Soomaali ku baranaya coding, AI, iyo xisaab.
-            </p>
-            <Link
-              href="/subscribe"
-              className="inline-block rounded-xl bg-white px-6 py-3 font-bold text-black hover:bg-gray-100"
-            >
-              Bilow Bilaash — Weligeed →
-            </Link>
-            <p className="mt-3 text-xs text-gray-600">Challenge: $149/bishii — jooji xilli kasta</p>
-          </div>
+          <BlogChallengeCTA />
 
           {relatedPosts.length > 0 && (
             <div className="mt-12">
@@ -241,6 +231,12 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
               </div>
             </div>
           )}
+            </div>
+
+            <aside className="hidden lg:block">
+              <BlogSidebarChallengeCTA />
+            </aside>
+          </div>
         </div>
       </main>
     </>

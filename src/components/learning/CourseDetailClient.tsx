@@ -14,7 +14,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle2, PlayCircle, Reply } from "lucide-react";
+import { AlertCircle, CheckCircle2, LogIn, PlayCircle, Reply } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
@@ -501,7 +501,7 @@ export function CourseDetailClient() {
                             {currentCourse.title}
                         </h1>
                         <p className="text-sm font-semibold text-violet-600 dark:text-violet-400 mb-2">
-                            {completedLessonsInCourse}/{sortedLessonIds.length} casharro dhammaystay
+                            Dhamaystir {completedLessonsInCourse} ka mid ah {sortedLessonIds.length} cashar
                         </p>
 
                         {enrollmentProgress > 0 && (
@@ -606,6 +606,19 @@ export function CourseDetailClient() {
                                     role="region"
                                     aria-label="Casharka la doorbiday"
                                 >
+                                    {challengeStatus ? (
+                                        <div className="lg:hidden rounded-xl border border-violet-500/30 bg-violet-600/10 px-3 py-2.5 text-center">
+                                            <p className="text-xs font-bold text-violet-800 dark:text-violet-200">
+                                                {challengeStatus.spots_remaining} boos ayaa haray
+                                            </p>
+                                            <Link
+                                                href="/challenge"
+                                                className="mt-1.5 inline-flex text-sm font-black text-violet-700 underline-offset-2 hover:underline dark:text-violet-300"
+                                            >
+                                                Ku biir Challenge-ka →
+                                            </Link>
+                                        </div>
+                                    ) : null}
                                     <div className="flex min-h-0 flex-1 flex-col gap-4">
                                         <div className="min-w-0 flex-1 text-center">
                                             <p className="line-clamp-4 text-lg font-bold leading-tight text-gray-900 dark:text-white sm:text-xl">
@@ -620,7 +633,7 @@ export function CourseDetailClient() {
                                                     </p>
                                                     <p className="text-xs text-violet-200/90">
                                                         {challengeStatus
-                                                            ? `${challengeStatus.spots_remaining} boos oo hadhay kooxdan`
+                                                            ? `${challengeStatus.spots_remaining} boos ayaa ka haray cohort-kan`
                                                             : "Boosyo xaddidan — ku biir Challenge"}
                                                     </p>
                                                     <Button
@@ -630,13 +643,30 @@ export function CourseDetailClient() {
                                                         asChild
                                                     >
                                                         <Link href="/subscribe?plan=challenge&ref=course_locked">
-                                                            Ku biir Challenge-ka — $149/bishii
+                                                            Ku biir Challenge-ka — $149 hal mar
                                                         </Link>
                                                     </Button>
                                                     <p className="text-[11px] text-muted-foreground">
-                                                        Ama sii wad bilaash — casharka 1-3 fur
+                                                        Ama bilaash ku sii wad — casharrada 1-3 waa furanyihiin
                                                     </p>
                                                 </div>
+                                            ) : !isAuthenticated ? (
+                                                <Button
+                                                    type="button"
+                                                    size="lg"
+                                                    className="h-14 w-full rounded-xl text-base font-bold shadow-md bg-violet-600 hover:bg-violet-700 text-white"
+                                                    onClick={() =>
+                                                        navigateToLesson(ctaLessonId, {
+                                                            review: false,
+                                                        })
+                                                    }
+                                                >
+                                                    <LogIn
+                                                        className="size-5 shrink-0"
+                                                        aria-hidden
+                                                    />
+                                                    Soo gal
+                                                </Button>
                                             ) : ctaLessonCompleted ? (
                                                 <Button
                                                     type="button"

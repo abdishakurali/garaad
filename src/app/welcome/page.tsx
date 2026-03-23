@@ -1208,7 +1208,7 @@ function WelcomeOnboardingPage() {
                     <span>Waa la socodaa...</span>
                   </div>
                 ) : currentStep === 4 ? (
-                  "Bilow Lesson 1"
+                  "Bilow casharka 1-aad"
                 ) : (
                   "Sii wad"
                 )}

@@ -33,6 +33,12 @@ export function LaunchpadListClient() {
     const searchParams = useSearchParams();
     const authReady = useAuthReady();
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+    const user = useAuthStore((s) => s.user);
+    const canSubmitStartup =
+        !!user &&
+        (user.is_staff ||
+            user.is_superuser ||
+            (user.subscription_type ?? "").toLowerCase() === "challenge");
 
     const [tab, setTab] = useState<TabType>(() =>
         searchParams.get("tab") === "projects" ? "projects" : "startups"
@@ -172,14 +178,26 @@ export function LaunchpadListClient() {
                     </div>
 
                     <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                        Startup-yada <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent italic">Soomaaliyeed</span>
+                        Startup-yada Soomaaliyeed
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
-                        Hel startup-yada cusub ee lagu dhisay tech-ka casriga ah. Codee kuwaaga jeceshahay, ama soo bandhig mashruucaaga maanta.
+                    <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+                        Mashruucyadan waxaa dhisay ardayda Challenge-ka Garaad. Adiga xigaad?
                     </p>
 
+                    <div className="mb-10 flex justify-center animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+                        <Link
+                            href="/challenge"
+                            className="inline-flex items-center justify-center rounded-2xl bg-violet-600 px-8 py-3.5 text-sm font-black text-white hover:bg-violet-500"
+                        >
+                            Ku biir Challenge-ka →
+                        </Link>
+                    </div>
+
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+                        {!authReady ? (
+                            <div className="h-14 w-56 animate-pulse rounded-2xl bg-white/10" aria-hidden />
+                        ) : canSubmitStartup ? (
                         <Link
                             href="/launchpad/submit"
                             className="group relative inline-flex items-center gap-2.5 px-8 py-4 bg-primary text-white font-black rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
@@ -188,6 +206,19 @@ export function LaunchpadListClient() {
                             <Plus className="w-6 h-6 stroke-[3px]" />
                             Soo Dir Startup
                         </Link>
+                        ) : (
+                            <div className="flex max-w-md flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-center">
+                                <p className="text-sm font-semibold text-slate-300">
+                                    Mashruucaaga Launchpad ku soo dir haddii aad Challenge-ka ku jirtid
+                                </p>
+                                <Link
+                                    href="/challenge"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-black text-white hover:bg-violet-500"
+                                >
+                                    Ku biir Challenge-ka →
+                                </Link>
+                            </div>
+                        )}
                         {authReady && isAuthenticated && (
                             <Link
                                 href="/launchpad/submit-project"

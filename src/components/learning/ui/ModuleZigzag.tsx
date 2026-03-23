@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Module } from "@/types/learning";
 import { UserProgress } from "@/services/progress";
-import { PlayCircle, ReplyIcon, CheckCircle, UserPlus, Lock, Sparkles } from "lucide-react";
+import { PlayCircle, ReplyIcon, CheckCircle, LogIn, Lock, Sparkles } from "lucide-react";
 import AuthService from "@/services/auth";
 import { cn } from "@/lib/utils";
 
@@ -323,7 +323,7 @@ export default function ModuleZigzag({
             {uniqueModules.length > 0 && !suppressBottomCta && (
                 <div className="fixed bottom-0 md:w-96 left-4 right-4 md:left-auto md:right-1/3 md:transform md:translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 shadow-lg border-t border-gray-100 dark:border-slate-800 z-50" style={{ maxWidth: '40rem' }}>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-4">
-                        {selectedModule?.title || uniqueModules[0]?.title || 'Select a module'}
+                        {selectedModule?.title || uniqueModules[0]?.title || 'Qayb dooro'}
                     </h2>
 
                     {isLoading ? (
@@ -371,13 +371,13 @@ export default function ModuleZigzag({
                                 </>
                             ) : needsLoginForFreeFirst ? (
                                 <>
-                                    <UserPlus className="inline w-4 h-4 mr-2" />
-                                    KU SOO BIIR
+                                    <LogIn className="inline w-4 h-4 mr-2" />
+                                    Soo gal
                                 </>
                             ) : !canStartLesson ? (
                                 <>
-                                    <UserPlus className="inline w-4 h-4 mr-2" />
-                                    KU SOO BIIR
+                                    <LogIn className="inline w-4 h-4 mr-2" />
+                                    Soo gal
                                 </>
                             ) : selectedModuleCompleted ? (
                                 <>

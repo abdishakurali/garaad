@@ -38,6 +38,7 @@ import { useAuthReady } from '@/hooks/useAuthReady';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
+import { CommunityChallengeBanner } from '@/components/challenge/CommunityChallengeBanner';
 export default function CommunityPage() {
     const {
         posts,
@@ -383,17 +384,16 @@ export default function CommunityPage() {
                     id="community-challenge-desc"
                     className="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed"
                 >
-                    Ardayda Challenge-ka ayaa buuxda ku wadaagta su&apos;aalo, mashaariic, iyo
-                    taageero. Ku biir Kooxda Challenge si aad u furto dhamaan bulshada.
+                    Astaamahan waxay u furan yihiin Challenge ardayda.
                 </p>
                 <Link
                     href="/challenge"
                     className="block w-full bg-violet-600 hover:bg-violet-500 text-white py-3.5 rounded-xl font-bold text-sm text-center shadow-lg shadow-violet-600/25 transition-colors"
                 >
-                    Ku biir Challenge-ka
+                    Ku biir Challenge-ka →
                 </Link>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
-                    Koorsooyinka bilaashka ah wali waxaad ka heli kartaa /courses
+                    Bilaash wali waxaad ku bilow kartaa /courses
                 </p>
             </div>
         </div>
@@ -462,6 +462,8 @@ export default function CommunityPage() {
 
                 {selectedCategory ? (
                     <>
+                        <CommunityChallengeBanner />
+
                         {/* Header */}
                         <div className="hidden lg:flex h-20 px-8 items-center justify-between border-b border-gray-100 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-md z-10 sticky top-0">
                             <div className="min-w-0">

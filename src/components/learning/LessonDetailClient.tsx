@@ -199,7 +199,7 @@ const LessonCompletionAnimation = ({ onComplete }: { onComplete: () => void }) =
                 </div>
                 <div className={cn("transition-opacity duration-300 pt-2", stage >= 3 ? "opacity-100" : "opacity-0")}>
                     <Button onClick={onComplete} className="w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm">
-                        Sii wado
+                        Sii wad
                     </Button>
                 </div>
             </div>
@@ -315,7 +315,7 @@ export function LessonDetailClient() {
 
     const lessonPositionLabel =
         lessonNumberInCourse > 0 && sortedCourseLessonsOrdered.length > 0
-            ? `Casharka ${lessonNumberInCourse} / ${sortedCourseLessonsOrdered.length}`
+            ? `Casharka ${lessonNumberInCourse} ee ${sortedCourseLessonsOrdered.length}`
             : undefined;
 
     const handleVideoPlaybackEnded = useCallback(() => {
@@ -578,7 +578,7 @@ export function LessonDetailClient() {
             console.error("Error fetching problems:", err);
             setError(
                 (err instanceof Error ? err.message : String(err)) ||
-                "Failed to load problems"
+                "Su'aalaha lama soo gelin karo"
             );
         } finally {
             setProblemLoading(false);
@@ -1069,7 +1069,7 @@ export function LessonDetailClient() {
                             </div>
                         )}
                         <Button onClick={handleContinue} className="w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm">
-                            {isLastBlock ? "Dhamee" : "Sii wado"}
+                            {isLastBlock ? "Dhamee" : "Sii wad"}
                             <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                     </div>
@@ -1096,7 +1096,7 @@ export function LessonDetailClient() {
                         <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-6 sm:p-8 text-center space-y-4">
                             <p className="text-zinc-400 text-sm">Nooca waxyaabahan weli lama taageerayo.</p>
                             <Button onClick={handleContinue} className="h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm px-6">
-                                Sii wado
+                                Sii wad
                                 <ChevronRight className="ml-2 h-4 w-4" />
                             </Button>
                         </div>

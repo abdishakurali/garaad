@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import { FooterChallengeCTA } from "@/components/challenge/FooterChallengeCTA";
 
 export function FooterSection() {
   const navigation = {
@@ -88,6 +89,8 @@ export function FooterSection() {
             </div>
           </div>
         </div>
+
+        <FooterChallengeCTA />
 
         {/* Social Links and Copyright */}
         <div className="mt-16 border-t border-gray-800 pt-10">

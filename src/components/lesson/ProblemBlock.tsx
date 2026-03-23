@@ -157,7 +157,7 @@ const ProblemBlock: React.FC<{
 
 
     const isLoading = externalLoading || internalLoading;
-    const error = externalError || (internalError ? "Failed to load problem" : null);
+    const error = externalError || (internalError ? "Su'aasha lama soo gelin karo" : null);
 
     const hasAnswered = answerState.isCorrect !== null;
     const [imgLoading, setImgLoading] = useState(false);

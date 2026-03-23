@@ -78,7 +78,7 @@ export default function StartupsPage() {
           <h2 className="text-3xl font-black mb-4">Ma u diyaarsan tahay inaad noqoto Founder?</h2>
           <p className="mb-8 text-lg opacity-80">Ku biir kumannaan arday ah oo dhisaya mustaqbalka.</p>
           <Link href="/welcome" className="inline-block px-12 py-4 bg-primary text-white font-black rounded-2xl hover:scale-105 transition-transform">
-            BILOW HADDA
+            Hadda bilow
           </Link>
         </div>
       </main>

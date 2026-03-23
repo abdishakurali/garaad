@@ -5,9 +5,9 @@ import { ChallengePageClient } from "@/components/challenge/ChallengePageClient"
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
-  title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup (6 toddobaad)",
+  title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup (3 bilood)",
   description:
-    "6 toddobaad: ka bilow eber, gaar shaqo tech ama dhis startup-kaaga. Mentor af Soomaali, koox 10 qof, lacag celin 7 maalmood. $149/bilaan.",
+    "3 bilood: ka bilow eber, gaar shaqo tech ama dhis startup-kaaga. Mentor af Soomaali, koox 10 qof, lacag celin 7 maalmood. $149 hal mar.",
   keywords: [
     "Tartanka dhisidda software-ka",
     "Barashada IT-ga casriga ah",
@@ -27,13 +27,13 @@ export const metadata: Metadata = {
     siteName: "Garaad",
     title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup",
     description:
-      "6 toddobaad: mentor af Soomaali, koox, lacag celin 7 maalmood. $149/bilaan.",
+      "3 bilood: mentor af Soomaali, koox, lacag celin 7 maalmood. $149 hal mar.",
     images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup",
-    description: "6 toddobaad, mentor af Soomaali, $149/bilaan.",
+    description: "3 bilood, mentor af Soomaali, $149 hal mar.",
   },
   robots: { index: true, follow: true },
 };
@@ -50,14 +50,14 @@ export default function ChallengePage() {
                         "@type": "Course",
                         name: "Garaad Challenge",
                         description:
-                            "4–6 week group mentorship program, mentor access, launchpad (submit a startup). Runs quarterly.",
+                            "3-month group mentorship program, mentor access, launchpad (submit a startup). Runs quarterly.",
                         provider: {
                             "@type": "Organization",
                             name: "Garaad",
                             url: "https://garaad.org",
                         },
                         educationalLevel: "Beginner to Intermediate",
-                        timeRequired: "P6W",
+                        timeRequired: "P3M",
                         inLanguage: ["so", "en"],
                         coursePrerequisites: "Basic computer skills and willingness to learn",
                         hasCourseInstance: {

@@ -65,7 +65,7 @@ const Certificate: React.FC<{
     const u = AuthService.getInstance().getCurrentUser();
     if (u?.is_email_verified === false) {
       window.alert(
-        "Shahaadada waxaad ka heli kartaa marka aad xaqiijiso email-kaaga. Tag bogga xaqiijinta emaylka."
+        "Shahaadada waxaad ka heli kartaa marka aad xaqiijiso email-kaaga. Tag bogga xaqiijinta emailka."
       );
       return;
     }

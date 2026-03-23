@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import { BlogPost } from "@/types/blog";
 import { Input } from "@/components/ui/input";
 import { BlogCard } from "@/components/blog/BlogCard";
+import Link from "next/link";
 
 interface BlogListClientProps {
   initialPosts: BlogPost[];
@@ -89,6 +90,18 @@ export function BlogListClient({ initialPosts }: BlogListClientProps) {
               ))}
             </div>
           )}
+
+          <div className="mb-10 rounded-2xl border border-violet-500/20 bg-gradient-to-r from-violet-950/40 to-zinc-900/50 px-5 py-6 text-center sm:px-8">
+            <p className="text-sm font-medium leading-relaxed text-zinc-200 sm:text-base">
+              Waxbarashada Garaad waa bilaash — Challenge-ka waa halka ay shaqadu ka bilowdo.
+            </p>
+            <Link
+              href="/challenge"
+              className="mt-4 inline-flex items-center justify-center rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-500"
+            >
+              Eeg Challenge-ka →
+            </Link>
+          </div>
 
           <div className="relative max-w-xl group">
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />

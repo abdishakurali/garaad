@@ -160,7 +160,7 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
               onClick={handleContinue}
               className={`w-full bg-gradient-to-r ${config.gradientFrom} ${config.gradientTo} text-white py-6 rounded-full transition-all duration-300 flex items-center justify-center gap-2 group hover:shadow-lg hover:opacity-90`}
             >
-              {currentRewardIndex < rewards.length - 1 ? "Sii wado" : "Dhammee"}
+              {currentRewardIndex < rewards.length - 1 ? "Sii wad" : "Dhammee"}
               <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
           </div>

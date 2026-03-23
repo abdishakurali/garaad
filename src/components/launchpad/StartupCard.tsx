@@ -166,14 +166,12 @@ export function StartupCard({ startup, rank, onVote }: StartupCardProps) {
                                     </div>
                                 )}
                             </div>
-                            <span className="text-sm text-muted-foreground">
-                                {startup.maker.first_name || startup.maker.username}
+                            <span className="text-xs text-muted-foreground">
+                                Dhisay:{" "}
+                                {[startup.maker.first_name, startup.maker.last_name].filter(Boolean).join(" ").trim() ||
+                                    startup.maker.username}{" "}
+                                · Challenge Arday
                             </span>
-                            {startup.maker_completed_courses.length > 0 && (
-                                <span className="text-xs text-primary/70">
-                                    • {startup.maker_completed_courses.length} course(s)
-                                </span>
-                            )}
                         </div>
                     </div>
                 </div>

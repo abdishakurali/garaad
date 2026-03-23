@@ -107,7 +107,7 @@ export function CourseModuleDetails({
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full">{isAuthenticated ? "Bilow Darsiga" : "KU SOO BIIR"}</Button>
+                            <Button className="w-full">{isAuthenticated ? "Bilow Darsiga" : "Ku soo biir"}</Button>
                         </CardFooter>
                     </Card>
 
@@ -164,7 +164,7 @@ export function CourseModuleDetails({
                                                         </p>
                                                     </div>
                                                     <Button variant={index < completedLessons ? "outline" : "default"}>
-                                                        {index < completedLessons ? "Dib u eeg" : (isAuthenticated ? "Bilow" : "KU SOO BIIR")}
+                                                        {index < completedLessons ? "Dib u eeg" : (isAuthenticated ? "Bilow" : "Ku soo biir")}
                                                     </Button>
                                                 </div>
                                             </div>

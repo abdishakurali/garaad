@@ -18,7 +18,7 @@ type VideoContent = {
 };
 
 const LOAD_FAIL_MS = 10_000;
-const FALLBACK_SO = "Muuqaalku ma soo dejin — dib u isku day";
+const FALLBACK_SO = "Fiidiyowgii waa dhammaaday";
 
 function getVimeoEmbedUrl(raw: string): string | null {
   const m = raw.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
@@ -531,7 +531,7 @@ const VideoBlock: React.FC<{
         onClick={onContinue}
         className="mt-4 w-full h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors duration-150 min-h-[44px]"
       >
-        {isLastBlock ? "Dhamee" : "Sii wado"}
+        {isLastBlock ? "Dhamee" : "Sii wad"}
         <ChevronRight className="ml-2 h-4 w-4" />
       </Button>
     </div>

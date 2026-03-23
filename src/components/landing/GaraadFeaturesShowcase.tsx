@@ -283,15 +283,12 @@ export function GaraadFeaturesShowcase() {
         <Reveal>
           <div className="mt-14 flex flex-col items-center gap-3 text-center sm:mt-16">
             <Link
-              href="/welcome"
-              className="group inline-flex items-center gap-2 rounded-full border border-border bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:bg-foreground/90 dark:border-white/10 dark:bg-white dark:text-black dark:hover:bg-white/90"
+              href="/challenge"
+              className="group inline-flex items-center gap-2 rounded-full border border-violet-500/40 bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-violet-500"
             >
-              Bilow hadda
+              Challenge-ka ku jiro
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
-            <p className="text-xs text-muted-foreground">
-              Diiwaangeli bilaash • Hel casharro iyo koorsooyin
-            </p>
           </div>
         </Reveal>
       </div>

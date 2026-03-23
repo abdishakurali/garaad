@@ -84,11 +84,11 @@ export function LessonUpgradeModal({
               ) : null}
               {spots != null ? (
                 <p className="rounded-xl border border-violet-500/40 bg-violet-950/50 px-4 py-3 text-center font-bold text-violet-100">
-                  {spots} boos oo hadhay kooxdan
+                  {spots} boos ayaa ka haray cohort-kan
                   {waitlist ? " — liiska sugitaanka ayaa furan" : ""}
                 </p>
               ) : null}
-              <p className="text-center text-base font-black text-white">Ku biir Challenge-ka — $149/bilaan</p>
+              <p className="text-center text-base font-black text-white">Ku biir Challenge-ka — $149 hal mar</p>
             </div>
           </DialogDescription>
         </DialogHeader>
@@ -104,7 +104,7 @@ export function LessonUpgradeModal({
             asChild
             className="w-full text-violet-200/90 hover:text-white hover:bg-violet-500/10"
           >
-            <Link href={`${coursePath}#free-lessons`}>Ama sii wad bilaash — casharka 1-3 fur</Link>
+            <Link href={`${coursePath}#free-lessons`}>Ama bilaash ku sii wad — casharrada 1-3 waa furanyihiin</Link>
           </Button>
           <Button
             variant="ghost"

@@ -1,18 +1,23 @@
 export const pricingTranslations = {
   // Page header
-  pricing_title: "Dooro qorshahaaga",
-  pricing_subtitle: "Qiimo cad oo hufan. Jooji xilli kasta.",
+  pricing_title: "Challenge-ka — hal go'aan, 3 bilood",
+  pricing_subtitle: "Qiimo cad. Hal mar bixi. 3 bilood oo buuxda.",
+
+  plan_label_explorer: "Halkaan ka bilow",
+  plan_label_challenge: "Halkan ayuu horumarka ka yimaadaa",
+  subscribe_below_cards_note:
+    "Bilaash ku bilow marka hore — haddii aad diyaar u tahay Challenge-ka, waa kuu furan yahay goor kasta.",
 
   // Bilaash (free tier; was Explorer)
   explorer_name: "Bilaash — Weligeed",
   explorer_popular_badge: "",
-  explorer_tagline: "Ku baro xawaarahaaga",
+  explorer_tagline: "Ku baro xawaarahaaga — Ingiriis looma baahna.",
   explorer_per_month: "/bishii",
   /** Shown under monthly price on plan card (yearly option). */
   explorer_yearly_hint: "",
   explorer_cta: "Bilow Bilaash",
   explorer_free_price_display: "$0",
-  explorer_free_per: "FREE",
+  explorer_free_per: "Bilaash",
   explorer_free_cta_signup: "Bilow Bilaash",
   explorer_free_cta_logged_in: "Tag dashboard-ka",
   explorer_feature_1: "Dhammaan 54-ta cashar ee la daabacay",
@@ -25,10 +30,10 @@ export const pricingTranslations = {
   challenge_name: "Challenge",
   challenge_badge: "⭐ Lagu taliyay",
   challenge_tagline:
-    "6 toddobaad: ka bilow eber ilaa shaqo tech ama startup-kaaga",
-  challenge_per_one_time: "/bilaan",
+    "3 bilood: ka bilow eber ilaa shaqo tech ama startup-kaaga",
+  challenge_per_one_time: " hal mar",
   challenge_cta: "Ku biir Challenge-ka",
-  challenge_cta_waitlist: "Liiska Sugitaanka",
+  challenge_cta_waitlist: "Liiska sugitaanka gal",
   challenge_feature_1: "Wax kasta oo ku jira Bilaash",
   challenge_feature_2:
     "Su'aalahaaga ku jawaab toos — maalin kasta (wicitaan toddobaadle)",
@@ -59,9 +64,9 @@ export const pricingTranslations = {
 
   // Success banners
   success_explorer:
-    "Kusoo dhawaaw Bilaash! Hadda waxaad geli kartaa dhammaan casharrada. Bilow waxbarashada →",
+    "Ku soo dhawoow Bilaash! Hadda waxaad geli kartaa dhammaan casharrada. Bilow waxbarashada →",
   success_challenge:
-    "Kusoo dhawaaw Challenge-ka! Hubi WhatsApp-kaaga — Cabdishakuur ayaa kula soo xiriiri doona 24 saac gudahood.",
+    "Ku soo dhawoow Challenge-ka! Hubi WhatsApp-kaaga — Abdishakuur ayaa kula soo xiriiri doona 24 saac gudahood.",
 
   // Dashboard nav
   nav_upgrade: "Challenge",
@@ -76,10 +81,11 @@ export const pricingTranslations = {
   faq_2_q: "Waa maxay hababka lacag bixinta ee la aqbalo?",
   faq_2_a: "Lacagta moobaylka ee Waafi iyo Stripe (kaarka deynta ama kaarka bangiga).",
   faq_3_q: "Maxaa dhacaya haddii aanan ku qanacsanayn?",
-  faq_3_a: "Farriin toos ah noogu soo dir. Waxaan ka dhigeynaa mid sax ah.",
+  faq_3_a:
+    "7 maalmood gudahood haddii aadan ku qanacsanayn, WhatsApp noogu soo dir — lacagtaada oo buuxda dib u qaado, su'aalna lagu weydiin maayo.",
   faq_4_q: "Sidee u shaqaysaa kooxda Challenge-ka?",
   faq_4_a:
-    "Waxaad ku biiraysaa koox gaar ah oo ka kooban ugu badnaan 10 qof. Waxaad raacaysaan jadwal isku mid ah, waxaad dib-u-eegis ku samaynaysaan shaqada midba midka kale, waxaadna wicitaan toddobaadle ah la yeelanaysaan Cabdishakuur.",
+    "Waxaad ku biiraysaa cohort ka kooban 10 arday. Wadajir ayaad u raacaysaan isla jadwalka — usbuuc walbana waxaad wada sheekaysanaysaan Abdishakuur.",
   faq_5_q: "Goorma ayaa la bixiyaa shahaadada MERN?",
   faq_5_a:
     "Markaad dhammaystirto dhammaan casharrada wadada Full Stack MERN oo aad u soo gudbiso mashruucaaga ugu dambeeya dib-u-eegis.",
@@ -105,12 +111,12 @@ export const pricingTranslations = {
 
   compare_row_price: "Qiimaha",
   compare_row_certificate: "Shahaadada",
-  compare_bilaash_certificate: "Maqan",
-  compare_challenge_certificate: "✓ Shahaadada MERN & dib-u-eegista",
+  compare_bilaash_certificate: "✗",
+  compare_challenge_certificate: "✓ Shahaado",
   compare_free_price: "Bilaash",
-  compare_explorer_price: "$0 / FREE",
+  compare_explorer_price: "$0 · Bilaash",
   compare_explorer_price_free: "Bilaash",
-  compare_challenge_price: "$149/bilaan",
+  compare_challenge_price: "$149 hal mar",
 
   subscribe_social_month:
     "Ku biir {n}+ barayaal Soomaali ah bishaan — waxaad ku jirtaa kooxda",

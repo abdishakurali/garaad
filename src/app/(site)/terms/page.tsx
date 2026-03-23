@@ -26,7 +26,7 @@ export default function TermsPage() {
                 },
                 {
                     title: "2. Fees and Subscriptions",
-                    content: "Basic access to Garaad is free (Bilaash tier). The free tier includes access to gamified courses, community, and launchpad (view only). Challenge is a 4–6 week mentorship program with launchpad submit access; see the Subscribe page for current pricing. Paid fees are charged through your online account. Subscriptions automatically renew unless you cancel. You must cancel at least 1 business day before renewal to avoid charges. Fees are non-refundable except as required by law. We may change prices with notice to you. To cancel your subscription, email us at info@garaad.org or use the cancellation option in your account settings."
+                    content: "Basic access to Garaad is free (Bilaash tier). The free tier includes access to gamified courses, community, and launchpad (view only). Challenge is a 3-month mentorship program with launchpad submit access; see the Subscribe page for current pricing. Paid fees are charged through your online account. Subscriptions automatically renew unless you cancel. You must cancel at least 1 business day before renewal to avoid charges. Fees are non-refundable except as required by law. We may change prices with notice to you. To cancel your subscription, email us at info@garaad.org or use the cancellation option in your account settings."
                 },
                 {
                     title: "3. Your Content",
@@ -81,7 +81,7 @@ export default function TermsPage() {
                 },
                 {
                     title: "2. Kharashaadka iyo Is-diiwaangelinta",
-                    content: "Helitaanka aasaasiga ah ee Garaad waa bilaash. Haddii aad doorato in aad is-diiwaangeliso si aad u hesho astaamo dheeraad ah: Dhammaan khidmadaha waxaa lagu soo xareeyaa akoonkaaga internetka. Is-diiwaangelintu si toos ah ayey isu cusboonaysiinaysaa haddii aadan kansalin. Waa inaad kansashaa ugu yaraan hal maalin shaqo ka hor cusboonaysiinta si aad uga fogaato lacag-dalacsiin. Kharashaadka lama soo celinayo, marka laga reebo haddii sharcigu qasbo. Waxaan isku beddeli karnaa qiimaha, ogeysiis ayaana laguu soo diri doonaa. Si aad u kansasho is-diiwaangelintaada, nagala soo xiriir info@garaad.org ama isticmaal xulashada kansalka ee goobaha akoonkaaga."
+                    content: "Qorshaha bilaashka ah (Bilaash) wax lacag ah laguma bixiyo. Challenge-ku waa hal mar oo lacag bixin ah — waana $149 muddo 3 bilood ah. Ma jirto lacag bixin si toos ah u cusboonaanaysa. Haddii aad wax dhib ah kala kulanto ama aad su'aalo qabto, nagala soo xiriir: info@garaad.org"
                 },
                 {
                     title: "3. Nuxurkaaga (Content)",
