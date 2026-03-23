@@ -84,7 +84,7 @@ export function LessonUpgradeModal({
               ) : null}
               {spots != null ? (
                 <p className="rounded-xl border border-violet-500/40 bg-violet-950/50 px-4 py-3 text-center font-bold text-violet-100">
-                  {spots} boos ayaa ka haray cohort-kan
+                  {spots} boos ayaa ka haray Kooxdan
                   {waitlist ? " — liiska sugitaanka ayaa furan" : ""}
                 </p>
               ) : null}

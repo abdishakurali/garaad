@@ -633,7 +633,7 @@ export function CourseDetailClient() {
                                                     </p>
                                                     <p className="text-xs text-violet-200/90">
                                                         {challengeStatus
-                                                            ? `${challengeStatus.spots_remaining} boos ayaa ka haray cohort-kan`
+                                                            ? `${challengeStatus.spots_remaining} boos ayaa ka haray Kooxdan`
                                                             : "Boosyo xaddidan — ku biir Challenge"}
                                                     </p>
                                                     <Button
