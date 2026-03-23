@@ -1,7 +1,8 @@
 import { getBlogPosts } from "@/lib/blog";
 import { BlogListClient } from "@/components/blog/BlogListClient";
 
-export const revalidate = 60; // ISR: Revalidate every 60s so cover images stay fresh
+/** Always fetch posts on the server (avoids stale empty page if first static/ISR build missed the API). */
+export const dynamic = "force-dynamic";
 
 const BLOG_URL = "https://garaad.org/blog";
 
@@ -41,7 +42,14 @@ export async function generateMetadata() {
 }
 
 export default async function BlogListPage() {
-    const posts = await getBlogPosts().catch(() => []);
+    let posts: Awaited<ReturnType<typeof getBlogPosts>> = [];
+    try {
+        posts = await getBlogPosts();
+    } catch (e) {
+        if (process.env.NODE_ENV === "development") {
+            console.error("[blog] getBlogPosts failed:", e);
+        }
+    }
 
     return (
         <main className="min-h-screen bg-slate-50/30 dark:bg-black transition-colors duration-500">

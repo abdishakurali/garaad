@@ -72,21 +72,18 @@ export function TestimonialsSection() {
                 <div className="space-y-10 sm:space-y-14 md:space-y-16">
                     {/* 1. WhatsApp / screenshot reviews */}
                     <Reveal>
-                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8 w-full min-w-0">
+                        <div className="grid w-full min-w-0 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-3 md:gap-8">
                             {reviewImages.map((img, index) => (
                                 <div
                                     key={img.id}
-                                    className={cn(
-                                        "flex min-w-0 flex-col gap-3 sm:gap-4",
-                                        img.featured && "sm:col-span-2 lg:col-span-2"
-                                    )}
+                                    className="flex min-w-0 flex-col gap-3 sm:gap-4"
                                     style={{ animationDelay: `${index * 150}ms` }}
                                 >
                                     <div
                                         className={cn(
                                             "relative w-full overflow-hidden rounded-2xl border border-border/50 bg-muted/10 shadow-lg sm:rounded-3xl sm:border-border/60 group transition-all duration-300 hover:border-primary/35",
                                             img.featured
-                                                ? "aspect-[4/3] min-h-[180px] sm:aspect-video sm:min-h-[200px] lg:aspect-[21/9] lg:min-h-[220px]"
+                                                ? "aspect-[4/3] min-h-[180px] sm:aspect-[4/5] sm:min-h-0"
                                                 : "aspect-square sm:aspect-[4/5] max-h-[min(72vh,520px)] sm:max-h-none"
                                         )}
                                     >
@@ -95,7 +92,7 @@ export function TestimonialsSection() {
                                             alt={img.alt}
                                             fill
                                             className="object-contain p-3 sm:p-4 group-hover:scale-[1.01] transition-transform duration-300"
-                                            sizes={img.featured ? "(max-width:640px) 100vw, (max-width:1024px) 100vw, 66vw" : "(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"}
+                                            sizes="(max-width:768px) 100vw, 33vw"
                                             unoptimized
                                         />
                                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/[0.03] to-transparent" />

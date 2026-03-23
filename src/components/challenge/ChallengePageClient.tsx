@@ -360,18 +360,16 @@ export function ChallengePageClient() {
             </p>
           </div>
 
-          <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+          <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:gap-5 md:grid-cols-3 md:gap-6">
             {graduateCards.map((g) => (
               <div
                 key={g.name}
-                className={`flex min-w-0 flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-900/30 ${
-                  g.featured ? "sm:col-span-2 lg:col-span-2" : ""
-                }`}
+                className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-900/30"
               >
                 <div
                   className={`relative w-full overflow-hidden ${
                     g.featured
-                      ? "aspect-video min-h-[200px] sm:min-h-[240px] lg:aspect-[21/9] lg:min-h-[260px]"
+                      ? "aspect-[4/3] min-h-[180px] sm:aspect-[4/5] sm:min-h-0"
                       : "aspect-square max-h-[min(72vh,480px)] sm:aspect-[4/5] sm:max-h-none"
                   }`}
                 >
@@ -380,11 +378,7 @@ export function ChallengePageClient() {
                     alt={g.name}
                     fill
                     className="object-cover object-top"
-                    sizes={
-                      g.featured
-                        ? "(max-width:640px) 100vw, (max-width:1280px) 100vw, 66vw"
-                        : "(max-width:640px) 100vw, (max-width:1280px) 50vw, 33vw"
-                    }
+                    sizes="(max-width:768px) 100vw, 33vw"
                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />

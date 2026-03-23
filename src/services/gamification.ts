@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import AuthService from "./auth";
 import { API_BASE_URL } from "@/lib/constants";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const swrConfig = {
     revalidateOnFocus: false,
@@ -13,11 +14,14 @@ const swrConfig = {
 
 const fetcher = async (url: string) => {
     const token = await AuthService.getInstance().ensureValidToken();
+    if (!token) {
+        throw new Error("Not authenticated");
+    }
 
     const response = await fetch(url, {
         headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            Authorization: `Bearer ${token}`,
         },
     });
 
@@ -46,15 +50,14 @@ export function useProblem(problemId?: string) {
 }
 
 export function useGamificationStatus() {
-    const { data, error, isLoading, mutate } = useSWR(
-        `${API_BASE_URL}/api/gamification/status/`,
-        fetcher,
-        swrConfig
-    );
+    const user = useAuthStore((s) => s.user);
+    const key = user ? `${API_BASE_URL}/api/gamification/status/` : null;
+
+    const { data, error, isLoading, mutate } = useSWR(key, fetcher, swrConfig);
 
     return {
         gamificationStatus: data,
-        isLoading,
+        isLoading: !!user && isLoading,
         isError: error,
         mutate,
     };
@@ -76,60 +79,56 @@ export function useNotification() {
 }
 
 export function useStreak() {
-    const { data, error, isLoading, mutate } = useSWR(
-        `${API_BASE_URL}/api/gamification/streak/`,
-        fetcher,
-        swrConfig
-    );
+    const user = useAuthStore((s) => s.user);
+    const key = user ? `${API_BASE_URL}/api/gamification/streak/` : null;
+
+    const { data, error, isLoading, mutate } = useSWR(key, fetcher, swrConfig);
 
     return {
         streak: data,
-        isLoading,
+        isLoading: !!user && isLoading,
         isError: error,
         mutate,
     };
 }
 
 export function useProgress() {
-    const { data, error, isLoading, mutate } = useSWR(
-        `${API_BASE_URL}/api/gamification/progress/`,
-        fetcher,
-        swrConfig
-    );
+    const user = useAuthStore((s) => s.user);
+    const key = user ? `${API_BASE_URL}/api/gamification/progress/` : null;
+
+    const { data, error, isLoading, mutate } = useSWR(key, fetcher, swrConfig);
 
     return {
         progress: data,
-        isLoading,
+        isLoading: !!user && isLoading,
         isError: error,
         mutate,
     };
 }
 
 export function useLeague() {
-    const { data, error, isLoading, mutate } = useSWR(
-        `${API_BASE_URL}/api/gamification/league/`,
-        fetcher,
-        swrConfig
-    );
+    const user = useAuthStore((s) => s.user);
+    const key = user ? `${API_BASE_URL}/api/gamification/league/` : null;
+
+    const { data, error, isLoading, mutate } = useSWR(key, fetcher, swrConfig);
 
     return {
         league: data,
-        isLoading,
+        isLoading: !!user && isLoading,
         isError: error,
         mutate,
     };
 }
 
 export function useLeagues() {
-    const { data, error, isLoading, mutate } = useSWR(
-        `${API_BASE_URL}/api/gamification/leagues/`,
-        fetcher,
-        swrConfig
-    );
+    const user = useAuthStore((s) => s.user);
+    const key = user ? `${API_BASE_URL}/api/gamification/leagues/` : null;
+
+    const { data, error, isLoading, mutate } = useSWR(key, fetcher, swrConfig);
 
     return {
         leagues: data,
-        isLoading,
+        isLoading: !!user && isLoading,
         isError: error,
         mutate,
     };
@@ -146,13 +145,15 @@ export function useLeagueLeaderboard(
         ...(limit ? { limit: limit.toString() } : {}),
     });
 
+    const user = useAuthStore((s) => s.user);
     const url = `${API_BASE_URL}/api/gamification/leaderboard/?${query.toString()}`;
+    const key = user ? url : null;
 
-    const { data, error, isLoading, mutate } = useSWR(url, fetcher, swrConfig);
+    const { data, error, isLoading, mutate } = useSWR(key, fetcher, swrConfig);
 
     return {
         leaderboard: data,
-        isLoading,
+        isLoading: !!user && isLoading,
         isError: error,
         mutate,
     };

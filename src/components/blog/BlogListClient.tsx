@@ -28,23 +28,27 @@ export function BlogListClient({ initialPosts }: BlogListClientProps) {
   }, [querySearch]);
 
   const filteredPosts = useMemo(() => {
-    return posts.filter((post) => {
+    const list = Array.isArray(posts) ? posts : [];
+    return list.filter((post) => {
+      const tags = Array.isArray(post.tags) ? post.tags : [];
       const matchesSearch =
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.excerpt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.meta_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some((tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        (post.title ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (post.excerpt ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (post.meta_description ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tags.some((tag) => (tag.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()));
 
       if (activeTag === "all") return matchesSearch;
-      return matchesSearch && post.tags.some((tag) => tag.slug === activeTag);
+      return matchesSearch && tags.some((tag) => tag.slug === activeTag);
     });
   }, [posts, searchTerm, activeTag]);
 
   const tagList = useMemo(() => {
     const tagsMap = new Map<string, string>();
-    posts.forEach((post) => {
-      post.tags.forEach((tag) => {
-        tagsMap.set(tag.slug, tag.name);
+    const list = Array.isArray(posts) ? posts : [];
+    list.forEach((post) => {
+      const tags = Array.isArray(post.tags) ? post.tags : [];
+      tags.forEach((tag) => {
+        if (tag.slug) tagsMap.set(tag.slug, tag.name);
       });
     });
     return Array.from(tagsMap.entries()).map(([slug, name]) => ({ slug, name }));
