@@ -127,11 +127,15 @@ class ApiClient {
                     }
                 } else {
                     this.isRefreshing = true;
-                    const newToken = await this.refreshAccessToken();
-                    const queue = this.refreshQueue;
-                    this.refreshQueue = [];
-                    this.isRefreshing = false;
-                    queue.forEach((cb) => cb(newToken));
+                    let newToken: string | null = null;
+                    try {
+                        newToken = await this.refreshAccessToken();
+                    } finally {
+                        const queue = this.refreshQueue;
+                        this.refreshQueue = [];
+                        this.isRefreshing = false;
+                        queue.forEach((cb) => cb(newToken));
+                    }
 
                     if (newToken) {
                         headers.set('Authorization', `Bearer ${newToken}`);

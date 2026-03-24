@@ -397,7 +397,7 @@ export function CoursesListClient() {
                                                                         href={firstFreeHref}
                                                                         className="flex w-full items-center justify-center rounded-xl border border-slate-200 py-2.5 text-center text-xs font-bold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                                                                     >
-                                                                        Ama bilaash u bilow →
+                                                                        Qofka ugu
                                                                     </Link>
                                                                     <Link
                                                                         href={courseHref}

@@ -226,7 +226,7 @@ export default function CommunityPage() {
 
     useEffect(() => {
         return () => {
-            CommunityWebSocket.getInstance().connect('global');
+            CommunityWebSocket.getInstance().disconnect();
         };
     }, []);
 
