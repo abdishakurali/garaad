@@ -37,6 +37,8 @@ export function Header() {
   const [isPremium, setIsPremium] = useState(false);
   const { data: challengeNav, loading: challengeNavLoading } = useChallengeStatus();
   const challengeSpots = challengeNav?.spots_remaining ?? 0;
+  const challengeWaitlist = challengeNav?.is_waitlist_only ?? false;
+  const challengeHref = challengeWaitlist ? "/subscribe?plan=challenge" : "/challenge";
   const showChallengeNavCta =
     !user ||
     !user.is_premium ||
@@ -232,19 +234,19 @@ export function Header() {
                   </Link>
                 ) : (
                   <Link
-                    href="/challenge"
+                    href={challengeHref}
                     className={clsx(
                       "hidden md:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-500/25 transition-colors",
-                      challengeSpots <= 3 && "relative pl-3"
+                      !challengeWaitlist && challengeSpots <= 3 && "relative pl-3"
                     )}
                   >
-                    {challengeSpots <= 3 && (
+                    {!challengeWaitlist && challengeSpots <= 3 && (
                       <span
                         className="absolute left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-red-500 motion-safe:animate-pulse"
                         aria-hidden
                       />
                     )}
-                    Challenge {challengeSpots} boos
+                    {challengeWaitlist ? "Liiska sugitaanka — kooxda xigta" : `Challenge ${challengeSpots} boos`}
                   </Link>
                 )
               )}
@@ -276,13 +278,13 @@ export function Header() {
                   </Link>
                 ) : (
                   <Link
-                    href="/challenge"
+                    href={challengeHref}
                     className={clsx(
                       "text-[10px] font-bold px-2 py-1 rounded-full bg-violet-600 text-white shrink-0 shadow-sm shadow-violet-500/25 max-w-[9rem] truncate",
-                      challengeSpots <= 3 && "ring-2 ring-red-500/60"
+                      !challengeWaitlist && challengeSpots <= 3 && "ring-2 ring-red-500/60"
                     )}
                   >
-                    {challengeSpots} boos →
+                    {challengeWaitlist ? "Liiska sugitaanka →" : `${challengeSpots} boos →`}
                   </Link>
                 )
               )}

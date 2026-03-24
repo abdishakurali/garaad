@@ -7,6 +7,7 @@ import { UserProgress } from "@/services/progress";
 import { PlayCircle, ReplyIcon, CheckCircle, LogIn, Lock, Sparkles } from "lucide-react";
 import AuthService from "@/services/auth";
 import { cn } from "@/lib/utils";
+import { pricingTranslations as t } from "@/config/translations/pricing";
 
 interface ModuleZigzagProps {
     modules: Module[];
@@ -367,7 +368,7 @@ export default function ModuleZigzag({
                             ) : opensUpgradeFromLesson ? (
                                 <>
                                     <Sparkles className="inline w-4 h-4 mr-2" />
-                                    Ku biir Challenge-ka
+                                    {t.challenge_cta_compact}
                                 </>
                             ) : needsLoginForFreeFirst ? (
                                 <>

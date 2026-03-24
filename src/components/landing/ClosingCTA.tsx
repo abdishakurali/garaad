@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Rocket } from "lucide-react";
+import { pricingTranslations as t } from "@/config/translations/pricing";
 
 export function ClosingCTA() {
     return (
@@ -12,19 +13,18 @@ export function ClosingCTA() {
                 </div>
 
                 <h2 className="mb-4 text-2xl font-bold text-zinc-50 sm:text-3xl md:text-4xl">
-                    Diyaar ma tahay inaad noqoto developer?
+                    Diyaar ma u tahay inaad bilowdo safarkaaga Tech-ka?
                 </h2>
 
                 <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-zinc-400 md:text-lg">
-                    Bilaash waa albaabka aad ku aragto platform-ka. Challenge-ka waa halka aad ku dhisto xirfadda iyo
-                    mashruucaaga.
+                    Ku biir 88+ arday oo maanta dhisaya mustaqbalkooda. Ma jirto halis (Risk) — ku bilow bilaash.
                 </p>
 
                 <Link
                     href="/challenge"
-                    className="inline-flex w-full max-w-xs items-center justify-center rounded-lg bg-violet-600 px-8 py-3 text-base font-semibold text-white hover:bg-violet-500 sm:w-auto"
+                    className="inline-flex w-full max-w-md items-center justify-center rounded-lg bg-violet-600 px-8 py-3 text-base font-semibold text-white hover:bg-violet-500 sm:w-auto"
                 >
-                    Ku biir Challenge-ka →
+                    {t.challenge_cta} →
                 </Link>
             </div>
         </section>

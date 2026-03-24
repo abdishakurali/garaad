@@ -31,7 +31,7 @@ const faqs: FAQ[] = [
     },
     {
         question: "Goormaan arki doonaa natiijooyin dhab ah?",
-        answer: "Bilaha 1-aad waxaad haysan doontaa prototype shaqeynaya, bilaha 2-aad waxaad u soo bandhigi doontaa macaamiil dhab ah, bilaha 3-aadna hadafkeenu waa inaad hesho macmiilkii ugu horreeyay ee lacag bixiya. Garaad wuxuu ku siinayaa dhammaan agabkii aad ku bilaabi lahayd oo aad ku guulaysan lahayd.",
+        answer: "Bilaha 1-aad waxaad haysan doontaa prototype shaqeynaya, bilaha 2-aad waxaad u soo bandhigi doontaa macaamiil dhab ah, bilaha 3-aadna hadafkeenu waa inaad hesho macmiilQofka ugu horreeyay ee lacag bixiya. Garaad wuxuu ku siinayaa dhammaan agabkii aad ku bilaabi lahayd oo aad ku guulaysan lahayd.",
     },
     {
         question: "Haddaanan waqti badan haysan, ma maareyn karaa?",

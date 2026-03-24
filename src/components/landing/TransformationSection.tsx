@@ -116,7 +116,7 @@ const weeks: Week[] = [
         title: "Lacag-samaynta & Ballaarinta",
         hours: "12-15 saacadood",
         difficulty: "Advanced",
-        win: "Macmiilkii ugu horreeyay ee bixiya lacag iyo qorshe koboc",
+        win: "MacmiilQofka ugu horreeyay ee bixiya lacag iyo qorshe koboc",
         skills: [
             "Qorsheynta qiimaha (Pricing)",
             "Xiriirinta hababka lacag-bixinta",

@@ -1,11 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import useSWR from "swr";
 import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 import { Users, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { API_BASE_URL } from "@/lib/constants";
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export function CommunityCTASection() {
+    const { data: stats } = useSWR<{ students_count: number }>(
+        `${API_BASE_URL}/api/public/landing-stats/`,
+        fetcher,
+        { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+    );
+    const n = stats?.students_count && stats.students_count > 0 ? stats.students_count : 88;
+
     return (
         <section className="relative py-14 md:py-20 bg-gradient-to-br from-primary/5 via-blue-500/5 to-purple-500/5 dark:from-primary/10 dark:via-blue-500/10 dark:to-purple-500/10 overflow-hidden">
             {/* Background Pattern */}
@@ -37,12 +48,13 @@ export function CommunityCTASection() {
                         </div>
 
                         <h2 className="text-3xl sm:text-4xl font-black mb-4 leading-tight">
-                            Ka Mid Noqo{" "}
-                            <span className="text-primary">Bulshada Garaad</span>
+                            Diyaar ma u tahay inaad bilowdo{" "}
+                            <span className="text-primary">safarkaaga Tech-ka?</span>
                         </h2>
 
                         <p className="text-muted-foreground mb-4 max-w-lg">
-                            Ku biir boqolaal arday iyo aqoonyahano oo wadaaga aqoon iyo taageero — wada dhis mustaqbalka tech-ka Soomaaliya.
+                            Ku biir {n}+ arday oo maanta dhisaya mustaqbalkooda. Ma jirto halis (Risk) — ku bilow
+                            bilaash.
                         </p>
 
                         <p className="text-sm text-muted-foreground mb-6 max-w-lg">
@@ -57,9 +69,7 @@ export function CommunityCTASection() {
                                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all"
                             >
                                 <span>
-                                    {EXPLORER_IS_FREE
-                                        ? "Samee akoon — Bilaash waa weligeed"
-                                        : "Bilow Bilaash — weligeed"}
+                                    {EXPLORER_IS_FREE ? "Ku bilow Bilaash — weligeed" : "Bilow Bilaash — weligeed"}
                                 </span>
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                             </Link>

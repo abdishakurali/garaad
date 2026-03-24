@@ -16,6 +16,7 @@ import { cn, getAbsoluteImageUrl, getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { CoursesChallengeBanner } from "@/components/challenge/CoursesChallengeBanner";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
+import { pricingTranslations as pt } from "@/config/translations/pricing";
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-category.svg";
@@ -390,7 +391,7 @@ export function CoursesListClient() {
                                                                         href="/challenge"
                                                                         className="flex w-full items-center justify-center rounded-xl bg-violet-600 py-3 text-center text-sm font-black text-white transition hover:bg-violet-500"
                                                                     >
-                                                                        Ku biir Challenge-ka →
+                                                                        {pt.challenge_cta} →
                                                                     </Link>
                                                                     <Link
                                                                         href={firstFreeHref}
@@ -432,7 +433,7 @@ export function CoursesListClient() {
                                 posthog?.capture("challenge_cta_clicked", { source: "courses_page" })
                             }
                         >
-                            Ku biir Challenge-ka — bulshada iyo taageerada →
+                            {pt.challenge_cta} — bulshada iyo taageerada →
                         </Link>
                     </div>
                 )}

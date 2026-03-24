@@ -39,6 +39,7 @@ import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
 import { CommunityChallengeBanner } from '@/components/challenge/CommunityChallengeBanner';
+import { pricingTranslations as pt } from '@/config/translations/pricing';
 export default function CommunityPage() {
     const {
         posts,
@@ -390,7 +391,7 @@ export default function CommunityPage() {
                     href="/challenge"
                     className="block w-full bg-violet-600 hover:bg-violet-500 text-white py-3.5 rounded-xl font-bold text-sm text-center shadow-lg shadow-violet-600/25 transition-colors"
                 >
-                    Ku biir Challenge-ka →
+                    {pt.challenge_cta} →
                 </Link>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
                     Bilaash wali waxaad ku bilow kartaa /courses

@@ -19,6 +19,7 @@ import Link from "next/link";
 import { TechIcon } from "@/components/launchpad/TechIcon";
 import { useAuthReady } from "@/hooks/useAuthReady";
 import { useAuthStore } from "@/store/useAuthStore";
+import { pricingTranslations as t } from "@/config/translations/pricing";
 
 const FILTER_OPTIONS: { value: StartupFilter; label: string; icon: React.ReactNode }[] = [
     { value: "trending", label: "Trending", icon: <TrendingUp className="w-4 h-4" /> },
@@ -190,7 +191,7 @@ export function LaunchpadListClient() {
                             href="/challenge"
                             className="inline-flex items-center justify-center rounded-2xl bg-violet-600 px-8 py-3.5 text-sm font-black text-white hover:bg-violet-500"
                         >
-                            Ku biir Challenge-ka →
+                            {t.challenge_cta} →
                         </Link>
                     </div>
 
@@ -215,7 +216,7 @@ export function LaunchpadListClient() {
                                     href="/challenge"
                                     className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-black text-white hover:bg-violet-500"
                                 >
-                                    Ku biir Challenge-ka →
+                                    {t.challenge_cta} →
                                 </Link>
                             </div>
                         )}

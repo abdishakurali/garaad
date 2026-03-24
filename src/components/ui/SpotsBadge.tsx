@@ -6,18 +6,45 @@ export interface SpotsBadgeProps {
   spots: number;
   loading?: boolean;
   className?: string;
+  /** Sold out / waitlist: show invitation instead of "0 boos oo hadhay". */
+  waitlistOnly?: boolean;
+  cohortName?: string | null;
 }
 
 /**
  * Live cohort spots: red (≤3), orange (≤6), green (>6).
+ * When waitlist-only, pivots to next-cohort scarcity (no dead-end zero).
  */
-export function SpotsBadge({ spots, loading, className }: SpotsBadgeProps) {
+export function SpotsBadge({
+  spots,
+  loading,
+  className,
+  waitlistOnly,
+  cohortName,
+}: SpotsBadgeProps) {
   if (loading) {
     return (
       <div
         className={cn("mx-auto h-9 w-48 max-w-full animate-pulse rounded-lg bg-zinc-800", className)}
         aria-hidden
       />
+    );
+  }
+
+  if (waitlistOnly) {
+    const label = cohortName?.trim() ? cohortName.trim() : "Kooxdan";
+    return (
+      <div
+        className={cn(
+          "inline-flex max-w-full items-center justify-center rounded-lg border border-violet-500/40 bg-violet-950/40 px-3 py-2 text-center text-sm font-semibold text-violet-100 sm:text-base",
+          className
+        )}
+        role="status"
+      >
+        <span className="text-balance">
+          Kooxda {label} waa buuxdaa — diiradda saar kooxda xigta
+        </span>
+      </div>
     );
   }
 

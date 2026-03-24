@@ -16,6 +16,7 @@ import {
 import { Sparkles, ArrowLeft } from "lucide-react";
 import { grantLessonGatePreview } from "@/lib/lessonGatePreview";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
+import { pricingTranslations as t } from "@/config/translations/pricing";
 
 export interface LessonUpgradeModalProps {
   coursePath: string;
@@ -88,7 +89,9 @@ export function LessonUpgradeModal({
                   {waitlist ? " — liiska sugitaanka ayaa furan" : ""}
                 </p>
               ) : null}
-              <p className="text-center text-base font-black text-white">Ku biir Challenge-ka — $149 hal mar</p>
+              <p className="text-center text-base font-black text-white">
+                {t.challenge_cta_compact} — $149 hal mar
+              </p>
             </div>
           </DialogDescription>
         </DialogHeader>
@@ -97,7 +100,7 @@ export function LessonUpgradeModal({
             asChild
             className="w-full font-bold bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white h-12 rounded-xl"
           >
-            <Link href="/subscribe?plan=challenge&ref=lesson_gate">Ku biir Challenge-ka</Link>
+            <Link href="/subscribe?plan=challenge&ref=lesson_gate">{t.challenge_cta_compact}</Link>
           </Button>
           <Button
             variant="ghost"

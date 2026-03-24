@@ -24,6 +24,7 @@ import { cn, getCourseThumbnailUrl } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { freeTierLessonIdSet, userHasFullLessonAccess } from "@/lib/lessonTierAccess";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
+import { pricingTranslations as t } from "@/config/translations/pricing";
 const ModuleZigzag = dynamic(
     () =>
         import("@/components/learning/ui/ModuleZigzag").then((m) => ({
@@ -615,7 +616,7 @@ export function CourseDetailClient() {
                                                 href="/challenge"
                                                 className="mt-1.5 inline-flex text-sm font-black text-violet-700 underline-offset-2 hover:underline dark:text-violet-300"
                                             >
-                                                Ku biir Challenge-ka →
+                                                {t.challenge_cta} →
                                             </Link>
                                         </div>
                                     ) : null}
@@ -643,7 +644,7 @@ export function CourseDetailClient() {
                                                         asChild
                                                     >
                                                         <Link href="/subscribe?plan=challenge&ref=course_locked">
-                                                            Ku biir Challenge-ka — $149 hal mar
+                                                            {t.challenge_cta_compact} — $149 hal mar
                                                         </Link>
                                                     </Button>
                                                     <p className="text-[11px] text-muted-foreground">

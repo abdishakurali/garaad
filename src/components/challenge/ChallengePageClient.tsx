@@ -39,9 +39,12 @@ const outcomeBullets: string[] = [
 
 type GraduateCard = {
   name: string;
+  /** One-line transformation (e.g. Name — laga soo bilaabo … ilaa …). */
+  byline?: string;
   tag: string;
   quote: string;
-  story?: string;
+  outcomeLine?: string;
+  kicker?: string;
   badge: string;
   src: string;
   featured?: boolean;
@@ -52,28 +55,39 @@ type GraduateCard = {
 const graduateCards: GraduateCard[] = [
   {
     name: "Ilyas Omar",
+    byline:
+      "Ilyas Omar — Laga soo bilaabo barashada aasaasiga ah ilaa xirfadle layout & Tailwind CSS",
     tag: "Xirfad cusub oo shaqo u horseeda",
     quote:
       "When I started learning tailwind css, your course helped me understand more about tailwind.",
+    outcomeLine: "Natiijada: wuxuu xoojiyay aqoonta CSS / Tailwind si uu ugu dhow u noqdo shaqooyinka dhabta ah.",
+    kicker: "Tan xigta adiga ayay noqon kartaa.",
     badge: "Arday Guulaystay",
     src: "/images/review/1.png",
     featured: false,
   },
   {
     name: "Abdiladif Salah",
+    byline:
+      "Abdiladif Salah — Laga soo bilaabo barashada ilaa horumariye coding wax ku ool ah",
     tag: "Xirfadda coding-ka wax ku ool u adeegso",
     quote:
       "Pro thnks hada coding barashadii waa wada si aan inta barashada ku jiro ugu shaqaysto",
+    outcomeLine: "Natiijada: barashadii waxay noqotay shaqo dhab ah oo isku xiran — ma ahan kaliya teori.",
+    kicker: "Tan xigta adiga ayay noqon kartaa.",
     badge: "Developer",
     src: "/images/review/2.png",
     featured: false,
   },
   {
     name: "Abdiaziz",
-    tag: "3 bilood kadib: shirkad IT + macaamiil",
-    story:
-      "Abdiaziz wuxuu yimid Challenge-ka isagoo aan waxba garanayn. 3 bilood kadib wuxuu dhisay Sofaritech — shirkad IT ah oo macaamiil la leh. Hadda wuxuu macaamiil la shaqeeyaa.",
+    byline:
+      "Abdiaziz — Laga soo bilaabo 'Eber' ilaa Milkiile Shirkad (Sofaritech)",
+    tag: "Shirkad IT + macaamiil 3 bilood gudahood",
     quote: "Waxaan dhisay mustaqbalkayga anigoo adeegsanaya wax kasta oo gacantayda soo galay",
+    outcomeLine:
+      "Natiijada: 3 bilood kadib, wuxuu dhisay shirkad IT ah oo macaamiil la leh.",
+    kicker: "Tan xigta adiga ayay noqon kartaa.",
     badge: "🏢 Shirkad Dhisay",
     src: "/images/review/3.jpeg",
     featured: true,
@@ -116,7 +130,7 @@ export function ChallengePageClient() {
   const nextLabel = formatStartDate(data?.next_cohort_start_date ?? null);
 
   const primaryHref = "/subscribe?plan=challenge";
-  const primaryLabel = waitlist ? "Liiska sugitaanka gal" : "Ku biir Kooxda — Hadda →";
+  const primaryLabel = waitlist ? "Gali Liiska Sugitaanka Hadda" : "Ku biir Kooxda — Hadda →";
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -127,18 +141,34 @@ export function ChallengePageClient() {
           </span>
 
           <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight text-zinc-50 sm:text-4xl md:text-5xl">
-            Ka bilow eber. Gaar shaqo{" "}
-            <span className="text-violet-400">tech</span> ama dhis{" "}
-            <span className="text-violet-400">startup-kaaga</span>.
+            Laga soo bilaabo <span className="text-violet-400">Eber</span> ilaa{" "}
+            <span className="text-violet-400">Aasaase</span>{" "}
+            <span className="text-zinc-400">(Founder)</span> ama{" "}
+            <span className="text-violet-400">Barnaamijiye</span>{" "}
+            <span className="text-zinc-400">(Developer)</span>.
           </h1>
 
-          <p className="mx-auto mt-4 max-w-2xl text-balance px-1 text-base leading-relaxed text-zinc-400 sm:mt-5 sm:text-lg">
-            3 bilood — mentor, koox, iyo wadada buuxda (SaaS &amp; AI). Hal mar:{" "}
-            <span className="font-semibold text-zinc-200">$149</span>.
-          </p>
+          <div className="mx-auto mt-4 max-w-2xl space-y-3 px-1 text-base leading-relaxed text-zinc-400 sm:mt-5 sm:text-lg">
+            <p className="text-balance">
+              Baro koodhka, dhis mashruucaaga SaaS, oo hel shaqadaada tech-da ee ugu horreysa{" "}
+              <span className="font-semibold text-zinc-200">3 bilood gudahood</span>.
+            </p>
+            <p className="text-balance text-zinc-300">
+              Khibrad hore looma baahna. Mentor toos ah. Af-Soomaali.
+            </p>
+            <p className="text-balance">
+              Maalgelin hal mar ah:{" "}
+              <span className="font-semibold text-zinc-100">$149</span>
+            </p>
+          </div>
 
           <div className="mt-6 flex justify-center sm:mt-8">
-            <SpotsBadge spots={spots} loading={loading && !data} />
+            <SpotsBadge
+              spots={spots}
+              loading={loading && !data}
+              waitlistOnly={waitlist}
+              cohortName={cohortName}
+            />
           </div>
 
           <div className="mt-6 flex flex-col items-center gap-0.5 sm:mt-8 sm:gap-1">
@@ -154,8 +184,8 @@ export function ChallengePageClient() {
           </div>
 
           {waitlist && (
-            <p className="mx-auto mt-5 max-w-lg px-1 text-sm leading-relaxed text-zinc-400 sm:mt-6">
-              Kooxdu hadda way buuxday — kii xiga: {nextLabel}
+            <p className="mx-auto mt-5 max-w-lg px-1 text-base font-medium leading-relaxed text-zinc-200 sm:mt-6 sm:text-lg">
+              Kooxda {cohortName} waa buuxdaa. Ha seegin fursada xigta.
             </p>
           )}
 
@@ -212,7 +242,7 @@ export function ChallengePageClient() {
           <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-lg border border-white/10 sm:h-40 sm:w-40">
             <Image
               src="/images/builder.png"
-              alt="Abdishakuur — aasaasaha Garaad"
+              alt="Mentor xirfadle ah — Garaad Challenge"
               fill
               className="object-cover object-top"
               sizes="176px"
@@ -221,13 +251,14 @@ export function ChallengePageClient() {
           </div>
           <div className="min-w-0 text-center sm:text-left">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-              Aniga ayaa kuu baranaya
+              Mentorship xirfadle ah
             </p>
             <h2 id="mentor-heading" className="mt-1 text-xl font-bold text-zinc-50 sm:text-2xl">
-              Abdishakuur
+              Kooxda Garaad
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base">
-              Waxaan is baray coding-ga anigoo 16 jir ah Muqdisho. Hadda waxaan ku noolahay Dublin waxaanan dhisay Garaad si aan idinka caawiyo inaad isla socodkan raacdo — af Soomaali, mentor toos ah, koox.
+              Challenge-ka wuxuu ku siinayaa mentor xirfadle ah oo xiriir toos ah: laga bilaabo aasaaska tech-ka ilaa
+              mashruuc dhab ah, dhammaan af Soomaali, koox toban arday ah oo isla socota.
             </p>
             <a
               href={whatsappHref(DEFAULT_WHATSAPP_MESSAGE)}
@@ -275,56 +306,20 @@ export function ChallengePageClient() {
       >
         <div className="mx-auto w-full min-w-0 max-w-3xl">
           <h2 id="roi-heading" className="text-center text-xl font-bold text-zinc-50 sm:text-2xl md:text-3xl">
-            $149 ma aha qaali — haddii aad xisaabtid
-          </h2>
-          <div className="mt-8 space-y-6 rounded-lg border border-white/10 p-5 sm:mt-10 sm:p-6">
-            <div className="space-y-2 text-sm leading-relaxed text-zinc-400 sm:text-base">
-              <p className="font-semibold text-zinc-200">Freelance $500/bishii:</p>
-              <p>
-                Garaad <span className="font-semibold text-zinc-200">$149</span> — hal mashruuc ayaa lacagtaas soo celin kara.
-              </p>
-            </div>
-            <div className="h-px bg-white/10" />
-            <div className="space-y-2 text-sm leading-relaxed text-zinc-400 sm:text-base">
-              <p className="font-semibold text-zinc-200">SaaS $50/bishii:</p>
-              <p>3 macmiil = lacagtaada dib u heshay.</p>
-            </div>
-            <div className="h-px bg-white/10" />
-            <div className="space-y-2 text-sm leading-relaxed text-zinc-400 sm:text-base">
-              <p className="font-semibold text-zinc-200">Jaamacadda (tusaale)</p>
-              <ul className="list-inside list-disc space-y-1">
-                <li>$10,000+ sanad kasta</li>
-                <li>Af Ingiriis badanaa loo baahan yahay</li>
-              </ul>
-              <p className="pt-1 text-zinc-300">
-                Garaad: <span className="font-semibold text-zinc-100">$149</span> · Af Soomaali · online · mentor + koox
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        aria-labelledby="compare-heading"
-        className="border-b border-white/5 px-3 py-12 sm:px-4 sm:py-16 md:px-6 md:py-20"
-      >
-        <div className="mx-auto w-full min-w-0 max-w-3xl">
-          <h2 id="compare-heading" className="text-center text-xl font-bold text-zinc-50 sm:text-2xl md:text-3xl">
-            Halkee ayaad ka baranaysaa coding-ga?
+            Waa maxay sababta Garaad u tahay maalgelinta ugu fiican ee aad sameyso?
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-center text-sm text-zinc-500 sm:mt-3">
-            Qiimaha iyo habka isbar dhig.
+            Qiimaha, waqtiga, luuqadda, iyo caawimaadda — isbar dhig.
           </p>
           <div className="mt-8 space-y-2 sm:mt-10">
             {[
-              "Jaamacadda — $10,000+/sanad · Ingiriis · 4 sano",
-              "Bootcamp US — ~$15,000 · Ingiriis · Visa laguma heli karo",
-              "YouTube — Bilaash · Ingiriis badan · Cidna toos kuu jawaabi mayso",
-              "freeCodeCamp — Bilaash · Ingiriis · Keligaa",
+              "Jaamacad: $10,000+ sanadkii. 4 sano. Af-Ingiriis. (Aragti u badan)",
+              "Bootcamp US: $15,000+. Fiiso la'aan. Af-Ingiriis.",
+              "YouTube: Bilaash, laakiin cidna kuma caawinayso markaad ku xannibanto koodhka.",
             ].map((line) => (
               <div
                 key={line}
-                className="rounded-lg border border-white/10 px-4 py-3 text-sm text-zinc-500 sm:px-5 sm:text-base"
+                className="rounded-lg border border-white/10 px-4 py-3 text-sm leading-relaxed text-zinc-400 sm:px-5 sm:text-base"
               >
                 <span className="mr-2 text-zinc-600" aria-hidden>
                   —
@@ -333,12 +328,20 @@ export function ChallengePageClient() {
               </div>
             ))}
             <div className="rounded-lg border border-violet-500/30 bg-zinc-900/50 px-4 py-4 text-sm leading-relaxed text-zinc-200 sm:px-5 sm:py-4 sm:text-base">
-              <span className="mr-2 text-violet-400" aria-hidden>
-                ✓
+              <span className="mr-1.5" aria-hidden>
+                🔥
               </span>
-              Garaad Challenge — <span className="font-medium text-zinc-50">$149 hal mar</span> · Af Soomaali · mentor ·
-              koox · shahaado
+              <span className="font-semibold text-zinc-50">Garaad Challenge:</span>{" "}
+              <span className="font-medium text-zinc-50">$149 (Hal mar)</span>. 3 bilood. Af-Soomaali. Mentor toos kuu
+              caawinaya, iyo shahaado.
             </div>
+          </div>
+          <div className="mt-8 rounded-lg border border-white/10 bg-zinc-900/30 p-5 sm:mt-10 sm:p-6">
+            <p className="text-sm font-semibold text-zinc-200 sm:text-base">Sida lacagtaadu kuugu soo noqonayso:</p>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base">
+              Hal mashruuc oo Freelance ah ($500) ama 3 macmiil oo SaaS ah ($50/bishii) ayaa lacagtaadii iyo macaashba
+              kuu soo celinaya.
+            </p>
           </div>
         </div>
       </section>
@@ -348,6 +351,13 @@ export function ChallengePageClient() {
         className="border-y border-white/10 py-12 md:py-16"
         innerClassName="px-3 sm:px-4 md:px-6 lg:px-8"
       />
+
+      <div className="border-b border-white/5 bg-zinc-950 px-3 py-10 sm:px-4 sm:py-12 md:px-6 md:py-14">
+        <p className="mx-auto max-w-2xl text-center text-base leading-relaxed text-zinc-300 sm:text-lg">
+          Waxaan soo maray wadadii adkayd ee is-baridda. Garaad waxaan u dhisay inaan ku siiyo khariidadda (roadmap) aan
+          anigu jeclaan lahaa inaan haysto markaan bilaabayay.
+        </p>
+      </div>
 
       <section className="border-b border-white/5 px-3 py-12 sm:px-4 sm:py-16 md:px-6 md:py-20">
         <div className="mx-auto w-full min-w-0 max-w-7xl">
@@ -393,14 +403,19 @@ export function ChallengePageClient() {
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col gap-1.5 p-4 sm:gap-2 sm:p-5">
-                  <p className="text-base font-semibold text-zinc-50 sm:text-lg">{g.name}</p>
+                  <p className="text-base font-semibold leading-snug text-zinc-50 sm:text-lg">{g.byline ?? g.name}</p>
                   <p className="text-xs font-medium text-zinc-500">{g.tag}</p>
-                  {g.story ? (
-                    <p className="text-sm font-medium leading-relaxed text-zinc-300 sm:text-base">{g.story}</p>
-                  ) : null}
                   <p className="text-sm leading-relaxed text-zinc-400 italic sm:text-base">
                     &ldquo;{g.quote}&rdquo;
                   </p>
+                  {g.outcomeLine ? (
+                    <p className="mt-1 border-l-2 border-violet-500/80 pl-3 text-sm font-medium leading-relaxed text-zinc-200 sm:text-base">
+                      {g.outcomeLine}
+                    </p>
+                  ) : null}
+                  {g.kicker ? (
+                    <p className="text-sm font-medium text-zinc-400 sm:text-base">{g.kicker}</p>
+                  ) : null}
                   {g.href ? (
                     <a
                       href={g.href}
@@ -432,7 +447,15 @@ export function ChallengePageClient() {
           </p>
           {!loading && data && (
             <p className="mb-3 text-sm text-zinc-400">
-              Kooxda {cohortName}: {spots} boos oo hadhay · Waxay bilaabaysaa {nextLabel}
+              {waitlist ? (
+                <>
+                  Kooxda {cohortName} waa buuxdaa. Kooxda xigta waxay bilaabaysaa {nextLabel}.
+                </>
+              ) : (
+                <>
+                  Kooxda {cohortName}: {spots} boos oo hadhay · Waxay bilaabaysaa {nextLabel}
+                </>
+              )}
             </p>
           )}
           <div className="flex w-full justify-center px-1">

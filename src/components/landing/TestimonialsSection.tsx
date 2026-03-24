@@ -12,8 +12,11 @@ const reviewImages = [
         src: "/images/review/1.png",
         alt: "Ilyas Omar — dib u eegis WhatsApp",
         name: "Ilyas Omar",
-        outcome: "Bartay Tailwind CSS",
-        nowTag: "Tailwind CSS Developer",
+        byline: "3 bilood ka hor waxba ma aqoon — hadda waa Tailwind CSS expert.",
+        outcome: "Isbeddel dhab ah",
+        outcomeLine:
+            "Wax ka barasho eber ilaa xirfadle layout & Tailwind CSS: wuxuu hadda ku dhawaaday shaqooyinka dhabta ah.",
+        nowTag: "Tailwind CSS expert",
         featured: false,
     },
     {
@@ -21,7 +24,9 @@ const reviewImages = [
         src: "/images/review/2.png",
         alt: "Abdiladif Salah — dib u eegis WhatsApp",
         name: "Abdiladif Salah",
+        byline: "Laga soo bilaabo barashada ilaa horumariye coding wax ku ool ah",
         outcome: "Front Developer noqday",
+        outcomeLine: "Natiijada: barashadii waxay noqotay shaqo dhab ah oo isku xiran — ma ahan kaliya teori.",
         nowTag: "Front-End Developer",
         featured: false,
     },
@@ -30,7 +35,9 @@ const reviewImages = [
         src: "/images/review/3.jpeg",
         alt: "Abdiaziz — dib u eegis WhatsApp",
         name: "Abdiaziz",
-        outcome: "Website la dhisay Sofaritech",
+        byline: "Garaad waxay i bartay sida fikrad loogu beddelo shirkad (Sofaritech).",
+        outcome: "Fikrad → shirkad dhab ah",
+        outcomeLine: "3 bilood kadib: shirkad IT oo macaamiil leh, website la shaqeeya, mustaqbal la taaban karo.",
         nowTag: "Aasaasaha Sofaritech",
         featured: true,
         companyHref: "https://sofaritech-global-it-solutions.vercel.app",
@@ -64,7 +71,7 @@ export function TestimonialsSection() {
                             Sheekooyinka <span className="text-primary">Guusha</span>
                         </h2>
                         <p className="mt-2 sm:mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-                            Ardaydeena iyo muuqaalada dhiirigelinta leh.
+                            Sheekooyinka isbeddelka — sida eber ugu noqoshada xirfad ama ganacsi dhab ah.
                         </p>
                     </div>
                 </Reveal>
@@ -99,6 +106,9 @@ export function TestimonialsSection() {
                                     </div>
                                     <div className="px-0.5 text-center sm:text-left">
                                         <p className="text-sm font-bold text-foreground">{img.name}</p>
+                                        <p className="mt-1 text-xs font-semibold leading-snug text-foreground/90">
+                                            {img.byline}
+                                        </p>
                                         {img.featured ? (
                                             <span className="mt-1 inline-block rounded-full bg-emerald-600/90 px-2.5 py-0.5 text-[10px] font-black text-white">
                                                 🏢 Shirkad Dhisay
@@ -106,6 +116,12 @@ export function TestimonialsSection() {
                                         ) : null}
                                         <p className="mt-1 text-xs font-semibold text-primary">Hadda {img.nowTag}</p>
                                         <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{img.outcome}</p>
+                                        <p className="mt-2 border-l-2 border-primary/70 pl-3 text-xs font-medium leading-relaxed text-foreground sm:text-sm">
+                                            {img.outcomeLine}
+                                        </p>
+                                        <p className="mt-1.5 text-xs font-medium text-muted-foreground sm:text-sm">
+                                            Tan xigta adiga ayay noqon kartaa.
+                                        </p>
                                         {"companyHref" in img && img.companyHref ? (
                                             <a
                                                 href={img.companyHref}

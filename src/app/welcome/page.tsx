@@ -178,7 +178,7 @@ function buildChallengeNarrative(a: Answers): string {
       break;
     case "tried_before":
       parts.push(
-        "Horey ayaad isugu dayday — markan farqiga jira waa in Abdishakuur uu kula joogo."
+        "Horey ayaad isugu dayday — markan farqiga jira waa in mentor xirfadle ah uu kula joogo oo kuu hagayo."
       );
       break;
     case "knows_basics":
@@ -203,7 +203,7 @@ function buildChallengeNarrative(a: Answers): string {
       break;
     case "alone":
       parts.push(
-        "Challenge-ga dhexdiisa waligaa keligaa ma noqonaysid — Abdishakuur iyo 9 arday oo kale ayaa kula jooga toddobaad kasta."
+        "Challenge-ga dhexdiisa waligaa keligaa ma noqonaysid — mentor xirfadle ah iyo sagaal arday oo kale ayaa kula jooga toddobaad kasta."
       );
       break;
     case "expensive":
@@ -256,7 +256,7 @@ function buildChallengeNarrative(a: Answers): string {
   }
 
   parts.push(
-    "Abdishakuur ayaa kula joogi doona toddobaad kasta muddo 3 bilood ah. Af Soomaali."
+    "Mentor xirfadle ah oo ku hadlaya af Soomaali ayaa kula joogi doona toddobaad kasta muddo saddex bilood ah."
   );
 
   return parts.filter(Boolean).join(" ");
@@ -956,7 +956,7 @@ function WelcomeOnboardingPage() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-4 py-12 text-white">
         <div className="w-full max-w-2xl space-y-8 text-center">
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Ku soo dhowow, {firstName}.
+             Soo dhowow, {firstName}.
           </h1>
           <p className="text-left text-base leading-relaxed text-zinc-300 md:text-lg">
             {narrative}
@@ -967,7 +967,7 @@ function WelcomeOnboardingPage() {
               <li>✓ Wax kasta waxaa lagu baranayaa af Soomaali.</li>
             )}
             {answers.barrier === "alone" && (
-              <li>✓ Mentor dhab ah toddobaad kasta — Abdishakuur.</li>
+              <li>✓ Mentor xirfadle ah toddobaad kasta (af Soomaali).</li>
             )}
             <li>✓ $149 — hal bixis muddo 3 bilood ah.</li>
             <li>✓ 7 maalmood oo damaanad ah (lacag celin).</li>
@@ -980,8 +980,8 @@ function WelcomeOnboardingPage() {
 
           {waitlist && (
             <p className="text-sm text-zinc-400">
-              Kooxta hadda waa buuxday — kii xiga markuu furmo waxaad ahaanaysaa
-              kii ugu horreeyay ee la xiriiraa.
+              Kooxda hadda waa buuxday — kii xiga markuu furmo waxaad ahaanaysaa
+              Qofka ugu horreeyay ee la xiriiraa.
             </p>
           )}
 

@@ -21,7 +21,8 @@ export const pricingTranslations = {
   explorer_free_cta_signup: "Bilow Bilaash",
   explorer_free_cta_logged_in: "Tag dashboard-ka",
   explorer_feature_1: "Dhammaan 54-ta cashar ee la daabacay",
-  explorer_feature_2: "6 koorso oo isugu jira tech, xisaab iyo AI",
+  explorer_feature_2:
+    "6 koorso oo isugu jira tech, xisaab, iyo Baro Sida AI Loogu Shaqaysto",
   explorer_feature_3: "Dabagalka horumarka casharrada",
   explorer_feature_4: "Helitaanka bulshada",
   explorer_feature_5: "Ku baro xawaarahaaga",
@@ -32,8 +33,10 @@ export const pricingTranslations = {
   challenge_tagline:
     "3 bilood: ka bilow eber ilaa shaqo tech ama startup-kaaga",
   challenge_per_one_time: " hal mar",
-  challenge_cta: "Ku biir Challenge-ka",
-  challenge_cta_waitlist: "Liiska sugitaanka gal",
+  challenge_cta: "Challenge-ka hadda gal (Boosasku waa xaddidan yihiin)",
+  /** Short label for narrow buttons (lesson UI, hero). */
+  challenge_cta_compact: "Ku biir Challenge-ka",
+  challenge_cta_waitlist: "Gali Liiska Sugitaanka Hadda",
   challenge_feature_1: "Wax kasta oo ku jira Bilaash",
   challenge_feature_2:
     "Su'aalahaaga ku jawaab toos — maalin kasta (wicitaan toddobaadle)",
@@ -46,7 +49,7 @@ export const pricingTranslations = {
   /** Live cohort capacity (from /api/challenge/status). */
   challenge_spots_remaining: "{n} boos oo hadhay kooxdan",
   challenge_waitlist_only:
-    "Kooxdu hadda way buuxday — liiska sugitaanku waa laguugu daray; waxaan kuu soo wargelin doonnaa kooxda xigta.",
+    "Kooxdan waa buuxdaa. Ha seegin fursada xigta — geli liiska sugitaanka si aad u hesho kooxda xigta.",
   challenge_next_cohort: "Kooxda xigta waxay bilaabmi doontaa {date}.",
 
   // Payment modal
@@ -66,7 +69,7 @@ export const pricingTranslations = {
   success_explorer:
     "Ku soo dhawoow Bilaash! Hadda waxaad geli kartaa dhammaan casharrada. Bilow waxbarashada →",
   success_challenge:
-    "Ku soo dhawoow Challenge-ka! Hubi WhatsApp-kaaga — Abdishakuur ayaa kula soo xiriiri doona 24 saac gudahood.",
+    "Ku soo dhawoow Challenge-ka! Hubi WhatsApp-kaaga — kooxda Garaad ayaa kula soo xiriiri doonta 24 saac gudahood.",
 
   // Dashboard nav
   nav_upgrade: "Challenge",
@@ -85,7 +88,7 @@ export const pricingTranslations = {
     "7 maalmood gudahood haddii aadan ku qanacsanayn, WhatsApp noogu soo dir — lacagtaada oo buuxda dib u qaado, su'aalna lagu weydiin maayo.",
   faq_4_q: "Sidee u shaqaysaa kooxda Challenge-ka?",
   faq_4_a:
-    "Waxaad ku biiraysaa cohort ka kooban 10 arday. Wadajir ayaad u raacaysaan isla jadwalka — usbuuc walbana waxaad wada sheekaysanaysaan Abdishakuur.",
+    "Waxaad ku biiraysaa cohort ka kooban 10 arday. Wadajir ayaad u raacaysaan isla jadwalka — usbuuc walbana mentor xirfadle ah ayaa idinla jooga.",
   faq_5_q: "Goorma ayaa la bixiyaa shahaadada MERN?",
   faq_5_a:
     "Markaad dhammaystirto dhammaan casharrada wadada Full Stack MERN oo aad u soo gudbiso mashruucaaga ugu dambeeya dib-u-eegis.",
@@ -119,5 +122,5 @@ export const pricingTranslations = {
   compare_challenge_price: "$149 hal mar",
 
   subscribe_social_month:
-    "Ku biir {n}+ barayaal Soomaali ah bishaan — waxaad ku jirtaa kooxda",
+    "Ku biir {n}+ Developer oo hadda baranaya — waxaad ku jirtaa kooxda",
 } as const;

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { pricingTranslations as t } from "@/config/translations/pricing";
 
 export function CoursesChallengeBanner() {
   return (
@@ -12,7 +13,7 @@ export function CoursesChallengeBanner() {
         href="/challenge"
         className="inline-flex w-full items-center justify-center rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white hover:bg-violet-500 md:w-auto"
       >
-        Ku biir Challenge-ka →
+        {t.challenge_cta} →
       </Link>
     </div>
   );

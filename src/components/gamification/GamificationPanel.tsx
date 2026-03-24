@@ -246,7 +246,7 @@ export function GamificationPanel() {
               </div>
             ))}
             <p className="text-sm text-gray-400 mt-3">
-              Adigu noqo kii ugu horeeya!
+              Adigu noqo Qofka ugu horeeya!
             </p>
           </div>
         )}

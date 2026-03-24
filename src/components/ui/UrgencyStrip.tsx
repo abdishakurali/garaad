@@ -39,7 +39,6 @@ export function UrgencyStrip() {
   }
 
   if (!data?.active_cohort_name) return null;
-  if (data.is_waitlist_only && data.spots_remaining === 0) return null;
 
   const start = data.cohort_start_date ?? data.next_cohort_start_date ?? null;
   const startFmt =
@@ -51,14 +50,26 @@ export function UrgencyStrip() {
         })
       : "—";
 
+  const waitlist = data.is_waitlist_only && data.spots_remaining === 0;
+
   return (
     <div className="relative w-full border-b border-white/10 bg-zinc-900">
       <Link
-        href="/challenge"
+        href={waitlist ? "/subscribe?plan=challenge" : "/challenge"}
         className="flex w-full items-center justify-center px-10 py-2.5 text-center text-sm text-zinc-300 hover:text-zinc-100"
       >
         <span className="leading-snug">
-          Kooxda {data.active_cohort_name}: {data.spots_remaining} boos oo hadhay · Waxay bilaabaysaa {startFmt}
+          {waitlist ? (
+            <>
+              Kooxda {data.active_cohort_name} waa buuxdaa. Ha seegin fursada xigta — geli liiska sugitaanka · Kooxda
+              xigta: {startFmt}
+            </>
+          ) : (
+            <>
+              Challenge-ka hadda gal (boosasku waa xaddidan yihiin) · Kooxda {data.active_cohort_name}:{" "}
+              {data.spots_remaining} boos oo hadhay · Waxay bilaabaysaa {startFmt}
+            </>
+          )}
         </span>
       </Link>
       <button

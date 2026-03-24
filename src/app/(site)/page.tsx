@@ -4,9 +4,9 @@ import { HomeContent } from "../home-content";
 const SITE_URL = "https://garaad.org";
 
 export const metadata: Metadata = {
-  title: "Garaad — Baro Full-Stack Horumarinta & AI Af-Soomaali",
+  title: "Garaad — Noqo Full-Stack Developer adigoo jooga gurigaaga (Af-Soomaali)",
   description:
-    "Koorsooyinka HTML, JavaScript, React, iyo AI — af Soomaali. 30 daqiiqo maalintiiba. Bilow maanta.",
+    "Baro koodhka casriga ah iyo AI afkaaga hooyo. 30 daqiiqo maalintiiba. Dhis portfolio iyo mashruucyo dhab ah — ku bilow bilaash.",
   keywords: [
     "somali coding",
     "learn programming somali",
@@ -18,17 +18,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    title: "Garaad — Baro Full-Stack Horumarinta & AI Af-Soomaali",
+    title: "Garaad — Noqo Full-Stack Developer adigoo jooga gurigaaga (Af-Soomaali)",
     description:
-      "Koorsooyinka HTML, JavaScript, React, iyo AI — af Soomaali. 30 daqiiqo maalintiiba. Bilow maanta.",
+      "Baro koodhka casriga ah iyo AI afkaaga hooyo. 30 daqiiqo maalintiiba. Dhis portfolio iyo mashruucyo dhab ah — ku bilow bilaash.",
     images: [{ url: `${SITE_URL}/images/og-main.jpg`, width: 1200, height: 630, alt: "Garaad" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@garaadorg",
-    title: "Garaad — Baro Full-Stack Horumarinta & AI Af-Soomaali",
+    title: "Garaad — Noqo Full-Stack Developer adigoo jooga gurigaaga (Af-Soomaali)",
     description:
-      "Koorsooyinka HTML, JavaScript, React, iyo AI — af Soomaali. 30 daqiiqo maalintiiba. Bilow maanta.",
+      "Baro koodhka casriga ah iyo AI afkaaga hooyo. 30 daqiiqo maalintiiba. Dhis portfolio iyo mashruucyo dhab ah — ku bilow bilaash.",
     images: [`${SITE_URL}/images/og-main.jpg`],
   },
 };

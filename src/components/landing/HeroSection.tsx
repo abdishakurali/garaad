@@ -60,11 +60,11 @@ export function HeroSection() {
   );
   const studentCount = stats?.students_count ?? 0;
   /** Fixed first paint avoids hydration mismatch (SWR can have cache on client only). */
-  const [learnersLabel, setLearnersLabel] = useState("85+ arday ayaa bilaabay");
+  const [learnersLabel, setLearnersLabel] = useState("Ku biir 88+ Developer oo hadda baranaya");
   useEffect(() => {
     if (statsError || stats == null) return;
     if (studentCount > 0) {
-      setLearnersLabel(`${studentCount}+ arday ayaa bilaabay`);
+      setLearnersLabel(`Ku biir ${studentCount}+ Developer oo hadda baranaya`);
     }
   }, [stats, statsError, studentCount]);
 
@@ -100,20 +100,28 @@ export function HeroSection() {
           {/* Copy first on mobile; cards follow */}
           <div className="hero-animate-done order-1 lg:order-none">
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
-              Af-Soomaali · Full-Stack & AI
+              Natiijada · Full-Stack Developer
             </p>
             <h1 className="text-left font-display text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight text-white">
-              Baro
-              <br />
-              Full-Stack
+              Noqo Full-Stack Developer
               <br />
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Horumarinta &amp; AI
+                adigoo jooga gurigaaga
               </span>
             </h1>
             <p className="mt-6 max-w-md text-base leading-relaxed text-white/60">
-              Koorsooyinka HTML, JavaScript, React, iyo AI — af Soomaali. 30 daqiiqo maalintiiba. Bilow
-              maanta.
+              Baro koodhka casriga ah iyo AI adigoo isticmaalaya afkaaga hooyo. 30 daqiiqo maalintiiba waa nagu filan
+              tahay.{" "}
+              {stats != null && !statsError && studentCount > 0 ? (
+                <>
+                  <span className="font-semibold text-white/75">{studentCount}+ arday</span> ayaa hadda dhisaya
+                  mustaqbalkooda.
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-white/75">100+ arday</span> ayaa hadda dhisaya mustaqbalkooda.
+                </>
+              )}
             </p>
             <div className="mt-8 flex flex-col items-start gap-3">
               <Link
@@ -126,11 +134,11 @@ export function HeroSection() {
                 href={firstFreeHref}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white/55 underline underline-offset-4 decoration-white/30 hover:text-white/80"
               >
-                Ama bilaash ku bilow — koorsada 1-aad fur
+                Ku bilow Bilaash
               </Link>
             </div>
             <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/45">
-              <span>✓ Jooji xilli kasta</span>
+              <span>✓ Ma jirto ballanqaad muddo dheer ah (Cancel anytime)</span>
               <span>✓ Waafi &amp; Stripe</span>
               <span>✓ Af Soomaali 100%</span>
             </p>
@@ -164,9 +172,10 @@ export function HeroSection() {
                 <BookOpen className="h-3.5 w-3.5" />
                 Koorsooyin
               </div>
-              <h3 className="font-display text-xl font-semibold text-white">Full-Stack &amp; AI af Soomaali</h3>
+              <h3 className="font-display text-xl font-semibold text-white">Dhis Portfolio aad shaqo ku heli karto</h3>
               <p className="mt-2 text-sm text-white/50">
-                Tallaabo tallaabo. Dhis portfolio. Diyaar u noqo shaqada tech-ka.
+                Ma baraysid casharro kaliya; waxaad dhisaysaa mashaariic dhab ah (SaaS, Apps, Websites) oo aad dunida
+                tusi karto.
               </p>
               <span className="mt-4 inline-block text-sm font-semibold text-primary">Bilow hadda →</span>
             </Link>

@@ -70,10 +70,10 @@ const features: FeatureDef[] = [
     ctaHref: "/community",
   },
   {
-    title: "Caawiye AI",
-    desc: "Weydii su’aal kasta oo ku saabsan koorsooyinka — mar walba diyaar.",
+    title: "Weligaa ha xannibmin",
+    desc: "Caawiyaha Garaad AI wuxuu kuu joogaa 24/7 inuu kaa caawiyo khaladaadka koodhka (bugs) iyo sharaxaadda cashar kasta.",
     icon: MessageCircle,
-    ctaLabel: "Isku day →",
+    ctaLabel: "Isku day caawiyaha →",
     ctaHref: "/courses",
   },
   {
@@ -167,13 +167,14 @@ export function GaraadFeaturesShowcase() {
               <span className="tracking-wide">Waxa Garaad kuu diyaariyey</span>
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-              Barasho casri ah,{" "}
+              Maxaa kuu kordhaya?{" "}
               <span className="bg-gradient-to-r from-primary to-violet-500 bg-clip-text text-transparent">
-                hab nadiif ah
+                Portfolio &amp; mashruucyo dhab ah
               </span>
             </h2>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-              Platform-kaaga oo isku xiran — koorso ilaa bulshada ilaa caawiyaha AI.
+              Ma aha kaliya &ldquo;maxaan baranayaa&rdquo; — waxaad dhisanaysaa wax aad dunida tusi karto: SaaS, apps,
+              iyo websites.
             </p>
           </div>
         </Reveal>
