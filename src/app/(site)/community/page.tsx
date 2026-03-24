@@ -40,6 +40,8 @@ import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
 import { CommunityChallengeBanner } from '@/components/challenge/CommunityChallengeBanner';
 import { pricingTranslations as pt } from '@/config/translations/pricing';
+import { useChallengeStatus } from '@/hooks/useChallengeStatus';
+
 export default function CommunityPage() {
     const {
         posts,
@@ -80,6 +82,9 @@ export default function CommunityPage() {
     const [pendingScrollReplyId, setPendingScrollReplyId] = useState<string | null>(null);
     const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
     const [isPushSettingsOpen, setIsPushSettingsOpen] = useState(false);
+    const { data: challengeGate, loading: challengeGateLoading } = useChallengeStatus();
+    const challengeJoinHref =
+        challengeGate?.is_waitlist_only ? '/subscribe?plan=challenge' : '/challenge';
 
     // Logic for handling notification click
     const handleNotificationClick = async (notification: any) => {
@@ -165,7 +170,7 @@ export default function CommunityPage() {
 
     // Initialize data (fetch once) once we know the user is logged in (cookie + store).
     useEffect(() => {
-        if (!isAuthenticated) return;
+        if (!isAuthenticated || !hasCommunityAccess) return;
 
         const initData = async () => {
             try {
@@ -204,17 +209,18 @@ export default function CommunityPage() {
         };
 
         initData();
-    }, [isAuthenticated]);
+    }, [isAuthenticated, hasCommunityAccess]);
 
     // Select first category by default when categories load
     useEffect(() => {
+        if (!hasCommunityAccess) return;
         if (allCategories.length > 0 && !selectedCategory) {
             const firstCategory = allCategories[0];
             setSelectedCategory(firstCategory);
             // Fetch posts for first category
             fetchPostsForCategory(firstCategory.id);
         }
-    }, [allCategories, selectedCategory]);
+    }, [allCategories, selectedCategory, hasCommunityAccess]);
 
     const fetchPostsForCategory = async (categoryId: string) => {
         try {
@@ -249,11 +255,11 @@ export default function CommunityPage() {
 
     // Fetch posts when category changes
     useEffect(() => {
-        if (!selectedCategory) return;
+        if (!hasCommunityAccess || !selectedCategory) return;
         fetchPostsForCategory(selectedCategory.id);
-    }, [selectedCategory]);
+    }, [selectedCategory, hasCommunityAccess]);
 
-    if (!authReady || loading.categories || loading.profile) {
+    if (!authReady) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-white dark:bg-[#1E1F22]">
                 <div className="flex flex-col items-center gap-4">
@@ -265,6 +271,73 @@ export default function CommunityPage() {
     }
 
     if (!isAuthenticated) return null;
+
+    /** Challenge-only space: no category fetch; show blurred gate + CTA */
+    if (!hasCommunityAccess) {
+        return (
+            <div className="w-full max-w-7xl mx-auto min-h-[calc(100dvh-4rem)] px-4 sm:px-6 py-6 sm:py-10 flex flex-col">
+                <div className="relative flex-1 min-h-[min(520px,calc(100dvh-6rem))] w-full rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 shadow-2xl bg-muted">
+                    <Image
+                        src="/images/blurcommunity.png"
+                        alt=""
+                        fill
+                        className="object-cover object-center scale-[1.02] blur-[2px] sm:blur-[3px]"
+                        sizes="(max-width: 1280px) 100vw, 1280px"
+                        priority
+                    />
+                    <div
+                        className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70 backdrop-blur-sm"
+                        aria-hidden
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-10">
+                        <div
+                            className="w-full max-w-md rounded-2xl bg-white/95 dark:bg-gray-950/95 px-6 py-8 sm:px-8 sm:py-10 text-center shadow-2xl border border-violet-200/80 dark:border-violet-500/30 ring-1 ring-violet-500/10"
+                            role="dialog"
+                            aria-labelledby="community-private-title"
+                            aria-describedby="community-private-desc"
+                        >
+                            <div className="text-4xl mb-3" aria-hidden>
+                                🔒
+                            </div>
+                            <h1
+                                id="community-private-title"
+                                className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight"
+                            >
+                                Bulshadu waa gaar ah
+                            </h1>
+                            <p
+                                id="community-private-desc"
+                                className="text-gray-600 dark:text-gray-400 text-sm sm:text-base mb-6 leading-relaxed"
+                            >
+                                Goobtan waxaa isticmaali kara ardayda Challenge-ka oo keliya. Si aad bulshada
+                                dhabta ah ugu hesho, Challenge-ka ku biir.
+                            </p>
+                            <Link
+                                href={challengeGateLoading ? '/challenge' : challengeJoinHref}
+                                className="inline-flex w-full items-center justify-center bg-violet-600 hover:bg-violet-500 text-white py-3.5 rounded-xl font-bold text-sm text-center shadow-lg shadow-violet-600/25 transition-colors"
+                            >
+                                {challengeGateLoading ? 'Challenge' : pt.challenge_cta_compact} →
+                            </Link>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+                                Heerka Bilaash: sii wad /courses — waxbarashada aasaasiga ah waa furan.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (loading.categories || loading.profile) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-white dark:bg-[#1E1F22]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <p className="text-xs font-black uppercase tracking-widest text-gray-500">{SOMALI_UI_TEXT.loading}</p>
+                </div>
+            </div>
+        );
+    }
 
     const categoryList = (
         <div className="flex flex-col h-full bg-gray-50/50 dark:bg-black/50">
@@ -378,54 +451,10 @@ export default function CommunityPage() {
         </div>
     );
 
-    const challengeLockOverlay = !hasCommunityAccess ? (
-        <div
-            className="absolute inset-0 z-[60] flex items-center justify-center bg-gradient-to-b from-white/40 via-white/70 to-white/85 dark:from-black/30 dark:via-black/65 dark:to-black/85 backdrop-blur-[2px] px-4 pointer-events-none"
-            aria-hidden={false}
-        >
-            <div
-                className="pointer-events-auto text-center max-w-md px-6 py-8 bg-white/95 dark:bg-gray-950/95 rounded-2xl shadow-2xl border border-violet-200/80 dark:border-violet-500/30 ring-1 ring-violet-500/10"
-                role="dialog"
-                aria-labelledby="community-challenge-title"
-                aria-describedby="community-challenge-desc"
-            >
-                <div className="text-4xl mb-3" aria-hidden>
-                    👥
-                </div>
-                <h2
-                    id="community-challenge-title"
-                    className="text-xl font-black text-gray-900 dark:text-white mb-2 tracking-tight"
-                >
-                    Bulshada Challenge-ka
-                </h2>
-                <p
-                    id="community-challenge-desc"
-                    className="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed"
-                >
-                    Astaamahan waxay u furan yihiin Challenge ardayda.
-                </p>
-                <Link
-                    href="/challenge"
-                    className="block w-full bg-violet-600 hover:bg-violet-500 text-white py-3.5 rounded-xl font-bold text-sm text-center shadow-lg shadow-violet-600/25 transition-colors"
-                >
-                    {pt.challenge_cta} →
-                </Link>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
-                    Bilaash wali waxaad ku bilow kartaa /courses
-                </p>
-            </div>
-        </div>
-    ) : null;
-
     return (
-        <div className="relative flex h-screen bg-background overflow-hidden">
-            <div
-                className={
-                    !hasCommunityAccess
-                        ? "flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden blur-[3px] sm:blur-[5px] pointer-events-none select-none opacity-[0.72] scale-[0.99]"
-                        : "flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden"
-                }
-            >
+        <div className="w-full max-w-7xl mx-auto h-[100dvh] min-h-0 overflow-hidden bg-background">
+        <div className="relative flex h-full min-h-0 bg-background overflow-hidden">
+            <div className="flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden">
             <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
                 <div className="h-20 ml-0 pl-0 px-8 flex items-center justify-center">
                     <div className="relative w-32 h-12 pl-0 px-8  overflow-hidden flex-shrink-0">
@@ -505,8 +534,8 @@ export default function CommunityPage() {
                                 error={errors.posts}
                                 userProfile={userProfile}
                                 categoryId={selectedCategory.id}
-                                showInlineInput={hasCommunityAccess}
-                                readOnly={!hasCommunityAccess}
+                                showInlineInput
+                                readOnly={false}
                                 expandedReplyId={pendingScrollReplyId}
                                 onScrollComplete={() => {
                                     setPendingScrollPostId(null);
@@ -537,7 +566,6 @@ export default function CommunityPage() {
                 )}
             </div>
             </div>
-            {challengeLockOverlay}
             <UserProfileModal
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
@@ -558,6 +586,7 @@ export default function CommunityPage() {
                     <PushNotificationSettings />
                 </DialogContent>
             </Dialog>
+        </div>
         </div>
     );
 }

@@ -133,9 +133,9 @@ export function Header() {
             : "py-3 bg-white dark:bg-black/95 backdrop-blur-md border-b border-black/5 dark:border-white/5"
         )}
       >
-        <div className="relative max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 min-h-14 sm:min-h-16 h-14 sm:h-16 dark:min-h-[4.25rem] sm:dark:min-h-[4.75rem] dark:h-auto sm:dark:h-auto flex items-center">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 min-h-14 sm:min-h-16 h-14 sm:h-16 dark:min-h-[4.25rem] sm:dark:min-h-[4.75rem] dark:h-auto sm:dark:h-auto flex items-center gap-2 sm:gap-3 w-full">
           {/* Left: logo */}
-          <div className="flex-1 min-w-0 flex justify-start items-center">
+          <div className="shrink-0 flex justify-start items-center">
             <Link
               href="/"
               className="group flex items-center shrink-0 py-0.5 pr-1 -ml-0.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
@@ -145,9 +145,9 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Center: nav (desktop) */}
+          {/* Center: nav (desktop) — flex-1 + min-w-0 avoids overlap with sides */}
           <nav
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center justify-center gap-1 px-2 max-w-[min(100vw-16rem,44rem)]"
+            className="hidden md:flex flex-1 min-w-0 items-center justify-center gap-0.5 lg:gap-1 px-1 overflow-x-auto overscroll-x-contain scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             aria-label="Main"
           >
             {navLinks.map(({ name, href }) => {
@@ -159,18 +159,18 @@ export function Header() {
                   key={href}
                   href={href}
                   className={clsx(
-                    "group font-display text-xs sm:text-sm font-medium tracking-tight transition-all duration-200",
-                    "py-2 px-2.5 sm:px-3 rounded-md whitespace-nowrap",
+                    "group font-display font-medium tracking-tight transition-all duration-200 shrink-0",
+                    "text-[11px] lg:text-xs xl:text-sm py-2 px-1.5 lg:px-2 xl:px-2.5 rounded-md whitespace-nowrap",
                     active
                       ? "text-primary bg-primary/10 dark:bg-primary/15"
                       : "text-slate-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
                   )}
                 >
-                  <span className="relative inline-flex items-center gap-1">
+                  <span className="relative inline-flex items-center gap-0.5 lg:gap-1">
                     {name}
                     {showCoursesFree && (
                       <span
-                        className="rounded bg-emerald-500/15 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
+                        className="rounded bg-emerald-500/15 px-1 py-px text-[8px] lg:text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
                         title="Bilaash"
                       >
                         Bilaash
@@ -194,10 +194,9 @@ export function Header() {
           </nav>
 
           {/* Right: actions */}
-          <div className="flex-1 min-w-0 flex items-center justify-end gap-2 sm:gap-3">
-            {/* Streak Display for logged-in users (only after mount to avoid hydration mismatch) */}
+          <div className="shrink-0 flex items-center justify-end gap-1 sm:gap-1.5 md:gap-2 min-w-0">
             {mounted && user && (
-              <div className="hidden lg:block scale-90 origin-right">
+              <div className="hidden lg:block scale-90 origin-right shrink-0">
                 <StreakDisplay
                   loading={streakLoading}
                     error={streakError ? "Xogtii waa la soo rari waayey — fadlan mar kale isku day." : null}
@@ -206,12 +205,12 @@ export function Header() {
               </div>
             )}
 
-            <div className="hidden md:flex items-center gap-1.5">
+            <div className="hidden md:flex items-center gap-1 md:gap-1.5 shrink-0">
               {mounted && user && (
                 <>
                   <button
                     onClick={() => setIsReferralModalOpen(true)}
-                    className="relative p-2 rounded-lg bg-primary/5 hover:bg-primary/10 transition-all group overflow-hidden border border-primary/10"
+                    className="relative p-1.5 lg:p-2 rounded-lg bg-primary/5 hover:bg-primary/10 transition-all group overflow-hidden border border-primary/10 shrink-0"
                     title="Fursadda la wadaag dadka kale"
                   >
                     <GraduationCap className="w-4 h-4 text-primary group-hover:scale-105 transition-transform relative z-10" />
@@ -225,19 +224,20 @@ export function Header() {
               {authReady && user && isPremium && (
                 <span
                   className={clsx(
-                    "hidden md:inline-flex items-center gap-1 rounded-full bg-purple-600/20 text-purple-400 px-2 py-0.5 text-xs font-medium border border-purple-500/30 transition-transform duration-200",
+                    "inline-flex items-center gap-0.5 rounded-full bg-purple-600/20 text-purple-400 px-1.5 lg:px-2 py-0.5 text-[10px] lg:text-xs font-medium border border-purple-500/30 transition-transform duration-200 shrink-0",
                     xpPulse && "motion-safe:scale-110"
                   )}
+                  title={`${xpValue} XP`}
                 >
                   <span aria-hidden>⚡</span>
-                  <span>{xpValue} XP</span>
+                  <span className="hidden lg:inline">{xpValue} XP</span>
                 </span>
               )}
               {mounted && showChallengeNavCta && (
                 challengeNavLoading && !challengeNav ? (
                   <Link
                     href="/challenge"
-                    className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-500/25 transition-colors"
+                    className="hidden md:inline-flex items-center gap-1 text-[10px] lg:text-xs font-bold px-2 lg:px-3 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-500/25 transition-colors shrink-0"
                   >
                     Challenge →
                   </Link>
@@ -245,17 +245,20 @@ export function Header() {
                   <Link
                     href={challengeHref}
                     className={clsx(
-                      "hidden md:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-500/25 transition-colors",
-                      !challengeWaitlist && challengeSpots <= 3 && "relative pl-3"
+                      "hidden md:inline-flex items-center justify-center gap-1 text-[10px] lg:text-xs font-bold px-2 lg:px-3 py-1.5 rounded-full bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-500/25 transition-colors shrink-0 max-w-[9.5rem] lg:max-w-none truncate",
+                      !challengeWaitlist && challengeSpots <= 3 && "relative pl-2.5 lg:pl-3"
                     )}
+                    title={challengeWaitlist ? "Liiska sugitaanka" : `Challenge ${challengeSpots} boos`}
                   >
                     {!challengeWaitlist && challengeSpots <= 3 && (
                       <span
-                        className="absolute left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-red-500 motion-safe:animate-pulse"
+                        className="absolute left-1 lg:left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-red-500 motion-safe:animate-pulse"
                         aria-hidden
                       />
                     )}
-                    {challengeWaitlist ? "Liiska sugitaanka " : `Challenge ${challengeSpots} boos`}
+                    <span className="truncate">
+                      {challengeWaitlist ? "Liiska sugitaanka" : `Challenge ${challengeSpots} boos`}
+                    </span>
                   </Link>
                 )
               )}
@@ -275,7 +278,7 @@ export function Header() {
             </div>
 
             {/* Mobile: Only show essential icons + hamburger */}
-            <div className="flex md:hidden items-center gap-2">
+            <div className="flex md:hidden items-center gap-1.5 shrink-0">
               {mounted && user && <NotificationPanel />}
               {mounted && showChallengeNavCta && (
                 challengeNavLoading && !challengeNav ? (
