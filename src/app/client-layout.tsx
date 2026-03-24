@@ -1,7 +1,7 @@
 // app/ClientLayout.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import AuthService from "@/services/auth";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -17,6 +17,9 @@ export default function ClientLayout({
   const { setNotifications, setUserProfile } = useCommunityStore();
 
   const pathname = usePathname();
+  /** Avoid re-running full init on every route change (was reconnecting global WS and refetching profile each time). */
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
 
   useEffect(() => {
     const authService = AuthService.getInstance();
@@ -44,11 +47,10 @@ export default function ClientLayout({
             console.error("Failed to fetch initial community data:", err);
           }
 
-          // Initialize Global WebSocket for real-time notifications
-          // Skip if on community page, as that page handles its own connection logic
-          if (!pathname?.startsWith('/community')) {
+          // Global WS for notifications outside /community (community page owns its room).
+          if (!pathnameRef.current?.startsWith("/community")) {
             const { default: CommunityWebSocket } = await import("@/services/communityWebSocket");
-            CommunityWebSocket.getInstance().connect(null); // Connect to 'global' room
+            CommunityWebSocket.getInstance().connect(null);
           }
         }
       } else if (isAuthenticated) {
@@ -57,7 +59,24 @@ export default function ClientLayout({
     };
 
     init();
-  }, [setUser, logout, isAuthenticated, setNotifications, setUserProfile, pathname]);
+  }, [setUser, logout, isAuthenticated, setNotifications, setUserProfile]);
+
+  // Reconnect global notification WS only when navigating away from /community (not on every route).
+  const prevPathnameRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      prevPathnameRef.current = pathname ?? null;
+      return;
+    }
+    const prev = prevPathnameRef.current;
+    const cur = pathname ?? "";
+    prevPathnameRef.current = cur;
+    if (prev?.startsWith("/community") && !cur.startsWith("/community")) {
+      void import("@/services/communityWebSocket").then(({ default: CommunityWebSocket }) => {
+        CommunityWebSocket.getInstance().connect(null);
+      });
+    }
+  }, [pathname, isAuthenticated]);
 
   // Just render children - no Providers here
   return (
