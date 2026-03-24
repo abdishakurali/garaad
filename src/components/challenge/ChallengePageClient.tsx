@@ -29,7 +29,7 @@ const CHALLENGE_GUARANTEE_SO =
   "7-maalmood dammaanad lacag celin ah. Su'aalna lagu weydiin maayo.";
 
 const outcomeBullets: string[] = [
-  "Su'aalahaaga ku jawaab toos — maalin kasta",
+  "Su'aalo ka jawaabid toos ah — isbuuc kasta",
   "Koodhkaaga la eeg si aan khalad loo shaqo qaadin",
   "Shahaado aad LinkedIn ku dhejin karto",
   "Saaxiibo tech ah oo adiga kaa horumarsan (koox 10 arday)",
@@ -96,19 +96,6 @@ const graduateCards: GraduateCard[] = [
   },
 ];
 
-function formatStartDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleDateString("so-SO", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
-}
-
 export function ChallengePageClient() {
   useEffect(() => {
     const script = document.createElement("script");
@@ -127,7 +114,6 @@ export function ChallengePageClient() {
   const waitlist = data?.is_waitlist_only ?? false;
   const cohortName = data?.active_cohort_name ?? "Challenge";
   const startForCountdown = data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
-  const nextLabel = formatStartDate(data?.next_cohort_start_date ?? null);
 
   const primaryHref = "/subscribe?plan=challenge";
   const primaryLabel = waitlist ? "Gali Liiska Sugitaanka Hadda" : "Ku biir Kooxda — Hadda →";
@@ -142,10 +128,8 @@ export function ChallengePageClient() {
 
           <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight text-zinc-50 sm:text-4xl md:text-5xl">
             Laga soo bilaabo <span className="text-violet-400">Eber</span> ilaa{" "}
-            <span className="text-violet-400">Aasaase</span>{" "}
-            <span className="text-zinc-400">(Founder)</span> ama{" "}
-            <span className="text-violet-400">Barnaamijiye</span>{" "}
-            <span className="text-zinc-400">(Developer)</span>.
+             <span className="text-zinc-400">(Founder)</span> ama{" "}
+             <span className="text-zinc-400">(Developer)</span>.
           </h1>
 
           <div className="mx-auto mt-4 max-w-2xl space-y-3 px-1 text-base leading-relaxed text-zinc-400 sm:mt-5 sm:text-lg">
@@ -156,10 +140,7 @@ export function ChallengePageClient() {
             <p className="text-balance text-zinc-300">
               Khibrad hore looma baahna. Mentor toos ah. Af-Soomaali.
             </p>
-            <p className="text-balance">
-              Maalgelin hal mar ah:{" "}
-              <span className="font-semibold text-zinc-100">$149</span>
-            </p>
+            
           </div>
 
           <div className="mt-6 flex justify-center sm:mt-8">
@@ -185,7 +166,7 @@ export function ChallengePageClient() {
 
           {waitlist && (
             <p className="mx-auto mt-5 max-w-lg px-1 text-base font-medium leading-relaxed text-zinc-200 sm:mt-6 sm:text-lg">
-              Kooxda {cohortName} waa buuxdaa. Ha seegin fursada xigta.
+              Kooxda {cohortName} way buuxdaa. Ha seegin fursada xigta.
             </p>
           )}
 
@@ -438,47 +419,6 @@ export function ChallengePageClient() {
       <div className="border-t border-white/5">
         <TransformationSection weekCount={5} />
       </div>
-
-      <section className="border-t border-white/5 px-3 py-12 sm:px-4 sm:py-14 md:px-6 md:py-16">
-        <div className="mx-auto max-w-2xl rounded-lg border border-white/10 bg-zinc-900/40 p-6 text-center sm:p-8">
-          <h2 className="mb-2 text-lg font-bold text-zinc-50 sm:text-xl">Hal mar — dhammaan kor ku xusan</h2>
-          <p className="my-4 text-3xl font-bold text-zinc-50 sm:text-4xl">
-            $149<span className="text-base font-normal text-zinc-500"> hal mar</span>
-          </p>
-          {!loading && data && (
-            <p className="mb-3 text-sm text-zinc-400">
-              {waitlist ? (
-                <>
-                  Kooxda {cohortName} waa buuxdaa. Kooxda xigta waxay bilaabaysaa {nextLabel}.
-                </>
-              ) : (
-                <>
-                  Kooxda {cohortName}: {spots} boos oo hadhay · Waxay bilaabaysaa {nextLabel}
-                </>
-              )}
-            </p>
-          )}
-          <div className="flex w-full justify-center px-1">
-            <Link
-              href={primaryHref}
-              className={`inline-flex w-full max-w-md items-center justify-center rounded-lg bg-violet-600 py-3 text-base font-semibold text-white hover:bg-violet-500 sm:py-3.5 ${
-                waitlist ? "opacity-80" : ""
-              }`}
-            >
-              {primaryLabel}
-            </Link>
-          </div>
-          <div className="mx-auto mt-5 max-w-lg text-left">
-            <div className="flex gap-3 rounded-lg border border-white/10 bg-zinc-950 px-4 py-4 sm:px-5">
-              <Shield className="mt-0.5 h-5 w-5 shrink-0 text-zinc-500" aria-hidden />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Dammaanad lacag celin</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-zinc-400 sm:text-base">{CHALLENGE_GUARANTEE_SO}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <div className="border-t border-white/5">
         <FAQSection />

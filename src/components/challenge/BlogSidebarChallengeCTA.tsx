@@ -13,7 +13,7 @@ export function BlogSidebarChallengeCTA() {
     loading && !data
       ? "Challenge-ka — boosyo xaddidan"
       : waitlist
-        ? `Kooxda ${cohort} waa buuxdaa — diiradda saar kooxda xigta`
+        ? `Kooxda ${cohort} way buuxdaa — diiradda saar kooxda xigta`
         : `Challenge-ka — ${spots} boos ayaa haray`;
 
   return (

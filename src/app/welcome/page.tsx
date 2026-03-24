@@ -208,7 +208,7 @@ function buildChallengeNarrative(a: Answers): string {
       break;
     case "expensive":
       parts.push(
-        "$149 hal bixis ah. 7 maalmood oo lacag celin ah. Wax khatar ah ma leh."
+        "Qiimuhu waa ku dheellitiran yahay waxa aad hesho — ma aha bootcamp $10k+ ah. Wax khatar ah ma leh marka aad isku daydo."
       );
       break;
     case "life":
@@ -980,7 +980,7 @@ function WelcomeOnboardingPage() {
 
           {waitlist && (
             <p className="text-sm text-zinc-400">
-              Kooxda hadda waa buuxday — kii xiga markuu furmo waxaad ahaanaysaa
+              Kooxda hadda wey buuxdaa — kii xiga markuu furmo waxaad ahaanaysaa
               Qofka ugu horreeyay ee la xiriiraa.
             </p>
           )}

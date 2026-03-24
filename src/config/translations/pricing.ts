@@ -39,7 +39,7 @@ export const pricingTranslations = {
   challenge_cta_waitlist: "Gali Liiska Sugitaanka Hadda",
   challenge_feature_1: "Wax kasta oo ku jira Bilaash",
   challenge_feature_2:
-    "Su'aalahaaga ku jawaab toos — maalin kasta (wicitaan toddobaadle)",
+    "Su'aalo jawaab toos ah — maalin kasta (wicitaan toddobaadle)",
   challenge_feature_3:
     "Koodhkaaga la eeg si aan khalad loo shaqo qaadin (dib-u-eegis)",
   challenge_feature_4: "Shahaado aad LinkedIn ku dhejin karto (MERN)",
@@ -49,7 +49,7 @@ export const pricingTranslations = {
   /** Live cohort capacity (from /api/challenge/status). */
   challenge_spots_remaining: "{n} boos oo hadhay kooxdan",
   challenge_waitlist_only:
-    "Kooxdan waa buuxdaa. Ha seegin fursada xigta — geli liiska sugitaanka si aad u hesho kooxda xigta.",
+    "Kooxdan way buuxdaa. Ha seegin fursada xigta — geli liiska sugitaanka si aad u hesho kooxda xigta.",
   challenge_next_cohort: "Kooxda xigta waxay bilaabmi doontaa {date}.",
 
   // Payment modal

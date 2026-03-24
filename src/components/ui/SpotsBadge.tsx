@@ -42,7 +42,7 @@ export function SpotsBadge({
         role="status"
       >
         <span className="text-balance">
-          Kooxda {label} waa buuxdaa — diiradda saar kooxda xigta
+          Kooxda {label} way buuxdaa — diiradda saar kooxda xigta
         </span>
       </div>
     );

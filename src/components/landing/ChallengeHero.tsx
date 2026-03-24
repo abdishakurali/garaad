@@ -73,12 +73,7 @@ export function ChallengeHero() {
                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                         <span className="relative">{isAuthenticated ? "Hadda bilow" : "Ku soo biir"}</span>
                     </Link>
-                    <button
-                        onClick={handleSecondaryCTA}
-                        className="px-12 py-5 bg-white/5 hover:bg-white/10 backdrop-blur-md text-slate-300 font-bold rounded-2xl border border-white/10 transition-all duration-300 hover:scale-105"
-                    >
-                        Baro Sida uu u Shaqeeyo
-                    </button>
+                     
                 </div>
 
                 {/* Video Section */}

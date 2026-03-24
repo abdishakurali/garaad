@@ -61,7 +61,7 @@ export function UrgencyStrip() {
         <span className="leading-snug">
           {waitlist ? (
             <>
-              Kooxda {data.active_cohort_name} waa buuxdaa. Ha seegin fursada xigta — geli liiska sugitaanka · Kooxda
+              Kooxda {data.active_cohort_name} way buuxdaa. Ha seegin fursada xigta — geli liiska sugitaanka · Kooxda
               xigta: {startFmt}
             </>
           ) : (

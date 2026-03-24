@@ -137,11 +137,7 @@ export function HeroSection() {
                 Ku bilow Bilaash
               </Link>
             </div>
-            <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/45">
-              <span>✓ Ma jirto ballanqaad muddo dheer ah (Cancel anytime)</span>
-              <span>✓ Waafi &amp; Stripe</span>
-              <span>✓ Af Soomaali 100%</span>
-            </p>
+             
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <div className="flex -space-x-2" aria-hidden>
                 {AVATAR_SAMPLES.map((a) => (

@@ -32,7 +32,7 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   if (target == null) {
     return (
       <p className={`text-sm text-zinc-500 font-medium ${className}`}>
-        Taariikhda bilowga waxaa la xaqiijin doonaa.
+        Taariikhda kooxdu ay ku bilaabeyso weli lama dhigin.
       </p>
     );
   }
