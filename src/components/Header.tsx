@@ -153,6 +153,7 @@ export function Header() {
             {navLinks.map(({ name, href }) => {
               const active = isLinkActive(href);
               const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
+              const showCoursesFree = href === "/courses";
               return (
                 <Link
                   key={href}
@@ -167,6 +168,14 @@ export function Header() {
                 >
                   <span className="relative inline-flex items-center gap-1">
                     {name}
+                    {showCoursesFree && (
+                      <span
+                        className="rounded bg-emerald-500/15 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
+                        title="Bilaash"
+                      >
+                        Bilaash
+                      </span>
+                    )}
                     {showCommunityLock && (
                       <span className="text-xs leading-none shrink-0" aria-hidden>
                         🔒
@@ -246,7 +255,7 @@ export function Header() {
                         aria-hidden
                       />
                     )}
-                    {challengeWaitlist ? "Liiska sugitaanka — kooxda xigta" : `Challenge ${challengeSpots} boos`}
+                    {challengeWaitlist ? "Liiska sugitaanka " : `Challenge ${challengeSpots} boos`}
                   </Link>
                 )
               )}
@@ -348,6 +357,7 @@ export function Header() {
               {navLinks.map(({ name, href }) => {
                 const active = isLinkActive(href);
                 const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
+                const showCoursesFree = href === "/courses";
                 return (
                   <Link
                     key={href}
@@ -361,8 +371,16 @@ export function Header() {
                         : "text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
                     )}
                   >
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5">
                       {name}
+                      {showCoursesFree && (
+                        <span
+                          className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
+                          title="Bilaash"
+                        >
+                          Bilaash
+                        </span>
+                      )}
                       {showCommunityLock && (
                         <span className="text-xs leading-none shrink-0" aria-hidden>
                           🔒

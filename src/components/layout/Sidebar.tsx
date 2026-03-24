@@ -18,10 +18,18 @@ export function Sidebar() {
             <nav className="mt-8">
                 <Link
                     href="/courses"
-                    className={`flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/courses' ? 'bg-gray-50 text-primary' : ''}`}
+                    className={`flex items-center justify-between gap-2 px-6 py-3 text-gray-600 hover:bg-gray-50 ${pathname === '/courses' ? 'bg-gray-50 text-primary' : ''}`}
                 >
-                    <BookOpen className="w-5 h-5 mr-3" />
-                    Koorsooyinka
+                    <span className="flex min-w-0 items-center">
+                        <BookOpen className="w-5 h-5 mr-3 shrink-0" />
+                        Koorsooyinka
+                    </span>
+                    <span
+                        className="shrink-0 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700"
+                        title="Bilaash"
+                    >
+                        Bilaash
+                    </span>
                 </Link>
                 <Link
                     href="/dashboard"
