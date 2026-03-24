@@ -104,6 +104,17 @@ export const useAuthStore = create<AuthStore>()(
                 user: state.user,
                 isAuthenticated: state.isAuthenticated
             }),
+            /**
+             * Mark rehydration complete in the same `set()` as merged state (zustand v5 runs the
+             * post-rehydration callback in a later microtask, which can leave `_hasHydrated` false
+             * while `isAuthenticated` is already true — e.g. community WS connects but UI stays on loading).
+             */
+            merge: (persistedState, currentState) => ({
+                ...currentState,
+                ...(persistedState as Partial<Pick<AuthStore, 'user' | 'isAuthenticated'>> | undefined ??
+                    {}),
+                _hasHydrated: true,
+            }),
             onRehydrateStorage: () => (state, err) => {
                 useAuthStore.getState().setHasHydrated(true);
             },

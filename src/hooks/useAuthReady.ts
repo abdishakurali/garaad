@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 /**
@@ -6,5 +9,15 @@ import { useAuthStore } from "@/store/useAuthStore";
  */
 export function useAuthReady(): boolean {
   const _hasHydrated = useAuthStore((s) => s._hasHydrated);
+
+  useEffect(() => {
+    if (useAuthStore.persist.hasHydrated()) {
+      useAuthStore.getState().setHasHydrated(true);
+    }
+    return useAuthStore.persist.onFinishHydration(() => {
+      useAuthStore.getState().setHasHydrated(true);
+    });
+  }, []);
+
   return _hasHydrated;
 }

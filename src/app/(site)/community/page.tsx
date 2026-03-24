@@ -137,12 +137,11 @@ export default function CommunityPage() {
         }
     }, [posts, pendingScrollPostId]);
 
-    // After persist rehydrates (and cookie sync), redirect only if truly logged out.
-    // Before rehydration, isAuthenticated is false — do not treat that as logged out.
+    // Sync cookie session into zustand immediately; do not wait for authReady (persist callback
+    // can lag behind a valid cookie session — WS then works while this page stayed on loading).
     useEffect(() => {
-        if (!authReady) return;
         hydrateAuthFromCookies();
-    }, [authReady, hydrateAuthFromCookies]);
+    }, [hydrateAuthFromCookies]);
 
     useEffect(() => {
         if (!authReady) return;
@@ -164,21 +163,39 @@ export default function CommunityPage() {
         checkAuth();
     }, [isAuthenticated]);
 
-    // Initialize data (fetch once)
+    // Initialize data (fetch once) once we know the user is logged in (cookie + store).
     useEffect(() => {
-        if (!authReady || !isAuthenticated) return;
+        if (!isAuthenticated) return;
 
         const initData = async () => {
             try {
                 setLoading(prev => ({ ...prev, categories: true, profile: true }));
-                const [cats, profile, notifs] = await Promise.all([
+                const results = await Promise.allSettled([
                     communityService.category.getCategories(),
                     communityService.profile.getUserProfile(),
-                    communityService.notification.getNotifications()
+                    communityService.notification.getNotifications(),
                 ]);
-                setAllCategories(((cats as any).results || cats) as any[]);
-                setUserProfile(profile as any);
-                setNotifications(((notifs as any).results || notifs) as any[]);
+                const cats = results[0].status === "fulfilled" ? results[0].value : null;
+                const profile = results[1].status === "fulfilled" ? results[1].value : null;
+                const notifs = results[2].status === "fulfilled" ? results[2].value : null;
+                if (results[0].status === "rejected") {
+                    console.error("Failed to load community categories:", results[0].reason);
+                }
+                if (results[1].status === "rejected") {
+                    console.error("Failed to load community profile:", results[1].reason);
+                }
+                if (results[2].status === "rejected") {
+                    console.error("Failed to load community notifications:", results[2].reason);
+                }
+                if (cats) {
+                    setAllCategories(((cats as any).results || cats) as any[]);
+                }
+                if (profile) {
+                    setUserProfile(profile as any);
+                }
+                if (notifs) {
+                    setNotifications(((notifs as any).results || notifs) as any[]);
+                }
             } catch (err) {
                 console.error("Failed to init community data:", err);
             } finally {
@@ -187,7 +204,7 @@ export default function CommunityPage() {
         };
 
         initData();
-    }, [authReady, isAuthenticated]);
+    }, [isAuthenticated]);
 
     // Select first category by default when categories load
     useEffect(() => {
