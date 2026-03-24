@@ -33,7 +33,7 @@ export const pricingTranslations = {
   challenge_tagline:
     "3 bilood: ka bilow eber ilaa shaqo tech ama startup-kaaga",
   challenge_per_one_time: " hal mar",
-  challenge_cta: "Challenge-ka hadda gal (Boosasku waa xaddidan yihiin)",
+  challenge_cta: "Challenge-ka hadda gal",
   /** Short label for narrow buttons (lesson UI, hero). */
   challenge_cta_compact: "Ku biir Challenge-ka",
   challenge_cta_waitlist: "Gali Liiska Sugitaanka Hadda",

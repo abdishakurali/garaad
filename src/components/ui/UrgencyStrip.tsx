@@ -66,7 +66,7 @@ export function UrgencyStrip() {
             </>
           ) : (
             <>
-              Challenge-ka hadda gal (boosasku waa xaddidan yihiin) · Kooxda {data.active_cohort_name}:{" "}
+              Challenge-ka hadda gal · Kooxda {data.active_cohort_name}:{" "}
               {data.spots_remaining} boos oo hadhay · Waxay bilaabaysaa {startFmt}
             </>
           )}
