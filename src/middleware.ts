@@ -113,8 +113,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- 4. Premium Access Check ---
-  // Lesson paths: do NOT gate by premium here. Backend (LessonViewSet.retrieve) and
-  // frontend (LessonDetailClient isLockedLesson + LessonUpgradeModal) enforce free lesson 1 only.
+  // Lesson paths: do NOT gate by premium here. Backend may still enforce access;
+  // frontend (LessonDetailClient isLockedLesson + LessonUpgradeModal) uses lessonTierAccess
+  // (ALL_LESSONS_FREE / premium).
   const isPremiumPath = premiumRoots.some(root => pathname.startsWith(root));
 
   if (isPremiumPath) {

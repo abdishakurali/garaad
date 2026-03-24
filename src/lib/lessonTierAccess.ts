@@ -1,9 +1,11 @@
 import type { User } from "@/types/auth";
+import { ALL_LESSONS_FREE } from "@/config/featureFlags";
 
 /** First N lessons (by `lesson_number`) are free for signed-in non-premium users. */
 export const FREE_TIER_LESSON_COUNT = 3;
 
 export function userHasFullLessonAccess(user: User | null | undefined): boolean {
+  if (ALL_LESSONS_FREE && user) return true;
   return Boolean(user?.is_premium);
 }
 
