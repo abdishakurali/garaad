@@ -24,7 +24,8 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, Loader2, RotateCcw, Sparkles, X } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
 import { progressService } from "@/services/progress";
@@ -957,8 +958,8 @@ function WelcomeOnboardingPage() {
           className={cn(
             "flex min-h-[104px] items-stretch overflow-hidden rounded-xl border-2 transition-all duration-200 ease-in-out",
             isSelected
-              ? "border-purple-500 bg-purple-500/10"
-              : "border-white/10 bg-white/[0.02] hover:border-purple-500/60",
+              ? "border-violet-500/80 bg-violet-500/10 ring-1 ring-violet-500/20 dark:border-violet-400/70 dark:bg-violet-500/15"
+              : "border-border bg-card/40 hover:border-violet-500/40 hover:bg-muted/50 dark:bg-slate-900/40",
             option.disabled && "pointer-events-none opacity-50"
           )}
         >
@@ -984,10 +985,10 @@ function WelcomeOnboardingPage() {
             }}
             className="flex min-w-0 flex-1 cursor-pointer items-center p-4 text-left"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5">
-              <div className="text-purple-400">{option.icon}</div>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
+              {option.icon}
             </div>
-            <div className="flex-1 px-4 text-sm font-medium text-white md:text-base">
+            <div className="flex-1 px-4 text-sm font-medium text-foreground md:text-base">
               {option.text}
             </div>
           </div>
@@ -996,7 +997,7 @@ function WelcomeOnboardingPage() {
               type="button"
               aria-label="Ka saar doorashada"
               disabled={isLoading}
-              className="flex shrink-0 items-center justify-center border-l border-white/10 px-3 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+              className="flex shrink-0 items-center justify-center border-l border-border px-3 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
               onClick={() => toggleDeselect(kind, option.id)}
             >
               <X className="h-5 w-5" strokeWidth={2} />
@@ -1004,12 +1005,12 @@ function WelcomeOnboardingPage() {
           )}
         </div>
         {kind === "track" && showRecBadge(option.id) && (
-          <div className="absolute -top-2 right-2 rounded-full border border-purple-400/40 bg-purple-500/20 px-2 py-0.5 text-[10px] font-semibold text-purple-200">
+          <div className="absolute -top-2 right-2 rounded-full border border-violet-500/35 bg-violet-500/15 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:border-violet-400/40 dark:bg-violet-500/25 dark:text-violet-200">
             Adiga ayaa lagula taliyay
           </div>
         )}
         {isSelected && (
-          <div className="absolute -top-2 left-4 max-w-[calc(100%-3rem)] rounded-full border border-purple-500/30 bg-purple-950/90 px-3 py-1 text-xs leading-snug text-purple-100">
+          <div className="absolute -top-2 left-4 max-w-[calc(100%-3rem)] rounded-full border border-violet-500/30 bg-violet-950/90 px-3 py-1 text-xs leading-snug text-violet-100 dark:bg-violet-950/95">
             {option.badge}
           </div>
         )}
@@ -1019,8 +1020,12 @@ function WelcomeOnboardingPage() {
 
   if (resumeRedirecting) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
-        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
+          aria-hidden
+        />
+        <Loader2 className="relative z-10 size-10 animate-spin text-violet-600 dark:text-violet-400" />
       </div>
     );
   }
@@ -1033,61 +1038,106 @@ function WelcomeOnboardingPage() {
     const narrative = buildChallengeNarrative(answers);
 
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-4 py-12 text-white">
-        <div className="w-full max-w-2xl space-y-8 text-center">
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-             Soo dhowow, {firstName}.
-          </h1>
-          <p className="text-left text-base leading-relaxed text-zinc-300 md:text-lg">
-            {narrative}
-          </p>
+      <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -top-32 right-0 h-[28rem] w-[28rem] rounded-full bg-violet-400/25 blur-3xl dark:bg-violet-600/20"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-40 -left-24 h-[24rem] w-[24rem] rounded-full bg-purple-400/20 blur-3xl dark:bg-fuchsia-600/15"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[length:2.5rem_2.5rem] dark:bg-[linear-gradient(to_right,rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.04)_1px,transparent_1px)]"
+          aria-hidden
+        />
 
-          <ul className="space-y-2 text-left text-sm text-zinc-400">
-            {answers.barrier === "english" && (
-              <li>✓ Wax kasta waxaa lagu baranayaa af Soomaali.</li>
-            )}
-            {answers.barrier === "alone" && (
-              <li>✓ Mentor xirfadle ah toddobaad kasta (af Soomaali).</li>
-            )}
-            <li>✓ $149 — hal bixis muddo 3 bilood ah.</li>
-            <li>✓ 7 maalmood oo damaanad ah (lacag celin).</li>
-            <li>✓ Kaliya 10 arday ayaa koox kasta ka mid ah.</li>
-            <li>
-              ✓ {spotsLabel} boos ayaa ka haray kooxdan.
-              {challengeLoading && !challengeData ? " …" : ""}
-            </li>
-          </ul>
-
-          {waitlist && (
-            <p className="text-sm text-zinc-400">
-              Kooxda hadda wey buuxdaa — kii xiga markuu furmo waxaad ahaanaysaa
-              Qofka ugu horreeyay ee la xiriiraa.
-            </p>
-          )}
-
-          <div className="flex flex-col gap-4 pt-4">
-            <Button
-              asChild
-              className="h-14 w-full rounded-xl bg-purple-600 text-base font-semibold text-white transition-all duration-200 hover:bg-purple-700"
-            >
-              <Link href="/subscribe?plan=challenge">
-                {waitlist
-                  ? "Liiska Sugitaanka gal →"
-                  : `Ku soo biir Challenge-ga — ${spotsLabel} boos ayaa haray →`}
-              </Link>
-            </Button>
+        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-10 sm:py-14">
+          <header className="mb-8 flex flex-col items-center gap-5 sm:mb-10">
             <Link
-              href={postSignupDest}
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  sessionStorage.setItem("post_signup_redirect", postSignupDest);
-                }
-              }}
-              className="text-center text-sm text-purple-400 underline-offset-4 hover:text-purple-300 hover:underline"
+              href="/"
+              className="rounded-2xl outline-offset-4 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             >
-              Marka hore bilaash ku tijaabi — eeg casharrada
+              <Logo priority loading="eager" className="h-11 sm:h-12" />
             </Link>
-          </div>
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="size-4 shrink-0" aria-hidden />
+              Ku laabo koorsooyinka
+            </Link>
+          </header>
+
+          <main className="flex flex-1 flex-col justify-center pb-8">
+            <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
+              <CardContent className="space-y-8 p-6 text-center sm:p-8 md:text-left">
+                <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 md:mx-0">
+                  <Sparkles className="size-6" aria-hidden />
+                </div>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                  Soo dhowow, {firstName}.
+                </h1>
+                <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
+                  {narrative}
+                </p>
+
+                <ul className="space-y-2 text-left text-sm text-muted-foreground">
+                  {answers.barrier === "english" && (
+                    <li>✓ Wax kasta waxaa lagu baranayaa af Soomaali.</li>
+                  )}
+                  {answers.barrier === "alone" && (
+                    <li>✓ Mentor xirfadle ah toddobaad kasta (af Soomaali).</li>
+                  )}
+                  <li>✓ $149 — hal bixis muddo 3 bilood ah.</li>
+                  <li>✓ 7 maalmood oo damaanad ah (lacag celin).</li>
+                  <li>✓ Kaliya 10 arday ayaa koox kasta ka mid ah.</li>
+                  <li>
+                    ✓ {spotsLabel} boos ayaa ka haray kooxdan.
+                    {challengeLoading && !challengeData ? " …" : ""}
+                  </li>
+                </ul>
+
+                {waitlist && (
+                  <p className="text-sm text-muted-foreground">
+                    Kooxda hadda wey buuxdaa — kii xiga markuu furmo waxaad
+                    ahaanaysaa Qofka ugu horreeyay ee la xiriiraa.
+                  </p>
+                )}
+
+                <div className="flex flex-col gap-4 pt-2">
+                  <Button
+                    asChild
+                    className="h-14 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-base font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35"
+                  >
+                    <Link href="/subscribe?plan=challenge">
+                      {waitlist
+                        ? "Liiska Sugitaanka gal →"
+                        : `Ku soo biir Challenge-ga — ${spotsLabel} boos ayaa haray →`}
+                    </Link>
+                  </Button>
+                  <Link
+                    href={postSignupDest}
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        sessionStorage.setItem(
+                          "post_signup_redirect",
+                          postSignupDest
+                        );
+                      }
+                    }}
+                    className="text-center text-sm font-medium text-violet-600 underline-offset-4 hover:underline dark:text-violet-400"
+                  >
+                    Marka hore bilaash ku tijaabi — eeg casharrada
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </main>
         </div>
       </div>
     );
@@ -1104,74 +1154,115 @@ function WelcomeOnboardingPage() {
   const selectedId = selectIdForKind(currentKind);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] px-2 py-6 text-white">
-      <Card className="mx-auto w-full max-w-2xl overflow-hidden border border-white/10 bg-[#0f0f0f] shadow-lg">
-        <CardContent className="p-0">
-          <Progress
-            value={progressPct}
-            className="h-1.5 rounded-none bg-white/10 [&>div]:bg-purple-600 [&>div]:transition-all [&>div]:duration-200 [&>div]:ease-in-out"
-          />
-          <p className="border-b border-white/10 bg-white/[0.03] px-4 py-3 text-center text-xs text-zinc-400 sm:text-sm">
-            Tallaabada{" "}
-            <span className="font-medium text-white">{progressCurrent}</span> ee{" "}
-            <span className="font-medium text-white">{progressTotal}</span>
-            <span className="mt-1 block text-[11px] text-zinc-500 sm:text-xs">
-              Qiyaastii 2 daqiiqo haddii aad sii wadato
-            </span>
-          </p>
+    <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -top-32 right-0 h-[28rem] w-[28rem] rounded-full bg-violet-400/25 blur-3xl dark:bg-violet-600/20"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -bottom-40 -left-24 h-[24rem] w-[24rem] rounded-full bg-purple-400/20 blur-3xl dark:bg-fuchsia-600/15"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[length:2.5rem_2.5rem] dark:bg-[linear-gradient(to_right,rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.04)_1px,transparent_1px)]"
+        aria-hidden
+      />
 
-          <div className="flex flex-col p-4 md:p-6">
-            <div className="mb-6 flex items-center justify-between gap-2">
-              <h2 className="text-xl font-bold text-white md:text-2xl">
-                {currentKind === "personal"
-                  ? "Waxyar ayaa kuu dhiman."
-                  : STEP_COPY[currentKind as Exclude<StepKind, "personal">]
-                      .heading}
-              </h2>
-              {stepIndex > 0 && (
-                <button
-                  type="button"
-                  onClick={handleStartOver}
-                  className="flex shrink-0 items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-white"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Bilow cusub
-                </button>
-              )}
-            </div>
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-3 py-6 sm:px-4 sm:py-10">
+        <header className="mb-6 flex flex-col items-center gap-4 sm:mb-8">
+          <Link
+            href="/"
+            className="rounded-2xl outline-offset-4 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+          >
+            <Logo priority loading="eager" className="h-11 sm:h-12" />
+          </Link>
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="size-4 shrink-0" aria-hidden />
+            Ku laabo koorsooyinka
+          </Link>
+        </header>
 
-            {currentKind !== "personal" && (
-              <p className="mb-6 text-sm leading-relaxed text-zinc-400">
-                {STEP_COPY[currentKind as Exclude<StepKind, "personal">]
-                  .subheading}
-              </p>
-            )}
+        <Card className="mx-auto w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
+          <CardContent className="p-0">
+            <Progress
+              value={progressPct}
+              className="h-1.5 rounded-none bg-muted [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-purple-600 [&>div]:transition-all [&>div]:duration-200 [&>div]:ease-in-out"
+            />
+            <p className="border-b border-border bg-muted/30 px-4 py-3 text-center text-xs text-muted-foreground sm:text-sm">
+              Tallaabada{" "}
+              <span className="font-medium text-foreground">
+                {progressCurrent}
+              </span>{" "}
+              ee{" "}
+              <span className="font-medium text-foreground">
+                {progressTotal}
+              </span>
+              <span className="mt-1 block text-[11px] text-muted-foreground/80 sm:text-xs">
+                Qiyaastii 2 daqiiqo haddii aad sii wadato
+              </span>
+            </p>
 
-            {currentKind === "personal" && (
-              <p className="mb-6 text-sm leading-relaxed text-zinc-400">
-                Sameyso account si aad u xafidato horumarkaaga.
-              </p>
-            )}
-
-            {actualError && (
-              <Alert
-                variant="destructive"
-                className="mb-6 border-red-500/40 bg-red-950/40"
-              >
-                <AlertTitle className="font-medium">Khalad</AlertTitle>
-                <AlertDescription>{actualError}</AlertDescription>
-                {actualError.includes("sign in") && (
-                  <div className="mt-3">
-                    <Link
-                      href="/login"
-                      className="text-sm font-medium text-purple-400 underline"
-                    >
-                      Soo gal
-                    </Link>
-                  </div>
+            <div className="flex flex-col p-4 md:p-6">
+              <div className="mb-6 flex items-center justify-between gap-2">
+                <h2 className="text-xl font-bold text-foreground md:text-2xl">
+                  {currentKind === "personal"
+                    ? "Waxyar ayaa kuu dhiman."
+                    : STEP_COPY[currentKind as Exclude<StepKind, "personal">]
+                        .heading}
+                </h2>
+                {stepIndex > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleStartOver}
+                    className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Bilow cusub
+                  </button>
                 )}
-              </Alert>
-            )}
+              </div>
+
+              {currentKind !== "personal" && (
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+                  {STEP_COPY[currentKind as Exclude<StepKind, "personal">]
+                    .subheading}
+                </p>
+              )}
+
+              {currentKind === "personal" && (
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+                  Sameyso account si aad u xafidato horumarkaaga.
+                </p>
+              )}
+
+              {actualError && (
+                <Alert
+                  variant="destructive"
+                  className="mb-6 rounded-2xl border-red-200/80 bg-red-50/90 dark:border-red-900/50 dark:bg-red-950/40"
+                >
+                  <AlertTitle className="font-semibold">Khalad</AlertTitle>
+                  <AlertDescription className="text-pretty">
+                    {actualError}
+                  </AlertDescription>
+                  {actualError.includes("sign in") && (
+                    <div className="mt-3">
+                      <Link
+                        href="/login"
+                        className="text-sm font-semibold text-violet-600 hover:underline dark:text-violet-400"
+                      >
+                        Soo gal
+                      </Link>
+                    </div>
+                  )}
+                </Alert>
+              )}
 
             {(currentKind === "goal" || currentKind === "track") && listOpts && (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -1219,7 +1310,7 @@ function WelcomeOnboardingPage() {
                 {(answers.project_idea === "yes_clear" ||
                   answers.project_idea === "yes_vague") && (
                   <div className="space-y-2 pt-2">
-                    <Label className="text-zinc-200">
+                    <Label className="text-sm font-semibold text-foreground">
                       {projectIdeaPrompt.label}
                     </Label>
                     <Input
@@ -1232,9 +1323,9 @@ function WelcomeOnboardingPage() {
                       }
                       placeholder={projectIdeaPrompt.placeholder}
                       disabled={isLoading}
-                      className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500"
+                      className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                     />
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground">
                       {projectIdeaPrompt.helpText}
                     </p>
                   </div>
@@ -1245,7 +1336,10 @@ function WelcomeOnboardingPage() {
             {currentKind === "personal" && (
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-zinc-200">
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-semibold text-foreground"
+                  >
                     Magacaaga oo buuxa
                   </Label>
                   <Input
@@ -1255,11 +1349,14 @@ function WelcomeOnboardingPage() {
                       setUserData((u) => ({ ...u, name: e.target.value }))
                     }
                     disabled={isLoading}
-                    className="border-white/10 bg-white/5 text-white"
+                    className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-zinc-200">
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-semibold text-foreground"
+                  >
                     Email-kaaga
                   </Label>
                   <Input
@@ -1270,11 +1367,14 @@ function WelcomeOnboardingPage() {
                       setUserData((u) => ({ ...u, email: e.target.value }))
                     }
                     disabled={isLoading}
-                    className="border-white/10 bg-white/5 text-white"
+                    className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-zinc-200">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-semibold text-foreground"
+                  >
                     Password
                   </Label>
                   <Input
@@ -1285,15 +1385,17 @@ function WelcomeOnboardingPage() {
                       setUserData((u) => ({ ...u, password: e.target.value }))
                     }
                     disabled={isLoading}
-                    className="border-white/10 bg-white/5 text-white"
+                    className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
                 {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
                   <div className="space-y-3">
-                    <div className="relative py-1 text-center text-xs text-zinc-500">
-                      <span className="relative z-10 bg-[#0f0f0f] px-3">ama sii wad Google</span>
+                    <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
+                      <span className="relative z-10 bg-card px-3">
+                        ama sii wad Google
+                      </span>
                       <span
-                        className="absolute left-0 right-0 top-1/2 h-px bg-white/10"
+                        className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
                         aria-hidden
                       />
                     </div>
@@ -1304,7 +1406,10 @@ function WelcomeOnboardingPage() {
                   </div>
                 ) : null}
                 <div className="space-y-2">
-                  <Label htmlFor="promoCode" className="text-zinc-400">
+                  <Label
+                    htmlFor="promoCode"
+                    className="text-sm font-medium text-muted-foreground"
+                  >
                     Koodka Dalacsiinta (Ikhtiyaari)
                   </Label>
                   <Input
@@ -1314,41 +1419,44 @@ function WelcomeOnboardingPage() {
                       setUserData((u) => ({ ...u, promoCode: e.target.value }))
                     }
                     disabled={isLoading}
-                    className="border-white/10 bg-white/5 text-white"
+                    className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
-                <ul className="space-y-1 text-sm text-zinc-400">
+                <ul className="space-y-1 text-sm text-muted-foreground">
                   <li>Ku soo biiritaan waa bilaash — looma baahna credit card.</li>
                   <li>Waddadii laguu diyaariyay waa diyaar.</li>
                   <li>
                     Bilaash ku billow, markaad diyaar tahayna kor u qaado.
                   </li>
                 </ul>
-                <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-4">
                   <input
                     type="checkbox"
                     id="termsAcceptance"
                     checked
                     readOnly
-                    className="mt-1 h-4 w-4 cursor-default rounded border-white/20"
+                    className="mt-1 h-4 w-4 cursor-default rounded border-border"
                   />
                   <label
                     htmlFor="termsAcceptance"
-                    className="text-sm leading-relaxed text-zinc-300"
+                    className="text-sm leading-relaxed text-muted-foreground"
                   >
                     Wan aqbalay{" "}
                     <Link
                       href="/terms"
                       target="_blank"
-                      className="text-purple-400 hover:underline"
+                      className="font-semibold text-violet-600 hover:underline dark:text-violet-400"
                     >
                       shuruudaha Garaad
                     </Link>
                   </label>
                 </div>
-                <p className="text-center text-sm text-zinc-400">
+                <p className="text-center text-sm text-muted-foreground">
                   Horey ma uu kuu jiraan akoon?{" "}
-                  <Link href="/login" className="text-purple-400 hover:underline">
+                  <Link
+                    href="/login"
+                    className="font-semibold text-violet-600 hover:underline dark:text-violet-400"
+                  >
                     Soo gal
                   </Link>
                 </p>
@@ -1358,7 +1466,7 @@ function WelcomeOnboardingPage() {
             <div
               className={cn(
                 "mt-8 w-full",
-                "max-md:sticky max-md:bottom-4 max-md:z-20 max-md:border-t max-md:border-white/10 max-md:bg-[#0f0f0f]/95 max-md:pt-4 max-md:backdrop-blur-sm"
+                "max-md:sticky max-md:bottom-4 max-md:z-20 max-md:-mx-4 max-md:border-t max-md:border-border max-md:bg-background/95 max-md:px-4 max-md:pb-1 max-md:pt-4 max-md:backdrop-blur-sm"
               )}
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -1367,7 +1475,7 @@ function WelcomeOnboardingPage() {
                   variant="ghost"
                   onClick={goBack}
                   disabled={stepIndex === 0 || isLoading}
-                  className="text-zinc-300 hover:bg-white/5 hover:text-white"
+                  className="text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 >
                   Dib u noqo
                 </Button>
@@ -1378,7 +1486,7 @@ function WelcomeOnboardingPage() {
                       variant="outline"
                       onClick={skipBarrier}
                       disabled={isLoading}
-                      className="border-white/20 bg-transparent text-zinc-200 hover:bg-white/5"
+                      className="border-border bg-background/80 text-foreground hover:bg-muted/50"
                     >
                       Ka bood tallaabadan
                     </Button>
@@ -1388,7 +1496,7 @@ function WelcomeOnboardingPage() {
                       type="button"
                       disabled={isLoading}
                       onClick={(e) => void handleSubmit(e)}
-                      className="h-12 flex-1 rounded-xl bg-purple-600 font-semibold text-white hover:bg-purple-700"
+                      className="h-12 flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-60"
                     >
                       {isLoading ? (
                         <span className="flex items-center gap-2">
@@ -1408,7 +1516,7 @@ function WelcomeOnboardingPage() {
                       type="button"
                       onClick={goNext}
                       disabled={!canAdvance || isLoading}
-                      className="h-12 flex-1 rounded-xl bg-purple-600 font-semibold text-white hover:bg-purple-700 disabled:opacity-40"
+                      className="h-12 flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-40"
                     >
                       Horey u soco
                     </Button>
@@ -1420,7 +1528,7 @@ function WelcomeOnboardingPage() {
             {optionsHasMore && (currentKind === "goal" || currentKind === "track") && (
               <button
                 type="button"
-                className="mt-3 w-full py-2 text-sm text-purple-400 hover:underline"
+                className="mt-3 w-full py-2 text-sm font-medium text-violet-600 hover:underline dark:text-violet-400"
                 onClick={() => setShowAllStepOptions(true)}
               >
                 Muuji dhammaan
@@ -1429,6 +1537,7 @@ function WelcomeOnboardingPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
@@ -1437,8 +1546,17 @@ export default function Page() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
-          <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-950">
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
+            aria-hidden
+          />
+          <div className="relative flex flex-col items-center gap-4 rounded-3xl border border-border/60 bg-card/90 px-10 py-12 shadow-xl backdrop-blur-sm dark:border-slate-700/80 dark:bg-slate-900/80">
+            <Loader2 className="size-10 animate-spin text-violet-600 dark:text-violet-400" />
+            <p className="text-sm font-medium text-muted-foreground">
+              Waa la diyaarinayaa…
+            </p>
+          </div>
         </div>
       }
     >

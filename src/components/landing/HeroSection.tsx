@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -44,11 +45,24 @@ function parseCategories(data: unknown): HeroCourseWithCategory[] {
   );
 }
 
-const AVATAR_PHOTOS = [
-  { src: "/images/review/1.png", alt: "Arday Garaad" },
-  { src: "/images/review/2.png", alt: "Arday Garaad" },
-  { src: "/images/review/3.jpeg", alt: "Arday Garaad" },
+interface PublicProofUser {
+  first_name?: string;
+  last_name?: string;
+  profile_picture_url?: string | null;
+}
+
+const AVATAR_RING_COLORS = [
+  "bg-emerald-600/90 text-white",
+  "bg-violet-600/90 text-white",
+  "bg-amber-600/90 text-white",
 ] as const;
+
+function resolveProofAvatarUrl(url: string | null | undefined): string | null {
+  const u = typeof url === "string" ? url.trim() : "";
+  if (!u) return null;
+  if (u.startsWith("http://") || u.startsWith("https://")) return u;
+  return getAbsoluteImageUrl(u, "");
+}
 
 function useAnimatedCount(target: number, active: boolean) {
   const [v, setV] = useState(0);
@@ -82,6 +96,31 @@ export function HeroSection() {
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
   );
+
+  const { data: proofUsers } = useSWR<PublicProofUser[]>(
+    `${API_BASE_URL}/api/public/social-proof/`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+  );
+
+  const heroAvatars = useMemo(() => {
+    if (!Array.isArray(proofUsers) || proofUsers.length === 0) return [];
+    const colors = AVATAR_RING_COLORS;
+    return proofUsers.slice(0, 3).map((u, i) => {
+      const fn = (u.first_name || "").trim();
+      const ln = (u.last_name || "").trim();
+      const initials =
+        `${fn[0] || ""}${ln[0] || ""}`.toUpperCase() || (fn[0] || "?").toUpperCase();
+      const label = ln ? `${fn} ${ln[0]}.`.trim() : fn || "Arday";
+      const src = resolveProofAvatarUrl(u.profile_picture_url ?? null);
+      return {
+        src,
+        initials,
+        alt: `${label} — arday Garaad`,
+        ringClass: colors[i % colors.length],
+      };
+    });
+  }, [proofUsers]);
   const studentCount = stats?.students_count ?? 0;
   const countAnimActive = Boolean(stats != null && !statsError && studentCount > 0);
   const displayCount = useAnimatedCount(studentCount, countAnimActive);
@@ -174,20 +213,41 @@ export function HeroSection() {
               Bilow 6-tallaabo — shaqsiyeeyn (~2 daqiiqo) →
             </Link>
             <p className="mt-4 max-w-md rounded-lg border border-amber-500/35 bg-amber-950/35 px-3 py-2 text-xs font-semibold leading-snug text-amber-100/95 sm:text-sm">
-              Kooxda dambe waa la furanayaa — boosaska way xadidan yihiin.
+              Kooxda dambe wey furmeysaa — boosaska way xadidan yihiin.
             </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <div className="flex -space-x-2" aria-hidden>
-                {AVATAR_PHOTOS.map((p) => (
-                  <div
-                    key={p.src}
-                    className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-[#050508] ring-1 ring-white/10"
-                  >
-                    <Image src={p.src} alt={p.alt} fill className="object-cover object-top" sizes="40px" unoptimized />
-                  </div>
-                ))}
-              </div>
+              {heroAvatars.length > 0 ? (
+                <div
+                  className="flex -space-x-2"
+                  aria-label="Sawirro ka mid ah ardayda diiwaangashan"
+                >
+                  {heroAvatars.map((a, idx) => (
+                    <div
+                      key={`${a.alt}-${idx}`}
+                      className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-[#050508] ring-1 ring-white/10"
+                    >
+                      {a.src ? (
+                        <Image
+                          src={a.src}
+                          alt={a.alt}
+                          fill
+                          className="object-cover object-top"
+                          sizes="40px"
+                          unoptimized
+                        />
+                      ) : (
+                        <div
+                          className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${a.ringClass}`}
+                          aria-hidden
+                        >
+                          {a.initials}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               <p className="text-sm text-white/40">
                 <span className="font-semibold tabular-nums text-white/70">{learnersLabel}</span>
               </p>
