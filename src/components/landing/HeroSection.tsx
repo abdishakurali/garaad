@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -43,11 +44,34 @@ function parseCategories(data: unknown): HeroCourseWithCategory[] {
   );
 }
 
-const AVATAR_SAMPLES = [
-  { initials: "IO", className: "bg-emerald-600/90 text-white" },
-  { initials: "AS", className: "bg-violet-600/90 text-white" },
-  { initials: "A", className: "bg-amber-600/90 text-white" },
+const AVATAR_PHOTOS = [
+  { src: "/images/review/1.png", alt: "Arday Garaad" },
+  { src: "/images/review/2.png", alt: "Arday Garaad" },
+  { src: "/images/review/3.jpeg", alt: "Arday Garaad" },
 ] as const;
+
+function useAnimatedCount(target: number, active: boolean) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (!active || target <= 0) {
+      setV(target);
+      return;
+    }
+    const start = Math.max(1, Math.floor(target * 0.88));
+    let frame = 0;
+    const t0 = performance.now();
+    const dur = 2200;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / dur);
+      const ease = 1 - (1 - p) * (1 - p);
+      setV(Math.round(start + (target - start) * ease));
+      if (p < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, active]);
+  return v;
+}
 
 export function HeroSection() {
   const user = useAuthStore((s) => s.user);
@@ -59,6 +83,8 @@ export function HeroSection() {
     { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
   );
   const studentCount = stats?.students_count ?? 0;
+  const countAnimActive = Boolean(stats != null && !statsError && studentCount > 0);
+  const displayCount = useAnimatedCount(studentCount, countAnimActive);
   /** Fixed first paint avoids hydration mismatch (SWR can have cache on client only). */
   const [learnersLabel, setLearnersLabel] = useState("Ku biir 88+ Developer oo hadda baranaya");
   useEffect(() => {
@@ -67,6 +93,10 @@ export function HeroSection() {
       setLearnersLabel(`Ku biir ${studentCount}+ Developer oo hadda baranaya`);
     }
   }, [stats, statsError, studentCount]);
+  useEffect(() => {
+    if (!countAnimActive || displayCount <= 0) return;
+    setLearnersLabel(`Ku biir ${displayCount}+ Developer oo hadda baranaya`);
+  }, [displayCount, countAnimActive]);
 
   const { data: categoriesData } = useSWR<unknown>(CATEGORIES_SWR_KEY, fetcher, {
     revalidateOnFocus: false,
@@ -114,8 +144,8 @@ export function HeroSection() {
               tahay.{" "}
               {stats != null && !statsError && studentCount > 0 ? (
                 <>
-                  <span className="font-semibold text-white/75">{studentCount}+ arday</span> ayaa hadda dhisaya
-                  mustaqbalkooda.
+                  <span className="font-semibold tabular-nums text-white/75">{displayCount || studentCount}+ arday</span>{" "}
+                  ayaa hadda dhisaya mustaqbalkooda.
                 </>
               ) : (
                 <>
@@ -123,29 +153,38 @@ export function HeroSection() {
                 </>
               )}
             </p>
-            <div className="mt-8 flex flex-col items-start gap-3">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Link
                 href="/challenge"
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
               >
                 Ku biir Challenge-ka →
               </Link>
               <Link
                 href={firstFreeHref}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/55 underline underline-offset-4 decoration-white/30 hover:text-white/80"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border-2 border-white/45 bg-transparent px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:border-white/70 hover:bg-white/5"
               >
                 Ku bilow Bilaash
               </Link>
             </div>
-             
+            <Link
+              href="/welcome"
+              className="mt-2 inline-flex text-sm font-semibold text-white/50 underline-offset-4 transition hover:text-white/75 hover:underline"
+            >
+              Bilow 6-tallaabo — shaqsiyeeyn (~2 daqiiqo) →
+            </Link>
+            <p className="mt-4 max-w-md rounded-lg border border-amber-500/35 bg-amber-950/35 px-3 py-2 text-xs font-semibold leading-snug text-amber-100/95 sm:text-sm">
+              Kooxda dambe waa la furanayaa — boosaska way xadidan yihiin.
+            </p>
+
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <div className="flex -space-x-2" aria-hidden>
-                {AVATAR_SAMPLES.map((a) => (
+                {AVATAR_PHOTOS.map((p) => (
                   <div
-                    key={a.initials}
-                    className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#050508] text-[10px] font-bold ${a.className}`}
+                    key={p.src}
+                    className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-[#050508] ring-1 ring-white/10"
                   >
-                    {a.initials}
+                    <Image src={p.src} alt={p.alt} fill className="object-cover object-top" sizes="40px" unoptimized />
                   </div>
                 ))}
               </div>

@@ -183,7 +183,8 @@ export function LaunchpadListClient() {
                     </h1>
 
                     <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
-                        Mashruucyadan waxaa dhisay ardayda Challenge-ka Garaad. Adiga xigaad?
+                        Launchpad waxaa loogu talagalay ardayda Challenge-ka — mashruucyada halkan waa tusaalooyin
+                        xooggan; adiga mashruucaagu wuxuu ku xigaan markaad kooxda ku biirto.
                     </p>
 
                     <div className="mb-10 flex justify-center animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">

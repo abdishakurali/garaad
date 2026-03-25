@@ -63,6 +63,13 @@ export interface SignUpResponse {
   };
 }
 
+export interface GoogleAuthPayload {
+  credential: string;
+  onboarding_data?: SignUpData["onboarding_data"];
+  referral_code?: string;
+  promo_code?: string;
+}
+
 export interface SignInData {
   email: string;
   password: string;
@@ -203,6 +210,20 @@ export class AuthService {
   public async signIn(data: SignInData): Promise<SignInResponse> {
     try {
       const response = await api.post<SignInResponse>("/api/auth/signin/", data);
+      if (response.tokens) {
+        this.setTokens(response.tokens.access, response.tokens.refresh);
+        this.setCurrentUser(response.user);
+      }
+      return response;
+    } catch (error: any) {
+      this.handleError(error);
+    }
+  }
+
+  /** Google Identity Services JWT — optional onboarding_data matches welcome wizard signup. */
+  public async signInWithGoogle(payload: GoogleAuthPayload): Promise<SignUpResponse> {
+    try {
+      const response = await api.post<SignUpResponse>("/api/auth/google/", payload);
       if (response.tokens) {
         this.setTokens(response.tokens.access, response.tokens.refresh);
         this.setCurrentUser(response.user);

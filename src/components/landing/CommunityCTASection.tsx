@@ -74,10 +74,17 @@ export function CommunityCTASection() {
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
                             <Link
-                                href="/community"
+                                href="/communitypreview"
                                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-border bg-background/80 font-bold text-foreground hover:bg-muted/60 transition-all"
                             >
                                 <Users className="w-5 h-5 text-primary" />
+                                Arag waxa ardaydu ka hadlayaan →
+                            </Link>
+                            <Link
+                                href="/community"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 font-bold text-primary hover:bg-primary/10 transition-all"
+                            >
+                                <Users className="w-5 h-5 shrink-0" />
                                 <span>Arag Bulshada</span>
                             </Link>
                         </div>

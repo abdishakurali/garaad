@@ -30,6 +30,7 @@ import { isAllowedRedirect } from "@/lib/auth-redirect";
 import { progressService } from "@/services/progress";
 import { getResumeLessonPath } from "@/lib/onboarding-resume";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 import {
   goals,
@@ -705,6 +706,85 @@ function WelcomeOnboardingPage() {
         (a.experience !== "tried_before" || a.barrier !== undefined)
     );
 
+  const handleGoogleCredential = useCallback(
+    async (credential: string) => {
+      setActualError("");
+      if (!onboardingCompleteEnough(answers)) {
+        setActualError(
+          "Fadlan buuxi dhammaan su'aalaha ka hor intaadan Google isticmaalin."
+        );
+        return;
+      }
+      setIsLoading(true);
+      setAuthStoreError(null);
+      try {
+        const authService = AuthService.getInstance();
+        const onboarding_data = buildOnboardingPayload(answers);
+        const result = await authService.signInWithGoogle({
+          credential,
+          onboarding_data,
+          ...(userData.referralCode.trim()
+            ? { referral_code: userData.referralCode.trim() }
+            : {}),
+          ...(userData.promoCode.trim() ? { promo_code: userData.promoCode.trim() } : {}),
+        });
+
+        if (result?.user) {
+          setAuthStoreUser({
+            ...result.user,
+            is_premium: result.user.is_premium || false,
+            referral_code: result.user.referral_code,
+            referral_points: result.user.referral_points,
+            referral_count: result.user.referral_count,
+            referred_by: result.user.referred_by,
+            referred_by_username: result.user.referred_by_username,
+          });
+        }
+
+        let finalDest =
+          (postAuthRedirect && postAuthRedirect.startsWith("/")
+            ? postAuthRedirect
+            : null) ||
+          (result?.redirect_url && result.redirect_url.startsWith("/")
+            ? result.redirect_url
+            : null);
+
+        const topic = String(answers.topic ?? "").trim();
+        const deeplink = await AuthService.getInstance().getOnboardingFirstLesson(topic);
+        if (!finalDest) {
+          finalDest = deeplink.path || "/courses";
+        }
+
+        setPostSignupDest(finalDest);
+
+        posthog?.capture("onboarding_completed", {
+          destination_lesson_id: deeplink.lesson_id ?? undefined,
+          source: "google_gis",
+        });
+
+        clearWelcomeStorage();
+        setPhase("challenge");
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : "";
+        if (error instanceof Error) {
+          setActualError(errMsg || "Google ma guulaysan. Fadlan isku day email/password.");
+        } else {
+          setActualError("Waxbaa khaldamay. Fadlan mar kale isku day.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      answers,
+      userData.referralCode,
+      userData.promoCode,
+      postAuthRedirect,
+      posthog,
+      setAuthStoreUser,
+    ]
+  );
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setActualError("");
@@ -1035,6 +1115,9 @@ function WelcomeOnboardingPage() {
             Tallaabada{" "}
             <span className="font-medium text-white">{progressCurrent}</span> ee{" "}
             <span className="font-medium text-white">{progressTotal}</span>
+            <span className="mt-1 block text-[11px] text-zinc-500 sm:text-xs">
+              Qiyaastii 2 daqiiqo haddii aad sii wadato
+            </span>
           </p>
 
           <div className="flex flex-col p-4 md:p-6">
@@ -1205,6 +1288,21 @@ function WelcomeOnboardingPage() {
                     className="border-white/10 bg-white/5 text-white"
                   />
                 </div>
+                {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
+                  <div className="space-y-3">
+                    <div className="relative py-1 text-center text-xs text-zinc-500">
+                      <span className="relative z-10 bg-[#0f0f0f] px-3">ama sii wad Google</span>
+                      <span
+                        className="absolute left-0 right-0 top-1/2 h-px bg-white/10"
+                        aria-hidden
+                      />
+                    </div>
+                    <GoogleSignInButton
+                      disabled={isLoading}
+                      onCredential={(c) => void handleGoogleCredential(c)}
+                    />
+                  </div>
+                ) : null}
                 <div className="space-y-2">
                   <Label htmlFor="promoCode" className="text-zinc-400">
                     Koodka Dalacsiinta (Ikhtiyaari)

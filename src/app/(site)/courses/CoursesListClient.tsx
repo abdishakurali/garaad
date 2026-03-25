@@ -11,12 +11,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { usePostHog } from "posthog-js/react";
+import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn, getAbsoluteImageUrl, getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { CoursesChallengeBanner } from "@/components/challenge/CoursesChallengeBanner";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
 import { pricingTranslations as pt } from "@/config/translations/pricing";
+import { API_BASE_URL } from "@/lib/constants";
+
+const statsFetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-category.svg";
@@ -92,6 +96,16 @@ export function CoursesListClient() {
     const [hasMounted, setHasMounted] = useState(false);
     const { href: firstFreeHref } = useFirstFreeLessonHref();
 
+    const { data: landingStats } = useSWR<{ students_count?: number }>(
+        `${API_BASE_URL}/api/public/landing-stats/`,
+        statsFetcher,
+        { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+    );
+    const totalLearners =
+        typeof landingStats?.students_count === "number" && landingStats.students_count > 0
+            ? landingStats.students_count
+            : 88;
+
     const getCourseProgress = (courseId: number) => {
         if (!enrollments || !Array.isArray(enrollments)) return undefined;
         const e = enrollments.find((x: { course: number }) => x.course === courseId);
@@ -135,6 +149,14 @@ export function CoursesListClient() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
+            <div className="border-b border-amber-400/30 bg-gradient-to-r from-amber-500 via-primary to-violet-600 py-3.5 text-center shadow-md">
+                <p className="px-4 text-sm font-black text-primary-foreground sm:text-base">
+                    Koorsooyinkan waa qeyb yar oo ka mid ah waxa aad Garaad ka heleysid — dhameystiran:{" "}
+                    <Link href="/challenge" className="underline decoration-2 underline-offset-2 hover:opacity-95">
+                        Challenge-ka hadda eeg →
+                    </Link>
+                </p>
+            </div>
             {/* Hero Section */}
             <div className="relative pt-20 pb-12 md:pt-40 md:pb-32 overflow-hidden">
                 {/* Simplified & Clean Background */}
@@ -340,10 +362,13 @@ export function CoursesListClient() {
 
                                                         <div className="relative flex flex-1 flex-col bg-white p-6 dark:bg-slate-900">
                                                             <Link href={courseHref}>
-                                                                <h3 className="mb-3 line-clamp-1 text-xl font-black leading-tight transition-colors duration-300 group-hover:text-primary">
+                                                                <h3 className="mb-2 line-clamp-1 text-xl font-black leading-tight transition-colors duration-300 group-hover:text-primary">
                                                                     {course?.title}
                                                                 </h3>
                                                             </Link>
+                                                            <p className="mb-3 text-[11px] font-bold uppercase tracking-wide text-primary sm:text-xs">
+                                                                Qayb ka mid ah {totalLearners}+ arday ayaa hadda baranaya Garaad
+                                                            </p>
 
                                                             {course?.description && (
                                                                 <p className="mb-6 line-clamp-2 text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
@@ -395,9 +420,9 @@ export function CoursesListClient() {
                                                                     </Link>
                                                                     <Link
                                                                         href={firstFreeHref}
-                                                                        className="flex w-full items-center justify-center rounded-xl border border-slate-200 py-2.5 text-center text-xs font-bold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                                                        className="flex w-full items-center justify-center rounded-xl border-2 border-slate-300 bg-white py-2.5 text-center text-sm font-black text-slate-800 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900"
                                                                     >
-                                                                        Qofka ugu
+                                                                        Bilaash ku bilow →
                                                                     </Link>
                                                                     <Link
                                                                         href={courseHref}

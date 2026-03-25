@@ -18,6 +18,11 @@ const CommunityCTASection = dynamic(() => import("@/components/landing/Community
     ssr: true
 });
 
+const LandingPricingComparison = dynamic(
+    () => import("@/components/landing/LandingPricingComparison").then((m) => m.LandingPricingComparison),
+    { loading: () => <SectionSkeleton />, ssr: true }
+);
+
 const GaraadFeaturesShowcase = dynamic(() => import("@/components/landing/GaraadFeaturesShowcase").then(mod => mod.GaraadFeaturesShowcase), {
     loading: () => <SectionSkeleton />,
     ssr: true
@@ -54,6 +59,10 @@ export function HomeContent() {
 
                     <Suspense fallback={<SectionSkeleton />}>
                         <TestimonialsSection />
+                    </Suspense>
+
+                    <Suspense fallback={<SectionSkeleton />}>
+                        <LandingPricingComparison />
                     </Suspense>
 
                     <Suspense fallback={<SectionSkeleton />}>

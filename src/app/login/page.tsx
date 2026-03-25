@@ -15,6 +15,7 @@ import { ArrowLeft, BookOpen, Loader2, LogIn, Sparkles } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect, parseLessonIdFromRedirectPath } from "@/lib/auth-redirect";
 import { fetchLessonWallPreview } from "@/lib/lesson-wall-preview";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 function LoginPageContent() {
     const router = useRouter();
@@ -134,6 +135,37 @@ function LoginPageContent() {
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGoogleCredential = async (credential: string) => {
+        setError("");
+        setIsLoading(true);
+        try {
+            const result = await AuthService.getInstance().signInWithGoogle({ credential });
+            if (result?.user) {
+                setAuthStoreUser({
+                    ...result.user,
+                    is_premium: result.user.is_premium ?? false,
+                });
+            }
+            try {
+                sessionStorage.removeItem("post_login_redirect");
+            } catch {
+                /* ignore */
+            }
+            if (redirectTo) {
+                router.refresh();
+                router.push(redirectTo);
+            } else {
+                router.push("/courses");
+            }
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : "Google login ma guulaysan. Fadlan mar kale isku day."
+            );
         } finally {
             setIsLoading(false);
         }
@@ -264,6 +296,22 @@ function LoginPageContent() {
                                 </Alert>
                             )}
 
+                            {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
+                                <div className="space-y-4">
+                                    <GoogleSignInButton
+                                        disabled={isLoading}
+                                        onCredential={(c) => void handleGoogleCredential(c)}
+                                    />
+                                    <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
+                                        <span className="relative z-10 bg-card px-3">ama sii wad email</span>
+                                        <span
+                                            className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
+                                            aria-hidden
+                                        />
+                                    </div>
+                                </div>
+                            ) : null}
+
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 <div className="space-y-2">
                                     <Label
@@ -322,15 +370,15 @@ function LoginPageContent() {
                                 </Button>
                             </form>
 
-                            <p className="text-center text-sm text-muted-foreground">
-                                Ma haysatid akoon?{" "}
+                            <div className="rounded-2xl border border-violet-500/25 bg-violet-500/[0.06] p-4 text-center">
+                                <p className="text-sm font-semibold text-foreground">Akoon ma haystid?</p>
                                 <Link
                                     href={signupHref}
-                                    className="font-semibold text-violet-600 underline-offset-4 hover:text-violet-700 hover:underline dark:text-violet-400 dark:hover:text-violet-300"
+                                    className="mt-2 inline-flex items-center justify-center text-sm font-bold text-violet-600 hover:underline dark:text-violet-400"
                                 >
-                                    Isdiiwaangeli
+                                    Bilaash ku samee hadda →
                                 </Link>
-                            </p>
+                            </div>
                         </CardContent>
                     </Card>
                 </main>

@@ -28,6 +28,14 @@ const ClosingCTA = dynamic(() =>
 const CHALLENGE_GUARANTEE_SO =
   "7-maalmood dammaanad lacag celin ah. Su'aalna lagu weydiin maayo.";
 
+const curriculumTeaserWeeks: { n: number; line: string }[] = [
+  { n: 1, line: "Fikrad → MVP + baaritaanka suuqa" },
+  { n: 2, line: "Dhismaha aaladda (auth, DB, API)" },
+  { n: 3, line: "AI, otomaatig, isdhexgalka" },
+  { n: 4, line: "Suuqa, macaamiisha, lacag bixinta" },
+  { n: 5, line: "Go'aanka: shaqo ama startup" },
+];
+
 const outcomeBullets: string[] = [
   "Su'aalo ka jawaabid toos ah — isbuuc kasta",
   "Koodhkaaga la eeg si aan khalad loo shaqo qaadin",
@@ -140,7 +148,19 @@ export function ChallengePageClient() {
             <p className="text-balance text-zinc-300">
               Khibrad hore looma baahna. Mentor toos ah. Af-Soomaali.
             </p>
-            
+          </div>
+
+          <div className="mx-auto mt-6 w-full max-w-xl rounded-lg border border-white/10 bg-zinc-900/50 px-4 py-3 text-left sm:mt-7 sm:px-5 sm:py-4">
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              Jadwalka 5-todobaadka (qaab kooban)
+            </p>
+            <ul className="space-y-1.5 text-xs leading-snug text-zinc-400 sm:text-sm">
+              {curriculumTeaserWeeks.map((w) => (
+                <li key={w.n}>
+                  <span className="font-semibold text-zinc-300">T{w.n}:</span> {w.line}
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="mt-6 flex justify-center sm:mt-8">
@@ -170,7 +190,7 @@ export function ChallengePageClient() {
             </p>
           )}
 
-          <div className="mt-6 flex w-full justify-center px-1 sm:mt-8">
+          <div className="mt-6 flex w-full flex-col items-center justify-center px-1 sm:mt-8">
             <Link
               href={primaryHref}
               className={`inline-flex w-full max-w-md items-center justify-center rounded-lg bg-violet-600 px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-violet-500 sm:px-8 sm:py-3.5 ${
@@ -179,6 +199,11 @@ export function ChallengePageClient() {
             >
               {primaryLabel}
             </Link>
+            {waitlist ? (
+              <p className="mx-auto mt-3 max-w-md px-2 text-center text-sm leading-relaxed text-zinc-500">
+                Gali liiska — waxaad ka heli doontaa ogeysiis 24 saac ka hor intaan la furin.
+              </p>
+            ) : null}
           </div>
 
           <div className="mx-auto mt-5 w-full max-w-lg px-1 sm:mt-6">
@@ -249,6 +274,9 @@ export function ChallengePageClient() {
             >
               WhatsApp: {WHATSAPP_DISPLAY}
             </a>
+            <p className="mt-2 text-xs leading-relaxed text-zinc-500 sm:text-sm">
+              Caadi ahaan waxaan ku jawaabaa 2 saac gudahood.
+            </p>
           </div>
         </div>
       </section>

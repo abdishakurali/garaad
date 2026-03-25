@@ -120,6 +120,10 @@ function SubscribePageInner() {
       ? faqApi.faqs.map((f) => ({ key: `api-${f.id}`, q: f.question, a: f.answer }))
       : FAQ.map((item, i) => ({ key: `fallback-${i}`, ...item }));
 
+  const refundFaq =
+    subscribeFaqs.find((f) => /7 maalmood|lacag celin|diiwaangeli|qanacsan/i.test(f.a + f.q)) ??
+    subscribeFaqs[2];
+
   const joinCount =
     typeof stats?.learners_this_month === "number" && stats.learners_this_month > 0
       ? stats.learners_this_month
@@ -191,14 +195,41 @@ function SubscribePageInner() {
       </header>
 
       <div className="px-4 py-12 sm:py-16">
+        <div className="text-center mb-6 sm:mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-2xl font-extrabold text-foreground leading-snug mb-3">
+            3 bilood — ka Developer noqo, ama lacagta la celin.
+          </p>
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+            7 maalmood dammaanad lacag celin. Mentor af Soomaali. Koox 10 qof.
+          </p>
+        </div>
+
         <div className="text-center mb-8 sm:mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary via-violet-600 to-primary bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary via-violet-600 to-primary bg-clip-text text-transparent">
             {t.pricing_title}
           </h1>
           <p className="text-muted-foreground text-base max-w-lg mx-auto leading-relaxed">
             {t.pricing_subtitle}
           </p>
         </div>
+
+        {challengeStatus?.is_waitlist_only ? (
+          <div className="max-w-2xl mx-auto mb-8 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-4 text-center text-sm leading-relaxed text-foreground">
+            <strong className="font-bold">Kooxdan way buuxdaa.</strong> Hadda waxaad gashaa liiska sugitaanka
+            hoosta — marka kooxda xigta la furayo waad ogeysiis heleysaa. Qiimaha Challenge waa isku mid marka
+            fursadu furan tahay.
+          </div>
+        ) : null}
+
+        {refundFaq ? (
+          <div className="max-w-2xl mx-auto mb-10 rounded-2xl border border-violet-500/25 bg-violet-500/5 px-5 py-4 text-left">
+            <p className="text-xs font-bold uppercase tracking-wide text-violet-600 dark:text-violet-400 mb-1">
+              Su&apos;aasha ugu muhiimsan
+            </p>
+            <p className="font-semibold text-foreground mb-2">{refundFaq.q}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{refundFaq.a}</p>
+          </div>
+        ) : null}
 
         <div className="max-w-4xl mx-auto mb-8">
           {!stats && !statsError ? (

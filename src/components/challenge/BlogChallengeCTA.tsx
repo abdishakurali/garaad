@@ -5,21 +5,37 @@ import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { SpotsBadge } from "@/components/ui/SpotsBadge";
 import { pricingTranslations as t } from "@/config/translations/pricing";
 
-export function BlogChallengeCTA() {
+function pickCopy(articleHint: string): { headline: string; body: string } {
+  const h = articleHint.toLowerCase();
+  if (/shaqo|job|career|developer|horumar|tech|software|coding|program/i.test(h)) {
+    return {
+      headline: "Shaqo tech ah raadsanaysaa?",
+      body: "Challenge-ka Garaad wuxuu kugu siinayaa xirfad, mashruuc dhab ah, iyo taageero mentor 3 bilood gudahood.",
+    };
+  }
+  if (/startup|saas|ganacsi|business|mashruuc/i.test(h)) {
+    return {
+      headline: "Mashruuc ama startup ma rabtaa inaad dhisto?",
+      body: "3 bilood: fikrad ilaa macaamiil — koox, mentor, iyo jadwal la isku raaco.",
+    };
+  }
+  return {
+    headline: "Waxaad baratay maqaalkan — hadda waxaa xiga shaqada dhabta ah.",
+    body: "Challenge-ka Garaad waxaad ku dhisaysaa mashruuc dhab ah 3 bilood gudahood — mentor xirfadle ah iyo koox ayaa kuu haysta gacanta.",
+  };
+}
+
+export function BlogChallengeCTA({ articleHint = "" }: { articleHint?: string }) {
   const { data, loading } = useChallengeStatus();
   const spots = data?.spots_remaining ?? 0;
   const waitlist = data?.is_waitlist_only ?? false;
   const cohortName = data?.active_cohort_name ?? "Challenge";
+  const { headline, body } = pickCopy(articleHint);
 
   return (
     <div className="mt-16 rounded-2xl border border-violet-500/30 bg-gradient-to-b from-zinc-900 to-black p-8 text-center">
-      <h3 className="mb-3 text-xl font-bold text-white">
-        Waxaad baratay maqaalkan — hadda waxaa xiga shaqada dhabta ah.
-      </h3>
-      <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-zinc-400">
-        Challenge-ka Garaad waxaad ku dhisaysaa mashruuc dhab ah 3 bilood gudahood — mentor xirfadle ah iyo koox ayaa
-        kuu haysta gacanta.
-      </p>
+      <h3 className="mb-3 text-xl font-bold text-white">{headline}</h3>
+      <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-zinc-400">{body}</p>
       <div className="mb-6 flex justify-center">
         <SpotsBadge
           spots={spots}

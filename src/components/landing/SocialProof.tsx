@@ -22,9 +22,9 @@ const CHALLENGE_JOIN_ICON = <Rocket className="w-5 h-5 text-primary" />;
 const SESSION_KEY = "garaad_sp_count";
 const MAX_PER_SESSION = 12;
 const INITIAL_DELAY_MS = 3_000;    // Show first toast after 3s
-const MIN_INTERVAL_MS = 12_000;    // Minimum interval between toasts
-const MAX_INTERVAL_MS = 18_000;    // Maximum interval between toasts
-const VISIBLE_DURATION_MS = 8_000; // How long each toast stays visible
+const MIN_INTERVAL_MS = 14_000;    // Minimum interval between toasts
+const MAX_INTERVAL_MS = 20_000;    // Maximum interval between toasts
+const VISIBLE_DURATION_MS = 11_000; // How long each toast stays visible (slightly longer for readability)
 
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -119,7 +119,7 @@ export function SocialProof() {
     return (
         <div
             className={cn(
-                "fixed bottom-8 left-4 sm:left-8 z-[60] max-w-[340px] sm:max-w-[380px] transition-all duration-500 ease-out",
+                "fixed bottom-8 left-4 sm:left-8 z-[60] max-w-[min(100vw-2rem,440px)] sm:max-w-[440px] transition-all duration-500 ease-out",
                 visible
                     ? "translate-y-0 opacity-100 scale-100 pointer-events-auto"
                     : "translate-y-6 opacity-0 scale-95 pointer-events-none"
@@ -127,15 +127,15 @@ export function SocialProof() {
             role="status"
             aria-live="polite"
         >
-            <div className="relative flex items-start gap-4 p-4 sm:p-5 rounded-2xl bg-card/98 dark:bg-zinc-900/98 border border-border shadow-2xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/10">
+            <div className="relative flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-card/98 dark:bg-zinc-900/98 border border-border shadow-2xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/10">
                 {/* Avatar */}
-                <div className="flex-shrink-0 w-11 h-11 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center shadow-md">
+                <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center shadow-md">
                     {CHALLENGE_JOIN_ICON}
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 min-w-0 pr-5">
-                    <p className="text-sm font-black leading-snug text-foreground">
+                <div className="flex-1 min-w-0 pr-6">
+                    <p className="text-base sm:text-lg font-black leading-snug text-foreground">
                         <span className="text-primary">{toast.name}</span>
                         {toast.flag ? (
                             <span className="ml-1 text-base" title="Country Flag">

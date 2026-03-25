@@ -219,7 +219,43 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
             <BlogShareBar postTitle={post.title} shareUrl={shareUrl} />
           </div>
 
-          <BlogChallengeCTA />
+          <BlogChallengeCTA
+            articleHint={`${post.title} ${post.tags.map((x) => x.name).join(" ")}`}
+          />
+
+          <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-zinc-700 dark:bg-zinc-900/40">
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-zinc-400">
+              Ka hel qoraalada cusub
+            </h3>
+            <p className="mb-4 text-sm text-slate-600 dark:text-zinc-300">
+              Isdiiwaangeli bilaash — waxaan kuugu soo diri karnaa ogeysiisyada muhiimka ah (email).
+            </p>
+            <Link
+              href="/welcome"
+              className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90"
+            >
+              Isdiiwaangeli bilaash →
+            </Link>
+          </div>
+
+          <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-slate-200 p-6 dark:border-zinc-700 sm:flex-row sm:items-center">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-lg font-black text-primary">
+              {displayName[0]?.toUpperCase() ?? "A"}
+            </div>
+            <div className="min-w-0 text-left">
+              <p className="font-bold text-slate-900 dark:text-white">{displayName}</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-zinc-400">
+                Abdishakuur wuxuu baraa Full-Stack development oo Soomaali ah — haddii aad rabto inaad hesho
+                wadada buuxda, eeg Challenge-ka.
+              </p>
+              <Link
+                href="/challenge"
+                className="mt-2 inline-block text-sm font-bold text-primary hover:underline"
+              >
+                Bilow Challenge →
+              </Link>
+            </div>
+          </div>
 
           {relatedPosts.length > 0 && (
             <div className="mt-12">
