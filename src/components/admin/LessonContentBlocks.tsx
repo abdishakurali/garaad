@@ -97,12 +97,33 @@ interface LessonContentBlocksProps {
 }
 
 function getApiErrorMessage(err: unknown, fallback: string) {
-    const apiError = err as ApiError;
-    const detail =
-        (apiError as any)?.response?.data?.detail ??
-        (apiError as any)?.response?.data?.message ??
-        (apiError as any)?.message;
-    if (typeof detail === 'string' && detail.trim()) return detail;
+    const apiError = err as ApiError & {
+        response?: { status?: number; data?: { detail?: unknown; message?: string } };
+        message?: string;
+    };
+    const status = apiError?.response?.status;
+    if (status === 413) {
+        return 'Faylku waa weyn yahay (413). Hubi xadka server-ka; Cloudflare (orange) waxay xaddidaysaa ~100MB.';
+    }
+    if (status === 504) {
+        return 'Waqtiga ayaa dhammaaday (504). Isku day mar kale ama fayl yar.';
+    }
+    const raw =
+        apiError?.response?.data?.detail ??
+        apiError?.response?.data?.message ??
+        apiError?.message;
+    if (typeof raw === 'string' && raw.trim()) return raw;
+    if (Array.isArray(raw) && raw.length) {
+        const first = raw[0] as { msg?: string } | string;
+        if (typeof first === 'object' && first?.msg) return String(first.msg);
+        if (typeof first === 'string') return first;
+    }
+    if (!apiError?.response && apiError?.message) {
+        if (apiError.message === 'Network Error') {
+            return 'Shabakad la\'aan ama server-ku wuu joojiyay isku xidhka (isku day mar kale).';
+        }
+        return apiError.message;
+    }
     return fallback;
 }
 
@@ -429,6 +450,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
 
                         const uploadRes = await api.post('lms/videos/', formData, {
                             headers: { "Content-Type": "multipart/form-data" },
+                            timeout: 900_000,
                             onUploadProgress: (progressEvent) => {
                                 if (progressEvent.total) {
                                     setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
@@ -437,9 +459,9 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                         });
                         videoUrl = (uploadRes.data as any).video_url || (uploadRes.data as any).url || '';
                         videoTitle = (uploadRes.data as any).title || videoTitle;
-                    } catch (uploadErr: any) {
-                        const msg = uploadErr?.response?.data?.detail ?? "Waa la waayay soo gelinta muuqaalka.";
-                        setError(typeof msg === 'string' ? msg : 'Waa la waayay soo gelinta muuqaalka.');
+                    } catch (uploadErr: unknown) {
+                        const msg = getApiErrorMessage(uploadErr, 'Waa la waayay soo gelinta muuqaalka.');
+                        setError(msg);
                         setVideoUploading(false);
                         setAdding(false);
                         return;
@@ -601,6 +623,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
 
                     const uploadRes = await api.post('lms/videos/', formData, {
                         headers: { "Content-Type": "multipart/form-data" },
+                        timeout: 900_000,
                         onUploadProgress: (progressEvent) => {
                             if (progressEvent.total) {
                                 setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
@@ -609,9 +632,9 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                     });
                     videoUrl = (uploadRes.data as any).video_url || (uploadRes.data as any).url || '';
                     videoTitle = (uploadRes.data as any).title || videoTitle;
-                } catch (uploadErr: any) {
-                    const msg = uploadErr?.response?.data?.detail ?? "Muuqaalka cusub lama soo gelin karin.";
-                    setError(typeof msg === 'string' ? msg : "Muuqaalka cusub lama soo gelin karin.");
+                } catch (uploadErr: unknown) {
+                    const msg = getApiErrorMessage(uploadErr, 'Muuqaalka cusub lama soo gelin karin.');
+                    setError(msg);
                     setVideoUploading(false);
                     setAdding(false);
                     return;
