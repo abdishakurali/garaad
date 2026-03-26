@@ -1464,13 +1464,7 @@ function WelcomeOnboardingPage() {
                     className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>Ku soo biiritaan waa bilaash — looma baahna credit card.</li>
-                  <li>Waddadii laguu diyaariyay waa diyaar.</li>
-                  <li>
-                    Bilaash ku billow, markaad diyaar tahayna kor u qaado.
-                  </li>
-                </ul>
+                
                 <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-4">
                   <input
                     type="checkbox"

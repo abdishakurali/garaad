@@ -149,14 +149,7 @@ export function CoursesListClient() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
-            <div className="border-b border-amber-400/30 bg-gradient-to-r from-amber-500 via-primary to-violet-600 py-3.5 text-center shadow-md">
-                <p className="px-4 text-sm font-black text-primary-foreground sm:text-base">
-                    Koorsooyinkan waa qeyb yar oo ka mid ah waxa aad Garaad ka heleysid — dhameystiran:{" "}
-                    <Link href="/challenge" className="underline decoration-2 underline-offset-2 hover:opacity-95">
-                        Challenge-ka hadda eeg →
-                    </Link>
-                </p>
-            </div>
+            
             {/* Hero Section */}
             <div className="relative pt-20 pb-12 md:pt-40 md:pb-32 overflow-hidden">
                 {/* Simplified & Clean Background */}

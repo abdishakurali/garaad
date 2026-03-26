@@ -57,6 +57,46 @@ const AVATAR_RING_COLORS = [
   "bg-amber-600/90 text-white",
 ] as const;
 
+function SocialProofAvatar({
+  src,
+  alt,
+  initials,
+  ringClass,
+}: {
+  src: string | null;
+  alt: string;
+  initials: string;
+  ringClass: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(src) && !failed;
+  return (
+    <div
+      className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-[#050508] ring-1 ring-white/10"
+      title={alt}
+    >
+      {showImage ? (
+        <Image
+          src={src!}
+          alt={alt}
+          fill
+          className="object-cover object-top"
+          sizes="40px"
+          unoptimized
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div
+          className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${ringClass}`}
+          aria-hidden
+        >
+          {initials}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function resolveProofAvatarUrl(url: string | null | undefined): string | null {
   const u = typeof url === "string" ? url.trim() : "";
   if (!u) return null;
@@ -216,40 +256,29 @@ export function HeroSection() {
               Kooxda dambe wey furmeysaa — boosaska way xadidan yihiin.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div
+              className="mt-8 flex max-w-lg flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:flex-row sm:items-center sm:gap-4"
+              role="status"
+              aria-live="polite"
+            >
               {heroAvatars.length > 0 ? (
                 <div
-                  className="flex -space-x-2"
+                  className="flex shrink-0 items-center -space-x-2"
                   aria-label="Sawirro ka mid ah ardayda diiwaangashan"
                 >
                   {heroAvatars.map((a, idx) => (
-                    <div
+                    <SocialProofAvatar
                       key={`${a.alt}-${idx}`}
-                      className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-[#050508] ring-1 ring-white/10"
-                    >
-                      {a.src ? (
-                        <Image
-                          src={a.src}
-                          alt={a.alt}
-                          fill
-                          className="object-cover object-top"
-                          sizes="40px"
-                          unoptimized
-                        />
-                      ) : (
-                        <div
-                          className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${a.ringClass}`}
-                          aria-hidden
-                        >
-                          {a.initials}
-                        </div>
-                      )}
-                    </div>
+                      src={a.src}
+                      alt={a.alt}
+                      initials={a.initials}
+                      ringClass={a.ringClass}
+                    />
                   ))}
                 </div>
               ) : null}
-              <p className="text-sm text-white/40">
-                <span className="font-semibold tabular-nums text-white/70">{learnersLabel}</span>
+              <p className="min-w-0 text-sm leading-snug text-white/55">
+                <span className="font-semibold tabular-nums text-white/80">{learnersLabel}</span>
               </p>
             </div>
           </div>
