@@ -43,6 +43,8 @@ export interface User {
   referred_by_username?: string | null;
   /** When false, user must complete /welcome before accessing /dashboard */
   has_completed_onboarding?: boolean;
+  /** E.164 WhatsApp number from profile */
+  whatsapp_number?: string;
 }
 
 export interface Profile {

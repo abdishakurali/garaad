@@ -13,6 +13,9 @@ export interface SignUpData {
   age: number;
   referral_code?: string;
   promo_code?: string;
+  /** Optional; combined on server into E.164 */
+  whatsapp_country_code?: string;
+  whatsapp_local?: string;
   onboarding_data: {
     goal: string;
     topic: string;
@@ -40,6 +43,8 @@ export interface OnboardingData {
   preferred_study_time: string;
   /** Welcome wizard snapshot from the server (merged on PATCH progress). */
   wizard_progress?: Record<string, unknown>;
+  whatsapp_country_code?: string;
+  whatsapp_local?: string;
 }
 
 export interface DashboardProfile {
@@ -68,6 +73,8 @@ export interface GoogleAuthPayload {
   onboarding_data?: SignUpData["onboarding_data"];
   referral_code?: string;
   promo_code?: string;
+  whatsapp_country_code?: string;
+  whatsapp_local?: string;
 }
 
 export interface SignInData {

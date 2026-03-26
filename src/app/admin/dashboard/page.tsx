@@ -978,7 +978,8 @@ function AdminUsersTab({
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Recommended</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">Email verified</th>
                                     <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Completions</th>
-                                    <th className="pb-3 pr-2 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">WhatsApp</th>
+                                    <th className="pb-3 pr-4 text-[9px] font-black text-gray-400 uppercase tracking-widest">WhatsApp</th>
+                                    <th className="pb-3 pr-2 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Message</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1018,16 +1019,23 @@ function AdminUsersTab({
                                             )}
                                         </td>
                                         <td className="py-3 pr-4 text-xs text-gray-700 text-center">{row.completions ?? 0}</td>
+                                        <td className="py-3 pr-4 text-xs text-gray-700 font-mono">
+                                            {row.whatsapp_number?.trim() ? row.whatsapp_number : "No number"}
+                                        </td>
                                         <td className="py-3 pr-2 text-center">
-                                            <a
-                                                href={row.whatsapp_href || "https://wa.me/"}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 transition-colors"
-                                                title="WhatsApp"
-                                            >
-                                                <MessageCircle className="w-4 h-4" />
-                                            </a>
+                                            {row.whatsapp_number?.trim() ? (
+                                                <a
+                                                    href={`https://wa.me/${row.whatsapp_number.replace(/\D/g, "")}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 transition-colors"
+                                                    title="Message on WhatsApp"
+                                                >
+                                                    <MessageCircle className="w-4 h-4" />
+                                                </a>
+                                            ) : (
+                                                <span className="text-gray-300 text-xs">—</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

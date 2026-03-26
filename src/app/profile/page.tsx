@@ -19,6 +19,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { WhatsAppPhoneFields } from "@/components/whatsapp/WhatsAppPhoneFields";
+import {
+  buildWhatsappE164,
+  DEFAULT_WHATSAPP_DIAL,
+  splitWhatsappE164,
+} from "@/lib/whatsapp-countries";
 import {
   Loader2,
   Loader2 as Loader2Icon,
@@ -38,6 +44,7 @@ import {
   Copy,
   Check,
   Share2,
+  MessageCircle,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { getMediaUrl } from "@/lib/utils";
@@ -64,6 +71,7 @@ interface ExtendedUser extends User {
   username: string;
   age?: number;
   bio?: string;
+  whatsapp_number?: string;
 }
 
 export default function ProfilePage() {
@@ -86,6 +94,8 @@ export default function ProfilePage() {
   const [learningPathTopicLevels, setLearningPathTopicLevels] = useState<Record<string, string>>({});
   const [isSavingLearningPath, setIsSavingLearningPath] = useState(false);
   const [learningPathError, setLearningPathError] = useState<string | null>(null);
+  const [waDial, setWaDial] = useState(DEFAULT_WHATSAPP_DIAL);
+  const [waLocal, setWaLocal] = useState("");
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -98,7 +108,16 @@ export default function ProfilePage() {
     e.preventDefault();
     try {
       const authService = AuthService.getInstance();
-      const updated = await authService.updateProfile(editForm);
+      const waDigits = waLocal.replace(/\D/g, "");
+      if (waDigits.length > 0 && waDigits.length < 5) {
+        alert("Lambarka WhatsApp waa inuu ku filan yahay.");
+        return;
+      }
+      const whatsapp_number = buildWhatsappE164(waDial, waLocal);
+      const updated = await authService.updateProfile({
+        ...editForm,
+        whatsapp_number,
+      });
       setUserState(updated as ExtendedUser);
       setShowEditModal(false);
       alert("Profile-ka waa la cusboonaysiiyay!");
@@ -134,6 +153,9 @@ export default function ProfilePage() {
           bio: (basic as any).bio,
           age: (basic as any).age,
         });
+        const wa = splitWhatsappE164((basic as ExtendedUser).whatsapp_number);
+        setWaDial(wa.dial);
+        setWaLocal(wa.local);
       } catch (err) {
         console.error("Qalad ayaa dhacay marka la soo raray isticmaalaha:", err);
         setError("Ku guuldaraystay in la soo raro xogta profile-ka");
@@ -381,6 +403,24 @@ export default function ProfilePage() {
                       <span>Email la xaqiijiyey</span>
                     </div>
                   )}
+                  <div className="flex items-start text-sm text-gray-600 dark:text-gray-300 mt-3">
+                    <MessageCircle className="h-4 w-4 mr-3 mt-0.5 text-emerald-600 shrink-0" />
+                    <div>
+                      <span className="font-medium text-gray-800 dark:text-gray-200">WhatsApp: </span>
+                      {(user as ExtendedUser).whatsapp_number ? (
+                        <a
+                          href={`https://wa.me/${(user as ExtendedUser).whatsapp_number!.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-700 hover:underline dark:text-emerald-400"
+                        >
+                          {(user as ExtendedUser).whatsapp_number}
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">Lama gelin</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Community Stats */}
@@ -429,7 +469,12 @@ export default function ProfilePage() {
                 {/* Actions */}
                 <div className="p-6 border-t border-gray-100 dark:border-gray-700 space-y-3">
                   <Button
-                    onClick={() => setShowEditModal(true)}
+                    onClick={() => {
+                      const wa = splitWhatsappE164((user as ExtendedUser).whatsapp_number);
+                      setWaDial(wa.dial);
+                      setWaLocal(wa.local);
+                      setShowEditModal(true);
+                    }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
                   >
                     <Settings className="h-4 w-4 mr-2" />
@@ -760,6 +805,14 @@ export default function ProfilePage() {
                         placeholder="Wax nooga sheeg naftaada..."
                       />
                     </div>
+                    <WhatsAppPhoneFields
+                      dial={waDial}
+                      local={waLocal}
+                      onDialChange={setWaDial}
+                      onLocalChange={setWaLocal}
+                      idPrefix="profile-wa"
+                      compact
+                    />
                   </div>
                 </div>
                 <DialogFooter className="gap-3">

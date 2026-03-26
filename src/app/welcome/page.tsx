@@ -32,6 +32,8 @@ import { progressService } from "@/services/progress";
 import { getResumeLessonPath } from "@/lib/onboarding-resume";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { WhatsAppPhoneFields } from "@/components/whatsapp/WhatsAppPhoneFields";
+import { DEFAULT_WHATSAPP_DIAL } from "@/lib/whatsapp-countries";
 
 import {
   goals,
@@ -282,6 +284,8 @@ function WelcomeOnboardingPage() {
     password: "",
     referralCode: "",
     promoCode: "",
+    whatsappCountryCode: DEFAULT_WHATSAPP_DIAL,
+    whatsappLocal: "",
   });
   const [actualError, setActualError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -679,6 +683,8 @@ function WelcomeOnboardingPage() {
       password: "",
       referralCode: userData.referralCode,
       promoCode: "",
+      whatsappCountryCode: DEFAULT_WHATSAPP_DIAL,
+      whatsappLocal: "",
     });
     setActualError("");
     setIsLoading(false);
@@ -693,6 +699,10 @@ function WelcomeOnboardingPage() {
     if (!ev.isValid) return "Fadlan geli email sax ah.";
     if (userData.password.length < 8) {
       return "Password-ku waa inuu ka koobnaadaa ugu yaraan 8 xaraf.";
+    }
+    const waDigits = userData.whatsappLocal.replace(/\D/g, "");
+    if (waDigits.length > 0 && waDigits.length < 5) {
+      return "Lambarka WhatsApp waa inuu ku filan yahay (ugu yaraan 5 lambar).";
     }
     return null;
   };
@@ -728,6 +738,12 @@ function WelcomeOnboardingPage() {
             ? { referral_code: userData.referralCode.trim() }
             : {}),
           ...(userData.promoCode.trim() ? { promo_code: userData.promoCode.trim() } : {}),
+          ...(userData.whatsappLocal.trim()
+            ? {
+                whatsapp_country_code: userData.whatsappCountryCode,
+                whatsapp_local: userData.whatsappLocal.trim(),
+              }
+            : {}),
         });
 
         if (result?.user) {
@@ -780,6 +796,8 @@ function WelcomeOnboardingPage() {
       answers,
       userData.referralCode,
       userData.promoCode,
+      userData.whatsappCountryCode,
+      userData.whatsappLocal,
       postAuthRedirect,
       posthog,
       setAuthStoreUser,
@@ -826,6 +844,12 @@ function WelcomeOnboardingPage() {
               ...buildWizardSnapshot(answers),
               current_step: stepIndex,
             },
+            ...(userData.whatsappLocal.trim()
+              ? {
+                  whatsapp_country_code: userData.whatsappCountryCode,
+                  whatsapp_local: userData.whatsappLocal.trim(),
+                }
+              : {}),
           };
           const res = await authService.completeOnboarding(payload);
           await authService.fetchAndUpdateUserData();
@@ -862,6 +886,12 @@ function WelcomeOnboardingPage() {
           ? { referral_code: userData.referralCode.trim() }
           : {}),
         ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
+        ...(userData.whatsappLocal.trim()
+          ? {
+              whatsapp_country_code: userData.whatsappCountryCode,
+              whatsapp_local: userData.whatsappLocal.trim(),
+            }
+          : {}),
       };
 
       const result = await AuthService.getInstance().signUp(signUpData);
@@ -1388,6 +1418,18 @@ function WelcomeOnboardingPage() {
                     className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
+                <WhatsAppPhoneFields
+                  dial={userData.whatsappCountryCode}
+                  local={userData.whatsappLocal}
+                  onDialChange={(d) =>
+                    setUserData((u) => ({ ...u, whatsappCountryCode: d }))
+                  }
+                  onLocalChange={(v) =>
+                    setUserData((u) => ({ ...u, whatsappLocal: v }))
+                  }
+                  disabled={isLoading}
+                  idPrefix="welcome-wa"
+                />
                 {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
                   <div className="space-y-3">
                     <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
