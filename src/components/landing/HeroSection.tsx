@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
+import { Code2, Layers, Brain, Database, Server, BookOpen, Cloud, ArrowUpRight } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
@@ -184,7 +184,7 @@ export function HeroSection() {
   const courses = parseCategories(categoriesData ?? []);
 
   const aiCourse = courses.find((c) => /ai|artificial|smart|machine/i.test(c.title));
-  const otherCourses = courses.filter((c) => c.id !== aiCourse?.id);
+  const saasCourse = courses.find((c) => /saas|software as a service|subscription|bixi/i.test(c.title));
 
   return (
     <div className="min-h-screen bg-[#050508] dark:bg-[#050508]">
@@ -284,53 +284,121 @@ export function HeroSection() {
           </div>
 
           {/* Cards */}
-          <div className="hero-animate-done relative order-2 space-y-5 lg:order-none">
+          <div className="hero-animate-done relative order-2 space-y-4 lg:order-none">
             <Link
-              href={firstFreeHref}
-              className="relative block overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-primary/20 hover:bg-white/8"
+              href="/challenge"
+              className="flex items-center justify-center gap-2 rounded-xl border border-violet-500/35 bg-gradient-to-r from-violet-950/80 to-violet-900/50 px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wide text-violet-100 shadow-[0_0_24px_-8px_rgba(139,92,246,0.45)] backdrop-blur-sm transition hover:border-violet-400/50 hover:from-violet-900/90 hover:to-violet-800/60 sm:text-xs"
             >
-              <div className="absolute bottom-3 left-3 right-3 z-10 rounded-lg border border-violet-500/40 bg-violet-950/90 px-3 py-2 text-center text-[11px] font-bold text-violet-100 backdrop-blur-sm sm:text-xs">
-                Challenge-ka ku jiro — dhammaan fur →
-              </div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
-                <BookOpen className="h-3.5 w-3.5" />
-                Koorsooyin
-              </div>
-              <h3 className="font-display text-xl font-semibold text-white">Dhis Portfolio aad shaqo ku heli karto</h3>
-              <p className="mt-2 text-sm text-white/50">
-                Ma baraysid casharro kaliya; waxaad dhisaysaa mashaariic dhab ah (SaaS, Apps, Websites) oo aad dunida
-                tusi karto.
-              </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-primary">Bilow hadda →</span>
+              Challenge-ka ku jiro — dhammaan fur
+              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
             </Link>
 
-            <Link
-              href={
-                isLoggedIn
-                  ? aiCourse
-                    ? `/courses/${aiCourse.categoryId}/${aiCourse.slug}`
-                    : "/courses"
-                  : "/welcome"
-              }
-              className="relative block overflow-hidden rounded-2xl border border-primary/20 bg-primary/10 p-6 transition hover:border-primary/30 hover:bg-primary/15"
-            >
-              <div className="absolute bottom-3 left-3 right-3 z-10 rounded-lg border border-violet-500/40 bg-violet-950/90 px-3 py-2 text-center text-[11px] font-bold text-violet-100 backdrop-blur-sm sm:text-xs">
-                Challenge-ka ku jiro — dhammaan fur →
-              </div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
-                <Brain className="h-3.5 w-3.5" />
-                Koorsada AI
-              </div>
-              <h3 className="font-display text-xl font-semibold text-white">
-                {aiCourse ? aiCourse.title : "Baro AI — Af-Soomaali"}
-              </h3>
-              <p className="mt-2 text-sm text-white/60">
-                {aiCourse
-                  ? "Ku baro AI si habboon — bilaaw maanta."
-                  : "Ku baro AI, machine learning iyo automation — tallaabo tallaabo."}
-              </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-primary">Bilaaw koorsada AI →</span>
-            </Link>
+            <div className="grid gap-3 sm:gap-4">
+              <Link
+                href={firstFreeHref}
+                className="group relative block overflow-hidden rounded-2xl border border-white/[0.1] bg-gradient-to-br from-white/[0.07] via-white/[0.02] to-transparent p-5 shadow-[0_1px_0_0_rgba(255,255,255,0.06)_inset] transition hover:border-primary/25 hover:shadow-lg hover:shadow-primary/10 sm:p-6"
+              >
+                <div
+                  className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-40 blur-2xl transition group-hover:opacity-70"
+                  style={{
+                    background: "radial-gradient(circle, color-mix(in srgb, var(--primary) 35%, transparent) 0%, transparent 70%)",
+                  }}
+                />
+                <div className="relative flex gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-primary shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] transition group-hover:border-primary/20 group-hover:bg-primary/10">
+                    <BookOpen className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary sm:text-xs">
+                      Koorsooyin
+                    </span>
+                    <h3 className="font-display mt-3 text-lg font-semibold leading-snug text-white sm:text-xl">
+                      Dhis portfolio aad shaqo ku heli karto
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/55">
+                      Mashaariic dhab ah (apps, websites) oo aad ku muujin karto xirfadahaaga.
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary transition group-hover:gap-2">
+                      Bilow hadda
+                      <ArrowUpRight className="h-4 w-4" aria-hidden />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              <Link
+                href={
+                  isLoggedIn
+                    ? saasCourse
+                      ? `/courses/${saasCourse.categoryId}/${saasCourse.slug}`
+                      : "/courses"
+                    : "/welcome"
+                }
+                className="group relative block overflow-hidden rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-950/40 via-white/[0.03] to-transparent p-5 shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset] transition hover:border-sky-400/35 hover:shadow-[0_0_40px_-12px_rgba(56,189,248,0.2)] sm:p-6"
+              >
+                <div className="pointer-events-none absolute -right-6 top-1/2 h-28 w-28 -translate-y-1/2 rounded-full bg-sky-500/15 blur-2xl transition group-hover:bg-sky-400/25" />
+                <div className="relative flex gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-sky-500/25 bg-sky-500/10 text-sky-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] transition group-hover:border-sky-400/40 group-hover:bg-sky-500/15">
+                    <Cloud className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/25 bg-sky-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-sky-200/90 sm:text-xs">
+                      SaaS
+                    </span>
+                    <h3 className="font-display mt-3 text-lg font-semibold leading-snug text-white sm:text-xl">
+                      {saasCourse ? saasCourse.title : "Dhis badeecad SaaS oo isticmaale leh"}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/55">
+                      Auth, biilka, deployment, iyo isticmaalayaal dhab ah — qaab casri ah oo ganacsi u diyaar ah.
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky-300 transition group-hover:gap-2">
+                      Baro SaaS-ka
+                      <ArrowUpRight className="h-4 w-4" aria-hidden />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              <Link
+                href={
+                  isLoggedIn
+                    ? aiCourse
+                      ? `/courses/${aiCourse.categoryId}/${aiCourse.slug}`
+                      : "/courses"
+                    : "/welcome"
+                }
+                className="group relative block overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5 shadow-[0_1px_0_0_rgba(255,255,255,0.06)_inset] transition hover:border-primary/45 hover:shadow-lg hover:shadow-primary/15 sm:p-6"
+              >
+                <div
+                  className="pointer-events-none absolute -left-4 -bottom-10 h-36 w-36 rounded-full opacity-50 blur-3xl transition group-hover:opacity-80"
+                  style={{
+                    background: "radial-gradient(circle, color-mix(in srgb, var(--primary) 40%, transparent) 0%, transparent 65%)",
+                  }}
+                />
+                <div className="relative flex gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/35 bg-primary/20 text-primary shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] transition group-hover:border-primary/50 group-hover:bg-primary/25">
+                    <Brain className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary sm:text-xs">
+                      Koorsada AI
+                    </span>
+                    <h3 className="font-display mt-3 text-lg font-semibold leading-snug text-white sm:text-xl">
+                      {aiCourse ? aiCourse.title : "Baro AI — Af-Soomaali"}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/60">
+                      {aiCourse
+                        ? "Ku baro AI si habboon — bilaaw maanta."
+                        : "Ku baro AI, machine learning iyo automation — tallaabo tallaabo."}
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary transition group-hover:gap-2">
+                      Bilaaw koorsada AI
+                      <ArrowUpRight className="h-4 w-4" aria-hidden />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -4,7 +4,7 @@ import { HomeContent } from "../home-content";
 const SITE_URL = "https://garaad.org";
 
 export const metadata: Metadata = {
-  title: "Garaad — Noqo Full-Stack Developer adigoo jooga gurigaaga (Af-Soomaali)",
+  title: "Garaad — Noqo Full-Stack Developer",
   description:
     "Baro koodhka casriga ah iyo AI afkaaga hooyo. 30 daqiiqo maalintiiba. Dhis portfolio iyo mashruucyo dhab ah — ku bilow bilaash.",
   keywords: [
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    title: "Garaad — Noqo Full-Stack Developer adigoo jooga gurigaaga (Af-Soomaali)",
+    title: "Garaad — Noqo Full-Stack Developer",
     description:
       "Baro koodhka casriga ah iyo AI afkaaga hooyo. 30 daqiiqo maalintiiba. Dhis portfolio iyo mashruucyo dhab ah — ku bilow bilaash.",
     images: [{ url: `${SITE_URL}/images/og-main.jpg`, width: 1200, height: 630, alt: "Garaad" }],
