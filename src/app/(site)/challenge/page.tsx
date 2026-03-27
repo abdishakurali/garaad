@@ -1,8 +1,6 @@
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { ChallengePageClient } from "@/components/challenge/ChallengePageClient";
 
-const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
   title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup (3 bilood)",
@@ -73,7 +71,6 @@ export default function ChallengePage() {
                 <ChallengePageClient />
             </main>
 
-            <WhatsAppFloat />
         </div>
     );
 }

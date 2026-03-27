@@ -125,8 +125,8 @@
   --popover-foreground: #252525;
   --primary: #8b3dfc;
   --primary-foreground: #fbfbfb;
-  --secondary: #f0ff00;
-  --secondary-foreground: #353535;
+  --secondary: #ede9fe;
+  --secondary-foreground: #3b0764;
   --muted: #f7f7f7;
   --muted-foreground: #8e8e8e;
   --accent: #f7f7f7;
@@ -155,7 +155,7 @@
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 
   --primary-glow: 0 0 20px rgba(209, 143, 253, 0.3);
-  --secondary-glow: 0 0 20px rgba(240, 255, 0, 0.3);
+  --secondary-glow: 0 0 20px rgba(139, 92, 246, 0.2);
 }
 
 .dark {

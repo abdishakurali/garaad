@@ -4,15 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
-import { useAuthStore } from "@/store/useAuthStore";
-import { Code2, Layers, Brain, Database, Server, BookOpen } from "lucide-react";
+import { Code2, Layers, Brain, Database, Server } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
 import { getAbsoluteImageUrl } from "@/lib/utils";
-import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
-
-const CATEGORIES_SWR_KEY = `${API_BASE_URL}/api/lms/categories/`;
 
 const TECH_ICONS = [
   { name: "React", Icon: Code2 },
@@ -26,23 +22,6 @@ interface LandingStats {
   students_count: number;
   courses_count: number;
   learners_this_month?: number;
-}
-
-interface HeroCourse {
-  id: number;
-  title: string;
-  slug: string;
-  thumbnail: string | null;
-  is_published: boolean;
-}
-
-type HeroCourseWithCategory = HeroCourse & { categoryId: number };
-
-function parseCategories(data: unknown): HeroCourseWithCategory[] {
-  const categories = Array.isArray(data) ? data : (data as { results?: unknown[] })?.results ?? [];
-  return (categories as { id: number; courses?: HeroCourse[] }[]).flatMap((cat) =>
-    (cat.courses || []).filter((c) => c.is_published).map((c) => ({ ...c, categoryId: cat.id }))
-  );
 }
 
 interface PublicProofUser {
@@ -128,9 +107,6 @@ function useAnimatedCount(target: number, active: boolean) {
 }
 
 export function HeroSection() {
-  const user = useAuthStore((s) => s.user);
-  const isLoggedIn = !!user;
-  const { href: firstFreeHref } = useFirstFreeLessonHref();
   const { data: stats, error: statsError } = useSWR<LandingStats>(
     `${API_BASE_URL}/api/public/landing-stats/`,
     fetcher,
@@ -177,15 +153,6 @@ export function HeroSection() {
     setLearnersLabel(`Ku biir ${displayCount}+ Developer oo hadda baranaya`);
   }, [displayCount, countAnimActive]);
 
-  const { data: categoriesData } = useSWR<unknown>(CATEGORIES_SWR_KEY, fetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 60 * 1000,
-  });
-  const courses = parseCategories(categoriesData ?? []);
-
-  const aiCourse = courses.find((c) => /ai|artificial|smart|machine/i.test(c.title));
-  const otherCourses = courses.filter((c) => c.id !== aiCourse?.id);
-
   return (
     <div className="min-h-screen bg-[#050508] dark:bg-[#050508]">
       <section
@@ -205,20 +172,19 @@ export function HeroSection() {
           />
         </div>
 
-        <div className="relative z-10 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-          {/* Copy first on mobile; cards follow */}
-          <div className="hero-animate-done order-1 lg:order-none">
+        <div className="relative z-10 mx-auto max-w-2xl text-center">
+          <div className="hero-animate-done">
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
               Natiijada · Full-Stack Developer
             </p>
-            <h1 className="text-left font-display text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight text-white">
+            <h1 className="font-display text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight text-white">
               Noqo Full-Stack Developer
               <br />
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 adigoo jooga gurigaaga
               </span>
             </h1>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-white/60">
+            <p className="mt-6 text-base leading-relaxed text-white/60">
               Baro koodhka casriga ah iyo AI adigoo isticmaalaya afkaaga hooyo. 30 daqiiqo maalintiiba waa nagu filan
               tahay.{" "}
               {stats != null && !statsError && studentCount > 0 ? (
@@ -232,7 +198,7 @@ export function HeroSection() {
                 </>
               )}
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
               <Link
                 href="/challenge"
                 className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline transition hover:opacity-90"
@@ -240,24 +206,15 @@ export function HeroSection() {
                 Ku biir Challenge-ka →
               </Link>
               <Link
-                href={firstFreeHref}
+                href="/courses"
                 className="inline-flex min-h-[44px] items-center justify-center rounded-lg border-2 border-white/45 bg-transparent px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:border-white/70 hover:bg-white/5"
               >
-                Ku bilow Bilaash
+                Fiiri Koorsooyin
               </Link>
             </div>
-            <Link
-              href="/welcome"
-              className="mt-2 inline-flex text-sm font-semibold text-white/50 underline-offset-4 transition hover:text-white/75 hover:underline"
-            >
-              Bilow 6-tallaabo — shaqsiyeeyn (~2 daqiiqo) →
-            </Link>
-            <p className="mt-4 max-w-md rounded-lg border border-amber-500/35 bg-amber-950/35 px-3 py-2 text-xs font-semibold leading-snug text-amber-100/95 sm:text-sm">
-              Kooxda dambe wey furmeysaa — boosaska way xadidan yihiin.
-            </p>
 
             <div
-              className="mt-8 flex max-w-lg flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:flex-row sm:items-center sm:gap-4"
+              className="mt-8 inline-flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:flex-row sm:items-center sm:gap-4"
               role="status"
               aria-live="polite"
             >
@@ -281,56 +238,6 @@ export function HeroSection() {
                 <span className="font-semibold tabular-nums text-white/80">{learnersLabel}</span>
               </p>
             </div>
-          </div>
-
-          {/* Cards */}
-          <div className="hero-animate-done relative order-2 space-y-5 lg:order-none">
-            <Link
-              href={firstFreeHref}
-              className="relative block overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-primary/20 hover:bg-white/8"
-            >
-              <div className="absolute bottom-3 left-3 right-3 z-10 rounded-lg border border-violet-500/40 bg-violet-950/90 px-3 py-2 text-center text-[11px] font-bold text-violet-100 backdrop-blur-sm sm:text-xs">
-                Challenge-ka ku jiro — dhammaan fur →
-              </div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
-                <BookOpen className="h-3.5 w-3.5" />
-                Koorsooyin
-              </div>
-              <h3 className="font-display text-xl font-semibold text-white">Dhis Portfolio aad shaqo ku heli karto</h3>
-              <p className="mt-2 text-sm text-white/50">
-                Ma baraysid casharro kaliya; waxaad dhisaysaa mashaariic dhab ah (SaaS, Apps, Websites) oo aad dunida
-                tusi karto.
-              </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-primary">Bilow hadda →</span>
-            </Link>
-
-            <Link
-              href={
-                isLoggedIn
-                  ? aiCourse
-                    ? `/courses/${aiCourse.categoryId}/${aiCourse.slug}`
-                    : "/courses"
-                  : "/welcome"
-              }
-              className="relative block overflow-hidden rounded-2xl border border-primary/20 bg-primary/10 p-6 transition hover:border-primary/30 hover:bg-primary/15"
-            >
-              <div className="absolute bottom-3 left-3 right-3 z-10 rounded-lg border border-violet-500/40 bg-violet-950/90 px-3 py-2 text-center text-[11px] font-bold text-violet-100 backdrop-blur-sm sm:text-xs">
-                Challenge-ka ku jiro — dhammaan fur →
-              </div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
-                <Brain className="h-3.5 w-3.5" />
-                Koorsada AI
-              </div>
-              <h3 className="font-display text-xl font-semibold text-white">
-                {aiCourse ? aiCourse.title : "Baro AI — Af-Soomaali"}
-              </h3>
-              <p className="mt-2 text-sm text-white/60">
-                {aiCourse
-                  ? "Ku baro AI si habboon — bilaaw maanta."
-                  : "Ku baro AI, machine learning iyo automation — tallaabo tallaabo."}
-              </p>
-              <span className="mt-4 inline-block text-sm font-semibold text-primary">Bilaaw koorsada AI →</span>
-            </Link>
           </div>
         </div>
       </section>

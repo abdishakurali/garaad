@@ -2,7 +2,6 @@
 
 import { Header } from "@/components/Header";
 import { FooterSection } from "@/components/sections/FooterSection";
-import { WhatsAppFloat } from "@/components/landing/WhatsAppFloat";
 import { Reveal } from "@/components/landing/Reveal";
 import Image from "next/image";
 import { Users, MessageSquare, Flame, Trophy, ArrowRight, ShieldCheck } from "lucide-react";
@@ -148,7 +147,6 @@ export default function CommunityPreview() {
             </main>
 
             <FooterSection />
-            <WhatsAppFloat />
         </div>
     );
 }

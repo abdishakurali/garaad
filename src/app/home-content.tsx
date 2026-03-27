@@ -23,11 +23,6 @@ const LandingPricingComparison = dynamic(
     { loading: () => <SectionSkeleton />, ssr: true }
 );
 
-const GaraadFeaturesShowcase = dynamic(() => import("@/components/landing/GaraadFeaturesShowcase").then(mod => mod.GaraadFeaturesShowcase), {
-    loading: () => <SectionSkeleton />,
-    ssr: true
-});
-
 // Selector: only re-render when the effective view changes (hero vs dashboard).
 // Before hydration we show hero; after, we show dashboard only if authenticated.
 // This avoids an extra Hero re-render when only _hasHydrated flips and user is still guest.
@@ -63,10 +58,6 @@ export function HomeContent() {
 
                     <Suspense fallback={<SectionSkeleton />}>
                         <LandingPricingComparison />
-                    </Suspense>
-
-                    <Suspense fallback={<SectionSkeleton />}>
-                        <GaraadFeaturesShowcase />
                     </Suspense>
 
                     <Suspense fallback={<SectionSkeleton />}>
