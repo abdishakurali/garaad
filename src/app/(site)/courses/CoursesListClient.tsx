@@ -405,18 +405,7 @@ export function CoursesListClient() {
                                                                 )}
 
                                                                 <div className="mt-1 flex flex-col gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
-                                                                    <Link
-                                                                        href="/challenge"
-                                                                        className="flex w-full items-center justify-center rounded-xl bg-violet-600 py-3 text-center text-sm font-black text-white transition hover:bg-violet-500"
-                                                                    >
-                                                                        {pt.challenge_cta} →
-                                                                    </Link>
-                                                                    <Link
-                                                                        href={firstFreeHref}
-                                                                        className="flex w-full items-center justify-center rounded-xl border-2 border-slate-300 bg-white py-2.5 text-center text-sm font-black text-slate-800 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900"
-                                                                    >
-                                                                        Bilaash ku bilow →
-                                                                    </Link>
+                                                                
                                                                     <Link
                                                                         href={courseHref}
                                                                         className="flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"
