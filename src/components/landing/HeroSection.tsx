@@ -1,17 +1,103 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Code2, Layers, Brain, Database, Server, BookOpen, Cloud, ArrowUpRight } from "lucide-react";
 import { API_BASE_URL } from "@/lib/constants";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
+import { orderSocialProofForDisplay, type SocialProofUserRaw } from "@/lib/social-proof";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const CATEGORIES_SWR_KEY = `${API_BASE_URL}/api/lms/categories/`;
 
 const ACCENT = "#7c3aed";
+
+interface LandingStats {
+  students_count: number;
+  courses_count: number;
+  learners_this_month?: number;
+}
+
+const AVATAR_RING_COLORS = [
+  "bg-emerald-600/90 text-white",
+  "bg-violet-600/90 text-white",
+  "bg-amber-600/90 text-white",
+] as const;
+
+function SocialProofAvatar({
+  src,
+  alt,
+  initials,
+  ringClass,
+}: {
+  src: string | null;
+  alt: string;
+  initials: string;
+  ringClass: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(src) && !failed;
+  return (
+    <div
+      className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200 dark:border-[#0a0a0f] dark:ring-[#1e1e2e]"
+      title={alt}
+    >
+      {showImage ? (
+        <Image
+          src={src!}
+          alt={alt}
+          fill
+          className="object-cover object-top"
+          sizes="40px"
+          unoptimized
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div
+          className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${ringClass}`}
+          aria-hidden
+        >
+          {initials}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function resolveProofAvatarUrl(url: string | null | undefined): string | null {
+  const u = typeof url === "string" ? url.trim() : "";
+  if (!u) return null;
+  if (u.startsWith("http://") || u.startsWith("https://")) return u;
+  return getAbsoluteImageUrl(u, "");
+}
+
+function useAnimatedCount(target: number, active: boolean) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (!active || target <= 0) {
+      setV(target);
+      return;
+    }
+    const start = Math.max(1, Math.floor(target * 0.88));
+    let frame = 0;
+    const t0 = performance.now();
+    const dur = 2200;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / dur);
+      const ease = 1 - (1 - p) * (1 - p);
+      setV(Math.round(start + (target - start) * ease));
+      if (p < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, active]);
+  return v;
+}
 
 const TECH_ICONS = [
   { name: "React", Icon: Code2 },
@@ -42,6 +128,53 @@ export function HeroSection() {
   const user = useAuthStore((s) => s.user);
   const isLoggedIn = !!user;
   const { href: firstFreeHref } = useFirstFreeLessonHref();
+
+  const { data: stats, error: statsError } = useSWR<LandingStats>(
+    `${API_BASE_URL}/api/public/landing-stats/`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+  );
+
+  const { data: proofUsers } = useSWR<SocialProofUserRaw[]>(
+    `${API_BASE_URL}/api/public/social-proof/`,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+  );
+
+  const heroAvatars = useMemo(() => {
+    const ordered = orderSocialProofForDisplay(proofUsers ?? []);
+    if (ordered.length === 0) return [];
+    const colors = AVATAR_RING_COLORS;
+    return ordered.slice(0, 3).map((u, i) => {
+      const fn = (u.first_name || "").trim();
+      const ln = (u.last_name || "").trim();
+      const initials =
+        `${fn[0] || ""}${ln[0] || ""}`.toUpperCase() || (fn[0] || "?").toUpperCase();
+      const label = ln ? `${fn} ${ln[0]}.`.trim() : fn || "Arday";
+      const src = resolveProofAvatarUrl(u.profile_picture_url ?? null);
+      return {
+        src,
+        initials,
+        alt: `${label} — arday Garaad`,
+        ringClass: colors[i % colors.length],
+      };
+    });
+  }, [proofUsers]);
+
+  const studentCount = stats?.students_count ?? 0;
+  const countAnimActive = Boolean(stats != null && !statsError && studentCount > 0);
+  const displayCount = useAnimatedCount(studentCount, countAnimActive);
+  const [learnersLabel, setLearnersLabel] = useState("Ku biir 88+ Developer oo hadda baranaya");
+  useEffect(() => {
+    if (statsError || stats == null) return;
+    if (studentCount > 0) {
+      setLearnersLabel(`Ku biir ${studentCount}+ Developer oo hadda baranaya`);
+    }
+  }, [stats, statsError, studentCount]);
+  useEffect(() => {
+    if (!countAnimActive || displayCount <= 0) return;
+    setLearnersLabel(`Ku biir ${displayCount}+ Developer oo hadda baranaya`);
+  }, [displayCount, countAnimActive]);
 
   const { data: categoriesData } = useSWR<unknown>(CATEGORIES_SWR_KEY, fetcher, {
     revalidateOnFocus: false,
@@ -93,6 +226,34 @@ export function HeroSection() {
               >
                 Ku bilow Bilaash
               </Link>
+            </div>
+
+            <div
+              className="mt-10 flex max-w-lg flex-col gap-3 rounded-2xl border border-[#e2e8f0] bg-white/70 px-4 py-3.5 backdrop-blur-sm sm:flex-row sm:items-center sm:gap-4 dark:border-[#1e1e2e] dark:bg-white/[0.04]"
+              role="status"
+              aria-live="polite"
+            >
+              {heroAvatars.length > 0 ? (
+                <div
+                  className="flex shrink-0 items-center -space-x-2"
+                  aria-label="Sawirro ka mid ah ardayda diiwaangashan"
+                >
+                  {heroAvatars.map((a, idx) => (
+                    <SocialProofAvatar
+                      key={`${a.alt}-${idx}`}
+                      src={a.src}
+                      alt={a.alt}
+                      initials={a.initials}
+                      ringClass={a.ringClass}
+                    />
+                  ))}
+                </div>
+              ) : null}
+              <p className="min-w-0 text-sm leading-snug text-slate-600 dark:text-[#94a3b8]">
+                <span className="font-semibold tabular-nums text-slate-900 dark:text-white/90">
+                  {learnersLabel}
+                </span>
+              </p>
             </div>
           </div>
 
