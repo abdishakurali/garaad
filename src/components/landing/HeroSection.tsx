@@ -103,7 +103,8 @@ const TECH_ICONS = [
   { name: "React", Icon: Code2 },
   { name: "Next.js", Icon: Layers },
   { name: "AI", Icon: Brain },
-  { name: "Django", Icon: Server },
+  { name: "ExpressJS", Icon: Server },
+  { name: "MongoDB", Icon: Database },
   { name: "PostgreSQL", Icon: Database },
 ] as const;
 
@@ -258,13 +259,7 @@ export function HeroSection() {
           </div>
 
           <div className="hero-animate-done relative order-2 space-y-4 lg:order-none">
-            <Link
-              href="/challenge"
-              className="flex items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50/90 px-4 py-3.5 text-center text-[11px] font-bold uppercase tracking-wide text-violet-900 shadow-sm transition hover:border-violet-300 hover:bg-violet-100/90 sm:text-xs dark:border-violet-500/35 dark:bg-gradient-to-r dark:from-violet-950/80 dark:to-violet-900/50 dark:text-violet-100 dark:shadow-[0_0_24px_-8px_rgba(139,92,246,0.45)] dark:hover:border-violet-400/50"
-            >
-              Challenge-ka ku jiro — dhammaan fur
-              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
-            </Link>
+          
 
             <div className="grid gap-3 sm:gap-4">
               <Link
