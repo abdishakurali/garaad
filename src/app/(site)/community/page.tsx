@@ -39,6 +39,7 @@ import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
 import { CommunityChallengeBanner } from '@/components/challenge/CommunityChallengeBanner';
+import { CommunityPrivatePreview } from '@/components/community/CommunityPrivatePreview';
 import { pricingTranslations as pt } from '@/config/translations/pricing';
 import { useChallengeStatus } from '@/hooks/useChallengeStatus';
 
@@ -272,58 +273,19 @@ export default function CommunityPage() {
 
     if (!isAuthenticated) return null;
 
-    /** Challenge-only space: no category fetch; show blurred gate + CTA */
+    /** Challenge-only space: mock community chrome + centered lock */
     if (!hasCommunityAccess) {
         return (
-            <div className="w-full max-w-7xl mx-auto min-h-[calc(100dvh-4rem)] px-4 sm:px-6 py-6 sm:py-10 flex flex-col">
-                <div className="relative flex-1 min-h-[min(520px,calc(100dvh-6rem))] w-full rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 shadow-2xl bg-muted">
-                    <Image
-                        src="/images/blurcommunity.png"
-                        alt=""
-                        fill
-                        className="object-cover object-center scale-[1.02] blur-[2px] sm:blur-[3px]"
-                        sizes="(max-width: 1280px) 100vw, 1280px"
-                        priority
-                    />
-                    <div
-                        className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70 backdrop-blur-sm"
-                        aria-hidden
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-10">
-                        <div
-                            className="w-full max-w-md rounded-2xl bg-white/95 dark:bg-gray-950/95 px-6 py-8 sm:px-8 sm:py-10 text-center shadow-2xl border border-violet-200/80 dark:border-violet-500/30 ring-1 ring-violet-500/10"
-                            role="dialog"
-                            aria-labelledby="community-private-title"
-                            aria-describedby="community-private-desc"
-                        >
-                            <div className="text-4xl mb-3" aria-hidden>
-                                🔒
-                            </div>
-                            <h1
-                                id="community-private-title"
-                                className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight"
-                            >
-                                Bulshadu waa gaar ah
-                            </h1>
-                            <p
-                                id="community-private-desc"
-                                className="text-gray-600 dark:text-gray-400 text-sm sm:text-base mb-6 leading-relaxed"
-                            >
-                                Goobtan waxaa isticmaali kara ardayda Challenge-ka oo keliya. Si aad bulshada
-                                dhabta ah ugu hesho, Challenge-ka ku biir.
-                            </p>
-                            <Link
-                                href={challengeGateLoading ? '/challenge' : challengeJoinHref}
-                                className="inline-flex w-full items-center justify-center bg-violet-600 hover:bg-violet-500 text-white py-3.5 rounded-xl font-bold text-sm text-center shadow-lg shadow-violet-600/25 transition-colors"
-                            >
-                                {challengeGateLoading ? 'Challenge' : pt.challenge_cta_compact} →
-                            </Link>
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
-                                Heerka Bilaash: sii wad /courses — waxbarashada aasaasiga ah waa furan.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-7xl flex-col px-4 py-6 sm:px-6 sm:py-10">
+                <CommunityPrivatePreview
+                    title="Bulshadu waa gaar ah"
+                    description="Goobtan waxaa isticmaali kara ardayda Challenge-ka oo keliya. Hoos waxaad aragtaa qaabka bulshadu u egtahay — furitaanka wuxuu u baahan yahay Challenge."
+                    primary={{
+                        href: challengeGateLoading ? "/challenge" : challengeJoinHref,
+                        label: challengeGateLoading ? "Challenge" : `${pt.challenge_cta_compact} →`,
+                    }}
+                    footnote="Heerka Bilaash: sii wad /courses — waxbarashada aasaasiga ah waa furan."
+                />
             </div>
         );
     }

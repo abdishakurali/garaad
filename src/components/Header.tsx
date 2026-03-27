@@ -56,6 +56,13 @@ export function Header() {
     }
   }, [user]);
 
+  /** Mirrors /community gate: Challenge or staff only. */
+  const hasCommunityAccess = useMemo(() => {
+    if (!user) return false;
+    if (user.is_staff || user.is_superuser) return true;
+    return (user.subscription_type ?? "").toLowerCase() === "challenge";
+  }, [user]);
+
   useEffect(() => {
     if (xpValue !== prevXp && authReady) {
       setPrevXp(xpValue);
@@ -145,7 +152,7 @@ export function Header() {
           >
             {navLinks.map(({ name, href, comingSoon }) => {
               const active = !comingSoon && isLinkActive(href);
-              const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
+              const showCommunityLock = Boolean(user && href === "/community" && !hasCommunityAccess);
               const showCoursesFree = href === "/courses";
               const label = (
                 <span className="relative inline-flex items-center gap-0.5 lg:gap-1">
@@ -370,7 +377,7 @@ export function Header() {
             <nav className="px-4 py-3 space-y-0.5">
               {navLinks.map(({ name, href, comingSoon }) => {
                 const active = !comingSoon && isLinkActive(href);
-                const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
+                const showCommunityLock = Boolean(user && href === "/community" && !hasCommunityAccess);
                 const showCoursesFree = href === "/courses";
                 const row = (
                   <span className="inline-flex items-center gap-1.5">
