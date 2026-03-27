@@ -2,173 +2,223 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { X, Rocket } from "lucide-react";
-import { baseURL } from "@/config";
+import { X, Rocket, Sparkles } from "lucide-react";
+import { API_BASE_URL } from "@/lib/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePathname } from "next/navigation";
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Fallback data — always shown if API is slow / fails
-// ──────────────────────────────────────────────────────────────────────────────
-const FALLBACK_NAMES = [
-    "Axmed C.", "Fadumo M.", "Cabdullahi Y.", "Xaawo I.", "Maxamed H.",
-    "Saciid A.", "Asha D.", "Yuusuf K.", "Hodan F.", "Cali O.",
-    "Nasteexo B.", "Ibraahim S.", "Amina J.", "Osman A.", "Maryan C.",
-    "Cabdi R.", "Sucaad N.", "Mahad L.", "Faadumo X.", "Bashiir W.",
-];
-
-const CHALLENGE_JOIN_ICON = <Rocket className="w-5 h-5 text-primary" />;
+import {
+  formatSocialProofDisplayName,
+  splitSocialProofPools,
+  type SocialProofUserRaw,
+} from "@/lib/social-proof";
 
 const SESSION_KEY = "garaad_sp_count";
 const MAX_PER_SESSION = 12;
-const INITIAL_DELAY_MS = 3_000;    // Show first toast after 3s
-const MIN_INTERVAL_MS = 14_000;    // Minimum interval between toasts
-const MAX_INTERVAL_MS = 20_000;    // Maximum interval between toasts
-const VISIBLE_DURATION_MS = 11_000; // How long each toast stays visible (slightly longer for readability)
-
-// ──────────────────────────────────────────────────────────────────────────────
+const INITIAL_DELAY_MS = 3_000;
+const MIN_INTERVAL_MS = 14_000;
+const MAX_INTERVAL_MS = 20_000;
+const VISIBLE_DURATION_MS = 11_000;
+const FETCH_TIMEOUT_MS = 8_000;
 
 interface Toast {
-    name: string;
-    flag?: string;
+  name: string;
+  flag?: string;
+  kind: "challenge" | "general";
 }
 
-function randomItem<T>(arr: T[]): T {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
+function pickNextToast(
+  pools: { challenge: SocialProofUserRaw[]; general: SocialProofUserRaw[] },
+  idx: { c: number; g: number; seq: number }
+): Toast | null {
+  const { challenge, general } = pools;
+  let item: SocialProofUserRaw;
+  let kind: "challenge" | "general";
 
-function buildToast(backendData: any[]): Toast {
-    if (backendData.length > 0) {
-        const item = randomItem(backendData);
-        return {
-            name: `${item.first_name} ${item.last_name ? item.last_name[0] + "." : ""}`.trim(),
-            flag: item.country_flag,
-        };
+  if (challenge.length > 0 && general.length > 0) {
+    const useGeneral = idx.seq % 3 === 2;
+    idx.seq += 1;
+    if (useGeneral) {
+      item = general[idx.g % general.length];
+      idx.g += 1;
+      kind = "general";
+    } else {
+      item = challenge[idx.c % challenge.length];
+      idx.c += 1;
+      kind = "challenge";
     }
-    return {
-        name: randomItem(FALLBACK_NAMES),
-    };
+  } else if (challenge.length > 0) {
+    item = challenge[idx.c % challenge.length];
+    idx.c += 1;
+    kind = "challenge";
+  } else if (general.length > 0) {
+    item = general[idx.g % general.length];
+    idx.g += 1;
+    kind = "general";
+  } else {
+    return null;
+  }
+
+  return {
+    name: formatSocialProofDisplayName(item),
+    flag: item.country_flag,
+    kind,
+  };
 }
 
 export function SocialProof() {
-    const { user } = useAuthStore();
-    const pathname = usePathname();
-    const [toast, setToast] = useState<Toast | null>(null);
-    const [visible, setVisible] = useState(false);
-    const [dismissed, setDismissed] = useState(false);
-    const backendNamesRef = useRef<string[]>([]);
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { user } = useAuthStore();
+  const pathname = usePathname();
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const poolsRef = useRef({ challenge: [] as SocialProofUserRaw[], general: [] as SocialProofUserRaw[] });
+  const idxRef = useRef({ c: 0, g: 0, seq: 0 });
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Only show on landing + welcome pages, and only to guests
-    const normalizedPath = pathname?.replace(/\/$/, "") || "/";
-    const isAllowedPage = normalizedPath === "" || normalizedPath === "/" || normalizedPath === "/welcome";
-    const shouldShow = !user && isAllowedPage;
+  const normalizedPath = pathname?.replace(/\/$/, "") || "/";
+  const isAllowedPage = normalizedPath === "" || normalizedPath === "/" || normalizedPath === "/welcome";
+  const shouldShow = !user && isAllowedPage;
 
-    // Fetch real names once from backend (best-effort)
-    useEffect(() => {
-        if (!shouldShow) return;
-        fetch(`${baseURL}/api/public/social-proof/`)
-            .then((r) => r.ok ? r.json() : [])
-            .then((data) => {
-                if (Array.isArray(data) && data.length > 0) {
-                    backendNamesRef.current = data;
-                }
-            })
-            .catch(() => {/* silently use fallback */ });
-    }, [shouldShow]);
+  useEffect(() => {
+    if (!shouldShow) return;
 
-    const showToast = useCallback(() => {
-        const count = parseInt(sessionStorage.getItem(SESSION_KEY) || "0");
-        if (count >= MAX_PER_SESSION) return;
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
 
-        setToast(buildToast(backendNamesRef.current));
-        setVisible(true);
-        sessionStorage.setItem(SESSION_KEY, (count + 1).toString());
+    fetch(`${API_BASE_URL}/api/public/social-proof/`, { signal: ac.signal })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        poolsRef.current = splitSocialProofPools(data);
+      })
+      .catch(() => {
+        poolsRef.current = { challenge: [], general: [] };
+      })
+      .finally(() => {
+        clearTimeout(t);
+        setReady(true);
+      });
 
-        // Auto-hide after VISIBLE_DURATION_MS
-        if (timerRef.current) clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => setVisible(false), VISIBLE_DURATION_MS);
-    }, []);
+    return () => {
+      ac.abort();
+      clearTimeout(t);
+    };
+  }, [shouldShow]);
 
-    // Scheduling loop
-    useEffect(() => {
-        if (!shouldShow) return;
+  const showToast = useCallback(() => {
+    const count = parseInt(sessionStorage.getItem(SESSION_KEY) || "0", 10);
+    if (count >= MAX_PER_SESSION) return;
 
-        let stopped = false;
+    const next = pickNextToast(poolsRef.current, idxRef.current);
+    if (!next) return;
 
-        const schedule = (delay: number) => {
-            timerRef.current = setTimeout(() => {
-                if (stopped) return;
-                showToast();
-                // Schedule next
-                const interval = MIN_INTERVAL_MS + Math.random() * (MAX_INTERVAL_MS - MIN_INTERVAL_MS);
-                schedule(VISIBLE_DURATION_MS + interval); // wait until current is hidden + gap
-            }, delay);
-        };
+    setToast(next);
+    setVisible(true);
+    sessionStorage.setItem(SESSION_KEY, (count + 1).toString());
 
-        schedule(INITIAL_DELAY_MS);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => setVisible(false), VISIBLE_DURATION_MS);
+  }, []);
 
-        return () => {
-            stopped = true;
-            if (timerRef.current) clearTimeout(timerRef.current);
-        };
-    }, [shouldShow, showToast]);
+  useEffect(() => {
+    if (!shouldShow || !ready || dismissed) return;
 
-    if (!shouldShow || !toast || dismissed) return null;
+    const { challenge, general } = poolsRef.current;
+    if (challenge.length === 0 && general.length === 0) return;
 
-    return (
+    let stopped = false;
+
+    const schedule = (delay: number) => {
+      scheduleTimerRef.current = setTimeout(() => {
+        if (stopped) return;
+        showToast();
+        const interval = MIN_INTERVAL_MS + Math.random() * (MAX_INTERVAL_MS - MIN_INTERVAL_MS);
+        schedule(VISIBLE_DURATION_MS + interval);
+      }, delay);
+    };
+
+    schedule(INITIAL_DELAY_MS);
+
+    return () => {
+      stopped = true;
+      if (scheduleTimerRef.current) clearTimeout(scheduleTimerRef.current);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
+  }, [shouldShow, ready, dismissed, showToast]);
+
+  if (!shouldShow || !toast || dismissed) return null;
+
+  const Icon = toast.kind === "challenge" ? Rocket : Sparkles;
+
+  return (
+    <div
+      className={cn(
+        "fixed bottom-8 left-4 z-[60] max-w-[min(100vw-2rem,440px)] will-change-transform sm:left-8 sm:max-w-[440px]",
+        "transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+        visible
+          ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+          : "pointer-events-none translate-y-8 scale-[0.96] opacity-0"
+      )}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="relative flex items-start gap-4 rounded-2xl border border-border bg-card/98 p-5 shadow-2xl shadow-black/20 ring-1 ring-white/10 backdrop-blur-xl dark:bg-zinc-900/98 sm:p-6">
         <div
-            className={cn(
-                "fixed bottom-8 left-4 sm:left-8 z-[60] max-w-[min(100vw-2rem,440px)] sm:max-w-[440px] transition-all duration-500 ease-out",
-                visible
-                    ? "translate-y-0 opacity-100 scale-100 pointer-events-auto"
-                    : "translate-y-6 opacity-0 scale-95 pointer-events-none"
-            )}
-            role="status"
-            aria-live="polite"
+          className={cn(
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 shadow-md sm:h-14 sm:w-14",
+            toast.kind === "challenge"
+              ? "border-primary/25 bg-primary/10 text-primary"
+              : "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          )}
         >
-            <div className="relative flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-card/98 dark:bg-zinc-900/98 border border-border shadow-2xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/10">
-                {/* Avatar */}
-                <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center shadow-md">
-                    {CHALLENGE_JOIN_ICON}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0 pr-6">
-                    <p className="text-base sm:text-lg font-black leading-snug text-foreground">
-                        <span className="text-primary">{toast.name}</span>
-                        {toast.flag ? (
-                            <span className="ml-1 text-base" title="Country Flag">
-                                {toast.flag}
-                            </span>
-                        ) : null}{" "}
-                        ayaa ku biiray Challenge-ka!
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                        <span className="text-[10px] font-black text-primary uppercase tracking-wide">
-                            Garaad
-                        </span>
-                    </div>
-                </div>
-
-                {/* Dismiss button */}
-                <button
-                    onClick={() => {
-                        setVisible(false);
-                        setDismissed(true);
-                    }}
-                    className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted transition-colors"
-                    aria-label="Xir"
-                >
-                    <X className="w-3.5 h-3.5" />
-                </button>
-
-                {/* Pulse dot */}
-                <div className="absolute -top-1 -right-1 w-3 h-3">
-                    <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75" />
-                    <span className="absolute inset-0 rounded-full bg-emerald-500" />
-                </div>
-            </div>
+          <Icon className="h-5 w-5" strokeWidth={2} />
         </div>
-    );
+
+        <div className="min-w-0 flex-1 pr-6">
+          <p className="text-base font-black leading-snug text-foreground sm:text-lg">
+            <span className="text-primary">{toast.name}</span>
+            {toast.flag ? (
+              <span className="ml-1 text-base" title="Calanka">
+                {toast.flag}
+              </span>
+            ) : null}{" "}
+            {toast.kind === "challenge" ? (
+              <>ayaa ku biiray Challenge-ka!</>
+            ) : (
+              <>ayaa dhawaan ku biiray Garaad!</>
+            )}
+          </p>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase tracking-wide text-primary">Garaad</span>
+            <span className="text-[10px] text-muted-foreground">
+              {toast.kind === "challenge" ? "Kooxda Challenge" : "Diiwaan & bilow barashada"}
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setVisible(false);
+            setDismissed(true);
+          }}
+          className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground/50 transition-colors hover:bg-muted hover:text-muted-foreground"
+          aria-label="Xir"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+
+        {visible ? (
+          <div className="absolute -right-1 -top-1 h-3 w-3">
+            <span
+              className="absolute inset-0 animate-ping rounded-full bg-emerald-500 opacity-75 motion-reduce:animate-none"
+              aria-hidden
+            />
+            <span className="absolute inset-0 rounded-full bg-emerald-500" aria-hidden />
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
 }
