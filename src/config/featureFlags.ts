@@ -9,8 +9,8 @@ export const EXPLORER_IS_FREE =
   process.env.NEXT_PUBLIC_EXPLORER_IS_FREE !== "0";
 
 /**
- * When true, signed-in users can open every course lesson without Challenge/premium.
- * Unset or any value except "false"/"0" enables (default: all lessons free).
+ * Deprecated: all signed-in users have full lesson access in app code.
+ * Kept for env parity only; `lessonTierAccess` no longer reads this flag.
  */
 export const ALL_LESSONS_FREE =
   process.env.NEXT_PUBLIC_ALL_LESSONS_FREE !== "false" &&

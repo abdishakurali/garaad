@@ -114,8 +114,7 @@ export async function middleware(request: NextRequest) {
 
   // --- 4. Premium Access Check ---
   // Lesson paths: do NOT gate by premium here. Backend may still enforce access;
-  // frontend (LessonDetailClient isLockedLesson + LessonUpgradeModal) uses lessonTierAccess
-  // (ALL_LESSONS_FREE / premium).
+  // Lesson access for signed-in users: full catalog (see lessonTierAccess); optional Challenge CTA in-app.
   const isPremiumPath = premiumRoots.some(root => pathname.startsWith(root));
 
   if (isPremiumPath) {

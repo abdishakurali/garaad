@@ -301,17 +301,7 @@ export function Header() {
                 )
               )}
                
-              {authReady && user && isPremium && (
-                <span
-                  className={clsx(
-                    "inline-flex items-center justify-center w-9 h-9 rounded-full bg-purple-600/20 text-purple-400 border border-purple-500/30 transition-transform duration-200",
-                    xpPulse && "motion-safe:scale-110"
-                  )}
-                  title={`${xpValue} XP`}
-                >
-                  ⚡
-                </span>
-              )}
+              
               <ThemeToggle />
               <button
                 onClick={() => setIsMobileMenuOpen(true)}

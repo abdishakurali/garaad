@@ -3,7 +3,6 @@
 import type React from "react";
 import {
     useEffect,
-    useLayoutEffect,
     useState,
     useRef,
     useCallback,
@@ -38,7 +37,8 @@ import { LessonStepBullets } from "@/components/learning/LessonStepBullets";
 import { AnswerFeedback } from "@/components/AnswerFeedback";
 import type { Course, Lesson } from "@/types/lms";
 import AuthService from "@/services/auth";
-import { userHasFullLessonAccess, freeTierLessonIdSet } from "@/lib/lessonTierAccess";
+import { FREE_TIER_LESSON_COUNT } from "@/lib/lessonTierAccess";
+import { useAuthStore } from "@/store/useAuthStore";
 import katex from 'katex';
 
 import 'katex/dist/katex.min.css';
@@ -54,11 +54,7 @@ import { useGamificationData } from "@/hooks/useGamificationData";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { LessonCompleteModal } from "@/components/learning/LessonCompleteModal";
-import { LessonUpgradeModal } from "@/components/learning/LessonUpgradeModal";
-import {
-    peekLessonGatePreviewMatch,
-    clearLessonGatePreview,
-} from "@/lib/lessonGatePreview";
+import { LessonChallengeSoftInvite } from "@/components/challenge/LessonChallengeSoftInvite";
 import { EmailVerificationBanner } from "@/components/learning/EmailVerificationBanner";
 import dynamic from "next/dynamic";
 import { useStreak } from "@/services/gamification";
@@ -323,8 +319,7 @@ export function LessonDetailClient() {
         if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }, []);
 
-    /** After user leaves the upgrade modal, allow one view of this lesson (session). */
-    const [gatePreviewConsumed, setGatePreviewConsumed] = useState(false);
+    const isPayingSubscriber = useAuthStore((s) => Boolean(s.user?.is_premium));
 
     // Fetch all course lessons (paginated API)
     useEffect(() => {
@@ -342,10 +337,6 @@ export function LessonDetailClient() {
 
     useEffect(() => {
         solvedProblemIdsRef.current = new Set();
-    }, [currentLesson?.id]);
-
-    useEffect(() => {
-        setGatePreviewConsumed(false);
     }, [currentLesson?.id]);
 
     // Check if lesson is in review mode
@@ -386,31 +377,8 @@ export function LessonDetailClient() {
         return problems.find(p => p.id === problemId) || problems[0];
     }, [problems, sortedBlocks, currentBlockIndex]);
 
-    // Free tier: first 3 lessons by lesson_number; full access if premium
-    const isLockedLesson = useMemo(() => {
-        if (typeof window === "undefined") return false;
-        const user = AuthService.getInstance().getCurrentUser();
-        if (userHasFullLessonAccess(user)) return false;
-        if (!courseLessons.length || !currentLesson?.id) return false;
-        const free = freeTierLessonIdSet(courseLessons as { id: number; lesson_number?: number }[]);
-        return !free.has(Number(currentLesson.id));
-    }, [courseLessons, currentLesson?.id]);
-
-    const gatePreviewStorageMatch = useMemo(() => {
-        if (courseIdFromSlug == null || currentLesson?.id == null) return false;
-        return peekLessonGatePreviewMatch(courseIdFromSlug, Number(currentLesson.id));
-    }, [courseIdFromSlug, currentLesson?.id]);
-
-    useLayoutEffect(() => {
-        if (!isLockedLesson || !gatePreviewStorageMatch || gatePreviewConsumed) return;
-        clearLessonGatePreview();
-        setGatePreviewConsumed(true);
-    }, [isLockedLesson, gatePreviewStorageMatch, gatePreviewConsumed]);
-
-    const hasGatePreviewBypass =
-        isLockedLesson && (gatePreviewStorageMatch || gatePreviewConsumed);
-
-    const showLessonUpgradeGate = isLockedLesson && !hasGatePreviewBypass;
+    const showChallengeSoftInvite =
+        lessonNumberInCourse > FREE_TIER_LESSON_COUNT && !isPayingSubscriber;
 
     // Memoized derived values
     const currentProblemBlock = useMemo(() => {
@@ -1137,21 +1105,6 @@ export function LessonDetailClient() {
         return <LoadingSpinner message="soo dajinaya casharada..." />;
     }
 
-    // Guests / free users: only lesson 1 per course is free; lesson 2+ shows upgrade modal
-    if (showLessonUpgradeGate) {
-        return (
-            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-                <LessonUpgradeModal
-                    coursePath={coursePath}
-                    courseId={courseIdFromSlug ?? ""}
-                    courseTitle={currentCourse?.title}
-                    lessonTitle={currentLesson?.title}
-                    lessonId={currentLesson.id}
-                />
-            </div>
-        );
-    }
-
     if (showCompletionAnimation) {
         const courseSlug = params.courseSlug as string;
         // Ordered by lesson_number to match backend
@@ -1280,6 +1233,7 @@ export function LessonDetailClient() {
                                 {renderBlock(sortedBlocks[currentBlockIndex], currentBlockIndex)}
                             </motion.div>
                         </AnimatePresence>
+                        {showChallengeSoftInvite ? <LessonChallengeSoftInvite /> : null}
                     </div>
                 </div>
             </main>

@@ -1,12 +1,11 @@
 import type { User } from "@/types/auth";
-import { ALL_LESSONS_FREE } from "@/config/featureFlags";
 
-/** First N lessons (by `lesson_number`) are free for signed-in non-premium users. */
+/** First N lessons (by `lesson_number`) for guests / login redirect hints. Signed-in users always see every lesson. */
 export const FREE_TIER_LESSON_COUNT = 3;
 
+/** Every signed-in learner can open all course lessons; Challenge is optional for cohort & mentorship. */
 export function userHasFullLessonAccess(user: User | null | undefined): boolean {
-  if (ALL_LESSONS_FREE && user) return true;
-  return Boolean(user?.is_premium);
+  return Boolean(user);
 }
 
 /** Lesson ids allowed without premium (global course order by lesson_number). */

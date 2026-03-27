@@ -32,14 +32,7 @@ export function MainNav() {
                     )}
                 >
                     {item.name}
-                    {item.href === '/courses' && (
-                        <span
-                            className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
-                            title="Bilaash"
-                        >
-                            Bilaash
-                        </span>
-                    )}
+                    
                 </Link>
             ))}
         </nav>
