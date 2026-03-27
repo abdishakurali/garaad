@@ -89,25 +89,18 @@ export function Header() {
     };
   }, [isMobileMenuOpen]);
 
-  const navLinks = useMemo(
-    () =>
-      user
-        ? [
-          { name: "Koorsooyinka", href: "/courses" },
-          { name: "Challenge", href: "/challenge" },
-          { name: "Bulshada", href: "/community" },
-          { name: "Blog", href: "/blog" },
-          { name: "Launchpad", href: "/launchpad" },
-        ]
-        : [
-          { name: "Koorsooyinka", href: "/courses" },
-          { name: "Challenge", href: "/challenge" },
-          { name: "Bulshada", href: "/communitypreview" },
-          { name: "Blog", href: "/blog" },
-          { name: "Launchpad", href: "/launchpad" },
-        ],
-    [user]
-  );
+  type NavLinkConfig = { name: string; href: string; comingSoon?: boolean };
+
+  const navLinks = useMemo((): NavLinkConfig[] => {
+    const shared: NavLinkConfig[] = [
+      { name: "Koorsooyinka", href: "/courses" },
+      { name: "Challenge", href: "/challenge" },
+      { name: "Bulshada", href: user ? "/community" : "/communitypreview" },
+      { name: "Blog", href: "/blog" },
+      { name: "Launchpad", href: "/launchpad", comingSoon: true },
+    ];
+    return shared;
+  }, [user]);
 
   const isLinkActive = useCallback(
     (href: string) => pathname === href || pathname.startsWith(`${href}/`),
@@ -150,44 +143,72 @@ export function Header() {
             className="hidden md:flex flex-1 min-w-0 items-center justify-center gap-0.5 lg:gap-1 px-1 overflow-x-auto overscroll-x-contain scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             aria-label="Main"
           >
-            {navLinks.map(({ name, href }) => {
-              const active = isLinkActive(href);
+            {navLinks.map(({ name, href, comingSoon }) => {
+              const active = !comingSoon && isLinkActive(href);
               const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
               const showCoursesFree = href === "/courses";
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={clsx(
-                    "group font-display font-medium tracking-tight transition-all duration-200 shrink-0",
-                    "text-[11px] lg:text-xs xl:text-sm py-2 px-1.5 lg:px-2 xl:px-2.5 rounded-md whitespace-nowrap",
-                    active
-                      ? "text-primary bg-primary/10 dark:bg-primary/15"
-                      : "text-slate-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
+              const label = (
+                <span className="relative inline-flex items-center gap-0.5 lg:gap-1">
+                  {name}
+                  {showCoursesFree && (
+                    <span
+                      className="rounded bg-emerald-500/15 px-1 py-px text-[8px] lg:text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
+                      title="Bilaash"
+                    >
+                      Bilaash
+                    </span>
                   )}
-                >
-                  <span className="relative inline-flex items-center gap-0.5 lg:gap-1">
-                    {name}
-                    {showCoursesFree && (
-                      <span
-                        className="rounded bg-emerald-500/15 px-1 py-px text-[8px] lg:text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
-                        title="Bilaash"
-                      >
-                        Bilaash
-                      </span>
-                    )}
-                    {showCommunityLock && (
-                      <span className="text-xs leading-none shrink-0" aria-hidden>
-                        🔒
-                      </span>
-                    )}
+                  {showCommunityLock && (
+                    <span className="text-xs leading-none shrink-0" aria-hidden>
+                      🔒
+                    </span>
+                  )}
+                  {comingSoon && (
+                    <span
+                      className="rounded bg-slate-400/20 px-1 py-px text-[7px] lg:text-[8px] font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400"
+                      title="Launchpad — Coming soon"
+                    >
+                      Soon
+                    </span>
+                  )}
+                  {!comingSoon && (
                     <span
                       className={clsx(
                         "absolute -bottom-0.5 left-0 h-px bg-primary transition-all duration-200 rounded-full",
                         active ? "w-full" : "w-0 group-hover:w-full"
                       )}
                     />
+                  )}
+                </span>
+              );
+
+              if (comingSoon) {
+                return (
+                  <span
+                    key={`${href}-coming-soon`}
+                    className={clsx(
+                      "shrink-0 whitespace-nowrap rounded-md px-1.5 py-2 text-[11px] font-medium tracking-tight lg:px-2 lg:text-xs xl:px-2.5 xl:text-sm",
+                      "cursor-not-allowed text-slate-400 dark:text-gray-500"
+                    )}
+                    title="Launchpad — Coming soon"
+                  >
+                    {label}
                   </span>
+                );
+              }
+
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={clsx(
+                    "group shrink-0 whitespace-nowrap rounded-md px-1.5 py-2 text-[11px] font-medium tracking-tight transition-all duration-200 lg:px-2 lg:text-xs xl:px-2.5 xl:text-sm",
+                    active
+                      ? "bg-primary/10 text-primary dark:bg-primary/15"
+                      : "text-slate-600 hover:bg-black/5 hover:text-primary dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-primary"
+                  )}
+                >
+                  {label}
                 </Link>
               );
             })}
@@ -347,39 +368,62 @@ export function Header() {
 
             {/* Navigation Links */}
             <nav className="px-4 py-3 space-y-0.5">
-              {navLinks.map(({ name, href }) => {
-                const active = isLinkActive(href);
+              {navLinks.map(({ name, href, comingSoon }) => {
+                const active = !comingSoon && isLinkActive(href);
                 const showCommunityLock = Boolean(user && href === "/community" && !isPremium);
                 const showCoursesFree = href === "/courses";
+                const row = (
+                  <span className="inline-flex items-center gap-1.5">
+                    {name}
+                    {showCoursesFree && (
+                      <span
+                        className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
+                        title="Bilaash"
+                      >
+                        Bilaash
+                      </span>
+                    )}
+                    {showCommunityLock && (
+                      <span className="text-xs leading-none shrink-0" aria-hidden>
+                        🔒
+                      </span>
+                    )}
+                    {comingSoon && (
+                      <span
+                        className="rounded bg-slate-400/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400"
+                        title="Launchpad — Coming soon"
+                      >
+                        Coming soon
+                      </span>
+                    )}
+                  </span>
+                );
+
+                if (comingSoon) {
+                  return (
+                    <div
+                      key={`${href}-coming-soon`}
+                      className="flex cursor-not-allowed items-center justify-center rounded-lg px-4 py-2.5 text-center text-slate-400 dark:text-gray-500"
+                      title="Launchpad — Coming soon"
+                    >
+                      {row}
+                    </div>
+                  );
+                }
+
                 return (
                   <Link
                     key={href}
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={clsx(
-                      "font-display text-sm font-medium tracking-tight",
-                      "flex items-center justify-center px-4 py-2.5 rounded-lg transition-all text-center",
+                      "font-display flex items-center justify-center rounded-lg px-4 py-2.5 text-center text-sm font-medium tracking-tight transition-all",
                       active
-                        ? "bg-primary/10 dark:bg-primary/20 text-primary"
-                        : "text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                        ? "bg-primary/10 text-primary dark:bg-primary/20"
+                        : "text-slate-600 hover:bg-black/5 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
                     )}
                   >
-                    <span className="inline-flex items-center gap-1.5">
-                      {name}
-                      {showCoursesFree && (
-                        <span
-                          className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
-                          title="Bilaash"
-                        >
-                          Bilaash
-                        </span>
-                      )}
-                      {showCommunityLock && (
-                        <span className="text-xs leading-none shrink-0" aria-hidden>
-                          🔒
-                        </span>
-                      )}
-                    </span>
+                    {row}
                   </Link>
                 );
               })}
