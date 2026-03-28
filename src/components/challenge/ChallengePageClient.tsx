@@ -119,12 +119,13 @@ export function ChallengePageClient() {
 
   const { data, loading } = useChallengeStatus();
   const spots = data?.spots_remaining ?? 0;
-  const waitlist = data?.is_waitlist_only ?? false;
   const cohortName = data?.active_cohort_name ?? "Challenge";
   const startForCountdown = data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
 
   const primaryHref = "/subscribe?plan=challenge";
-  const primaryLabel = waitlist ? "Gali Liiska Sugitaanka Hadda" : "Ku biir Kooxda — Hadda →";
+  /** Hero stays “open / starting soon” with the countdown; checkout still handles full cohorts. */
+  const primaryLabel = "Ku biir Kooxda — Hadda →";
+  const showSpotsBadgeRow = (loading && !data) || spots > 0;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -163,14 +164,16 @@ export function ChallengePageClient() {
             </ul>
           </div>
 
-          <div className="mt-6 flex justify-center sm:mt-8">
-            <SpotsBadge
-              spots={spots}
-              loading={loading && !data}
-              waitlistOnly={waitlist}
-              cohortName={cohortName}
-            />
-          </div>
+          {showSpotsBadgeRow ? (
+            <div className="mt-6 flex justify-center sm:mt-8">
+              <SpotsBadge
+                spots={spots}
+                loading={loading && !data}
+                waitlistOnly={false}
+                cohortName={cohortName}
+              />
+            </div>
+          ) : null}
 
           <div className="mt-6 flex flex-col items-center gap-0.5 sm:mt-8 sm:gap-1">
             <span className="text-4xl font-bold tabular-nums text-zinc-50 sm:text-5xl">$149</span>
@@ -184,26 +187,13 @@ export function ChallengePageClient() {
             />
           </div>
 
-          {waitlist && (
-            <p className="mx-auto mt-5 max-w-lg px-1 text-base font-medium leading-relaxed text-zinc-200 sm:mt-6 sm:text-lg">
-              Kooxda {cohortName} way buuxdaa. Ha seegin fursada xigta.
-            </p>
-          )}
-
           <div className="mt-6 flex w-full flex-col items-center justify-center px-1 sm:mt-8">
             <Link
               href={primaryHref}
-              className={`inline-flex w-full max-w-md items-center justify-center rounded-lg bg-violet-600 px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-violet-500 sm:px-8 sm:py-3.5 ${
-                waitlist ? "opacity-80" : ""
-              }`}
+              className="inline-flex w-full max-w-md items-center justify-center rounded-lg bg-violet-600 px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-violet-500 sm:px-8 sm:py-3.5"
             >
               {primaryLabel}
             </Link>
-            {waitlist ? (
-              <p className="mx-auto mt-3 max-w-md px-2 text-center text-sm leading-relaxed text-zinc-500">
-                Gali liiska — waxaad ka heli doontaa ogeysiis 24 saac ka hor intaan la furin.
-              </p>
-            ) : null}
           </div>
 
           <div className="mx-auto mt-5 w-full max-w-lg px-1 sm:mt-6">
