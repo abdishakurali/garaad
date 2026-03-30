@@ -197,7 +197,7 @@ function SubscribePageInner() {
       <div className="px-4 py-12 sm:py-16">
         <div className="text-center mb-6 sm:mb-8 max-w-2xl mx-auto">
           <p className="text-lg sm:text-2xl font-extrabold text-foreground leading-snug mb-3">
-            3 bilood — ka Developer noqo, ama lacagta la celin.
+            3 bilood — ku noqo Developer, ama lacagta la celin.
           </p>
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
             7 maalmood dammaanad lacag celin. Mentor af Soomaali. Koox 10 qof.
@@ -352,43 +352,7 @@ function SubscribePageInner() {
                   ) : null}
                 </div>
 
-                {plan.key === "challenge" ? (
-                  <div
-                    className={cn(
-                      "mb-6 text-sm leading-snug",
-                      plan.highlight ? "text-primary-foreground/95" : "text-muted-foreground"
-                    )}
-                  >
-                    {challengeStatusLoading && !challengeStatus ? (
-                      <div className="h-14 rounded-md bg-primary-foreground/10 animate-pulse" aria-hidden />
-                    ) : challengeStatus ? (
-                      <>
-                        <p className="font-bold">
-                          {challengeStatus.is_waitlist_only
-                            ? t.challenge_waitlist_only
-                            : t.challenge_spots_remaining.replace(
-                                "{n}",
-                                String(challengeStatus.spots_remaining)
-                              )}
-                        </p>
-                        {cohortStartFmt ? (
-                          <p className="mt-2 text-xs font-semibold opacity-95">
-                            Kooxdu waxay bilaabaysaa: {cohortStartFmt}
-                          </p>
-                        ) : null}
-                        {challengeStatus.is_waitlist_only &&
-                        challengeStatus.next_cohort_start_date ? (
-                          <p className="mt-1.5 text-xs opacity-90">
-                            {t.challenge_next_cohort.replace(
-                              "{date}",
-                              challengeStatus.next_cohort_start_date
-                            )}
-                          </p>
-                        ) : null}
-                      </>
-                    ) : null}
-                  </div>
-                ) : null}
+            
 
                 <ul className="space-y-3.5 mb-8 flex-1">
                   {plan.features.map((feature, i) => (
