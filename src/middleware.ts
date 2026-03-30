@@ -8,7 +8,10 @@ import type { NextRequest } from "next/server";
  *   /, /courses, /courses/[categoryId]/[courseSlug], /blog, /blog/[slug], /blog/tag/[tag],
  *   /challenge, /launchpad, /launchpad/[id], /launchpad/project/[slug], /about, /about/abdishakuur-ali,
  *   /terms, /privacy, /startups, /community-preview, /communitypreview,
- *   /login, /signup, /welcome, /admin/login, /subscribe, /verify-email, /reset-password
+ *   /login, /signup, /welcome, /admin/login, /verify-email, /reset-password
+ *
+ * Subscribe / pay:
+ *   /subscribe requires auth (sign in or sign up first); unauthenticated → /login with redirect back (query preserved).
  *
  * PROTECTED (auth required; unauthenticated → /login or /admin/login with redirect param):
  *   /admin, /admin/* (except /admin/login),
@@ -31,6 +34,7 @@ const protectedRoots = [
   "/launchpad/submit",
   "/launchpad/submit-project",
   "/launchpad/edit",
+  "/subscribe",
 ];
 
 const premiumRoots: string[] = [];
@@ -91,8 +95,9 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = pathname.startsWith("/admin") ? "/admin/login" : "/login";
     const url = new URL(redirectUrl, request.url);
     url.searchParams.set("reason", "unauthenticated");
-    // Preserve intended destination so login can send user back (e.g. lesson URL)
-    url.searchParams.set("redirect", pathname);
+    // Preserve intended destination (path + query) so login can send user back (e.g. /subscribe?plan=challenge)
+    const returnPath = `${pathname}${request.nextUrl.search}`;
+    url.searchParams.set("redirect", returnPath);
     return NextResponse.redirect(url, 308);
   }
 

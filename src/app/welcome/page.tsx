@@ -24,7 +24,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Loader2, RotateCcw, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Check, Loader2, RotateCcw, Sparkles, X } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
@@ -60,7 +60,10 @@ type StepKind =
   | "personal";
 
 type Answers = {
+  /** Primary goal for API / legacy; kept in sync with goals[0] when goals is set */
   goal?: string;
+  /** Multi-select on step 1; first item is canonical `goal` for tracks + backend */
+  goals?: string[];
   experience?: string;
   barrier?: string | null;
   learning_goal?: string;
@@ -68,6 +71,26 @@ type Answers = {
   project_idea?: string;
   project_description?: string;
 };
+
+function getSelectedGoals(a: Answers): string[] {
+  if (a.goals?.length) return a.goals;
+  if (a.goal) return [a.goal];
+  return [];
+}
+
+function normalizeAnswersGoals(
+  partial: Partial<Answers> & Record<string, unknown>
+): Pick<Answers, "goals" | "goal"> {
+  const rawGoals = partial.goals;
+  const single = partial.goal;
+  if (Array.isArray(rawGoals) && rawGoals.length > 0) {
+    return { goals: rawGoals, goal: rawGoals[0] };
+  }
+  if (typeof single === "string" && single) {
+    return { goals: [single], goal: single };
+  }
+  return {};
+}
 
 function stepsForAnswers(a: Answers): StepKind[] {
   const s: StepKind[] = ["goal", "experience"];
@@ -86,9 +109,11 @@ function buildWizardSnapshot(answers: Answers): Record<string, unknown> {
     answers.experience === "tried_before"
       ? answers.barrier ?? null
       : null;
+  const goalIds = getSelectedGoals(answers);
   return {
     welcome_v2: {
-      goal: answers.goal ?? null,
+      goals: goalIds.length ? goalIds : null,
+      goal: goalIds[0] ?? answers.goal ?? null,
       experience: answers.experience ?? null,
       barrier,
       learning_goal: answers.learning_goal ?? null,
@@ -109,8 +134,9 @@ function buildOnboardingPayload(answers: Answers): SignUpData["onboarding_data"]
   const desc = answers.project_description?.trim() || null;
   const snap = buildWizardSnapshot(answers);
 
+  const primaryGoal = getSelectedGoals(answers)[0] ?? answers.goal!;
   return {
-    goal: answers.goal!,
+    goal: primaryGoal,
     topic: answers.topic!,
     math_level: "beginner",
     minutes_per_day: minutes,
@@ -165,6 +191,7 @@ type OptionRow = {
   id: string;
   text: string;
   badge: string;
+  subtitle?: string;
   icon: ReactNode;
   disabled?: boolean;
 };
@@ -227,7 +254,8 @@ function buildChallengeNarrative(a: Answers): string {
       break;
   }
 
-  switch (a.goal) {
+  const primaryGoal = getSelectedGoals(a)[0] ?? a.goal;
+  switch (primaryGoal) {
     case "get_hired":
       parts.push(
         "Markaad dhammayso waxaad haysan doontaa portfolio iyo shahaado ready u ah suuqa shaqada."
@@ -332,7 +360,10 @@ function WelcomeOnboardingPage() {
             phase?: "wizard" | "challenge";
             userData?: typeof userData;
           };
-          if (parsed.answers) setAnswers(parsed.answers);
+          if (parsed.answers) {
+            const a = parsed.answers as Answers;
+            setAnswers({ ...a, ...normalizeAnswersGoals(a) });
+          }
           if (typeof parsed.stepIndex === "number") setStepIndex(parsed.stepIndex);
           if (parsed.phase === "challenge") setPhase("challenge");
           if (parsed.userData) setUserData((u) => ({ ...u, ...parsed.userData }));
@@ -358,7 +389,12 @@ function WelcomeOnboardingPage() {
           const w = data.wizard_progress as Record<string, unknown> | undefined;
           const wv = w?.welcome_v2 as Answers | undefined;
           if (!cancelled && wv && typeof wv === "object") {
-            setAnswers((prev) => ({ ...prev, ...wv }));
+            const wa = wv as Answers;
+            setAnswers((prev) => ({
+              ...prev,
+              ...wa,
+              ...normalizeAnswersGoals(wa),
+            }));
             if (typeof w.current_step === "number" && w.current_step >= 0) {
               setStepIndex(w.current_step);
             }
@@ -461,9 +497,12 @@ function WelcomeOnboardingPage() {
     const captureWelcomeExit = () => {
       if (exitCapturedRef.current) return;
       exitCapturedRef.current = true;
-      const g = answersRef.current.goal;
-      const tracksViewed =
-        typeof g === "string" ? topicsByGoal[g] ?? [] : [];
+      const gs = getSelectedGoals(answersRef.current);
+      const seen = new Set<string>();
+      gs.forEach((g) =>
+        (topicsByGoal[g] ?? []).forEach((tid) => seen.add(tid))
+      );
+      const tracksViewed = Array.from(seen);
       const trackSel = answersRef.current.topic;
       const deviceType =
         typeof window !== "undefined" && window.innerWidth < 768
@@ -489,10 +528,14 @@ function WelcomeOnboardingPage() {
   }, [authStoreError, setAuthStoreError]);
 
   const trackOptions = useMemo(() => {
-    const g = answers.goal;
-    const allowed = g ? topicsByGoal[g] ?? [] : [];
-    return topics.filter((t) => allowed.includes(t.id)) as OptionRow[];
-  }, [answers.goal]);
+    const gs = getSelectedGoals(answers);
+    if (!gs.length) return [] as OptionRow[];
+    const allowed = new Set<string>();
+    gs.forEach((g) =>
+      (topicsByGoal[g] ?? []).forEach((tid) => allowed.add(tid))
+    );
+    return topics.filter((t) => allowed.has(t.id)) as OptionRow[];
+  }, [answers.goal, answers.goals]);
 
   const { visibleOptions, optionsHasMore } = useMemo(() => {
     if (currentKind !== "goal" && currentKind !== "track") {
@@ -503,7 +546,7 @@ function WelcomeOnboardingPage() {
       return { visibleOptions: null, optionsHasMore: false };
     }
     const collapseAt =
-      currentKind === "goal" ? 99 : MOBILE_OPTION_COLLAPSE_AT;
+      currentKind === "goal" ? opts.length : MOBILE_OPTION_COLLAPSE_AT;
     if (!isMobile || opts.length <= collapseAt || showAllStepOptions) {
       return { visibleOptions: opts, optionsHasMore: false };
     }
@@ -539,7 +582,9 @@ function WelcomeOnboardingPage() {
     (kind: StepKind): string | undefined => {
       switch (kind) {
         case "goal":
-          return answers.goal;
+          return answers.goals?.length
+            ? answers.goals[0]
+            : answers.goal;
         case "experience":
           return answers.experience;
         case "barrier":
@@ -563,11 +608,23 @@ function WelcomeOnboardingPage() {
 
     if (kind === "goal") {
       setAnswers((prev) => {
-        const next = { ...prev, goal: id };
-        const allowed = topicsByGoal[id] ?? [];
-        if (next.topic && !allowed.includes(next.topic)) {
+        const cur = getSelectedGoals(prev);
+        const isOn = cur.includes(id);
+        const nextIds = isOn ? cur.filter((x) => x !== id) : [...cur, id];
+        const next: Answers = { ...prev };
+        if (nextIds.length === 0) {
+          delete next.goals;
+          delete next.goal;
           delete next.topic;
+          return next;
         }
+        next.goals = nextIds;
+        next.goal = nextIds[0];
+        const allowed = new Set<string>();
+        nextIds.forEach((g) =>
+          (topicsByGoal[g] ?? []).forEach((tid) => allowed.add(tid))
+        );
+        if (next.topic && !allowed.has(next.topic)) delete next.topic;
         return next;
       });
       return;
@@ -612,6 +669,7 @@ function WelcomeOnboardingPage() {
     setAnswers((prev) => {
       const next = { ...prev };
       if (kind === "goal") {
+        delete next.goals;
         delete next.goal;
         delete next.topic;
       } else if (kind === "experience") {
@@ -632,6 +690,9 @@ function WelcomeOnboardingPage() {
   };
 
   const canAdvance = useMemo(() => {
+    if (currentKind === "goal") {
+      return getSelectedGoals(answers).length >= 1;
+    }
     const id = selectIdForKind(currentKind);
     if (currentKind === "project") {
       if (!id) return false;
@@ -641,7 +702,13 @@ function WelcomeOnboardingPage() {
       return true;
     }
     return Boolean(id);
-  }, [currentKind, selectIdForKind, answers.project_description]);
+  }, [
+    currentKind,
+    selectIdForKind,
+    answers.project_description,
+    answers.goal,
+    answers.goals,
+  ]);
 
   const goNext = () => {
     if (!canAdvance || stepIndex >= steps.length - 1) return;
@@ -701,7 +768,7 @@ function WelcomeOnboardingPage() {
 
   const onboardingCompleteEnough = (a: Answers) =>
     Boolean(
-      a.goal &&
+      getSelectedGoals(a).length >= 1 &&
         a.experience &&
         a.learning_goal &&
         a.topic &&
@@ -817,8 +884,9 @@ function WelcomeOnboardingPage() {
         try {
           const lg = answers.learning_goal ?? "15_min";
           const mins = learningGoalToMinutes(lg);
+          const primary = getSelectedGoals(answers)[0] ?? answers.goal!;
           const payload = {
-            goal: answers.goal!.trim(),
+            goal: primary.trim(),
             learning_approach: "Waxbarasho shaqsiyeed",
             topic: answers.topic!.trim(),
             math_level: "beginner",
@@ -940,12 +1008,107 @@ function WelcomeOnboardingPage() {
   const progressPct =
     progressTotal > 0 ? (progressCurrent / progressTotal) * 100 : 0;
 
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+  useEffect(() => {
+    const target = progressPct;
+    setAnimatedProgress(0);
+    let raf = 0;
+    let cancelled = false;
+    const start = performance.now();
+    const duration = 400;
+    const easeOut = (t: number) => 1 - (1 - t) ** 3;
+    const tick = (now: number) => {
+      if (cancelled) return;
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / duration);
+      setAnimatedProgress(target * easeOut(t));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [progressPct]);
+
+  const forwardCtaLabel = useMemo(() => {
+    if (currentKind !== "goal") return "Horey u soco";
+    const n = getSelectedGoals(answers).length;
+    if (n === 0) return "Dooro mid — ka dibna soco";
+    if (n === 1) return "Horey u soco";
+    return `Horey u soco (${n} doorasho)`;
+  }, [currentKind, answers.goal, answers.goals]);
+
   const showRecBadge = (topicId: string) => {
-    const g = answers.goal;
-    if (!g) return false;
+    const gs = getSelectedGoals(answers);
+    if (!gs.length) return false;
     const exp = answers.experience;
     if (exp !== "first_time" && exp !== "tried_before") return false;
-    return recommendedTopicByGoal[g] === topicId;
+    return gs.some((g) => recommendedTopicByGoal[g] === topicId);
+  };
+
+  const renderGoalOptionCard = (option: OptionRow) => {
+    const selected = getSelectedGoals(answers);
+    const isSelected = selected.includes(option.id);
+    const sub = option.subtitle ?? option.badge;
+    return (
+      <div key={option.id} className="relative">
+        <div
+          role="button"
+          tabIndex={option.disabled || isLoading ? -1 : 0}
+          aria-pressed={isSelected}
+          onClick={() => {
+            if (!option.disabled && !isLoading) {
+              handleSelectOption("goal", option.id);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (
+              (e.key === "Enter" || e.key === " ") &&
+              !option.disabled &&
+              !isLoading
+            ) {
+              e.preventDefault();
+              handleSelectOption("goal", option.id);
+            }
+          }}
+          className={cn(
+            "flex min-h-[88px] cursor-pointer items-start gap-3 overflow-hidden rounded-2xl border-2 px-4 py-3.5 text-left transition-all duration-200 ease-in-out outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40",
+            isSelected
+              ? "border-violet-500/80 bg-violet-500/10 shadow-md shadow-violet-500/10 ring-1 ring-violet-500/15 dark:border-violet-400/70 dark:bg-violet-500/15"
+              : "border-border bg-card/50 hover:border-violet-400/45 hover:bg-muted/40 dark:bg-slate-900/50",
+            option.disabled && "pointer-events-none opacity-50"
+          )}
+        >
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-500/12 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
+              {option.icon}
+            </div>
+            <div className="min-w-0 flex-1 pt-0.5">
+              <p className="text-sm font-bold leading-snug text-foreground md:text-base">
+                {option.text}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground md:text-sm">
+                {sub}
+              </p>
+            </div>
+          </div>
+          <span
+            aria-hidden
+            className={cn(
+              "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border-2 transition-colors",
+              isSelected
+                ? "border-violet-600 bg-violet-600 text-white dark:border-violet-500 dark:bg-violet-500"
+                : "border-border bg-transparent"
+            )}
+          >
+            {isSelected ? (
+              <Check className="h-3 w-3 stroke-[3]" aria-hidden />
+            ) : null}
+          </span>
+        </div>
+      </div>
+    );
   };
 
   const renderOptionCard = (
@@ -1209,8 +1372,8 @@ function WelcomeOnboardingPage() {
         <Card className="mx-auto w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
           <CardContent className="p-0">
             <Progress
-              value={progressPct}
-              className="h-1.5 rounded-none bg-muted [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-purple-600 [&>div]:transition-all [&>div]:duration-200 [&>div]:ease-in-out"
+              value={animatedProgress}
+              className="h-1.5 rounded-none bg-muted [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-purple-600 [&>div]:transition-none"
             />
             <p className="border-b border-border bg-muted/40 px-4 py-3.5 text-center text-xs text-muted-foreground sm:text-sm">
               <span className="font-semibold tabular-nums text-foreground">
@@ -1276,10 +1439,19 @@ function WelcomeOnboardingPage() {
                 </Alert>
               )}
 
-            {(currentKind === "goal" || currentKind === "track") && listOpts && (
+            {currentKind === "goal" && listOpts && (
+              <div className="flex flex-col gap-3.5">
+                <p className="text-sm font-medium text-violet-600 dark:text-violet-400">
+                  • Dooro dhammaan ku khuseeya
+                </p>
+                {listOpts.map((opt) => renderGoalOptionCard(opt))}
+              </div>
+            )}
+
+            {currentKind === "track" && listOpts && (
               <div className={optionStepGridClass(listOpts.length)}>
                 {listOpts.map((opt) =>
-                  renderOptionCard(currentKind, opt, selectedId)
+                  renderOptionCard("track", opt, selectedId)
                 )}
               </div>
             )}
@@ -1471,64 +1643,63 @@ function WelcomeOnboardingPage() {
 
             <div
               className={cn(
-                "mt-8 w-full",
+                "mt-8 flex w-full flex-col gap-3",
                 "max-md:sticky max-md:bottom-4 max-md:z-20 max-md:-mx-4 max-md:border-t max-md:border-border max-md:bg-background/95 max-md:px-4 max-md:pb-1 max-md:pt-4 max-md:backdrop-blur-sm"
               )}
             >
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <Button
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                {currentKind === "barrier" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={skipBarrier}
+                    disabled={isLoading}
+                    className="w-full border-border bg-background/80 text-foreground hover:bg-muted/50 sm:w-auto sm:shrink-0"
+                  >
+                    Ka bood tallaabadan
+                  </Button>
+                )}
+                {currentKind === "personal" ? (
+                  <Button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={(e) => void handleSubmit(e)}
+                    className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-60 sm:ml-auto sm:max-w-md"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        {loadingPhase <= 1
+                          ? "Account-kaaga ayaa la diyaarinayaa..."
+                          : loadingPhase === 2
+                            ? "Waddadaada gaarka ah ayaa la dhisayaa..."
+                            : "Waxyar ayaa ka haray..."}
+                      </span>
+                    ) : (
+                      "Sameyso account-kayga →"
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={goNext}
+                    disabled={!canAdvance || isLoading}
+                    className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-40 sm:ml-auto sm:max-w-md"
+                  >
+                    {forwardCtaLabel}
+                  </Button>
+                )}
+              </div>
+              {stepIndex > 0 ? (
+                <button
                   type="button"
-                  variant="ghost"
                   onClick={goBack}
-                  disabled={stepIndex === 0 || isLoading}
-                  className="-ms-2 font-medium text-slate-700 hover:bg-muted/70 hover:text-slate-900 disabled:opacity-40 dark:text-slate-300 dark:hover:bg-muted/50 dark:hover:text-slate-100"
+                  disabled={isLoading}
+                  className="self-center border-0 bg-transparent p-0 text-center text-xs text-muted-foreground shadow-none transition-colors hover:text-foreground hover:underline disabled:opacity-40"
                 >
                   Dib u noqo
-                </Button>
-                <div className="flex flex-1 flex-col gap-2 sm:max-w-md sm:flex-row sm:justify-end">
-                  {currentKind === "barrier" && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={skipBarrier}
-                      disabled={isLoading}
-                      className="border-border bg-background/80 text-foreground hover:bg-muted/50"
-                    >
-                      Ka bood tallaabadan
-                    </Button>
-                  )}
-                  {currentKind === "personal" ? (
-                    <Button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={(e) => void handleSubmit(e)}
-                      className="h-12 flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-60"
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                          {loadingPhase <= 1
-                            ? "Account-kaaga ayaa la diyaarinayaa..."
-                            : loadingPhase === 2
-                              ? "Waddadaada gaarka ah ayaa la dhisayaa..."
-                              : "Waxyar ayaa ka haray..."}
-                        </span>
-                      ) : (
-                        "Sameyso account-kayga →"
-                      )}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={goNext}
-                      disabled={!canAdvance || isLoading}
-                      className="h-12 flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-40"
-                    >
-                      Horey u soco
-                    </Button>
-                  )}
-                </div>
-              </div>
+                </button>
+              ) : null}
             </div>
 
             {optionsHasMore && (currentKind === "goal" || currentKind === "track") && (
