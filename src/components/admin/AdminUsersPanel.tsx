@@ -50,11 +50,40 @@ function digitsOnly(s: string): string {
     return s.replace(/\D/g, "");
 }
 
-/** Zoho Mail web compose with To pre-filled. Override NEXT_PUBLIC_ZOHO_MAIL_ORIGIN for US (https://mail.zoho.com) or IN (https://mail.zoho.in). */
+/** Zoho Mail web compose; includes params their client may read on the hash route. */
 function zohoMailComposeHref(email: string): string {
     const origin = (process.env.NEXT_PUBLIC_ZOHO_MAIL_ORIGIN ?? "https://mail.zoho.eu").replace(/\/$/, "");
-    const to = encodeURIComponent(email.trim());
-    return `${origin}/zm/#mail/compose?to=${to}`;
+    const to = email.trim();
+    const params = new URLSearchParams({ to, toAddress: to });
+    return `${origin}/zm/#/mail/compose?${params.toString()}`;
+}
+
+async function copyTextToClipboard(text: string): Promise<boolean> {
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch {
+        try {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            const ok = document.execCommand("copy");
+            document.body.removeChild(ta);
+            return ok;
+        } catch {
+            return false;
+        }
+    }
+}
+
+async function openZohoMailCompose(email: string): Promise<void> {
+    await copyTextToClipboard(email.trim());
+    const url = zohoMailComposeHref(email);
+    window.open(url, "_blank", "noopener,noreferrer");
 }
 
 export default function AdminUsersPanel() {
@@ -425,7 +454,8 @@ function AdminUsersTab({
                                             ? (row.whatsapp_href ?? `https://wa.me/${phoneDigits}`)
                                             : null;
                                         const telHref = phoneDigits ? `tel:+${phoneDigits}` : null;
-                                        const mailHref = row.email?.trim() ? zohoMailComposeHref(row.email.trim()) : null;
+                                        const mailTo = row.email?.trim() ?? "";
+                                        const hasMail = Boolean(mailTo);
                                         return (
                                             <tr
                                                 key={row.id}
@@ -487,13 +517,18 @@ function AdminUsersTab({
                                                 </td>
                                                 <td className="py-3 pr-2">
                                                     <div className="flex flex-wrap items-center justify-center gap-1">
-                                                        {mailHref ? (
+                                                        {hasMail ? (
                                                             <a
-                                                                href={mailHref}
+                                                                href={zohoMailComposeHref(mailTo)}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
+                                                                onClick={(e) => {
+                                                                    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+                                                                    e.preventDefault();
+                                                                    void openZohoMailCompose(mailTo);
+                                                                }}
                                                                 className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-100 transition-colors"
-                                                                title="Email in Zoho Mail"
+                                                                title="Copies address, opens Zoho Mail (paste in To if empty)"
                                                             >
                                                                 <Mail className="w-4 h-4" />
                                                             </a>
@@ -518,7 +553,7 @@ function AdminUsersTab({
                                                                 <MessageCircle className="w-4 h-4" />
                                                             </a>
                                                         ) : null}
-                                                        {!mailHref && !telHref && !waHref && (
+                                                        {!hasMail && !telHref && !waHref && (
                                                             <span className="text-[10px] text-gray-400 font-medium">—</span>
                                                         )}
                                                     </div>

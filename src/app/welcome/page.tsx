@@ -32,8 +32,6 @@ import { progressService } from "@/services/progress";
 import { getResumeLessonPath } from "@/lib/onboarding-resume";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { WhatsAppPhoneFields } from "@/components/whatsapp/WhatsAppPhoneFields";
-import { DEFAULT_WHATSAPP_DIAL } from "@/lib/whatsapp-countries";
 
 import {
   goals,
@@ -284,8 +282,6 @@ function WelcomeOnboardingPage() {
     password: "",
     referralCode: "",
     promoCode: "",
-    whatsappCountryCode: DEFAULT_WHATSAPP_DIAL,
-    whatsappLocal: "",
   });
   const [actualError, setActualError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -506,7 +502,9 @@ function WelcomeOnboardingPage() {
     if (!opts?.length) {
       return { visibleOptions: null, optionsHasMore: false };
     }
-    if (!isMobile || opts.length <= MOBILE_OPTION_COLLAPSE_AT || showAllStepOptions) {
+    const collapseAt =
+      currentKind === "goal" ? 99 : MOBILE_OPTION_COLLAPSE_AT;
+    if (!isMobile || opts.length <= collapseAt || showAllStepOptions) {
       return { visibleOptions: opts, optionsHasMore: false };
     }
     return {
@@ -520,8 +518,8 @@ function WelcomeOnboardingPage() {
   }, [currentKind]);
 
   useEffect(() => {
-    if (currentKind !== "goal" && currentKind !== "track") return;
-    const opts = currentKind === "goal" ? goals : trackOptions;
+    if (currentKind !== "track") return;
+    const opts = trackOptions;
     if (
       !opts?.length ||
       !isMobile ||
@@ -529,13 +527,13 @@ function WelcomeOnboardingPage() {
     ) {
       return;
     }
-    const sel = currentKind === "goal" ? answers.goal : answers.topic;
+    const sel = answers.topic;
     if (!sel) return;
     const idx = opts.findIndex((o) => o.id === sel);
     if (idx >= MOBILE_OPTION_COLLAPSE_AT) {
       setShowAllStepOptions(true);
     }
-  }, [currentKind, trackOptions, isMobile, answers.goal, answers.topic]);
+  }, [currentKind, trackOptions, isMobile, answers.topic]);
 
   const selectIdForKind = useCallback(
     (kind: StepKind): string | undefined => {
@@ -683,8 +681,6 @@ function WelcomeOnboardingPage() {
       password: "",
       referralCode: userData.referralCode,
       promoCode: "",
-      whatsappCountryCode: DEFAULT_WHATSAPP_DIAL,
-      whatsappLocal: "",
     });
     setActualError("");
     setIsLoading(false);
@@ -699,10 +695,6 @@ function WelcomeOnboardingPage() {
     if (!ev.isValid) return "Fadlan geli email sax ah.";
     if (userData.password.length < 8) {
       return "Password-ku waa inuu ka koobnaadaa ugu yaraan 8 xaraf.";
-    }
-    const waDigits = userData.whatsappLocal.replace(/\D/g, "");
-    if (waDigits.length > 0 && waDigits.length < 5) {
-      return "Lambarka WhatsApp waa inuu ku filan yahay (ugu yaraan 5 lambar).";
     }
     return null;
   };
@@ -738,12 +730,6 @@ function WelcomeOnboardingPage() {
             ? { referral_code: userData.referralCode.trim() }
             : {}),
           ...(userData.promoCode.trim() ? { promo_code: userData.promoCode.trim() } : {}),
-          ...(userData.whatsappLocal.trim()
-            ? {
-                whatsapp_country_code: userData.whatsappCountryCode,
-                whatsapp_local: userData.whatsappLocal.trim(),
-              }
-            : {}),
         });
 
         if (result?.user) {
@@ -796,8 +782,6 @@ function WelcomeOnboardingPage() {
       answers,
       userData.referralCode,
       userData.promoCode,
-      userData.whatsappCountryCode,
-      userData.whatsappLocal,
       postAuthRedirect,
       posthog,
       setAuthStoreUser,
@@ -844,12 +828,6 @@ function WelcomeOnboardingPage() {
               ...buildWizardSnapshot(answers),
               current_step: stepIndex,
             },
-            ...(userData.whatsappLocal.trim()
-              ? {
-                  whatsapp_country_code: userData.whatsappCountryCode,
-                  whatsapp_local: userData.whatsappLocal.trim(),
-                }
-              : {}),
           };
           const res = await authService.completeOnboarding(payload);
           await authService.fetchAndUpdateUserData();
@@ -886,12 +864,6 @@ function WelcomeOnboardingPage() {
           ? { referral_code: userData.referralCode.trim() }
           : {}),
         ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
-        ...(userData.whatsappLocal.trim()
-          ? {
-              whatsapp_country_code: userData.whatsappCountryCode,
-              whatsapp_local: userData.whatsappLocal.trim(),
-            }
-          : {}),
       };
 
       const result = await AuthService.getInstance().signUp(signUpData);
@@ -983,19 +955,20 @@ function WelcomeOnboardingPage() {
   ) => {
     const isSelected = selectedId === option.id;
     return (
-      <div key={option.id} className="group relative min-h-[104px]">
+      <div key={option.id} className="group relative">
         <div
           className={cn(
-            "flex min-h-[104px] items-stretch overflow-hidden rounded-xl border-2 transition-all duration-200 ease-in-out",
+            "flex min-h-[88px] items-stretch overflow-hidden rounded-2xl border-2 transition-all duration-200 ease-in-out",
             isSelected
-              ? "border-violet-500/80 bg-violet-500/10 ring-1 ring-violet-500/20 dark:border-violet-400/70 dark:bg-violet-500/15"
-              : "border-border bg-card/40 hover:border-violet-500/40 hover:bg-muted/50 dark:bg-slate-900/40",
+              ? "border-violet-500/80 bg-violet-500/10 shadow-md shadow-violet-500/10 ring-1 ring-violet-500/15 dark:border-violet-400/70 dark:bg-violet-500/15"
+              : "border-border bg-card/50 hover:border-violet-400/45 hover:bg-muted/40 dark:bg-slate-900/50",
             option.disabled && "pointer-events-none opacity-50"
           )}
         >
           <div
             role="button"
             tabIndex={option.disabled || isLoading ? -1 : 0}
+            aria-pressed={isSelected}
             onClick={() => {
               if (!option.disabled && !isLoading) {
                 if (isSelected) toggleDeselect(kind, option.id);
@@ -1013,13 +986,22 @@ function WelcomeOnboardingPage() {
                 else handleSelectOption(kind, option.id);
               }
             }}
-            className="flex min-w-0 flex-1 cursor-pointer items-center p-4 text-left"
+            className="flex min-w-0 flex-1 cursor-pointer flex-col gap-0 p-4 text-left"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
-              {option.icon}
-            </div>
-            <div className="flex-1 px-4 text-sm font-medium text-foreground md:text-base">
-              {option.text}
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-500/12 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
+                {option.icon}
+              </div>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <p className="text-sm font-semibold leading-snug text-foreground md:text-base">
+                  {option.text}
+                </p>
+                {isSelected && (
+                  <p className="mt-3 border-t border-violet-500/25 pt-3 text-xs leading-relaxed text-muted-foreground md:text-sm">
+                    {option.badge}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           {isSelected && (
@@ -1027,21 +1009,19 @@ function WelcomeOnboardingPage() {
               type="button"
               aria-label="Ka saar doorashada"
               disabled={isLoading}
-              className="flex shrink-0 items-center justify-center border-l border-border px-3 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-              onClick={() => toggleDeselect(kind, option.id)}
+              className="flex shrink-0 self-stretch items-start border-l border-border px-3 pt-4 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleDeselect(kind, option.id);
+              }}
             >
               <X className="h-5 w-5" strokeWidth={2} />
             </button>
           )}
         </div>
         {kind === "track" && showRecBadge(option.id) && (
-          <div className="absolute -top-2 right-2 rounded-full border border-violet-500/35 bg-violet-500/15 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:border-violet-400/40 dark:bg-violet-500/25 dark:text-violet-200">
+          <div className="pointer-events-none absolute -top-2 right-2 z-10 rounded-full border border-violet-500/35 bg-violet-500/15 px-2 py-0.5 text-[10px] font-semibold text-violet-700 shadow-sm dark:border-violet-400/40 dark:bg-violet-500/25 dark:text-violet-200">
             Adiga ayaa lagula taliyay
-          </div>
-        )}
-        {isSelected && (
-          <div className="absolute -top-2 left-4 max-w-[calc(100%-3rem)] rounded-full border border-violet-500/30 bg-violet-950/90 px-3 py-1 text-xs leading-snug text-violet-100 dark:bg-violet-950/95">
-            {option.badge}
           </div>
         )}
       </div>
@@ -1183,6 +1163,13 @@ function WelcomeOnboardingPage() {
 
   const selectedId = selectIdForKind(currentKind);
 
+  const optionStepGridClass = (itemCount: number) =>
+    cn(
+      "grid grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-4",
+      itemCount % 2 === 1 &&
+        "md:[&>*:last-child]:col-span-2 md:[&>*:last-child]:mx-auto md:[&>*:last-child]:w-full md:[&>*:last-child]:max-w-xl"
+    );
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
       <div
@@ -1225,23 +1212,18 @@ function WelcomeOnboardingPage() {
               value={progressPct}
               className="h-1.5 rounded-none bg-muted [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-purple-600 [&>div]:transition-all [&>div]:duration-200 [&>div]:ease-in-out"
             />
-            <p className="border-b border-border bg-muted/30 px-4 py-3 text-center text-xs text-muted-foreground sm:text-sm">
-              Tallaabada{" "}
-              <span className="font-medium text-foreground">
-                {progressCurrent}
-              </span>{" "}
-              ee{" "}
-              <span className="font-medium text-foreground">
-                {progressTotal}
+            <p className="border-b border-border bg-muted/40 px-4 py-3.5 text-center text-xs text-muted-foreground sm:text-sm">
+              <span className="font-semibold tabular-nums text-foreground">
+                Tallaabada {progressCurrent} / {progressTotal}
               </span>
-              <span className="mt-1 block text-[11px] text-muted-foreground/80 sm:text-xs">
+              <span className="mt-1.5 block text-[11px] font-medium text-slate-600 sm:text-xs dark:text-slate-400">
                 Qiyaastii 2 daqiiqo haddii aad sii wadato
               </span>
             </p>
 
             <div className="flex flex-col p-4 md:p-6">
-              <div className="mb-6 flex items-center justify-between gap-2">
-                <h2 className="text-xl font-bold text-foreground md:text-2xl">
+              <div className="mb-5 flex items-start justify-between gap-3">
+                <h2 className="text-pretty text-xl font-bold tracking-tight text-foreground md:text-2xl">
                   {currentKind === "personal"
                     ? "Waxyar ayaa kuu dhiman."
                     : STEP_COPY[currentKind as Exclude<StepKind, "personal">]
@@ -1260,7 +1242,7 @@ function WelcomeOnboardingPage() {
               </div>
 
               {currentKind !== "personal" && (
-                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+                <p className="mb-6 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                   {STEP_COPY[currentKind as Exclude<StepKind, "personal">]
                     .subheading}
                 </p>
@@ -1295,7 +1277,7 @@ function WelcomeOnboardingPage() {
               )}
 
             {(currentKind === "goal" || currentKind === "track") && listOpts && (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className={optionStepGridClass(listOpts.length)}>
                 {listOpts.map((opt) =>
                   renderOptionCard(currentKind, opt, selectedId)
                 )}
@@ -1303,7 +1285,7 @@ function WelcomeOnboardingPage() {
             )}
 
             {currentKind === "experience" && (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className={optionStepGridClass(experienceOptions.length)}>
                 {(experienceOptions as OptionRow[]).map((opt) =>
                   renderOptionCard("experience", opt, answers.experience)
                 )}
@@ -1311,7 +1293,7 @@ function WelcomeOnboardingPage() {
             )}
 
             {currentKind === "barrier" && (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className={optionStepGridClass(barrierOptions.length)}>
                 {(barrierOptions as OptionRow[]).map((opt) =>
                   renderOptionCard(
                     "barrier",
@@ -1323,7 +1305,7 @@ function WelcomeOnboardingPage() {
             )}
 
             {currentKind === "time" && (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className={optionStepGridClass(learningGoals.length)}>
                 {(learningGoals as OptionRow[]).map((opt) =>
                   renderOptionCard("time", opt, answers.learning_goal)
                 )}
@@ -1332,7 +1314,7 @@ function WelcomeOnboardingPage() {
 
             {currentKind === "project" && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className={optionStepGridClass(projectIdeaOptions.length)}>
                   {(projectIdeaOptions as OptionRow[]).map((opt) =>
                     renderOptionCard("project", opt, answers.project_idea)
                   )}
@@ -1418,18 +1400,6 @@ function WelcomeOnboardingPage() {
                     className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
-                <WhatsAppPhoneFields
-                  dial={userData.whatsappCountryCode}
-                  local={userData.whatsappLocal}
-                  onDialChange={(d) =>
-                    setUserData((u) => ({ ...u, whatsappCountryCode: d }))
-                  }
-                  onLocalChange={(v) =>
-                    setUserData((u) => ({ ...u, whatsappLocal: v }))
-                  }
-                  disabled={isLoading}
-                  idPrefix="welcome-wa"
-                />
                 {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
                   <div className="space-y-3">
                     <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
@@ -1511,7 +1481,7 @@ function WelcomeOnboardingPage() {
                   variant="ghost"
                   onClick={goBack}
                   disabled={stepIndex === 0 || isLoading}
-                  className="text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  className="-ms-2 font-medium text-slate-700 hover:bg-muted/70 hover:text-slate-900 disabled:opacity-40 dark:text-slate-300 dark:hover:bg-muted/50 dark:hover:text-slate-100"
                 >
                   Dib u noqo
                 </Button>

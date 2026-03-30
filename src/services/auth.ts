@@ -13,9 +13,6 @@ export interface SignUpData {
   age: number;
   referral_code?: string;
   promo_code?: string;
-  /** Optional; combined on server into E.164 */
-  whatsapp_country_code?: string;
-  whatsapp_local?: string;
   onboarding_data: {
     goal: string;
     topic: string;
@@ -43,8 +40,6 @@ export interface OnboardingData {
   preferred_study_time: string;
   /** Welcome wizard snapshot from the server (merged on PATCH progress). */
   wizard_progress?: Record<string, unknown>;
-  whatsapp_country_code?: string;
-  whatsapp_local?: string;
 }
 
 export interface DashboardProfile {
@@ -73,8 +68,6 @@ export interface GoogleAuthPayload {
   onboarding_data?: SignUpData["onboarding_data"];
   referral_code?: string;
   promo_code?: string;
-  whatsapp_country_code?: string;
-  whatsapp_local?: string;
 }
 
 export interface SignInData {
@@ -103,12 +96,35 @@ export interface AuthResponse {
   user: User;
 }
 
+/** Django returns either nested `tokens` (signup) or top-level `access`/`refresh` (login, Google). */
+type ApiAuthPayload = {
+  user?: User;
+  tokens?: { access?: string; refresh?: string };
+  access?: string;
+  refresh?: string;
+};
+
 export class AuthService {
   private static instance: AuthService;
   private user: User | null = null;
 
   private constructor() {
     this.loadFromStorage();
+  }
+
+  private applySessionFromApiAuthPayload(response: ApiAuthPayload): void {
+    const access =
+      response.tokens?.access ??
+      (typeof response.access === "string" ? response.access : undefined);
+    const refresh =
+      response.tokens?.refresh ??
+      (typeof response.refresh === "string" ? response.refresh : undefined);
+    if (access && refresh) {
+      this.setTokens(access, refresh);
+    }
+    if (response.user) {
+      this.setCurrentUser(response.user);
+    }
   }
 
   public static getInstance(): AuthService {
@@ -204,10 +220,7 @@ export class AuthService {
 
     try {
       const response = await api.post<SignUpResponse>("/api/auth/signup/", data);
-      if (response.tokens) {
-        this.setTokens(response.tokens.access, response.tokens.refresh);
-        this.setCurrentUser(response.user);
-      }
+      this.applySessionFromApiAuthPayload(response as ApiAuthPayload);
       return response;
     } catch (error: any) {
       this.handleError(error);
@@ -217,10 +230,7 @@ export class AuthService {
   public async signIn(data: SignInData): Promise<SignInResponse> {
     try {
       const response = await api.post<SignInResponse>("/api/auth/signin/", data);
-      if (response.tokens) {
-        this.setTokens(response.tokens.access, response.tokens.refresh);
-        this.setCurrentUser(response.user);
-      }
+      this.applySessionFromApiAuthPayload(response as unknown as ApiAuthPayload);
       return response;
     } catch (error: any) {
       this.handleError(error);
@@ -231,10 +241,7 @@ export class AuthService {
   public async signInWithGoogle(payload: GoogleAuthPayload): Promise<SignUpResponse> {
     try {
       const response = await api.post<SignUpResponse>("/api/auth/google/", payload);
-      if (response.tokens) {
-        this.setTokens(response.tokens.access, response.tokens.refresh);
-        this.setCurrentUser(response.user);
-      }
+      this.applySessionFromApiAuthPayload(response as unknown as ApiAuthPayload);
       return response;
     } catch (error: any) {
       this.handleError(error);
