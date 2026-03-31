@@ -20,11 +20,31 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "About Abdishakur Ali - Founder, Serial Entrepreneur & Polymath",
-  description: "Learn about Abdishakur Ali, the founder of Garaad and a serial entrepreneur. Driven by physics and nature, he is dedicated to advancing Somali technology through innovation and startups.",
+  title: "Abdishakur Ali — Founder of Garaad | Somali Tech Entrepreneur",
+  description: "Abdishakur Ali is the founder of Garaad, Somalia's #1 coding platform. Serial entrepreneur, self-taught developer, and visionary dedicated to advancing Somali technology.",
+  keywords: [
+    "Abdishakur Ali", "Abdishakuur Ali", "Garaad founder", "Somali tech entrepreneur",
+    "serial entrepreneur Somalia", "self-taught developer Somalia", "Somali startup founder",
+    "Garaad STEM founder", "tech founder Somalia",
+  ],
+  alternates: { canonical: "https://garaad.org/about/abdishakuur-ali" },
   openGraph: {
-    images: ["/images/garaad.jpg"],
-  }
+    type: "profile",
+    url: "https://garaad.org/about/abdishakuur-ali",
+    siteName: "Garaad",
+    title: "Abdishakur Ali — Founder of Garaad | Somali Tech Entrepreneur",
+    description: "Serial entrepreneur and founder of Garaad, Somalia's #1 coding platform. Building the next generation of Somali technologists.",
+    images: [{ url: "https://garaad.org/images/garaad.jpg", width: 1200, height: 630, alt: "Abdishakur Ali — Founder of Garaad" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@garaadorg",
+    creator: "@ShakuurAlly",
+    title: "Abdishakur Ali — Founder of Garaad",
+    description: "Serial entrepreneur, self-taught developer, founder of Somalia's #1 coding platform.",
+    images: ["https://garaad.org/images/garaad.jpg"],
+  },
+  robots: { index: true, follow: true },
 };
 
 const journeyHighlights = [
@@ -58,9 +78,32 @@ const journeyHighlights = [
   }
 ];
 
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://garaad.org/about/abdishakuur-ali/#person",
+  name: "Abdishakur Ali",
+  alternateName: "Abdishakuur Ali",
+  jobTitle: "Founder & CEO",
+  worksFor: { "@id": "https://garaad.org/#organization" },
+  url: "https://garaad.org/about/abdishakuur-ali",
+  image: "https://garaad.org/images/garaad.jpg",
+  sameAs: [
+    "https://x.com/ShakuurAlly",
+    "https://www.linkedin.com/in/rooblecali/",
+    "https://github.com/Roobleali",
+  ],
+  knowsAbout: ["React", "Next.js", "Node.js", "AI", "Full-Stack Development", "Startups", "SaaS", "EdTech"],
+  description: "Serial entrepreneur and founder of Garaad, Somalia's first full-stack coding platform.",
+};
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] selection:bg-primary/30">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
       <main>
         {/* Hero Section */}
         <section className="relative pt-20 pb-32 overflow-hidden">

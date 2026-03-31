@@ -23,10 +23,15 @@ export const metadata: Metadata = {
   description:
     "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro React, Next.js, AI & STEM Af-Soomaali. Bilaash bilow.",
   keywords: [
-    "Garaad", "Garaad STEM", "STEM Soomaali", "Baro Programming Soomaali", "Baro Coding Soomaali", "Af-Soomaali",
+    "Garaad", "Garaad STEM", "Garaad Academy", "STEM Soomaali", "Baro Programming Soomaali", "Baro Coding Soomaali", "Af-Soomaali",
     "Full-Stack Soomaali", "React Soomaali", "Next.js Soomaali", "AI Soomaali",
     "Xisaabta Soomaali", "Physics Soomaali", "Somali Tech Academy",
-    "First Somali Platform", "Online Somali Courses", "Garaad Academy",
+    "First Somali Platform", "Online Somali Courses",
+    // English stack keywords for diaspora + international discovery
+    "learn React Somalia", "Next.js course Somali", "full stack developer Somalia",
+    "coding bootcamp Somalia", "learn programming Somalia", "Somali developer",
+    "web development Somali", "learn coding in Somali", "software engineer Somalia",
+    "MERN stack Somalia", "JavaScript course Somali", "Abdishakur Ali",
   ],
   authors: [{ name: "Garaad Team", url: SITE_URL }],
   creator: "Garaad STEM",
@@ -91,9 +96,14 @@ export default function RootLayout({
               "@type": "EducationalOrganization",
               "@id": "https://garaad.org/#organization",
               name: "Garaad STEM",
+              alternateName: "Garaad",
               url: "https://garaad.org",
               logo: "https://garaad.org/logo.png",
-              description: "Platform-ka ugu horreeya ee Soomaalida ee STEM iyo Programming. Baro Full-Stack, AI & STEM Af-Soomaali.",
+              foundingDate: "2023",
+              description: "Somalia's first full-stack coding and STEM platform. Learn React, Next.js, Node.js, MongoDB and AI in Somali.",
+              inLanguage: ["so", "en"],
+              areaServed: ["SO", "IE", "GB", "US"],
+              teaches: ["React", "Next.js", "Node.js", "MongoDB", "AI", "Full-Stack Development", "JavaScript", "Python"],
               sameAs: [
                 "https://www.linkedin.com/company/garaad",
                 "https://x.com/Garaadstem",
@@ -103,7 +113,7 @@ export default function RootLayout({
                 "@type": "ContactPoint",
                 email: "Info@garaad.org",
                 contactType: "customer support",
-                areaServed: "SO",
+                areaServed: ["SO", "IE", "GB", "US"],
               },
             }),
           }}
@@ -118,7 +128,15 @@ export default function RootLayout({
               url: "https://garaad.org",
               name: "Garaad STEM",
               publisher: { "@id": "https://garaad.org/#organization" },
-              inLanguage: "so-SO",
+              inLanguage: ["so-SO", "en"],
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: "https://garaad.org/courses?q={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
             }),
           }}
         />

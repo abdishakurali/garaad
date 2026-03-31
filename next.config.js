@@ -27,6 +27,17 @@ const nextConfig = {
     return config;
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.garaad.org" }],
+        destination: "https://garaad.org/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     const cspHeader = `
       default-src 'self';
