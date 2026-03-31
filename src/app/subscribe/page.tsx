@@ -104,7 +104,7 @@ function SubscribePageInner() {
   const { data: stats, error: statsError } = useSWR<LandingStats>(
     `${API_BASE_URL}/api/public/landing-stats/`,
     fetcher,
-    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+    { revalidateOnFocus: false, dedupingInterval: 10 * 60 * 1000 }
   );
 
   const { data: challengeStatus, loading: challengeStatusLoading } = useChallengeStatus();
@@ -214,10 +214,9 @@ function SubscribePageInner() {
         </div>
 
         {challengeStatus?.is_waitlist_only ? (
-          <div className="max-w-2xl mx-auto mb-8 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-4 text-center text-sm leading-relaxed text-foreground">
-            <strong className="font-bold">Kooxdan way buuxdaa.</strong> Hadda waxaad gashaa liiska sugitaanka
-            hoosta — marka kooxda xigta la furayo waad ogeysiis heleysaa. Qiimaha Challenge waa isku mid marka
-            fursadu furan tahay.
+          <div className="max-w-xl mx-auto mb-6 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-center text-xs sm:text-sm leading-relaxed text-muted-foreground">
+            <span className="font-semibold text-foreground">Kooxdan way buuxdaa.</span> Kooxda xigta marka la
+            furayo waad ogeysiis heleysaa; qiimuhu waa isku mid.
           </div>
         ) : null}
 
@@ -231,14 +230,11 @@ function SubscribePageInner() {
           </div>
         ) : null}
 
-        <div className="max-w-4xl mx-auto mb-8">
+        <div className="max-w-4xl mx-auto mb-5">
           {!stats && !statsError ? (
-            <div
-              className="h-6 max-w-md mx-auto rounded-md bg-muted animate-pulse mb-2"
-              aria-hidden
-            />
+            <div className="h-3 max-w-xs mx-auto rounded-full bg-muted/60" aria-hidden />
           ) : (
-            <p className="text-center text-sm font-medium text-primary">
+            <p className="text-center text-[11px] sm:text-xs text-muted-foreground/90 leading-snug">
               {t.subscribe_social_month.replace("{n}", String(joinCount))}
             </p>
           )}
@@ -392,16 +388,11 @@ function SubscribePageInner() {
                     className={cn(
                       "w-full py-4 rounded-xl font-bold text-base transition-all",
                       plan.key === "challenge"
-                        ? cn(
-                            "bg-primary-foreground text-primary shadow-lg hover:bg-primary-foreground/90",
-                            challengeStatus?.is_waitlist_only && "opacity-75"
-                          )
+                        ? "bg-primary-foreground text-primary shadow-lg hover:bg-primary-foreground/90"
                         : "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
                     )}
                   >
-                    {plan.key === "challenge" && challengeStatus?.is_waitlist_only
-                      ? t.challenge_cta_waitlist
-                      : plan.cta}
+                    {plan.cta}
                   </button>
                 )}
               </div>
@@ -413,24 +404,14 @@ function SubscribePageInner() {
           {t.subscribe_below_cards_note}
         </p>
 
-        <div className="max-w-3xl mx-auto mb-16 grid gap-6 sm:grid-cols-2">
-          <figure className="rounded-2xl border border-border bg-card/60 p-5">
-            <blockquote className="text-sm text-muted-foreground leading-relaxed">
-              &ldquo;Waad ku mahadsantahay — waxaan noqday developer Challenge-ka kadib&rdquo;
-            </blockquote>
-            <figcaption className="mt-3 text-xs font-bold text-primary">
-              — Abdiladif Salah · <span className="font-semibold text-muted-foreground">Horumariye hore</span>
-            </figcaption>
-          </figure>
-          <figure className="rounded-2xl border border-border bg-card/60 p-5">
-            <blockquote className="text-sm text-muted-foreground leading-relaxed">
-              &ldquo;Waxaan dhisay shirkadda Sofaritech mahadsanid Garaad&rdquo;
-            </blockquote>
-            <figcaption className="mt-3 text-xs font-bold text-primary">
-              — Abdiaziz · <span className="font-semibold text-muted-foreground">Aasaasaha Sofaritech</span>
-            </figcaption>
-          </figure>
-        </div>
+        <figure className="mx-auto mb-12 max-w-xl rounded-lg border border-border/80 bg-card/40 px-4 py-3">
+          <blockquote className="text-center text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+            &ldquo;Waad ku mahadsantahay — waxaan noqday developer Challenge-ka kadib&rdquo;
+          </blockquote>
+          <figcaption className="mt-2 text-center text-[10px] font-medium text-muted-foreground">
+            — Abdiladif Salah · Horumariye hore
+          </figcaption>
+        </figure>
 
         <div className="max-w-2xl mx-auto">
           <h3 className="text-xl font-bold text-foreground mb-6 text-center">
