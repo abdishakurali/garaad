@@ -24,12 +24,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     withHreflang(baseUrl, { lastModified: currentDate, changeFrequency: "daily", priority: 1 }),
     withHreflang(`${baseUrl}/courses`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
-    withHreflang(`${baseUrl}/community-preview`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.8 }),
+    withHreflang(`${baseUrl}/challenge`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.9 }),
     withHreflang(`${baseUrl}/launchpad`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
     withHreflang(`${baseUrl}/blog`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.8 }),
-    withHreflang(`${baseUrl}/welcome`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 }),
-    withHreflang(`${baseUrl}/login`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.5 }),
+    withHreflang(`${baseUrl}/community-preview`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.7 }),
+    withHreflang(`${baseUrl}/startups`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.7 }),
     withHreflang(`${baseUrl}/about`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 }),
+    withHreflang(`${baseUrl}/about/abdishakuur-ali`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 }),
     withHreflang(`${baseUrl}/privacy`, { lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 }),
     withHreflang(`${baseUrl}/terms`, { lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 }),
   ];

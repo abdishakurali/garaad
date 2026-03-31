@@ -5,31 +5,30 @@ import { API_BASE_URL } from "@/lib/constants";
 const COURSES_URL = "https://garaad.org/courses";
 
 export const metadata: Metadata = {
-  title: "Koorsooyin — Full-Stack MERN & AI | Garaad",
+  title: "Courses — Learn React, Next.js & Full-Stack in Somali | Garaad",
   description:
-    "Baro React, Node.js, MongoDB iyo AI — Af-Soomaali. Koorsooyin loo qaabeeyey kuwa bilowga ah iyo xirfadlayaasha.",
+    "Learn React, Node.js, MongoDB and AI in Somali. Courses for beginners and experienced developers. Somalia's best coding curriculum.",
   keywords: [
-    "Koorsooyin Somali",
-    "Baro Coding",
-    "Somali Programming",
-    "React Somali",
-    "Full-Stack Somali",
-    "Garaad Courses",
+    "Koorsooyin Somali", "Baro Coding", "Somali Programming", "React Somali", "Full-Stack Somali", "Garaad Courses",
+    "learn React", "Next.js tutorial", "Node.js course", "MongoDB tutorial",
+    "MERN stack", "web development course", "full-stack development",
+    "JavaScript course", "coding course Somalia", "online programming course",
+    "learn JavaScript Somali", "React course Somalia", "web dev Somali",
   ],
   alternates: { canonical: COURSES_URL },
   openGraph: {
     type: "website",
     url: COURSES_URL,
-    title: "Koorsooyin — Full-Stack MERN & AI | Garaad",
+    title: "Courses — Learn React, Next.js & Full-Stack in Somali | Garaad",
     description:
-      "Baro React, Node.js, MongoDB iyo AI — Af-Soomaali. Koorsooyin loo qaabeeyey kuwa bilowga ah iyo xirfadlayaasha.",
-    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Koorsooyinka" }],
+      "Learn React, Node.js, MongoDB and AI in Somali. Somalia's best coding curriculum for beginners and developers.",
+    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Courses — Learn Full-Stack in Somali" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@garaadorg",
-    title: "Koorsooyin — Full-Stack MERN & AI | Garaad",
-    description: "Baro React, Node.js, MongoDB iyo AI — Af-Soomaali. Koorsooyin loo qaabeeyey kuwa bilowga ah iyo xirfadlayaasha.",
+    title: "Courses — Learn React, Next.js & Full-Stack in Somali | Garaad",
+    description: "Learn React, Node.js, MongoDB and AI in Somali. Somalia's best coding curriculum.",
     images: ["https://garaad.org/images/og-main.jpg"],
   },
   robots: { index: true, follow: true },

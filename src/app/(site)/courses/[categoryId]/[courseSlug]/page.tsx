@@ -95,6 +95,16 @@ export default async function Page({ params }: Props) {
         }]
     } : null;
 
+    const breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://garaad.org" },
+            { "@type": "ListItem", position: 2, name: "Courses", item: "https://garaad.org/courses" },
+            ...(course ? [{ "@type": "ListItem", position: 3, name: course.title, item: `https://garaad.org/courses/${categoryId}/${courseSlug}` }] : []),
+        ],
+    };
+
     return (
         <>
             {jsonLd && (
@@ -103,6 +113,10 @@ export default async function Page({ params }: Props) {
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
                 />
             )}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+            />
             <CourseDetailClient />
         </>
     );
