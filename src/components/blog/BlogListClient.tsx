@@ -8,6 +8,7 @@ import { BlogPost } from "@/types/blog";
 import { Input } from "@/components/ui/input";
 import { BlogCard } from "@/components/blog/BlogCard";
 import Link from "next/link";
+import { plainTextFromHtml } from "@/lib/blogPreview";
 
 interface BlogListClientProps {
   initialPosts: BlogPost[];
@@ -31,9 +32,10 @@ export function BlogListClient({ initialPosts }: BlogListClientProps) {
     const list = Array.isArray(posts) ? posts : [];
     return list.filter((post) => {
       const tags = Array.isArray(post.tags) ? post.tags : [];
+      const bodyPlain = plainTextFromHtml(post.body);
       const matchesSearch =
         (post.title ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (post.excerpt ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        bodyPlain.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (post.meta_description ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         tags.some((tag) => (tag.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()));
 

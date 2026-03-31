@@ -172,12 +172,6 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
             </div>
           </div>
 
-          {post.excerpt && (
-            <p className="mb-8 border-l-4 border-gray-200 pl-4 text-lg font-normal leading-relaxed text-slate-700 dark:border-zinc-600 dark:text-zinc-300">
-              {post.excerpt}
-            </p>
-          )}
-
           {post.cover || post.cover_image_url ? (
             <div className="relative mb-12 aspect-[21/10] w-full overflow-hidden rounded-3xl border border-slate-100 shadow-2xl shadow-primary/5 dark:border-zinc-800">
               <img

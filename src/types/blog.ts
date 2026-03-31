@@ -21,7 +21,6 @@ export interface BlogPost {
     author?: BlogAuthor | null;
     published_at: string;
     tags: Tag[];
-    excerpt: string;
     meta_description?: string;
     is_published: boolean;
     created_at?: string;

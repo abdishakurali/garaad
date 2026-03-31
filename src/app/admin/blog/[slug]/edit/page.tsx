@@ -22,7 +22,6 @@ export default function EditBlogPostPage() {
     const [saving, setSaving] = useState(false);
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
-    const [excerpt, setExcerpt] = useState("");
     const [metaDescription, setMetaDescription] = useState("");
     const [tags, setTags] = useState("");
     const [coverImage, setCoverImage] = useState<File | null>(null);
@@ -36,7 +35,6 @@ export default function EditBlogPostPage() {
                 const post = await blogAdminApi.getPost(slug);
                 setTitle(post.title);
                 setBody(post.body);
-                setExcerpt(post.excerpt || "");
                 setMetaDescription(post.meta_description || "");
                 setIsPublished(post.is_published);
                 if (post.cover || post.cover_image_url) {
@@ -107,7 +105,6 @@ export default function EditBlogPostPage() {
             const formData = new FormData();
             formData.append("title", title);
             formData.append("body", body);
-            formData.append("excerpt", excerpt);
             formData.append("meta_description", metaDescription);
             formData.append("is_published", String(publish));
             if (coverImage) {
@@ -209,17 +206,6 @@ export default function EditBlogPostPage() {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="excerpt" className="font-medium">Nuxurka Qoraalka (Excerpt/Teaser)</Label>
-                            <Textarea
-                                id="excerpt"
-                                placeholder="Qoraalka kooban ee lagu soo bandhigayo liiska..."
-                                className="h-[100px] resize-none"
-                                value={excerpt}
-                                onChange={(e) => setExcerpt(e.target.value)}
-                            />
-                        </div>
-
                         <div className="space-y-2">
                             <Label htmlFor="meta-description" className="font-medium">SEO Meta Description (Max 160 xaraf)</Label>
                             <Textarea

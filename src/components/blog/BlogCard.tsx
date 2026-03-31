@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { BlogPost } from "@/types/blog";
 import { getBlogAuthorDisplayName } from "@/lib/blogAuthor";
+import { blogBodyPreviewPlain } from "@/lib/blogPreview";
 
 function calculateReadingTime(content: string) {
   if (!content) return 1;
@@ -73,7 +74,7 @@ export function BlogCard({ post, compact = false }: BlogCardProps) {
 
         {!compact && (
           <p className="mb-6 line-clamp-3 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
-            {post.excerpt || post.meta_description}
+            {blogBodyPreviewPlain(post.body) || post.meta_description || ""}
           </p>
         )}
 

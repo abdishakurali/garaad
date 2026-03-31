@@ -41,9 +41,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         : ["Garaad Blog", "STEM Soomaali"];
 
     const description =
-        post.excerpt?.trim() ||
-        post.meta_description?.trim() ||
-        descriptionFromBody(post.body, 155);
+        post.meta_description?.trim() || descriptionFromBody(post.body, 155);
     const descFinal = (description || post.title).slice(0, 155).trim();
     const ogDescription = descFinal.length >= 155 ? descFinal + "…" : descFinal;
     const authorDisplay = getBlogAuthorDisplayName(post);
@@ -118,7 +116,8 @@ export default async function BlogPostPage({ params }: PostPageProps) {
             "name": "Garaad STEM",
             "logo": { "@type": "ImageObject", "url": "https://garaad.org/logo.png" },
         },
-        "description": post.meta_description || post.excerpt,
+        "description":
+            post.meta_description?.trim() || descriptionFromBody(post.body, 160) || post.title,
         "keywords": keywordsForSeo.join(", "),
     };
 
