@@ -353,35 +353,39 @@ export function Header() {
           />
 
           {/* Menu Panel */}
-          <div className="absolute inset-x-0 top-0 bg-white dark:bg-black/95 border-b border-black/10 dark:border-white/10 shadow-xl animate-in slide-in-from-bottom duration-300 md:animate-in md:slide-in-from-top">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-black/10 dark:border-white/10">
+          <div className="absolute inset-x-0 top-0 max-h-[min(100dvh,100vh)] overflow-y-auto bg-white dark:bg-black/95 border-b border-black/10 dark:border-white/10 shadow-xl animate-in slide-in-from-bottom duration-300 md:animate-in md:slide-in-from-top">
+            {/* Header — balanced bar: close sits opposite logo for symmetry */}
+            <div className="relative flex min-h-[4.25rem] items-center justify-center border-b border-black/10 px-4 py-4 dark:border-white/10 sm:px-6">
               <Link
                 href="/"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="py-1 -ml-1 rounded-lg active:opacity-80"
+                className="flex justify-center rounded-lg py-1 active:opacity-80"
                 aria-label="Garaad home"
               >
                 <Logo priority={false} loading="lazy" />
               </Link>
               <button
+                type="button"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2.5 transition-colors hover:bg-black/5 dark:hover:bg-white/10 sm:right-5"
                 aria-label="Close menu"
               >
                 <X size={24} className="text-slate-800 dark:text-white" />
               </button>
             </div>
 
-            {/* Navigation Links */}
-            <nav className="px-4 py-3 space-y-0.5">
+            {/* Navigation — centered column */}
+            <nav
+              className="mx-auto flex w-full max-w-md flex-col items-center gap-1 px-4 py-5 sm:px-6"
+              aria-label="Main"
+            >
               {navLinks.map(({ name, href, comingSoon }) => {
                 const active = !comingSoon && isLinkActive(href);
                 const showCommunityLock = Boolean(user && href === "/community" && !hasCommunityAccess);
                 const showCoursesFree = href === "/courses";
                 const row = (
-                  <span className="inline-flex items-center gap-1.5">
-                    {name}
+                  <span className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-center">
+                    <span>{name}</span>
                     {showCoursesFree && (
                       <span
                         className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400"
@@ -410,7 +414,7 @@ export function Header() {
                   return (
                     <div
                       key={`${href}-coming-soon`}
-                      className="flex cursor-not-allowed items-center justify-center rounded-lg px-4 py-2.5 text-center text-slate-400 dark:text-gray-500"
+                      className="flex w-full cursor-not-allowed items-center justify-center rounded-xl px-4 py-3 text-center font-display text-sm text-slate-400 dark:text-gray-500"
                       title="Launchpad — Coming soon"
                     >
                       {row}
@@ -424,7 +428,7 @@ export function Header() {
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={clsx(
-                      "font-display flex items-center justify-center rounded-lg px-4 py-2.5 text-center text-sm font-medium tracking-tight transition-all",
+                      "font-display flex w-full items-center justify-center rounded-xl px-5 py-3 text-center text-sm font-medium tracking-tight transition-all",
                       active
                         ? "bg-primary/10 text-primary dark:bg-primary/20"
                         : "text-slate-600 hover:bg-black/5 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
@@ -436,55 +440,59 @@ export function Header() {
               })}
             </nav>
 
-            {/* Divider */}
-            <div className="mx-6 border-t border-black/10 dark:border-white/10" />
+            <div className="mx-auto w-full max-w-md border-t border-black/10 px-4 dark:border-white/10 sm:px-6" />
 
-            {/* User Section */}
-            <div className="px-6 py-4 space-y-1">
+            {/* User — same max-width + centered */}
+            <div className="mx-auto flex w-full max-w-md flex-col items-stretch gap-2 px-4 pb-8 pt-4 sm:px-6">
               {mounted && user ? (
                 <>
                   <button
+                    type="button"
                     onClick={() => {
                       setIsMobileMenuOpen(false);
                       setIsReferralModalOpen(true);
                     }}
-                    className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary hover:from-primary/30 hover:to-primary/20 transition-all w-full text-left border border-primary/30 shadow-sm"
+                    className="flex w-full flex-col items-center gap-2 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 to-primary/10 px-4 py-4 text-primary shadow-sm transition-all hover:from-primary/30 hover:to-primary/20"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shadow-sm">
-                      <GraduationCap className="w-5 h-5" />
+                    <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-primary/20 shadow-sm">
+                      <GraduationCap className="h-5 w-5" />
+                      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-green-500 motion-safe:animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.45)]" aria-hidden />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-black">Casuun Saaxiibbadaada</span>
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-green-400">Casuun saaxiibada</span>
+                    <div className="text-center">
+                      <span className="block text-sm font-black leading-tight">Casuun Saaxiibbadaada</span>
+                      <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-wider text-green-400">
+                        Casuun saaxiibada
+                      </span>
                     </div>
-                    <div className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                   </button>
 
                   <Link
                     href="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                    className="flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-slate-600 transition-all hover:bg-black/5 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
                   >
-                    <User className="w-4 h-4" />
-                    <span className="text-base">Akoonkaaga</span>
+                    <User className="h-4 w-4 shrink-0" />
+                    <span className="text-base font-medium">Akoonkaaga</span>
                   </Link>
                   <button
+                    type="button"
                     onClick={() => {
                       setIsMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400 hover:bg-red-400/10 transition-all w-full text-left"
+                    className="flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-red-400 transition-all hover:bg-red-400/10"
                   >
-                    <LogOut className="w-5 h-5" />
-                    <span className="text-base">Ka bax</span>
+                    <LogOut className="h-5 w-5 shrink-0" />
+                    <span className="text-base font-medium">Ka bax</span>
                   </button>
                 </>
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center gap-4 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-bold transition-all w-full text-left"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center gap-3 rounded-xl bg-primary px-4 py-3.5 font-bold text-primary-foreground transition-all"
                 >
-                  <LogIn className="w-5 h-5" />
+                  <LogIn className="h-5 w-5 shrink-0" />
                   <span className="text-base">Soo gal</span>
                 </Link>
               )}
