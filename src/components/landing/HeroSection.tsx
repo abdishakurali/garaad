@@ -142,6 +142,12 @@ export function HeroSection() {
     { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
   );
 
+  /** SWR may have client-only cache; rendering avatars before mount mismatches SSR. */
+  const [socialProofMounted, setSocialProofMounted] = useState(false);
+  useEffect(() => {
+    setSocialProofMounted(true);
+  }, []);
+
   const heroAvatars = useMemo(() => {
     const ordered = orderSocialProofForDisplay(proofUsers ?? []);
     if (ordered.length === 0) return [];
@@ -234,7 +240,7 @@ export function HeroSection() {
               role="status"
               aria-live="polite"
             >
-              {heroAvatars.length > 0 ? (
+              {socialProofMounted && heroAvatars.length > 0 ? (
                 <div
                   className="flex shrink-0 items-center -space-x-2"
                   aria-label="Sawirro ka mid ah ardayda diiwaangashan"

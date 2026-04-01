@@ -46,16 +46,9 @@ const nextConfig = {
     return config;
   },
 
-  async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.garaad.org" }],
-        destination: "https://garaad.org/:path*",
-        permanent: true,
-      },
-    ];
-  },
+  // Do not redirect www ↔ apex here. If Vercel/Cloudflare also redirects the other way, you get
+  // ERR_TOO_MANY_REDIRECTS. Pick one place only: e.g. Vercel → Domains → set primary + “redirect to”.
+  // Canonical URLs in metadata already use https://garaad.org.
 
   async headers() {
     const cspHeader = `
