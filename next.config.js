@@ -1,5 +1,19 @@
+const path = require("path");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // When a lockfile exists in a parent directory (e.g. ~/package-lock.json), Next can pick
+  // the wrong Turbopack root and fail to resolve packages like `tailwindcss`.
+  turbopack: {
+    root: path.resolve(__dirname),
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
+  },
+
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.ctfassets.net" },
