@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --webpack",
+    "dev:turbo": "node -e \"console.error('\\nDo not use Turbopack with this app: Tailwind v4 / lightningcss native bindings fail. Use: npm run dev\\n'); process.exit(1)\"",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",

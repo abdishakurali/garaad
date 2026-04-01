@@ -1,11 +1,16 @@
 const path = require("path");
 
+const repoRoot = path.resolve(__dirname);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Same absolute root for tracing + Turbopack (Next merges these; avoids wrong parent lockfile root).
+  outputFileTracingRoot: repoRoot,
+
   // When a lockfile exists in a parent directory (e.g. ~/package-lock.json), Next can pick
   // the wrong Turbopack root and fail to resolve packages like `tailwindcss`.
   turbopack: {
-    root: path.resolve(__dirname),
+    root: repoRoot,
     rules: {
       "*.svg": {
         loaders: ["@svgr/webpack"],
@@ -118,7 +123,8 @@ const nextConfig = {
   reactStrictMode: true,
 
   experimental: {
-    optimizeCss: true,
+    // Requires `critters` and interacts with dev error pages; off avoids MODULE_NOT_FOUND when deps lag.
+    optimizeCss: false,
     scrollRestoration: true,
     optimizePackageImports: [
       "lucide-react",
