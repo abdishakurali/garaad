@@ -128,7 +128,6 @@ function LoginPageContent() {
                 /* ignore */
             }
             if (redirectTo) {
-                router.refresh();
                 router.push(redirectTo);
             } else {
                 router.push("/courses");
@@ -157,7 +156,6 @@ function LoginPageContent() {
                 /* ignore */
             }
             if (redirectTo) {
-                router.refresh();
                 router.push(redirectTo);
             } else {
                 router.push("/courses");
