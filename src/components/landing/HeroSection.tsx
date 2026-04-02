@@ -106,6 +106,10 @@ export function HeroSection() {
   });
   const proofUsers = proofQuery.data;
 
+  // Only show avatars after hydration to avoid mismatch
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const heroAvatars = useMemo(() => {
     const ordered = orderSocialProofForDisplay(proofUsers ?? []);
     if (ordered.length === 0) return [];
@@ -184,7 +188,7 @@ export function HeroSection() {
               role="status"
               aria-live="polite"
             >
-              {heroAvatars.length > 0 && (
+              {mounted && heroAvatars.length > 0 && (
                 <div className="flex shrink-0 items-center -space-x-2" aria-label="Recent learners">
                   {heroAvatars.map((a, idx) => (
                     <div
