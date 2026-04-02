@@ -8,6 +8,8 @@ import { X, Menu, LogIn } from "lucide-react";
 import clsx from "clsx";
 import { useMemo, useCallback, useState, useEffect, useSyncExternalStore } from "react";
 import AuthService from "@/services/auth";
+import NotificationPanel from "./Notifications";
+import Logo from "./ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
 
@@ -87,11 +89,7 @@ export function Header() {
         <div className="max-w-6xl mx-auto px-4 h-14 md:h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/" className="shrink-0">
-            <div className="relative h-8 w-24 md:h-10 md:w-28">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg md:text-xl tracking-tight">Garaad</span>
-              </div>
-            </div>
+            <Logo priority={true} loading="eager" />
           </Link>
 
           {/* Desktop Nav */}

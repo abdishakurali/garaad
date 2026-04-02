@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/lib/constants";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
+import { orderSocialProofForDisplay, type SocialProofUserRaw } from "@/lib/social-proof";
 import { useFetch } from "@/composables";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -99,12 +100,31 @@ export function HeroSection() {
   const stats = statsQuery.data;
   const statsError = statsQuery.error;
 
+  const proofQuery = useFetch<SocialProofUserRaw[]>(`${API_BASE_URL}/api/public/social-proof/`, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  });
+  const proofUsers = proofQuery.data;
+
+  const heroAvatars = useMemo(() => {
+    const ordered = orderSocialProofForDisplay(proofUsers ?? []);
+    if (ordered.length === 0) return [];
+    const colors = AVATAR_RING_COLORS;
+    return ordered.slice(0, 3).map((u, i) => {
+      const fn = (u.first_name || "").trim();
+      const ln = (u.last_name || "").trim();
+      const initials = `${fn[0] || ""}${ln[0] || ""}`.toUpperCase() || (fn[0] || "?").toUpperCase();
+      const src = u.profile_picture_url ? getAbsoluteImageUrl(u.profile_picture_url, "") : "";
+      return { src, initials, alt: `${fn} ${ln}`.trim(), ringClass: colors[i % colors.length] };
+    });
+  }, [proofUsers]);
+
   const studentCount = stats?.students_count ?? 0;
   const countAnimActive = Boolean(stats != null && !statsError && studentCount > 0);
   const displayCount = useAnimatedCount(studentCount, countAnimActive);
   const learnersLabel = studentCount > 0 
-    ? `Ku biir ${displayCount}+ Developer oo hadda baranaya`
-    : "Ku biir 88+ Developer oo hadda baranaya";
+    ? `${displayCount}+Developer`
+    : "88+ Developer";
 
   const categoriesQuery = useFetch<unknown>(CATEGORIES_SWR_KEY, fetcher, {
     revalidateOnFocus: false,
@@ -164,9 +184,28 @@ export function HeroSection() {
               role="status"
               aria-live="polite"
             >
+              {heroAvatars.length > 0 && (
+                <div className="flex shrink-0 items-center -space-x-2" aria-label="Recent learners">
+                  {heroAvatars.map((a, idx) => (
+                    <div
+                      key={`${a.alt}-${idx}`}
+                      className={`relative h-8 w-8 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm dark:border-[#0a0a0f] ${a.ringClass}`}
+                      title={a.alt}
+                    >
+                      {a.src ? (
+                        <Image src={a.src} alt={a.alt} fill className="object-cover" sizes="32px" unoptimized />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[10px] font-bold" aria-hidden>
+                          {a.initials}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
               <p className="min-w-0 text-sm leading-snug text-slate-600 dark:text-[#94a3b8]">
                 <span className="font-semibold tabular-nums text-slate-900 dark:text-white/90">
-                  {learnersLabel}
+                  {learnersLabel} baranaya
                 </span>
               </p>
             </div>
