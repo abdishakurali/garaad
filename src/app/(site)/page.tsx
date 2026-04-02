@@ -4,31 +4,49 @@ import { HomeContent } from "../home-content";
 const SITE_URL = "https://garaad.org";
 
 export const metadata: Metadata = {
-  title: "Garaad — Learn Full-Stack Development in Somali | React, Next.js, AI",
+  title: "Garaad — Baro React, Next.js, Node.js & AI Af-Soomaaliga | #1 Coding Platform",
   description:
-    "Somalia's #1 coding platform. Learn React, Next.js, Node.js & AI in Somali. 30 min/day. Build real projects. Free to start.",
+    "Somaliya ugu weyn platform-ka coding-ka. Baro React, Next.js, Node.js, MongoDB & AI Af-Soomaaliga. 30 daqiiqe/day. Dhismee mashaariic real. Bilow bilaash.",
   keywords: [
-    "somali coding", "learn programming somali", "garaad", "somali tech", "full-stack somali",
-    "learn React", "learn Next.js", "full-stack developer", "coding Somalia",
-    "Somali programming", "web development course", "learn to code in Somali",
-    "Garaad STEM", "software engineer Somalia", "MERN stack", "JavaScript Somali",
-    "Node.js Somali", "MongoDB Somali", "AI Somali", "coding bootcamp Somali",
+    // English keywords for global SEO
+    "learn React", "React tutorial", "React for beginners", "React 19",
+    "learn Next.js", "Next.js tutorial", "Next.js 14", "Next.js 15", "full-stack Next.js",
+    "learn Node.js", "Node.js tutorial", "Node.js backend", "Express.js tutorial",
+    "learn MongoDB", "MongoDB tutorial", "MERN stack", "MERN tutorial",
+    "learn JavaScript", "JavaScript tutorial", "JavaScript ES6", "modern JavaScript",
+    "learn TypeScript", "TypeScript tutorial", "React TypeScript",
+    "learn AI", "AI development", "ChatGPT integration", "machine learning basics",
+    "learn full-stack", "full-stack development", "web development course",
+    "learn web development", "coding for beginners", "coding bootcamp online",
+    "learn programming", "programming basics", "computer science",
+    // Somali keywords for local SEO
+    "baro React Somali", "baro Next.js Somali", "baro JavaScript Somali",
+    "baro Node.js Somali", "baro MongoDB Somali", "baro full-stack Somali",
+    "baro AI Somali", "baro programming Somali", "baro coding Somali",
+    "baro web development Somali", "baro MERN stack Somali",
+    "Somali coding platform", "Somali programming", "Somali tech education",
+    "coding Somalia", "programming Somalia", "web development Somalia",
+    "software development Somalia", "become developer Somalia",
+    "Garaad STEM", "Garaad Academy", "Somali developer", "Somali software engineer",
+    "full-stack developer Somalia", "frontend developer Somalia", "backend developer Somalia",
+    "Af-Soomaali programming", "technology education Somalia",
+    "learn to code in Somali", "Somali online courses", "Somali e-learning",
   ],
   alternates: { canonical: SITE_URL },
   openGraph: {
     type: "website",
     url: SITE_URL,
-    title: "Garaad — Learn Full-Stack Development in Somali | React, Next.js, AI",
+    title: "Garaad — Baro React, Next.js & AI Af-Soomaaliga | #1 Platform",
     description:
-      "Somalia's #1 coding platform. Learn React, Next.js, Node.js & AI in Somali. 30 min/day. Build real projects. Free to start.",
+      "Somaliya ugu weyn coding platform-ka. Baro React, Next.js, Node.js, MongoDB & AI Af-Soomaaliga. Bilow bilaash.",
     images: [{ url: `${SITE_URL}/images/og-main.jpg`, width: 1200, height: 630, alt: "Garaad — Somalia's #1 Coding Platform" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@garaadorg",
-    title: "Garaad — Learn React, Next.js & AI in Somali",
+    title: "Garaad — Baro React, Next.js & AI Af-Soomaaliga",
     description:
-      "Somalia's #1 coding platform. Learn full-stack development in your language. 30 min/day. Free to start.",
+      "Somaliya ugu weyn coding platform-ka. Baro full-stack development Af-Soomaaliga. Bilow bilaash.",
     images: [`${SITE_URL}/images/og-main.jpg`],
   },
 };

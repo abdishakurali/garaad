@@ -8,23 +8,37 @@ const BLOG_URL = "https://garaad.org/blog";
 
 export async function generateMetadata() {
   return {
-    title: "Blog — Teknoolojiyada Soomaalida | Garaad",
+    title: "Blog — Baro React, Next.js, AI & Full-Stack Development | Garaad",
     description:
-      "Maqaallo ku saabsan Full-Stack Development, AI, iyo xirfadaha mustaqbalka — qoran Af-Soomaali.",
+      "Maqaallo qoraal ah oo ku saabsan barashada programming-ka, React, Next.js, Node.js, MongoDB, AI, iyo full-stack development-ka. Bilow bilaash ah.",
     keywords: [
-      "Garaad Blog",
-      "Tech Soomaali",
-      "Coding Soomaali",
-      "AI Soomaali",
-      "Wararka Garaad",
+      "blog programming Somali",
+      "baro React Somali",
+      "baro Next.js Somali", 
+      "baro JavaScript Somali",
+      "baro full-stack development Somali",
+      "baro AI Somali",
+      "baro Node.js Somali",
+      "baro MongoDB Somali",
+      "tutorial React Somali",
+      "tutorial Next.js Somali",
+      "coding Somalia",
+      "programming Somali",
+      "web development Somali",
+      "software development Somalia",
+      "career in tech Somalia",
+      "learn to code Somali",
+      "Garaad blog",
+      "Somali tech education",
+      "Af-Soomaali programming",
     ],
     alternates: { canonical: BLOG_URL },
     openGraph: {
       type: "website",
       url: BLOG_URL,
-      title: "Blog — Teknoolojiyada Soomaalida | Garaad",
+      title: "Blog — Baro React, Next.js & Full-Stack Development | Garaad",
       description:
-        "Maqaallo ku saabsan Full-Stack Development, AI, iyo xirfadaha mustaqbalka — qoran Af-Soomaali.",
+        "Baro programming-ka, React, Next.js, AI iyo full-stack development-ka Af-Soomaaliga. Bilow bilaash.",
       images: [
         { url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Blog" },
       ],
@@ -32,9 +46,9 @@ export async function generateMetadata() {
     twitter: {
       card: "summary_large_image",
       site: "@garaadorg",
-      title: "Blog — Teknoolojiyada Soomaalida | Garaad",
+      title: "Blog — Baro React, Next.js & Full-Stack | Garaad",
       description:
-        "Maqaallo ku saabsan Full-Stack Development, AI, iyo xirfadaha mustaqbalka — qoran Af-Soomaali.",
+        "Baro React, Next.js, AI iyo full-stack development Af-Soomaaliga. Bilow bilaash.",
       images: ["https://garaad.org/images/og-main.jpg"],
     },
     robots: { index: true, follow: true },

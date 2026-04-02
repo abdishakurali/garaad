@@ -5,19 +5,27 @@ import { ChallengePageClient } from "@/components/challenge/ChallengePageClient"
 const WhatsAppFloat = dynamic(() => import("@/components/landing/WhatsAppFloat").then(mod => mod.WhatsAppFloat));
 
 export const metadata: Metadata = {
-  title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup (3 bilood)",
+  title: "Garaad Challenge — Ka Bilow Eber ilaa Shaqo Tech ama Startup 3 Bilood",
   description:
-    "3 bilood: ka bilow eber, gaar shaqo tech ama dhis startup-kaaga. Mentor af Soomaali, koox 10 qof, lacag celin 7 maalmood. $149 hal mar.",
+    "Challenge-ka 3 bilood ah: ka bilow eber, gaar shaqo tech ama dhis startup-kaaga. Mentor Af-Soomaali, koox 10 qof, lacag celin 7 maalmood. $149 hal mar. Kan ugu weyn Somaliya.",
   keywords: [
-    "Tartanka dhisidda software-ka",
-    "Barashada IT-ga casriga ah",
-    "Dhisidda SaaS iyo AI",
-    "Ganacsiga digital-ka ah",
-    "Somali tech builders",
-    "SaaS development Somalia",
-    "First Somali SaaS challenge",
-    "Garaad Academy",
-    "AI for business Somalia",
+    // English keywords
+    "React challenge", "Next.js challenge", "coding bootcamp", "web development bootcamp",
+    "full-stack project", "build portfolio", "software development course",
+    "learn by building", "project-based learning", "coding challenge",
+    "become developer", "developer career", "job ready skills", "tech career change",
+    "MERN projects", "full-stack portfolio", "real-world projects",
+    "React projects", "Next.js projects", "Node.js projects", "MongoDB projects",
+    // Somali keywords
+    "Garaad Challenge", "Challenge programming Somali", "koorso challenge Somali",
+    "baro coding challenge", "bilow programming Somali", "shaqo tech Somali",
+    "dhis startup Somali", "portfolio dhisme", "mashruuc coding",
+    "koox barashada", "mentor Somali", "developer Somali",
+    "tech career Somalia", "software jobs Somalia", "IT jobs Somalia",
+    "coding bootcamp Somalia", "programming school Somalia",
+    "build real projects Somali", "portfolio building Somali",
+    "full-stack developer training", "react developer course",
+    "Somali tech builders", "Somali startups", "SaaS development Somalia",
   ],
   alternates: { canonical: "https://garaad.org/challenge" },
   openGraph: {
@@ -25,15 +33,15 @@ export const metadata: Metadata = {
     locale: "so_SO",
     url: "https://garaad.org/challenge",
     siteName: "Garaad",
-    title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup",
+    title: "Garaad Challenge — Ka Bilow Eber ilaa Shaqo Tech ama Startup",
     description:
-      "3 bilood: mentor af Soomaali, koox, lacag celin 7 maalmood. $149 hal mar.",
+      "3 bilood: mentor Af-Soomaali, koox 10 qof, lacag celin 7 maalmood. $149 hal mar.",
     images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Garaad Challenge — Ka eber ilaa shaqo tech ama startup",
-    description: "3 bilood, mentor af Soomaali, $149 hal mar.",
+    title: "Garaad Challenge — Ka Bilow Eber ilaa Shaqo Tech ama Startup",
+    description: "3 bilood, mentor Af-Soomaali, $149 hal mar.",
   },
   robots: { index: true, follow: true },
 };
