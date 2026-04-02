@@ -19,14 +19,8 @@ export function BlogListClient({ initialPosts }: BlogListClientProps) {
   const querySearch = searchParams.get("search");
 
   const [posts] = useState<BlogPost[]>(initialPosts);
-  const [searchTerm, setSearchTerm] = useState(querySearch || "");
+  const [searchTerm, setSearchTerm] = useState(() => querySearch || "");
   const [activeTag, setActiveTag] = useState<string>("all");
-
-  useEffect(() => {
-    if (querySearch) {
-      setSearchTerm(querySearch);
-    }
-  }, [querySearch]);
 
   const filteredPosts = useMemo(() => {
     const list = Array.isArray(posts) ? posts : [];

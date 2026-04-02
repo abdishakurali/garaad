@@ -68,6 +68,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
   });
 
   // Reset form and error when dialog opens/closes
+  /* eslint-disable react-hooks/set-state-in-effect -- form reset on dialog close */
   useEffect(() => {
     if (!isOpen) {
       form.reset();
@@ -75,6 +76,7 @@ export function AuthDialog({ trigger }: AuthDialogProps) {
       setAuthView('login');
     }
   }, [isOpen, form, setError]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Auto-hide error functionality removed to ensure user sees the error
   // until they try again or dismiss it manually.

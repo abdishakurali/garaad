@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-import useSWR from "swr";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Code2, Layers, Brain, Database, Server, BookOpen, Cloud, ArrowUpRight } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/lib/constants";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
 import { orderSocialProofForDisplay, type SocialProofUserRaw } from "@/lib/social-proof";
+import { useFetch, useAsyncEffect } from "@/composables";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -78,6 +78,7 @@ function resolveProofAvatarUrl(url: string | null | undefined): string | null {
 
 function useAnimatedCount(target: number, active: boolean) {
   const [v, setV] = useState(0);
+  /* eslint-disable react-hooks/set-state-in-effect -- animation frame state updates */
   useEffect(() => {
     if (!active || target <= 0) {
       setV(target);
@@ -96,6 +97,7 @@ function useAnimatedCount(target: number, active: boolean) {
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [target, active]);
+  /* eslint-enable react-hooks/set-state-in-effect */
   return v;
 }
 
@@ -130,23 +132,27 @@ export function HeroSection() {
   const isLoggedIn = !!user;
   const { href: firstFreeHref } = useFirstFreeLessonHref();
 
-  const { data: stats, error: statsError } = useSWR<LandingStats>(
-    `${API_BASE_URL}/api/public/landing-stats/`,
-    fetcher,
-    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
-  );
+  const statsQuery = useFetch<LandingStats>(`${API_BASE_URL}/api/public/landing-stats/`, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+    fallbackData: { students_count: 0, courses_count: 0, learners_this_month: 0 },
+  });
+  const stats = statsQuery.data;
+  const statsError = statsQuery.error;
 
-  const { data: proofUsers } = useSWR<SocialProofUserRaw[]>(
-    `${API_BASE_URL}/api/public/social-proof/`,
-    fetcher,
-    { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
-  );
+  const proofQuery = useFetch<SocialProofUserRaw[]>(`${API_BASE_URL}/api/public/social-proof/`, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  });
+  const proofUsers = proofQuery.data;
 
   /** SWR may have client-only cache; rendering avatars before mount mismatches SSR. */
   const [socialProofMounted, setSocialProofMounted] = useState(false);
+  /* eslint-disable react-hooks/set-state-in-effect -- hydration check */
   useEffect(() => {
     setSocialProofMounted(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const heroAvatars = useMemo(() => {
     const ordered = orderSocialProofForDisplay(proofUsers ?? []);
@@ -172,21 +178,26 @@ export function HeroSection() {
   const countAnimActive = Boolean(stats != null && !statsError && studentCount > 0);
   const displayCount = useAnimatedCount(studentCount, countAnimActive);
   const [learnersLabel, setLearnersLabel] = useState("Ku biir 88+ Developer oo hadda baranaya");
+  /* eslint-disable react-hooks/set-state-in-effect -- derived from stats data */
   useEffect(() => {
     if (statsError || stats == null) return;
     if (studentCount > 0) {
       setLearnersLabel(`Ku biir ${studentCount}+ Developer oo hadda baranaya`);
     }
   }, [stats, statsError, studentCount]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+  /* eslint-disable react-hooks/set-state-in-effect -- derived from animated count */
   useEffect(() => {
     if (!countAnimActive || displayCount <= 0) return;
     setLearnersLabel(`Ku biir ${displayCount}+ Developer oo hadda baranaya`);
   }, [displayCount, countAnimActive]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
-  const { data: categoriesData } = useSWR<unknown>(CATEGORIES_SWR_KEY, fetcher, {
+  const categoriesQuery = useFetch<unknown>(CATEGORIES_SWR_KEY, fetcher, {
     revalidateOnFocus: false,
-    dedupingInterval: 60 * 1000,
+    dedupingInterval: 60000,
   });
+  const categoriesData = categoriesQuery.data;
   const courses = parseCategories(categoriesData ?? []);
 
   const aiCourse = courses.find((c) => /ai|artificial|smart|machine/i.test(c.title));

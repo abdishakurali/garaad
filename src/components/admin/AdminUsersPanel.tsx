@@ -101,7 +101,9 @@ export default function AdminUsersPanel() {
 
     useEffect(() => {
         const uf = searchParams.get("user_filter") ?? "";
+        /* eslint-disable react-hooks/set-state-in-effect -- sync with URL params */
         setUsersTabFilter(uf);
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, [searchParams]);
 
     const usersFilters = useMemo(
@@ -114,6 +116,7 @@ export default function AdminUsersPanel() {
         [usersFilterGoal, usersFilterTrack, usersFilterPremium, usersFilterVerified]
     );
 
+    /* eslint-disable react-hooks/set-state-in-effect -- data fetching triggered by filter/page changes */
     useEffect(() => {
         let cancelled = false;
         setAdminUsersLoading(true);

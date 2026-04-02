@@ -21,6 +21,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const pathname = usePathname();
     const [isChecking, setIsChecking] = useState(true);
 
+    /* eslint-disable react-hooks/set-state-in-effect -- auth redirect flow */
     // Auth check
     useEffect(() => {
         if (!token && pathname !== "/admin/login") {
@@ -29,6 +30,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             setIsChecking(false);
         }
     }, [token, pathname, router]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // Handle screen size changes
     useEffect(() => {

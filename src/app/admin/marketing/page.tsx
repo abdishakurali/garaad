@@ -99,7 +99,9 @@ export default function GaraadEmailDashboard() {
         setLoading(false);
     }, [token]);
 
+    /* eslint-disable react-hooks/set-state-in-effect -- triggered by token change, intentional */
     useEffect(() => { loadUsers(); }, [loadUsers]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // ── fetch resend history: removed — handled by backend ──────────────────
 

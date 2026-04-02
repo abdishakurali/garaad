@@ -1,38 +1,27 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
+import { useSessionStorage } from "@/composables";
 
 const SESSION_KEY = "garaad_urgency_strip_dismissed";
 
 export function UrgencyStrip() {
-  const [mounted, setMounted] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const { value: dismissed, setValue: setDismissed } = useSessionStorage<boolean>(SESSION_KEY, false);
   const { data, loading } = useChallengeStatus();
 
-  useEffect(() => {
-    try {
-      setDismissed(sessionStorage.getItem(SESSION_KEY) === "1");
-    } catch {
-      /* ignore */
-    }
-    setMounted(true);
-  }, []);
+  const handleDismiss = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDismissed(true);
+    },
+    [setDismissed]
+  );
 
-  const handleDismiss = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-    } catch {
-      /* private mode */
-    }
-    setDismissed(true);
-  }, []);
-
-  if (!mounted || dismissed) return null;
+  if (dismissed) return null;
 
   if (loading && !data) {
     return <div className="h-10 w-full animate-pulse bg-zinc-900" aria-hidden />;

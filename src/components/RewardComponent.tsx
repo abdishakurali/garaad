@@ -62,6 +62,7 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
 
   const prevRewardsRef = React.useRef<UserReward[] | null>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- reset index when rewards change */
   useEffect(() => {
     const prev = prevRewardsRef.current;
     const same =
@@ -75,6 +76,7 @@ function RewardComponent({ onContinue, rewards = [] }: RewardComponentProps) {
 
     prevRewardsRef.current = rewards;
   }, [rewards]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // If no rewards, render nothing
   if (rewards.length === 0) {

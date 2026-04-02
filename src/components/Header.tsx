@@ -44,9 +44,11 @@ export function Header() {
     !user.is_premium ||
     (user.subscription_type ?? "").toLowerCase() !== "challenge";
 
+  /* eslint-disable react-hooks/set-state-in-effect -- mounted state for hydration */
   useEffect(() => {
     setMounted(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (user && typeof window !== "undefined") {
@@ -63,6 +65,7 @@ export function Header() {
     return (user.subscription_type ?? "").toLowerCase() === "challenge";
   }, [user]);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- derived from props, intentional */
   useEffect(() => {
     if (xpValue !== prevXp && authReady) {
       setPrevXp(xpValue);
@@ -71,6 +74,7 @@ export function Header() {
       return () => clearTimeout(t);
     }
   }, [xpValue, prevXp, authReady]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -80,9 +84,11 @@ export function Header() {
     }
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- close menu on navigation */
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Prevent body scroll when menu is open
   useEffect(() => {

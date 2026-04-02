@@ -55,13 +55,15 @@ const CategoryImage = ({ src, alt }: { src?: string; alt: string }) => {
 
 const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string; priority?: boolean }) => {
   const imageSrc = safeCourseImageSrc(src, defaultCourseImage);
-  const [displaySrc, setDisplaySrc] = useState(imageSrc);
+  const [displaySrc, setDisplaySrc] = useState(() => imageSrc);
   const [errored, setErrored] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- sync with prop changes */
   useEffect(() => {
     setDisplaySrc(safeCourseImageSrc(src, defaultCourseImage));
     setErrored(false);
   }, [src]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleError = () => {
     setDisplaySrc(defaultCourseImage);
@@ -112,12 +114,15 @@ export function CoursesListClient() {
         return (e as { progress_percent?: number } | undefined)?.progress_percent;
     };
 
+    /* eslint-disable react-hooks/set-state-in-effect -- hydration check */
     useEffect(() => {
         setHasMounted(true);
     }, []);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     const isLoading = !hasMounted || isSWRLoading;
 
+    /* eslint-disable react-hooks/set-state-in-effect -- URL-driven state */
     useEffect(() => {
         const success = searchParams.get("success");
         if (success === "payment_completed") {
@@ -128,6 +133,7 @@ export function CoursesListClient() {
             return () => clearTimeout(timer);
         }
     }, [searchParams]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     if (hasMounted && isError) {
         return (

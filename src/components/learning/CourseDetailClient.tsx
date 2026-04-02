@@ -167,9 +167,11 @@ export function CourseDetailClient() {
         number | null
     >(null);
 
+    /* eslint-disable react-hooks/set-state-in-effect -- reset selection on course change */
     useEffect(() => {
         setZigzagSelectedLessonId(null);
     }, [categoryId, courseSlug]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // First lesson of course by lesson_number to match backend (Lesson has no order field)
     const firstLessonIdOfCourse = useMemo(() => {

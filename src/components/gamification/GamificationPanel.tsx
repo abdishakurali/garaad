@@ -43,6 +43,7 @@ export function GamificationPanel() {
     isLoading,
   } = useGamificationData();
 
+  /* eslint-disable react-hooks/set-state-in-effect -- data fetching on auth ready */
   useEffect(() => {
     if (!isReady) return;
     setProjectsLoading(true);
@@ -52,6 +53,7 @@ export function GamificationPanel() {
       .catch(() => setMyProjects([]))
       .finally(() => setProjectsLoading(false));
   }, [isReady]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const xp = (gamificationStatus ?? streak) as { xp?: number; next_level_xp?: number } | undefined;
   const currentXp = xp?.xp ?? 0;
