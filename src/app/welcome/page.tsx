@@ -1327,11 +1327,7 @@ function WelcomeOnboardingPage() {
   const selectedId = selectIdForKind(currentKind);
 
   const optionStepGridClass = (itemCount: number) =>
-    cn(
-      "grid grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-4",
-      itemCount % 2 === 1 &&
-        "md:[&>*:last-child]:col-span-2 md:[&>*:last-child]:mx-auto md:[&>*:last-child]:w-full md:[&>*:last-child]:max-w-xl"
-    );
+    "flex flex-col gap-2";
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
@@ -1643,63 +1639,64 @@ function WelcomeOnboardingPage() {
 
             <div
               className={cn(
-                "mt-8 flex w-full flex-col gap-3",
+                "mt-8 flex w-full items-center justify-between gap-3",
                 "max-md:sticky max-md:bottom-4 max-md:z-20 max-md:-mx-4 max-md:border-t max-md:border-border max-md:bg-background/95 max-md:px-4 max-md:pb-1 max-md:pt-4 max-md:backdrop-blur-sm"
               )}
             >
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+              <div className="flex items-center gap-3">
+                {stepIndex > 0 && (
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 border-0 bg-transparent px-4 py-2 text-center text-sm font-medium text-muted-foreground shadow-none transition-colors hover:text-foreground disabled:opacity-40"
+                  >
+                    <ArrowLeft className="size-4" />
+                    Dib u noqo
+                  </button>
+                )}
                 {currentKind === "barrier" && (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={skipBarrier}
                     disabled={isLoading}
-                    className="w-full border-border bg-background/80 text-foreground hover:bg-muted/50 sm:w-auto sm:shrink-0"
+                    className="border-border bg-background/80 text-foreground hover:bg-muted/50"
                   >
-                    Ka bood tallaabadan
-                  </Button>
-                )}
-                {currentKind === "personal" ? (
-                  <Button
-                    type="button"
-                    disabled={isLoading}
-                    onClick={(e) => void handleSubmit(e)}
-                    className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-60 sm:ml-auto sm:max-w-md"
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        {loadingPhase <= 1
-                          ? "Account-kaaga ayaa la diyaarinayaa..."
-                          : loadingPhase === 2
-                            ? "Waddadaada gaarka ah ayaa la dhisayaa..."
-                            : "Waxyar ayaa ka haray..."}
-                      </span>
-                    ) : (
-                      "Sameyso account-kayga →"
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={goNext}
-                    disabled={!canAdvance || isLoading}
-                    className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-40 sm:ml-auto sm:max-w-md"
-                  >
-                    {forwardCtaLabel}
+                    Ka bood
                   </Button>
                 )}
               </div>
-              {stepIndex > 0 ? (
-                <button
+              {currentKind === "personal" ? (
+                <Button
                   type="button"
-                  onClick={goBack}
                   disabled={isLoading}
-                  className="self-center border-0 bg-transparent p-0 text-center text-xs text-muted-foreground shadow-none transition-colors hover:text-foreground hover:underline disabled:opacity-40"
+                  onClick={(e) => void handleSubmit(e)}
+                  className="h-12 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-60"
                 >
-                  Dib u noqo
-                </button>
-              ) : null}
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      {loadingPhase <= 1
+                        ? "Account-kaaga..."
+                        : loadingPhase === 2
+                          ? "Waddadaada..."
+                          : "Waxyar ayaa ka haray..."}
+                    </span>
+                  ) : (
+                    "Sameyso account-kayga →"
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={goNext}
+                  disabled={!canAdvance || isLoading}
+                  className="h-12 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35 disabled:opacity-40"
+                >
+                  {forwardCtaLabel}
+                </Button>
+              )}
             </div>
 
             {optionsHasMore && (currentKind === "goal" || currentKind === "track") && (
