@@ -26,3 +26,20 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
     return <PHProvider client={posthog}>{children}</PHProvider>
 }
+
+export function identifyUser(user: { id: string | number; email: string; name?: string }) {
+    if (typeof window === 'undefined') return;
+    if (!posthog.__loaded) return;
+    
+    posthog.identify(String(user.id), {
+        email: user.email,
+        name: user.name,
+    });
+}
+
+export function resetUser() {
+    if (typeof window === 'undefined') return;
+    if (!posthog.__loaded) return;
+    
+    posthog.reset();
+}

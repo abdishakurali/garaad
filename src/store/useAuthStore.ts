@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, AuthState } from '@/types/auth';
 import AuthService, { SignUpData, SignUpResponse } from '@/services/auth';
+import { identifyUser } from '@/providers/PostHogProvider';
 
 interface AuthStore extends AuthState {
     _hasHydrated: boolean;
@@ -28,10 +29,12 @@ export const useAuthStore = create<AuthStore>()(
 
             setHasHydrated: (value) => set({ _hasHydrated: value }),
 
-            setUser: (user) => set({
-                user,
-                isAuthenticated: !!user
-            }),
+            setUser: (user) => {
+                set({ user, isAuthenticated: !!user });
+                if (user) {
+                    identifyUser({ id: user.id, email: user.email, name: user.name });
+                }
+            },
 
             setLoading: (isLoading) => set({ isLoading }),
 
@@ -47,6 +50,7 @@ export const useAuthStore = create<AuthStore>()(
                             isAuthenticated: true,
                             isLoading: false,
                         });
+                        identifyUser({ id: response.user.id, email: response.user.email, name: response.user.name });
                     }
                 } catch (error: any) {
                     set({
@@ -67,6 +71,7 @@ export const useAuthStore = create<AuthStore>()(
                             isAuthenticated: true,
                             isLoading: false,
                         });
+                        identifyUser({ id: response.user.id, email: response.user.email, name: response.user.name });
                     }
                     return response;
                 } catch (error: any) {
@@ -87,6 +92,9 @@ export const useAuthStore = create<AuthStore>()(
                     isAuthenticated: false,
                     error: null,
                 });
+                if (typeof window !== 'undefined') {
+                    import('@/providers/PostHogProvider').then(({ resetUser }) => resetUser());
+                }
             },
 
             hydrate: () => {
