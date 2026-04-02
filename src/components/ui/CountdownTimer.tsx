@@ -21,9 +21,10 @@ export interface CountdownTimerProps {
  */
 export function CountdownTimer({ targetDate, label, className = "" }: CountdownTimerProps) {
   const target = useMemo(() => parseTargetMs(targetDate ?? null), [targetDate]);
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     if (target == null) return;
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
@@ -35,6 +36,10 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
         Taariikhda kooxdu ay ku bilaabeyso weli lama dhigin.
       </p>
     );
+  }
+
+  if (now === null) {
+    return <div className={`animate-pulse bg-zinc-800 h-24 rounded-lg ${className}`} />;
   }
 
   const diff = Math.max(0, target - now);
