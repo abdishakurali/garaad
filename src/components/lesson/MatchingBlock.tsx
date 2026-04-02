@@ -25,11 +25,15 @@ const MatchingBlock: React.FC<MatchingBlockProps> = ({ options, onComplete, isCo
         });
     }, [options]);
 
-    const [shuffledRights, setShuffledRights] = useState<string[]>([]);
-    const [matches, setMatches] = useState<Record<string, string>>({}); // left -> matched right
+    const [shuffledRights, setShuffledRights] = useState<string[]>(() => {
+        if (typeof window === "undefined") return [];
+        return [...pairs.map(p => p.right)].sort(() => Math.random() - 0.5);
+    });
+    const [matches, setMatches] = useState<Record<string, string>>({});
     const [activeLeft, setActiveLeft] = useState<string | null>(null);
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
         setShuffledRights([...pairs.map(p => p.right)].sort(() => Math.random() - 0.5));
     }, [pairs]);
 
