@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
@@ -26,11 +27,6 @@ export class RootErrorBoundary extends React.Component<Props, State> {
     console.error("ErrorBoundary caught an error:", error, info);
   }
 
-  /** Full document reload after a render crash — router.refresh() cannot recover a broken React tree. */
-  handleReload = () => {
-    window.location.reload();
-  };
-
   render() {
     if (this.state.hasError) {
       return (
@@ -42,15 +38,8 @@ export class RootErrorBoundary extends React.Component<Props, State> {
                   Waxbaa qaldamay
                 </h2>
                 <p className="mt-2 text-sm text-gray-600">
-                  Waxaan ka xunnahay dhibkaan. Fadlan isku day inaad bogga dib u
-                  cusbooneysiiso.
+                  Waxaan ka xunnahay dhibkaan. Try navigating again.
                 </p>
-                <button
-                  onClick={this.handleReload}
-                  className="mt-4 px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/50 transition-colors"
-                >
-                  Dib u cusbooneysii bogga
-                </button>
               </div>
             </div>
           </div>
