@@ -58,6 +58,7 @@ import { LessonChallengeSoftInvite } from "@/components/challenge/LessonChalleng
 import { EmailVerificationBanner } from "@/components/learning/EmailVerificationBanner";
 import dynamic from "next/dynamic";
 import { useStreak } from "@/services/gamification";
+import posthog from "posthog-js";
 
 const ShikiCode = dynamic(() => import("@/components/lesson/ShikiCode"), {
     ssr: false,
@@ -338,6 +339,18 @@ export function LessonDetailClient() {
     useEffect(() => {
         solvedProblemIdsRef.current = new Set();
     }, [currentLesson?.id]);
+
+    // Track lesson start in PostHog
+    useEffect(() => {
+        if (!mounted || !currentLesson?.id) return;
+        if (posthog.__loaded) {
+            posthog.capture('lesson_started', {
+                lesson_id: currentLesson.id,
+                lesson_title: currentLesson.title,
+                course_id: currentLesson.course,
+            });
+        }
+    }, [mounted, currentLesson?.id, currentLesson?.title, currentLesson?.course]);
 
     // Check if lesson is in review mode
     const isReviewMode = useMemo(() => {
@@ -716,6 +729,17 @@ export function LessonDetailClient() {
 
         setCompletionNavigateMeta(navMeta);
         setShowCompletionAnimation(true);
+        
+        // Track lesson completion in PostHog
+        if (posthog.__loaded && currentLesson?.id) {
+            posthog.capture('lesson_completed', {
+                lesson_id: currentLesson.id,
+                lesson_title: currentLesson.title,
+                course_id: currentLesson.course,
+                score: quizScore,
+                has_next_lesson: !!(navMeta?.nextLessonId),
+            });
+        }
     }, [
         currentBlockIndex,
         playSound,
