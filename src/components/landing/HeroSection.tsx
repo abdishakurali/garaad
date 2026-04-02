@@ -3,13 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Code2, Layers, Brain, Database, Server, BookOpen, Cloud, ArrowUpRight } from "lucide-react";
+import { Code2, Layers, Brain, Database, Server, BookOpen, ArrowUpRight, Cloud } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/lib/constants";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
-import { orderSocialProofForDisplay, type SocialProofUserRaw } from "@/lib/social-proof";
-import { useFetch, useAsyncEffect } from "@/composables";
+import { useFetch } from "@/composables";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -28,46 +27,6 @@ const AVATAR_RING_COLORS = [
   "bg-violet-600/90 text-white",
   "bg-amber-600/90 text-white",
 ] as const;
-
-function SocialProofAvatar({
-  src,
-  alt,
-  initials,
-  ringClass,
-}: {
-  src: string | null;
-  alt: string;
-  initials: string;
-  ringClass: string;
-}) {
-  const [failed, setFailed] = useState(false);
-  const showImage = Boolean(src) && !failed;
-  return (
-    <div
-      className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200 dark:border-[#0a0a0f] dark:ring-[#1e1e2e]"
-      title={alt}
-    >
-      {showImage ? (
-        <Image
-          src={src!}
-          alt={alt}
-          fill
-          className="object-cover object-top"
-          sizes="40px"
-          unoptimized
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <div
-          className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${ringClass}`}
-          aria-hidden
-        >
-          {initials}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function resolveProofAvatarUrl(url: string | null | undefined): string | null {
   const u = typeof url === "string" ? url.trim() : "";
@@ -140,58 +99,12 @@ export function HeroSection() {
   const stats = statsQuery.data;
   const statsError = statsQuery.error;
 
-  const proofQuery = useFetch<SocialProofUserRaw[]>(`${API_BASE_URL}/api/public/social-proof/`, fetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 60000,
-  });
-  const proofUsers = proofQuery.data;
-
-  /** SWR may have client-only cache; rendering avatars before mount mismatches SSR. */
-  const [socialProofMounted, setSocialProofMounted] = useState(false);
-  /* eslint-disable react-hooks/set-state-in-effect -- hydration check */
-  useEffect(() => {
-    setSocialProofMounted(true);
-  }, []);
-  /* eslint-enable react-hooks/set-state-in-effect */
-
-  const heroAvatars = useMemo(() => {
-    const ordered = orderSocialProofForDisplay(proofUsers ?? []);
-    if (ordered.length === 0) return [];
-    const colors = AVATAR_RING_COLORS;
-    return ordered.slice(0, 3).map((u, i) => {
-      const fn = (u.first_name || "").trim();
-      const ln = (u.last_name || "").trim();
-      const initials =
-        `${fn[0] || ""}${ln[0] || ""}`.toUpperCase() || (fn[0] || "?").toUpperCase();
-      const label = ln ? `${fn} ${ln[0]}.`.trim() : fn || "Arday";
-      const src = resolveProofAvatarUrl(u.profile_picture_url ?? null);
-      return {
-        src,
-        initials,
-        alt: `${label} — arday Garaad`,
-        ringClass: colors[i % colors.length],
-      };
-    });
-  }, [proofUsers]);
-
   const studentCount = stats?.students_count ?? 0;
   const countAnimActive = Boolean(stats != null && !statsError && studentCount > 0);
   const displayCount = useAnimatedCount(studentCount, countAnimActive);
-  const [learnersLabel, setLearnersLabel] = useState("Ku biir 88+ Developer oo hadda baranaya");
-  /* eslint-disable react-hooks/set-state-in-effect -- derived from stats data */
-  useEffect(() => {
-    if (statsError || stats == null) return;
-    if (studentCount > 0) {
-      setLearnersLabel(`Ku biir ${studentCount}+ Developer oo hadda baranaya`);
-    }
-  }, [stats, statsError, studentCount]);
-  /* eslint-enable react-hooks/set-state-in-effect */
-  /* eslint-disable react-hooks/set-state-in-effect -- derived from animated count */
-  useEffect(() => {
-    if (!countAnimActive || displayCount <= 0) return;
-    setLearnersLabel(`Ku biir ${displayCount}+ Developer oo hadda baranaya`);
-  }, [displayCount, countAnimActive]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+  const learnersLabel = studentCount > 0 
+    ? `Ku biir ${displayCount}+ Developer oo hadda baranaya`
+    : "Ku biir 88+ Developer oo hadda baranaya";
 
   const categoriesQuery = useFetch<unknown>(CATEGORIES_SWR_KEY, fetcher, {
     revalidateOnFocus: false,
@@ -251,22 +164,6 @@ export function HeroSection() {
               role="status"
               aria-live="polite"
             >
-              {socialProofMounted && heroAvatars.length > 0 ? (
-                <div
-                  className="flex shrink-0 items-center -space-x-2"
-                  aria-label="Sawirro ka mid ah ardayda diiwaangashan"
-                >
-                  {heroAvatars.map((a, idx) => (
-                    <SocialProofAvatar
-                      key={`${a.alt}-${idx}`}
-                      src={a.src}
-                      alt={a.alt}
-                      initials={a.initials}
-                      ringClass={a.ringClass}
-                    />
-                  ))}
-                </div>
-              ) : null}
               <p className="min-w-0 text-sm leading-snug text-slate-600 dark:text-[#94a3b8]">
                 <span className="font-semibold tabular-nums text-slate-900 dark:text-white/90">
                   {learnersLabel}
