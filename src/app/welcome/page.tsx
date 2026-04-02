@@ -153,17 +153,13 @@ function buildOnboardingPayload(answers: Answers): SignUpData["onboarding_data"]
 
 const STEP_COPY: Record<
   Exclude<StepKind, "personal">,
-  { heading: string; subheading: string }
+  { heading: string; subheading?: string }
 > = {
   goal: {
     heading: "Maxaad doonaysaa inaad gaarto?",
-    subheading:
-      "Runta sheeg — tani waxay naga caawinaysaa inaan kula dhisno wax adiga kugu habboon.",
   },
   experience: {
     heading: "Horey ma isugu dayday inaad coding barato?",
-    subheading:
-      "Halkan jawaab khaldan ma jirto — tani waxay naga caawinaysaa inaan meesha saxda ah kaaga bilaabno.",
   },
   barrier: {
     heading: "Maxaa markii hore ku hor istaagay?",
@@ -172,8 +168,6 @@ const STEP_COPY: Record<
   time: {
     heading:
       "Waqti intee le'eg ayaad toddobaadkii si dhab ah u bixin kartaa?",
-    subheading:
-      "Si dhab ah u hadal — joogteynta ayaa ka muhiimsan dadaalka badan ee mar qura ah.",
   },
   track: {
     heading: "Maxaad doonaysaa inaad dhisato?",
@@ -1436,10 +1430,7 @@ function WelcomeOnboardingPage() {
               )}
 
             {currentKind === "goal" && listOpts && (
-              <div className="flex flex-col gap-3.5">
-                <p className="text-sm font-medium text-violet-600 dark:text-violet-400">
-                  • Dooro dhammaan ku khuseeya
-                </p>
+              <div className="flex flex-col gap-2">
                 {listOpts.map((opt) => renderGoalOptionCard(opt))}
               </div>
             )}
