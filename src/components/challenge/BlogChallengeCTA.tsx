@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { SpotsBadge } from "@/components/ui/SpotsBadge";
-import { pricingTranslations as t } from "@/config/translations/pricing";
 
 function pickCopy(articleHint: string): { headline: string; body: string } {
   const h = articleHint.toLowerCase();
@@ -25,17 +24,32 @@ function pickCopy(articleHint: string): { headline: string; body: string } {
   };
 }
 
+function formatDeadline(dateStr: string | null | undefined): string {
+  if (!dateStr) return "20 April";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("so-SO", { day: "numeric", month: "short" });
+}
+
 export function BlogChallengeCTA({ articleHint = "" }: { articleHint?: string }) {
   const { data, loading } = useChallengeStatus();
   const spots = data?.spots_remaining ?? 0;
   const waitlist = data?.is_waitlist_only ?? false;
   const cohortName = data?.active_cohort_name ?? "Challenge";
+  const startDate = data?.cohort_start_date ?? data?.next_cohort_start_date;
+  const deadline = formatDeadline(startDate);
   const { headline, body } = pickCopy(articleHint);
 
   return (
-    <div className="mt-16 rounded-2xl border border-violet-500/30 bg-gradient-to-b from-zinc-900 to-black p-8 text-center">
-      <h3 className="mb-3 text-xl font-bold text-white">{headline}</h3>
-      <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-zinc-400">{body}</p>
+    <div className="mt-16 rounded-2xl border-2 border-violet-500/50 bg-gradient-to-b from-zinc-950 to-black p-8 text-center shadow-2xl shadow-violet-500/20">
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-red-500/20 px-4 py-1.5 text-sm font-bold text-red-400">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+        </span>
+        Lagu soo gaaray {deadline}
+      </div>
+      <h3 className="mb-3 text-2xl font-bold text-white">{headline}</h3>
+      <p className="mx-auto mb-6 max-w-lg text-base leading-relaxed text-zinc-300">{body}</p>
       <div className="mb-6 flex justify-center">
         <SpotsBadge
           spots={spots}
@@ -44,12 +58,20 @@ export function BlogChallengeCTA({ articleHint = "" }: { articleHint?: string })
           cohortName={cohortName}
         />
       </div>
-      <Link
-        href={waitlist ? "/subscribe?plan=challenge" : "/challenge"}
-        className="inline-flex items-center justify-center rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white hover:bg-violet-500"
-      >
-        {waitlist ? "Gali Liiska Sugitaanka Hadda" : `${t.challenge_cta} →`}
-      </Link>
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <Link
+          href={waitlist ? "/subscribe?plan=challenge" : "/challenge"}
+          className="inline-flex items-center justify-center rounded-xl bg-violet-600 px-8 py-4 text-base font-bold text-white hover:bg-violet-500 shadow-lg shadow-violet-600/30 transition-all hover:scale-105"
+        >
+          {waitlist ? "Gali Liiska Sugitaanka Hadda" : `Gal Challenge-ka →`}
+        </Link>
+        <Link
+          href="/subscribe"
+          className="inline-flex items-center justify-center rounded-xl border-2 border-zinc-700 bg-transparent px-8 py-4 text-base font-bold text-zinc-300 hover:border-zinc-600 hover:bg-zinc-900 hover:text-white transition-all"
+        >
+          View Pricing
+        </Link>
+      </div>
     </div>
   );
 }
