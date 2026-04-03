@@ -204,7 +204,11 @@ const LessonCompletionAnimation = ({ onComplete }: { onComplete: () => void }) =
     );
 };
 
-export function LessonDetailClient() {
+interface LessonDetailClientProps {
+    initialLesson?: any;
+}
+
+export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -216,9 +220,10 @@ export function LessonDetailClient() {
         isLoading: storeLoading
     } = useLearningStore();
 
-    // useLesson hook
+    // useLesson hook - use initialLesson from server as fallback
     const { lesson: swrLesson, isLoading: lessonLoading, isError: lessonError } = useLesson(params.lessonId as string);
-    const currentLesson = swrLesson || storeLesson;
+    // Server-side initial lesson takes priority, then SWR, then store
+    const currentLesson = initialLesson || swrLesson || storeLesson;
     const isLoading = lessonLoading || storeLoading;
 
     // useCourse for breadcrumbs/info

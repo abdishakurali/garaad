@@ -50,3 +50,6 @@ export const useLearningStore = create<LearningStore>((set) => ({
         answerState: { ...state.answerState, showAnswer: true }
     })),
 }));
+
+// Helper to set lesson from server components
+export const setLessonInStore = useLearningStore.getState().setLesson;

@@ -24,12 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!lesson) return { title: 'Cashar lama helin - Garaad' };
 
-    // Targeted Search Intent Title
     const title = `Barashada ${lesson.title}: Sida loo dhiso App (Somali)`;
 
     return {
         title,
-        description: lesson.description || `Barashada ${lesson.title} oo ku hadla Af-Soomaali hufan.`,
+        description: lesson.description || `Baro ${lesson.title} oo ku hadla Af-Soomaali hufan.`,
         openGraph: {
             title,
             description: lesson.description || `Baro ${lesson.title} oo ku hadla Af-Soomaali hufan.`,
@@ -42,6 +41,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function Page() {
-    return <LessonDetailClient />;
+export default async function Page({ params }: Props) {
+    const resolvedParams = await params;
+    const lesson = await getLesson(resolvedParams.lessonId);
+    
+    return <LessonDetailClient initialLesson={lesson} />;
 }
