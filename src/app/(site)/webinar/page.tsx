@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function WebinarPage() {
   return (
-    <div className="dark min-h-screen bg-background text-foreground antialiased">
+    <div className="min-h-screen bg-background text-foreground antialiased">
       <WebinarPageClient />
       <WhatsAppFloat />
     </div>

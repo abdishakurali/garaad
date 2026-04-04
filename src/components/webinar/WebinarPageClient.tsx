@@ -281,8 +281,8 @@ export function WebinarPageClient() {
 
   const fieldClass = (invalid: boolean) =>
     cn(
-      "mt-2.5 w-full rounded-xl border bg-zinc-950/40 px-4 py-3.5 text-[15px] text-foreground shadow-inner outline-none transition placeholder:text-zinc-500 focus:border-primary/50 focus:ring-2 focus:ring-primary/25",
-      invalid ? "border-destructive/80" : "border-zinc-800/90"
+      "mt-2.5 w-full rounded-xl border bg-background px-4 py-3.5 text-[15px] text-foreground shadow-inner outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/25 dark:bg-zinc-950/40",
+      invalid ? "border-destructive/80" : "border-border dark:border-zinc-800/90"
     );
 
   return (
@@ -292,36 +292,30 @@ export function WebinarPageClient() {
         className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
         aria-hidden
       >
-        <div className="absolute -left-1/4 top-0 h-[min(80vh,720px)] w-[min(80vw,720px)] rounded-full bg-primary/[0.12] blur-[120px]" />
-        <div className="absolute -right-1/4 top-1/3 h-[min(70vh,560px)] w-[min(70vw,560px)] rounded-full bg-violet-600/[0.08] blur-[100px]" />
-        <div
-          className="absolute inset-0 opacity-[0.35]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-            backgroundSize: "64px 64px",
-          }}
-        />
+        <div className="absolute -left-1/4 top-0 h-[min(80vh,720px)] w-[min(80vw,720px)] rounded-full bg-primary/[0.08] blur-[120px] dark:bg-primary/[0.12]" />
+        <div className="absolute -right-1/4 top-1/3 h-[min(70vh,560px)] w-[min(70vw,560px)] rounded-full bg-violet-600/[0.06] blur-[100px] dark:bg-violet-600/[0.08]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[length:64px_64px] opacity-40 dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] dark:opacity-[0.35]" />
       </div>
 
       {/* Hero */}
-      <section className="relative flex w-full min-h-[92vh] flex-col items-center justify-center overflow-hidden border-b border-white/5 bg-background px-6 py-24 text-center">
+      <section className="relative flex w-full min-h-[92vh] flex-col items-center justify-center overflow-hidden border-b border-border/60 bg-background px-6 py-24 text-center dark:border-white/5">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(154,47,187,0.18),transparent)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(139,61,252,0.14),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(154,47,187,0.18),transparent)]"
           aria-hidden
         />
 
         <div className="relative z-10 mx-auto w-full max-w-3xl">
           <div className="mb-8 flex flex-wrap justify-center gap-3">
-            <span className="rounded-full border border-primary/40 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-primary/80">
+            <span className="rounded-full border border-primary/40 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-primary">
               Webinar toos ah oo lacag la&apos;aan ah
             </span>
-            <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+            <span className="rounded-full border border-border px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground dark:border-white/10 dark:text-white/40">
               Waa toos oo kaliya — duubis (recording) ma jirto
             </span>
           </div>
 
-          <h1 className="mx-auto mb-4 max-w-3xl font-serif text-5xl font-bold leading-[1.1] tracking-tight text-white md:text-6xl lg:text-7xl">
-            <span className="inline-block text-[1.06em] leading-none text-white md:text-[1.08em]">
+          <h1 className="mx-auto mb-4 max-w-3xl font-serif text-5xl font-bold leading-[1.1] tracking-tight text-foreground md:text-6xl lg:text-7xl dark:text-white">
+            <span className="inline-block text-[1.06em] leading-none md:text-[1.08em]">
               AI:
             </span>{" "}
             Waxa ay tahay, sababta ay muhiim u tahay, iyo waxaad ku qaban
@@ -334,26 +328,26 @@ export function WebinarPageClient() {
             <div className="ms-1 h-px w-3 rounded-full bg-primary/15" />
           </div>
 
-          <p className="mx-auto mb-10 max-w-xl text-base text-white/50 md:text-lg">
+          <p className="mx-auto mb-10 max-w-xl text-base text-muted-foreground md:text-lg dark:text-white/50">
             Kulan toos ah oo 2-saacadood ah oo loogu talagalay bulshada
             Soomaaliyeed.
           </p>
 
-          <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-white/30">
+          <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/90 dark:text-white/30">
             Khamiis, 9 April 2026
           </p>
 
           <div className="mb-10 flex flex-wrap justify-center gap-2">
-            <span className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white">
+            <span className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">
               <span className="font-bold">4:00 PM</span>
               <span className="font-medium"> — Dublin · UK (IST / BST)</span>
             </span>
-            <span className="rounded-full border border-white/8 bg-white/[0.06] px-5 py-2 text-sm text-white/60">
-              <span className="font-semibold">6:00 PM</span>
+            <span className="rounded-full border border-border bg-muted/70 px-5 py-2 text-sm text-muted-foreground dark:border-white/8 dark:bg-white/[0.06] dark:text-white/60">
+              <span className="font-semibold text-foreground dark:text-inherit">6:00 PM</span>
               <span className="font-medium"> — Geeska Afrika (EAT)</span>
             </span>
-            <span className="rounded-full border border-white/8 bg-white/[0.06] px-5 py-2 text-sm text-white/60">
-              <span className="font-semibold">11:00 AM</span>
+            <span className="rounded-full border border-border bg-muted/70 px-5 py-2 text-sm text-muted-foreground dark:border-white/8 dark:bg-white/[0.06] dark:text-white/60">
+              <span className="font-semibold text-foreground dark:text-inherit">11:00 AM</span>
               <span className="font-medium"> — US (ET)</span>
             </span>
           </div>
@@ -361,7 +355,7 @@ export function WebinarPageClient() {
           <button
             type="button"
             onClick={scrollToRegister}
-            className="group mx-auto mb-4 block rounded-sm bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-white transition-colors hover:bg-primary/90"
+            className="group mx-auto mb-4 block rounded-sm bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Is-diiwaangeli lacag la&apos;aan
             <span
@@ -372,20 +366,20 @@ export function WebinarPageClient() {
             </span>
           </button>
 
-          <p className="text-xs tracking-wide text-white/20">
+          <p className="text-xs tracking-wide text-muted-foreground/70 dark:text-white/20">
             Boosasku waa xaddidan yihiin
           </p>
         </div>
       </section>
 
       {/* Waxa aad baran doonto */}
-      <section className="border-t border-zinc-800/80 px-4 py-20 md:py-28">
+      <section className="border-t border-border px-4 py-20 md:py-28 dark:border-zinc-800/80">
         <div className="mx-auto max-w-5xl">
           <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
             <p className="text-xs font-bold uppercase tracking-[0.28em] text-primary">
               Waxa aad baran doonto
             </p>
-            <p className="mt-3 text-sm text-zinc-500 md:text-base">
+            <p className="mt-3 text-sm text-muted-foreground md:text-base">
               Liis taxane ah oo ku saabsan aasaaska AI iyo waxa maanta muhiim u ah.
             </p>
           </div>
@@ -394,14 +388,14 @@ export function WebinarPageClient() {
             {LEARN_ITEMS.map((text, i) => (
               <div
                 key={i}
-                className="group relative overflow-hidden rounded-2xl border border-zinc-800/90 bg-zinc-950/50 p-6 shadow-sm transition hover:border-primary/35 hover:bg-zinc-950/70 md:p-8"
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card/80 p-6 shadow-sm transition hover:border-primary/35 hover:bg-card md:p-8 dark:border-zinc-800/90 dark:bg-zinc-950/50 dark:hover:bg-zinc-950/70"
               >
                 <div className="absolute start-0 top-0 h-full w-1 bg-gradient-to-b from-primary to-primary/40 opacity-80 transition group-hover:opacity-100" />
                 <div className="flex gap-5 ps-1 md:gap-6">
                   <span className="shrink-0 font-mono text-2xl font-bold tabular-nums text-primary md:text-[1.65rem]">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <p className="text-[15px] leading-relaxed text-zinc-300 md:text-base">
+                  <p className="text-[15px] leading-relaxed text-foreground/90 md:text-base dark:text-zinc-300">
                     {text}
                   </p>
                 </div>
@@ -412,12 +406,12 @@ export function WebinarPageClient() {
       </section>
 
       {/* Cidda loogu talagalay */}
-      <section className="border-t border-zinc-800/80 bg-zinc-950/40 px-4 py-20 md:py-28">
+      <section className="border-t border-border bg-muted/40 px-4 py-20 md:py-28 dark:border-zinc-800/80 dark:bg-zinc-950/40">
         <div className="mx-auto max-w-6xl">
           <h2 className="text-center font-serif text-2xl font-medium text-foreground md:text-3xl lg:text-[2rem]">
             Cidda loogu talagalay
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-center text-sm text-zinc-500 md:text-base">
+          <p className="mx-auto mt-3 max-w-xl text-center text-sm text-muted-foreground md:text-base">
             Laba saf oo ka muuqda mobilka; afar kaarar weyn oo kombiyuutarka.
           </p>
 
@@ -446,7 +440,7 @@ export function WebinarPageClient() {
             ].map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-zinc-800/90 bg-gradient-to-b from-zinc-900/80 to-zinc-950/90 p-7 shadow-md transition hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+                className="rounded-2xl border border-border bg-card p-7 shadow-md transition hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 dark:border-zinc-800/90 dark:bg-gradient-to-b dark:from-zinc-900/80 dark:to-zinc-950/90"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
                   <Icon className="h-6 w-6" aria-hidden />
@@ -454,14 +448,14 @@ export function WebinarPageClient() {
                 <h3 className="mt-5 text-lg font-semibold text-foreground">
                   {title}
                 </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-zinc-400">
+                <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground dark:text-zinc-400">
                   {desc}
                 </p>
               </div>
             ))}
           </div>
 
-          <p className="mt-12 text-center text-sm leading-relaxed text-zinc-500 md:mt-14 md:text-base">
+          <p className="mt-12 text-center text-sm leading-relaxed text-muted-foreground md:mt-14 md:text-base">
             Ma jiro khibrad hore oo loo baahan yahay — qof kasta waa lagu soo
             dhoweeyaa.
           </p>
@@ -469,7 +463,7 @@ export function WebinarPageClient() {
       </section>
 
       {/* Khibrada & muuqaalada */}
-      <section className="border-t border-zinc-800/80 px-4 py-20 md:py-28">
+      <section className="border-t border-border px-4 py-20 md:py-28 dark:border-zinc-800/80">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">
@@ -478,7 +472,7 @@ export function WebinarPageClient() {
             <h2 className="mt-3 font-serif text-2xl font-medium text-foreground md:text-3xl">
               Kooxda khubarta ah ee kula jirta kulanka
             </h2>
-            <p className="mt-3 text-sm text-zinc-500 md:text-base">
+            <p className="mt-3 text-sm text-muted-foreground md:text-base">
               Muuqaallo muujinaya awoodda farsamada, bulshada, iyo kulan tooska ah —
               adiga oo isku xiran khibrada dhabta ah.
             </p>
@@ -488,7 +482,7 @@ export function WebinarPageClient() {
             {EXPERT_VISUALS.map(({ icon: Icon, title, subtitle }) => (
               <div
                 key={title}
-                className="relative overflow-hidden rounded-2xl border border-zinc-800/90 bg-zinc-900/30 p-6 text-center transition hover:border-primary/25"
+                className="relative overflow-hidden rounded-2xl border border-border bg-muted/30 p-6 text-center transition hover:border-primary/25 dark:border-zinc-800/90 dark:bg-zinc-900/30"
               >
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 via-primary/10 to-transparent ring-1 ring-primary/20">
                   <Icon className="h-9 w-9 text-primary" strokeWidth={1.5} aria-hidden />
@@ -496,7 +490,7 @@ export function WebinarPageClient() {
                 <p className="mt-5 text-sm font-semibold text-foreground md:text-base">
                   {title}
                 </p>
-                <p className="mt-2 text-xs leading-relaxed text-zinc-500 md:text-sm">
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground md:text-sm">
                   {subtitle}
                 </p>
               </div>
@@ -506,7 +500,7 @@ export function WebinarPageClient() {
       </section>
 
       {/* Hogaamiyaha — sawirka */}
-      <section className="border-t border-zinc-800/80 px-4 py-20 md:py-28">
+      <section className="border-t border-border px-4 py-20 md:py-28 dark:border-zinc-800/80">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col items-center gap-10 md:flex-row md:items-center md:gap-14 lg:gap-16">
             <div className="relative shrink-0">
@@ -514,7 +508,7 @@ export function WebinarPageClient() {
                 className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-primary/25 via-transparent to-violet-600/20 blur-xl"
                 aria-hidden
               />
-              <div className="relative overflow-hidden rounded-3xl border-2 border-primary/25 bg-zinc-900 shadow-2xl ring-1 ring-white/5">
+              <div className="relative overflow-hidden rounded-3xl border-2 border-primary/25 bg-card shadow-2xl ring-1 ring-black/5 dark:bg-zinc-900 dark:ring-white/5">
                 <div className="aspect-square w-[min(100%,280px)] sm:w-[300px] md:w-[320px]">
                   {!presenterImageError ? (
                     <Image
@@ -527,7 +521,7 @@ export function WebinarPageClient() {
                       onError={() => setPresenterImageError(true)}
                     />
                   ) : (
-                    <div className="flex h-full min-h-[200px] flex-col items-center justify-center gap-2 bg-zinc-900 px-6 text-center text-sm text-zinc-500">
+                    <div className="flex h-full min-h-[200px] flex-col items-center justify-center gap-2 bg-muted px-6 text-center text-sm text-muted-foreground dark:bg-zinc-900">
                       <Users className="h-10 w-10 text-primary/50" aria-hidden />
                       <span>Fadlan ku dar sawirka hogaamiyaha</span>
                     </div>
@@ -543,10 +537,10 @@ export function WebinarPageClient() {
               <h2 className="mt-2 font-serif text-3xl font-medium text-foreground md:text-4xl">
                 Abdishakur Ali
               </h2>
-              <p className="mt-3 text-base font-medium leading-snug text-zinc-300">
+              <p className="mt-3 text-base font-medium leading-snug text-muted-foreground dark:text-zinc-300">
                 Founder, Garaad · Full-Stack Developer &amp; AI Engineer
               </p>
-              <p className="mt-5 text-[15px] leading-relaxed text-zinc-400 md:text-base">
+              <p className="mt-5 text-[15px] leading-relaxed text-muted-foreground md:text-base dark:text-zinc-400">
                 Wuxuu dhisayaa bulshada STEM iyo developers-ka Soomaaliyeed
                 iyada oo loo marayo Garaad — laga bilaabo aasaaska dadka bilowga ah
                 ilaa nidaamyada waaweyn ee production AI iyo full-stack systems.
@@ -559,21 +553,21 @@ export function WebinarPageClient() {
       {/* Diiwaangeli */}
       <section
         id="register"
-        className="scroll-mt-24 border-t border-zinc-800/80 px-4 py-20 md:py-28"
+        className="scroll-mt-24 border-t border-border px-4 py-20 md:py-28 dark:border-zinc-800/80"
       >
         <div className="mx-auto max-w-lg">
           <div className="mb-10 text-center md:mb-12">
             <h2 className="font-serif text-2xl font-medium text-foreground md:text-3xl">
               Xajiso booskaaga
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-zinc-500 md:text-base">
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
               Lacag la&apos;aan. Toos (live). Duubis ma jirto. Boosasku waa xaddidan
               yihiin.
             </p>
           </div>
 
           {successName ? (
-            <div className="rounded-2xl border border-primary/20 bg-gradient-to-b from-zinc-900/80 to-zinc-950/90 p-8 text-center shadow-lg md:p-10">
+            <div className="rounded-2xl border border-primary/20 bg-card p-8 text-center shadow-lg md:p-10 dark:bg-gradient-to-b dark:from-zinc-900/80 dark:to-zinc-950/90">
               <CheckCircle2
                 className="mx-auto h-16 w-16 text-primary"
                 aria-hidden
@@ -581,7 +575,7 @@ export function WebinarPageClient() {
               <p className="mt-6 font-serif text-xl font-medium text-foreground md:text-2xl">
                 Waad ku guulaysatay, {firstNameFromFullName(successName)}!
               </p>
-              <p className="mt-4 text-sm leading-relaxed text-zinc-400 md:text-[15px]">
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-[15px] dark:text-zinc-400">
                 Hubi emailkaaga xaqiijinta. Link-ga Zoom waxaa laguugu soo diri
                 doonaa 1 saac ka hor intaanan bilownin.
               </p>
@@ -589,7 +583,7 @@ export function WebinarPageClient() {
                 <button
                   type="button"
                   onClick={downloadIcs}
-                  className="rounded-xl border border-zinc-700 bg-zinc-900/80 px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-zinc-900"
+                  className="rounded-xl border border-border bg-muted px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/80 dark:border-zinc-700 dark:bg-zinc-900/80 dark:hover:bg-zinc-900"
                 >
                   Ku dar jadwalka (calendar)
                 </button>
@@ -605,14 +599,14 @@ export function WebinarPageClient() {
           ) : (
             <form
               onSubmit={onSubmit}
-              className="rounded-2xl border border-zinc-800/90 bg-zinc-950/50 p-6 shadow-xl backdrop-blur-sm md:p-8"
+              className="rounded-2xl border border-border bg-card/90 p-6 shadow-xl backdrop-blur-sm md:p-8 dark:border-zinc-800/90 dark:bg-zinc-950/50"
               noValidate
             >
               <div className="space-y-6 md:space-y-7">
                 <div>
                   <label
                     htmlFor="webinar-full-name"
-                    className="block text-sm font-medium text-zinc-300"
+                    className="block text-sm font-medium text-foreground"
                   >
                     Magacaaga oo dhammaystiran
                   </label>
@@ -636,7 +630,7 @@ export function WebinarPageClient() {
                 <div>
                   <label
                     htmlFor="webinar-email"
-                    className="block text-sm font-medium text-zinc-300"
+                    className="block text-sm font-medium text-foreground"
                   >
                     Email-kaaga
                   </label>
@@ -660,7 +654,7 @@ export function WebinarPageClient() {
                 <div>
                   <label
                     htmlFor="webinar-whatsapp"
-                    className="block text-sm font-medium text-zinc-300"
+                    className="block text-sm font-medium text-foreground"
                   >
                     WhatsApp (waa ikhtiyaari — si xusuusin laguugu soo diro)
                   </label>
@@ -678,7 +672,7 @@ export function WebinarPageClient() {
                 <div>
                   <label
                     htmlFor="webinar-country"
-                    className="block text-sm font-medium text-zinc-300"
+                    className="block text-sm font-medium text-foreground"
                   >
                     Waddanka / Magaalada
                   </label>
@@ -700,19 +694,19 @@ export function WebinarPageClient() {
                 </div>
 
                 <fieldset>
-                  <legend className="text-sm font-medium text-zinc-300">
+                  <legend className="text-sm font-medium text-foreground">
                     Waxaan uga soo biirayaa sidii:
                   </legend>
                   <div
                     className={cn(
-                      "mt-3 space-y-3 rounded-xl border bg-zinc-950/40 p-4 md:p-5",
-                      clientErrors.role ? "border-destructive/60" : "border-zinc-800"
+                      "mt-3 space-y-3 rounded-xl border bg-muted/50 p-4 md:p-5 dark:bg-zinc-950/40",
+                      clientErrors.role ? "border-destructive/60" : "border-border dark:border-zinc-800"
                     )}
                   >
                     {ROLE_OPTIONS.map((opt) => (
                       <label
                         key={opt.value}
-                        className="flex cursor-pointer items-start gap-3.5 text-sm text-zinc-200"
+                        className="flex cursor-pointer items-start gap-3.5 text-sm text-foreground dark:text-zinc-200"
                       >
                         <input
                           type="radio"
@@ -720,7 +714,7 @@ export function WebinarPageClient() {
                           value={opt.value}
                           checked={role === opt.value}
                           onChange={() => setRole(opt.value)}
-                          className="mt-1 size-4 shrink-0 border-zinc-600 text-primary focus:ring-primary"
+                          className="mt-1 size-4 shrink-0 border-border text-primary focus:ring-primary dark:border-zinc-600"
                         />
                         <span className="leading-snug">{opt.label}</span>
                       </label>
@@ -740,7 +734,7 @@ export function WebinarPageClient() {
                 >
                   {submitting ? "Waa la dirayaa…" : "Is-diiwaangeli lacag la'aan →"}
                 </button>
-                <p className="text-center text-xs leading-relaxed text-zinc-500 md:text-[13px]">
+                <p className="text-center text-xs leading-relaxed text-muted-foreground md:text-[13px]">
                   Waxaad isla markiiba heli doontaa email xaqiijin ah. Link-ga
                   Zoom-ka waxaa lagu soo diri doonaa 1 saac ka hor kulanka.
                 </p>
@@ -751,7 +745,7 @@ export function WebinarPageClient() {
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-zinc-800/80 px-4 py-20 md:py-28">
+      <section className="border-t border-border px-4 py-20 md:py-28 dark:border-zinc-800/80">
         <div className="mx-auto max-w-2xl">
           <h2 className="text-center font-serif text-2xl font-medium text-foreground md:text-3xl">
             Su&apos;aalaha badanaa la is weydiiyo
@@ -761,12 +755,12 @@ export function WebinarPageClient() {
               <AccordionItem
                 key={item.q}
                 value={`item-${idx}`}
-                className="overflow-hidden rounded-xl border border-zinc-800/90 border-b-0 bg-zinc-950/40 px-1 data-[state=open]:border-primary/25"
+                className="overflow-hidden rounded-xl border border-border border-b-0 bg-card/70 px-1 data-[state=open]:border-primary/25 dark:border-zinc-800/90 dark:bg-zinc-950/40"
               >
                 <AccordionTrigger className="px-4 py-4 text-start text-[15px] font-medium text-foreground hover:no-underline md:px-5 md:text-base">
                   {item.q}
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 text-sm leading-relaxed text-zinc-400 md:px-5 md:text-[15px]">
+                <AccordionContent className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground md:px-5 md:text-[15px] dark:text-zinc-400">
                   {item.a}
                 </AccordionContent>
               </AccordionItem>
