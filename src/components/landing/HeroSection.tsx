@@ -158,12 +158,11 @@ export function HeroSection() {
         <div className="relative z-10 grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center lg:gap-20 xl:gap-24">
           <div className="hero-animate-done order-1 max-w-xl lg:order-none">
             <p className="mb-6 text-[11px] font-medium uppercase tracking-[0.22em] text-slate-500 dark:text-[#94a3b8] sm:text-xs">
-              NATIIJADA · FULL-STACK DEVELOPER
+              BARO · FULL-STACK &amp; AI
             </p>
             <h1 className="font-display text-[clamp(2.25rem,5vw,3.75rem)] font-bold leading-[1.08] tracking-tight text-slate-900 dark:text-white">
-              Noqo Full-Stack Developer
-              <br />
-              <span className="text-[#7c3aed]">adigoo jooga gurigaaga</span>
+              Baro full-stack dev{" "}
+              <span className="text-[#7c3aed]">&amp; AI</span>
             </h1>
             <p className="mt-6 max-w-md text-base leading-relaxed text-slate-600 dark:text-[#94a3b8]">
               Koox xaddidan iyo mentor-la joogto ah — hal waddo cad iyo mashruuc dhab ah, afkaaga hooyo.
