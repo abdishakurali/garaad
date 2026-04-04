@@ -7,18 +7,18 @@ const WhatsAppFloat = dynamic(() =>
 );
 
 export const metadata: Metadata = {
-  title: "Free AI Webinar — 9 April 2026",
+  title: "Webinar AI — bilaash, 9 April 2026 | Garaad",
   description:
-    "A free 2-hour live AI session for the Somali community. English session, Somali-friendly. Register for Zoom — no recording.",
+    "Kulan toos ah oo 2 saacadood ah: AI waa maxay, sababta ay muhiim u tahay, waxaadna ku qaban karto. Loogu talagalay bulshada Soomaaliyeed. Ma jiro duubis.",
   alternates: { canonical: "https://garaad.org/webinar" },
   openGraph: {
     type: "website",
     url: "https://garaad.org/webinar",
     siteName: "Garaad",
-    title: "Free AI Webinar — Garaad",
+    title: "Webinar AI — Garaad",
     description:
-      "Live on 9 April 2026 (4:00 PM Dublin). Register for your spot — confirmation email + Zoom link 1 hour before start.",
-    locale: "en_GB",
+      "Khamiis 9 April 2026 (4:00 PM Dublin). Is-diiwaangeli — email xaqiijin + link Zoom 1 saac ka hor.",
+    locale: "so_SO",
   },
 };
 
