@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     withHreflang(baseUrl, { lastModified: currentDate, changeFrequency: "daily", priority: 1 }),
     withHreflang(`${baseUrl}/courses`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
     withHreflang(`${baseUrl}/challenge`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.9 }),
+    withHreflang(`${baseUrl}/webinar`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.95 }),
     withHreflang(`${baseUrl}/launchpad`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
     withHreflang(`${baseUrl}/blog`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.8 }),
     withHreflang(`${baseUrl}/community-preview`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.7 }),
