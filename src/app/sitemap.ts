@@ -121,7 +121,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
   } catch (error) {
-    console.error("Sitemap generation error:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Sitemap generation error:", error);
+    }
   }
 
   // Deduplicate URLs in case of overlaps
