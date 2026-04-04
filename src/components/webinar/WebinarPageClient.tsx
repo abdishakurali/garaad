@@ -304,135 +304,77 @@ export function WebinarPageClient() {
       </div>
 
       {/* Hero */}
-      <section className="relative min-h-[90vh] overflow-hidden border-b border-white/5 bg-background md:min-h-screen">
-        <div className="relative min-h-[90vh] md:grid md:min-h-screen md:grid-cols-[55%_45%]">
-          {/* Photo — mobile: banner behind text; desktop: full column height */}
-          <div className="absolute inset-x-0 top-0 z-0 h-[420px] md:relative md:inset-auto md:z-auto md:h-full md:min-h-screen">
-            <div className="relative h-full min-h-[420px] w-full md:min-h-screen">
-              {!presenterImageError ? (
-                <Image
-                  src="/presenter.jpg"
-                  alt="Abdishakur Ali — Founder, Garaad"
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 55vw"
-                  className="object-cover object-top"
-                  onError={() => setPresenterImageError(true)}
-                />
-              ) : (
-                <div className="absolute inset-0 bg-zinc-800" aria-hidden />
-              )}
-              <div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/70 md:hidden"
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute inset-y-0 end-0 hidden w-[48%] bg-gradient-to-l from-background from-20% via-background/40 to-transparent md:block"
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[32%] bg-gradient-to-t from-background from-10% via-transparent to-transparent md:block"
-                aria-hidden
-              />
-            </div>
+      <section className="relative flex w-full min-h-[92vh] flex-col items-center justify-center overflow-hidden border-b border-white/5 bg-background px-6 py-24 text-center">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(154,47,187,0.18),transparent)]"
+          aria-hidden
+        />
+
+        <div className="relative z-10 mx-auto w-full max-w-3xl">
+          <div className="mb-8 flex flex-wrap justify-center gap-3">
+            <span className="rounded-full border border-primary/40 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-primary/80">
+              Webinar toos ah oo lacag la&apos;aan ah
+            </span>
+            <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+              Waa toos oo kaliya — duubis (recording) ma jirto
+            </span>
           </div>
 
-          {/* Text column */}
-          <div className="relative z-10 flex min-h-[90vh] flex-col justify-end gap-6 px-6 pb-12 pt-44 text-start md:min-h-screen md:justify-center md:bg-background md:px-10 md:py-16 md:pt-0">
-            <div
-              className="pointer-events-none absolute end-1/4 top-1/4 -z-0 hidden h-96 w-96 translate-x-1/4 -translate-y-1/4 rounded-full bg-primary/10 blur-3xl md:block"
+          <h1 className="mx-auto mb-4 max-w-3xl font-serif text-5xl font-bold leading-[1.1] tracking-tight text-white md:text-6xl lg:text-7xl">
+            <span className="inline-block text-[1.06em] leading-none text-white md:text-[1.08em]">
+              AI:
+            </span>{" "}
+            Waxa ay tahay, sababta ay muhiim u tahay, iyo waxaad ku qaban
+            karto
+          </h1>
+
+          <div className="mb-8 mt-4 flex justify-center">
+            <div className="h-px w-24 rounded-full bg-primary/60" />
+            <div className="ms-1 h-px w-8 rounded-full bg-primary/30" />
+            <div className="ms-1 h-px w-3 rounded-full bg-primary/15" />
+          </div>
+
+          <p className="mx-auto mb-10 max-w-xl text-base text-white/50 md:text-lg">
+            Kulan toos ah oo 2-saacadood ah oo loogu talagalay bulshada
+            Soomaaliyeed.
+          </p>
+
+          <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-white/30">
+            Khamiis, 9 April 2026
+          </p>
+
+          <div className="mb-10 flex flex-wrap justify-center gap-2">
+            <span className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white">
+              <span className="font-bold">4:00 PM</span>
+              <span className="font-medium"> — Dublin · UK (IST / BST)</span>
+            </span>
+            <span className="rounded-full border border-white/8 bg-white/[0.06] px-5 py-2 text-sm text-white/60">
+              <span className="font-semibold">6:00 PM</span>
+              <span className="font-medium"> — Geeska Afrika (EAT)</span>
+            </span>
+            <span className="rounded-full border border-white/8 bg-white/[0.06] px-5 py-2 text-sm text-white/60">
+              <span className="font-semibold">11:00 AM</span>
+              <span className="font-medium"> — US (ET)</span>
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={scrollToRegister}
+            className="group mx-auto mb-4 block rounded-sm bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-white transition-colors hover:bg-primary/90"
+          >
+            Is-diiwaangeli lacag la&apos;aan
+            <span
+              className="ms-2 inline-block transition group-hover:translate-x-0.5"
               aria-hidden
-            />
-            <div className="pointer-events-none absolute end-8 top-8 -z-0 hidden md:block">
-              <div className="absolute end-0 top-0 h-px w-6 bg-primary" />
-              <div className="absolute end-0 top-0 h-6 w-px bg-primary" />
-            </div>
+            >
+              →
+            </span>
+          </button>
 
-            <div className="relative z-10 flex flex-col gap-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-sm border border-primary/40 bg-primary/20 px-3 py-1 text-xs font-medium uppercase tracking-widest text-primary">
-                  Webinar toos ah oo lacag la&apos;aan ah
-                </span>
-                <span className="rounded-sm border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-widest text-white/40">
-                  Waa toos oo kaliya — duubis (recording) ma jirto
-                </span>
-              </div>
-
-              <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-white md:text-5xl">
-                AI: Waxa ay tahay, sababta ay muhiim u tahay, iyo waxaad ku qaban
-                karto
-              </h1>
-
-              <p className="max-w-xl text-base leading-relaxed text-white/80 md:text-lg md:text-white/70">
-                Kulan toos ah oo 2-saacadood ah oo loogu talagalay bulshada
-                Soomaaliyeed.
-              </p>
-
-              <p className="text-sm font-medium uppercase tracking-wide text-white/60">
-                Khamiis, 9 April 2026
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-sm bg-primary px-4 py-2 text-sm font-medium text-white">
-                  <span className="font-bold">4:00 PM</span>
-                  <span className="font-medium"> — Dublin · UK (IST / BST)</span>
-                </span>
-                <span className="rounded-sm border border-white/10 bg-white/8 px-4 py-2 text-sm font-medium text-white/70">
-                  <span className="font-bold">6:00 PM</span>
-                  <span className="font-medium"> — Geeska Afrika (EAT)</span>
-                </span>
-                <span className="rounded-sm border border-white/10 bg-white/8 px-4 py-2 text-sm font-medium text-white/70">
-                  <span className="font-bold">11:00 AM</span>
-                  <span className="font-medium"> — US (ET)</span>
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {!presenterImageError ? (
-                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-primary/60">
-                    <Image
-                      src="/presenter.jpg"
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="object-cover object-top"
-                      onError={() => setPresenterImageError(true)}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="h-10 w-10 shrink-0 rounded-full border-2 border-primary/60 bg-zinc-700"
-                    aria-hidden
-                  />
-                )}
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-white">Abdishakur Ali</p>
-                  <p className="text-xs text-white/50">
-                    Founder, Garaad · Full-Stack Developer &amp; AI Engineer
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-stretch gap-3 md:items-start">
-                <button
-                  type="button"
-                  onClick={scrollToRegister}
-                  className="group inline-flex w-full items-center justify-center rounded-sm bg-primary px-8 py-4 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-primary/90 md:w-auto"
-                >
-                  Is-diiwaangeli lacag la&apos;aan
-                  <span
-                    className="ms-2 inline-block transition group-hover:translate-x-0.5"
-                    aria-hidden
-                  >
-                    →
-                  </span>
-                </button>
-                <p className="text-center text-xs text-white/30 md:text-start">
-                  Boosasku waa xaddidan yihiin
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="text-xs tracking-wide text-white/20">
+            Boosasku waa xaddidan yihiin
+          </p>
         </div>
       </section>
 
