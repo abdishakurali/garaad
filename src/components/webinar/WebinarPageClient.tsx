@@ -9,7 +9,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { API_BASE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
   Briefcase,
@@ -42,6 +41,22 @@ function parseApiEmailErrors(data: unknown): string | null {
   if (!Array.isArray(emailField) || emailField.length === 0) return null;
   const first = emailField[0];
   return typeof first === "string" ? first : null;
+}
+
+/** First human-readable error from Django REST-style payloads (for toasts). */
+function parseApiGenericError(data: unknown): string | null {
+  if (!isRecord(data)) return null;
+  const email = parseApiEmailErrors(data);
+  if (email) return email;
+  const detail = data.detail;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail) && typeof detail[0] === "string") return detail[0];
+  const nfe = data.non_field_errors;
+  if (Array.isArray(nfe) && typeof nfe[0] === "string") return nfe[0];
+  for (const [_key, val] of Object.entries(data)) {
+    if (Array.isArray(val) && typeof val[0] === "string") return val[0];
+  }
+  return null;
 }
 
 function formatIcsUtcCompact(d: Date): string {
@@ -197,9 +212,8 @@ export function WebinarPageClient() {
     if (!validateClient()) return;
 
     setSubmitting(true);
-    const base = API_BASE_URL.replace(/\/$/, "");
     try {
-      const res = await fetch(`${base}/api/webinar/register/`, {
+      const res = await fetch("/api/webinar/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,7 +230,7 @@ export function WebinarPageClient() {
 
       const raw: unknown = await res.json().catch(() => null);
 
-      if (res.status === 201 && isRecord(raw)) {
+      if (res.ok && isRecord(raw)) {
         const message = raw.message;
         const name = raw.name;
         if (message === "Registered" && typeof name === "string") {
@@ -225,19 +239,18 @@ export function WebinarPageClient() {
         }
       }
 
-      if (res.status === 400) {
-        const serverEmail = parseApiEmailErrors(raw);
-        if (serverEmail) {
-          setClientEmailError(serverEmail);
-          setSubmitting(false);
-          return;
-        }
+      const serverEmail = parseApiEmailErrors(raw);
+      if (serverEmail) {
+        setClientEmailError(serverEmail);
+        return;
       }
 
+      const generic = parseApiGenericError(raw);
       toast({
         variant: "destructive",
         title: "Waxbaa khaldamay",
         description:
+          generic ??
           "Is-diiwaangelintu ma dhicin. Hubi internetka oo mar kale isku day.",
       });
     } catch {
@@ -298,24 +311,28 @@ export function WebinarPageClient() {
       </div>
 
       {/* Hero */}
-      <section className="relative flex w-full min-h-[92vh] flex-col items-center justify-center overflow-hidden border-b border-border/60 bg-background px-6 py-24 text-center dark:border-white/5">
+      <section className="relative flex w-full min-h-[92vh] flex-col items-center justify-center overflow-hidden border-b border-border/60 bg-gradient-to-b from-primary/[0.06] via-violet-500/[0.04] to-background px-6 py-24 text-center dark:border-white/5 dark:from-violet-950/45 dark:via-background dark:to-background">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(139,61,252,0.14),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(154,47,187,0.18),transparent)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_50%_-15%,rgba(139,61,252,0.22),transparent_55%)] dark:bg-[radial-gradient(ellipse_85%_55%_at_50%_-15%,rgba(167,139,250,0.2),transparent_50%)]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent dark:from-background"
           aria-hidden
         />
 
         <div className="relative z-10 mx-auto w-full max-w-3xl">
           <div className="mb-8 flex flex-wrap justify-center gap-3">
-            <span className="rounded-full border border-primary/40 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-primary">
+            <span className="rounded-full border border-primary/50 bg-primary/5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-primary shadow-sm shadow-primary/5 dark:border-primary/35 dark:bg-primary/10">
               Webinar toos ah oo lacag la&apos;aan ah
             </span>
-            <span className="rounded-full border border-border px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground dark:border-white/10 dark:text-white/40">
+            <span className="rounded-full border border-border px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground dark:border-white/12 dark:text-white/45">
               Waa toos oo kaliya — duubis (recording) ma jirto
             </span>
           </div>
 
           <h1 className="mx-auto mb-4 max-w-3xl font-serif text-5xl font-bold leading-[1.1] tracking-tight text-foreground md:text-6xl lg:text-7xl dark:text-white">
-            <span className="inline-block text-[1.06em] leading-none md:text-[1.08em]">
+            <span className="inline-block bg-gradient-to-br from-violet-600 via-primary to-fuchsia-600 bg-clip-text text-[1.06em] leading-none text-transparent md:text-[1.08em] dark:from-violet-300 dark:via-primary dark:to-fuchsia-400">
               AI:
             </span>{" "}
             Waxa ay tahay, sababta ay muhiim u tahay, iyo waxaad ku qaban
@@ -323,30 +340,30 @@ export function WebinarPageClient() {
           </h1>
 
           <div className="mb-8 mt-4 flex justify-center">
-            <div className="h-px w-24 rounded-full bg-primary/60" />
-            <div className="ms-1 h-px w-8 rounded-full bg-primary/30" />
-            <div className="ms-1 h-px w-3 rounded-full bg-primary/15" />
+            <div className="h-px w-24 rounded-full bg-gradient-to-r from-transparent via-primary to-primary/80" />
+            <div className="ms-1 h-px w-8 rounded-full bg-primary/40" />
+            <div className="ms-1 h-px w-3 rounded-full bg-fuchsia-500/30 dark:bg-fuchsia-400/25" />
           </div>
 
-          <p className="mx-auto mb-10 max-w-xl text-base text-muted-foreground md:text-lg dark:text-white/50">
+          <p className="mx-auto mb-10 max-w-xl text-base text-muted-foreground md:text-lg dark:text-white/55">
             Kulan toos ah oo 2-saacadood ah oo loogu talagalay bulshada
             Soomaaliyeed.
           </p>
 
-          <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/90 dark:text-white/30">
+          <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/90 dark:text-white/35">
             Khamiis, 9 April 2026
           </p>
 
           <div className="mb-10 flex flex-wrap justify-center gap-2">
-            <span className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">
+            <span className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/25">
               <span className="font-bold">4:00 PM</span>
               <span className="font-medium"> — Dublin · UK (IST / BST)</span>
             </span>
-            <span className="rounded-full border border-border bg-muted/70 px-5 py-2 text-sm text-muted-foreground dark:border-white/8 dark:bg-white/[0.06] dark:text-white/60">
+            <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-white/65">
               <span className="font-semibold text-foreground dark:text-inherit">6:00 PM</span>
               <span className="font-medium"> — Geeska Afrika (EAT)</span>
             </span>
-            <span className="rounded-full border border-border bg-muted/70 px-5 py-2 text-sm text-muted-foreground dark:border-white/8 dark:bg-white/[0.06] dark:text-white/60">
+            <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-white/65">
               <span className="font-semibold text-foreground dark:text-inherit">11:00 AM</span>
               <span className="font-medium"> — US (ET)</span>
             </span>
@@ -355,7 +372,7 @@ export function WebinarPageClient() {
           <button
             type="button"
             onClick={scrollToRegister}
-            className="group mx-auto mb-4 block rounded-sm bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90"
+            className="group mx-auto mb-4 block cursor-pointer rounded-sm bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90"
           >
             Is-diiwaangeli lacag la&apos;aan
             <span
@@ -366,7 +383,7 @@ export function WebinarPageClient() {
             </span>
           </button>
 
-          <p className="text-xs tracking-wide text-muted-foreground/70 dark:text-white/20">
+          <p className="text-xs tracking-wide text-muted-foreground/80 dark:text-white/25">
             Boosasku waa xaddidan yihiin
           </p>
         </div>
@@ -583,14 +600,14 @@ export function WebinarPageClient() {
                 <button
                   type="button"
                   onClick={downloadIcs}
-                  className="rounded-xl border border-border bg-muted px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/80 dark:border-zinc-700 dark:bg-zinc-900/80 dark:hover:bg-zinc-900"
+                  className="cursor-pointer rounded-xl border border-border bg-muted px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/80 dark:border-zinc-700 dark:bg-zinc-900/80 dark:hover:bg-zinc-900"
                 >
                   Ku dar jadwalka (calendar)
                 </button>
                 <button
                   type="button"
                   onClick={shareCopy}
-                  className="rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+                  className="cursor-pointer rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition hover:bg-primary/90"
                 >
                   La wadaag saaxiib
                 </button>
@@ -730,7 +747,7 @@ export function WebinarPageClient() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex w-full items-center justify-center rounded-xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-55"
+                  className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-55"
                 >
                   {submitting ? "Waa la dirayaa…" : "Is-diiwaangeli lacag la'aan →"}
                 </button>
@@ -757,7 +774,7 @@ export function WebinarPageClient() {
                 value={`item-${idx}`}
                 className="overflow-hidden rounded-xl border border-border border-b-0 bg-card/70 px-1 data-[state=open]:border-primary/25 dark:border-zinc-800/90 dark:bg-zinc-950/40"
               >
-                <AccordionTrigger className="px-4 py-4 text-start text-[15px] font-medium text-foreground hover:no-underline md:px-5 md:text-base">
+                <AccordionTrigger className="cursor-pointer px-4 py-4 text-start text-[15px] font-medium text-foreground hover:no-underline md:px-5 md:text-base">
                   {item.q}
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground md:px-5 md:text-[15px] dark:text-zinc-400">
