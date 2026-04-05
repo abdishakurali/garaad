@@ -355,7 +355,7 @@ export function WebinarPageClient() {
           </p>
 
           <div className="mb-10 flex flex-wrap justify-center gap-2">
-            <span className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/25">
+            <span className="rounded-full  px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/25">
               <span className="font-bold">4:00 PM</span>
               <span className="font-medium"> — Dublin · UK (IST / BST)</span>
             </span>
