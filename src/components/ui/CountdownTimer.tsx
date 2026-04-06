@@ -18,10 +18,7 @@ export interface CountdownTimerProps {
 
 export function CountdownTimer({ targetDate, label, className = "" }: CountdownTimerProps) {
   const { theme } = useTheme();
-  const isDark = theme === "dark" || (typeof window !== "undefined" && document.documentElement.classList.contains("dark"));
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => setMounted(true), []);
+  const isDark = theme === "dark";
   
   const target = useMemo(() => parseTargetMs(targetDate ?? null), [targetDate]);
   const [now, setNow] = useState<number | null>(null);
@@ -41,7 +38,7 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
     );
   }
 
-  if (now === null || !mounted) {
+  if (now === null) {
     return (
       <div className={cn(
         "animate-pulse h-24 rounded-lg", 

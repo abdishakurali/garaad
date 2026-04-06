@@ -32,7 +32,27 @@ const AVATAR_RING_COLORS_DARK = [
 
 export function ChallengeHero() {
   const { theme } = useTheme();
-  const isDark = theme === "dark" || (typeof window !== "undefined" && document.documentElement.classList.contains("dark"));
+  
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
+        <div className="relative z-10 mx-auto max-w-5xl px-6 py-16 sm:py-20 md:py-24 lg:px-8">
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-3 sm:mb-8">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-300">
+              <Sparkles className="h-3 w-3" />
+              3 bilood · lacag celin ah
+            </span>
+          </div>
+          <div className="h-[400px] animate-pulse rounded-lg bg-zinc-900/50" />
+        </div>
+      </section>
+    );
+  }
+
+  const isDark = theme === "dark";
   
   const { user } = useAuthStore();
   const isAuthenticated = !!user;
@@ -40,9 +60,6 @@ export function ChallengeHero() {
   const spots = data?.spots_remaining ?? 0;
   const cohortName = data?.active_cohort_name ?? "Challenge";
   const startForCountdown = data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
-
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
 
   const proofQuery = useFetch<SocialProofUserRaw[]>(
     `${API_BASE_URL}/api/public/social-proof/`,
@@ -59,8 +76,7 @@ export function ChallengeHero() {
   const totalStudents = statsQuery.data?.students_count ?? 0;
 
   const heroAvatars = useMemo(() => {
-    if (!proofUsers || proofUsers.length === 0) return [];
-    const ordered = orderSocialProofForDisplay(proofUsers);
+    const ordered = orderSocialProofForDisplay(proofUsers ?? []);
     if (ordered.length === 0) return [];
     const colors = isDark ? AVATAR_RING_COLORS_DARK : AVATAR_RING_COLORS_LIGHT;
     return ordered.slice(0, 4).map((u, i) => {

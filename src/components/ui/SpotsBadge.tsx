@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
@@ -20,12 +19,9 @@ export function SpotsBadge({
   cohortName,
 }: SpotsBadgeProps) {
   const { theme } = useTheme();
-  const isDark = theme === "dark" || (typeof window !== "undefined" && document.documentElement.classList.contains("dark"));
-  const [mounted, setMounted] = useState(false);
+  const isDark = theme === "dark";
 
-  useEffect(() => setMounted(true), []);
-
-  if (loading || !mounted) {
+  if (loading) {
     return (
       <div
         className={cn(
