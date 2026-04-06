@@ -44,12 +44,12 @@ export function LandingPricingComparison() {
               🔥
             </span>
             <span className="font-semibold text-foreground">Garaad Challenge:</span>{" "}
-            <span className="font-medium">$149 (Hal mar)</span>. 3 bilood. Af-Soomaali. Mentor toos kuu
+            <span className="font-medium text-foreground">Lacag celin ah</span>. 3 bilood. Af-Soomaali. Mentor toos kuu
             caawinaya, iyo shahaado.
           </div>
         </div>
         <p className="mx-auto mt-8 max-w-xl text-center text-sm text-muted-foreground">
-          <Link href="/challenge" className="font-semibold text-primary hover:underline">
+          <Link href="/subscribe?plan=challenge" className="font-semibold text-primary hover:underline">
             Arag faahfaahinta Challenge-ka →
           </Link>
         </p>

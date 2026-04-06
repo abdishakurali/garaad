@@ -41,13 +41,13 @@ export function LessonChallengeSoftInvite() {
                 posthog?.capture("challenge_soft_cta_clicked", { source: "lesson_inline" })
               }
             >
-              {t.challenge_cta_compact} — $149 hal mar
+              {t.challenge_cta_compact} — lacag celin ah
             </Link>
             <span className="hidden text-zinc-600 sm:inline" aria-hidden>
               ·
             </span>
             <Link
-              href="/challenge"
+              href="/subscribe?plan=challenge"
               className="text-xs font-medium text-zinc-500 underline-offset-2 hover:text-zinc-300 hover:underline"
               onClick={() =>
                 posthog?.capture("challenge_soft_info_clicked", { source: "lesson_inline" })

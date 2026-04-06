@@ -96,7 +96,7 @@ export function BlogListClient({ initialPosts }: BlogListClientProps) {
               Waxbarashada Garaad waa bilaash — Challenge-ka waa halka ay shaqadu ka bilowdo.
             </p>
             <Link
-              href="/challenge"
+              href="/subscribe?plan=challenge"
               className="mt-4 inline-flex items-center justify-center rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-500"
             >
               Eeg Challenge-ka →

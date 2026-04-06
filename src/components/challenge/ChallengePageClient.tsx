@@ -176,7 +176,7 @@ export function ChallengePageClient() {
           ) : null}
 
           <div className="mt-6 flex flex-col items-center gap-0.5 sm:mt-8 sm:gap-1">
-            <span className="text-4xl font-bold tabular-nums text-zinc-50 sm:text-5xl">$149</span>
+            <span className="text-4xl font-bold tabular-nums text-zinc-50 sm:text-5xl">Maalgelin</span>
             <span className="text-sm text-zinc-500 sm:text-base">hal mar</span>
           </div>
 
@@ -331,7 +331,7 @@ export function ChallengePageClient() {
                 🔥
               </span>
               <span className="font-semibold text-zinc-50">Garaad Challenge:</span>{" "}
-              <span className="font-medium text-zinc-50">$149 (Hal mar)</span>. 3 bilood. Af-Soomaali. Mentor toos kuu
+              <span className="font-medium text-zinc-50">Maalgelin (Hal mar)</span>. 3 bilood. Af-Soomaali. Mentor toos kuu
               caawinaya, iyo shahaado.
             </div>
           </div>

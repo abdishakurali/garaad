@@ -615,7 +615,7 @@ export function CourseDetailClient() {
                                                 {challengeStatus.spots_remaining} boos ayaa haray
                                             </p>
                                             <Link
-                                                href="/challenge"
+                                                href="/subscribe?plan=challenge"
                                                 className="mt-1.5 inline-flex text-sm font-black text-violet-700 underline-offset-2 hover:underline dark:text-violet-300"
                                             >
                                                 {t.challenge_cta} →
@@ -646,7 +646,7 @@ export function CourseDetailClient() {
                                                         asChild
                                                     >
                                                         <Link href="/subscribe?plan=challenge&ref=course_locked">
-                                                            {t.challenge_cta_compact} — $149 hal mar
+                                                            {t.challenge_cta_compact} — lacag celin ah
                                                         </Link>
                                                     </Button>
                                                     <p className="text-[11px] text-muted-foreground">

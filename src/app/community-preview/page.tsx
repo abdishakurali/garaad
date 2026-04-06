@@ -124,7 +124,7 @@ export default function CommunityPreview() {
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                     <Link
-                                        href="/challenge"
+                                        href="/subscribe?plan=challenge"
                                         className="w-full sm:w-auto px-10 py-5 bg-primary-foreground/10 text-white font-black rounded-2xl hover:bg-primary-foreground/20 transition-all border border-white/20"
                                     >
                                         Baro Challenge-ka

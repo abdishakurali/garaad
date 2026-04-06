@@ -4,7 +4,7 @@ const steps = [
   {
     n: 1,
     title: "Ku biir",
-    body: "$149 hal mar. Kooxda gal.",
+    body: "Lacag celin ah. Kooxda gal.",
   },
   {
     n: 2,

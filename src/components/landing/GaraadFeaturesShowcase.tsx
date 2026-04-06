@@ -284,7 +284,7 @@ export function GaraadFeaturesShowcase() {
         <Reveal>
           <div className="mt-14 flex flex-col items-center gap-3 text-center sm:mt-16">
             <Link
-              href="/challenge"
+              href="/subscribe?plan=challenge"
               className="group inline-flex items-center gap-2 rounded-full border border-violet-500/40 bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-violet-500"
             >
               Challenge-ka ku jiro

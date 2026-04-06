@@ -90,7 +90,7 @@ export function LessonUpgradeModal({
                 </p>
               ) : null}
               <p className="text-center text-base font-black text-white">
-                {t.challenge_cta_compact} — $149 hal mar
+                {t.challenge_cta_compact} — maalgelin
               </p>
             </div>
           </DialogDescription>

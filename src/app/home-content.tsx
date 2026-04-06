@@ -1,36 +1,13 @@
 "use client";
 
-import { HeroSection } from "@/components/landing/HeroSection";
-import { UrgencyStrip } from "@/components/ui/UrgencyStrip";
-import { SectionSkeleton } from "@/components/landing/SkeletonLoader";
-import { Suspense, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { ChallengeHero } from "@/components/landing/ChallengeHero";
+import { OurStorySection } from "@/components/landing/OurStorySection";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { usePostHog } from 'posthog-js/react';
-const TestimonialsSection = dynamic(() => import("@/components/landing/TestimonialsSection").then(mod => mod.TestimonialsSection), {
-    loading: () => <SectionSkeleton />,
-    ssr: true
-});
 
-const CommunityCTASection = dynamic(() => import("@/components/landing/CommunityCTASection").then(mod => mod.CommunityCTASection), {
-    loading: () => <SectionSkeleton />,
-    ssr: true
-});
-
-const LandingPricingComparison = dynamic(
-    () => import("@/components/landing/LandingPricingComparison").then((m) => m.LandingPricingComparison),
-    { loading: () => <SectionSkeleton />, ssr: true }
-);
-
-const GaraadFeaturesShowcase = dynamic(() => import("@/components/landing/GaraadFeaturesShowcase").then(mod => mod.GaraadFeaturesShowcase), {
-    loading: () => <SectionSkeleton />,
-    ssr: true
-});
-
-// Selector: only re-render when the effective view changes (hero vs dashboard).
-// Before hydration we show hero; after, we show dashboard only if authenticated.
-// This avoids an extra Hero re-render when only _hasHydrated flips and user is still guest.
 const selectShowDashboard = (s: { _hasHydrated: boolean; isAuthenticated: boolean }) =>
     s._hasHydrated && s.isAuthenticated;
 
@@ -48,30 +25,19 @@ export function HomeContent() {
     }, [isAuthenticated, user?.id, posthog]);
 
     return (
-        <main className="min-h-screen bg-[#f8f8fc] transition-colors duration-300 dark:bg-[#0a0a0f]">
+        <main className="min-h-screen bg-zinc-950 text-zinc-100">
             {showDashboard ? (
                 <StudentDashboard />
             ) : (
                 <>
-                    <HeroSection />
-
-                    <UrgencyStrip />
-
-                    <Suspense fallback={<SectionSkeleton />}>
-                        <TestimonialsSection />
-                    </Suspense>
-
-                    <Suspense fallback={<SectionSkeleton />}>
-                        <LandingPricingComparison />
-                    </Suspense>
-
-                    <Suspense fallback={<SectionSkeleton />}>
-                        <GaraadFeaturesShowcase />
-                    </Suspense>
-
-                    <Suspense fallback={<SectionSkeleton />}>
-                        <CommunityCTASection />
-                    </Suspense>
+                    <ChallengeHero />
+                    
+                    <TestimonialsSection />
+                    
+                    <OurStorySection
+                        className="py-12 md:py-16"
+                        innerClassName="px-3 sm:px-4 md:px-6 lg:px-8"
+                    />
                 </>
             )}
         </main>

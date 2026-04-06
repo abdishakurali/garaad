@@ -440,7 +440,7 @@ export function CoursesListClient() {
                 {isAuthenticated && (
                     <div className="mt-20 mb-8 rounded-2xl border border-violet-500/25 bg-violet-950/20 px-5 py-4 text-center shadow-sm dark:bg-violet-950/30">
                         <Link
-                            href="/challenge"
+                            href="/subscribe?plan=challenge"
                             className="inline-block text-sm font-bold text-violet-600 hover:underline dark:text-violet-400"
                             onClick={() =>
                                 posthog?.capture("challenge_cta_clicked", { source: "courses_page" })

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 
 function parseTargetMs(iso: string | null | undefined): number | null {
   if (!iso) return null;
@@ -9,17 +11,15 @@ function parseTargetMs(iso: string | null | undefined): number | null {
 }
 
 export interface CountdownTimerProps {
-  /** ISO 8601 target instant */
   targetDate: string | null | undefined;
-  /** Optional label above the timer */
   label?: string;
   className?: string;
 }
 
-/**
- * Countdown with Somali unit labels. At zero shows completion message.
- */
 export function CountdownTimer({ targetDate, label, className = "" }: CountdownTimerProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  
   const target = useMemo(() => parseTargetMs(targetDate ?? null), [targetDate]);
   const [now, setNow] = useState<number | null>(null);
 
@@ -32,20 +32,26 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
 
   if (target == null) {
     return (
-      <p className={`text-sm text-zinc-500 font-medium ${className}`}>
+      <p className={cn("text-sm font-medium", isDark ? "text-zinc-500" : "text-slate-500", className)}>
         Taariikhda kooxdu ay ku bilaabeyso weli lama dhigin.
       </p>
     );
   }
 
   if (now === null) {
-    return <div className={`animate-pulse bg-zinc-800 h-24 rounded-lg ${className}`} />;
+    return (
+      <div className={cn(
+        "animate-pulse h-24 rounded-lg", 
+        isDark ? "bg-zinc-800" : "bg-slate-200",
+        className
+      )} />
+    );
   }
 
   const diff = Math.max(0, target - now);
   if (diff === 0) {
     return (
-      <p className={`text-base font-medium text-zinc-300 ${className}`}>
+      <p className={cn("text-base font-medium", isDark ? "text-zinc-300" : "text-slate-600", className)}>
         Kooxdu way bilaabatay!
       </p>
     );
@@ -66,16 +72,25 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   return (
     <div className={className}>
       {label ? (
-        <p className="mb-3 text-center text-sm text-zinc-500">{label}</p>
+        <p className={cn("mb-3 text-center text-sm", isDark ? "text-zinc-500" : "text-slate-500")}>{label}</p>
       ) : null}
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
         {cells.map((c) => (
           <div
             key={c.label}
-            className="min-w-[4rem] rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-center"
+            className={cn(
+              "min-w-[4rem] rounded-lg border px-3 py-2 text-center",
+              isDark 
+                ? "border-white/10 bg-zinc-900" 
+                : "border-slate-200 bg-white"
+            )}
           >
-            <div className="text-lg font-semibold tabular-nums text-zinc-100 sm:text-xl">{c.value}</div>
-            <div className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">{c.label}</div>
+            <div className={cn("text-lg font-semibold tabular-nums sm:text-xl", isDark ? "text-zinc-100" : "text-slate-800")}>
+              {c.value}
+            </div>
+            <div className={cn("text-[10px] font-medium uppercase tracking-wide", isDark ? "text-zinc-500" : "text-slate-500")}>
+              {c.label}
+            </div>
           </div>
         ))}
       </div>

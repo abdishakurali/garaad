@@ -81,7 +81,7 @@ export default function TermsPage() {
                 },
                 {
                     title: "2. Kharashaadka iyo Is-diiwaangelinta",
-                    content: "Qorshaha bilaashka ah (Bilaash) wax lacag ah laguma bixiyo. Challenge-ku waa hal mar oo lacag bixin ah — waana $149 muddo 3 bilood ah. Ma jirto lacag bixin si toos ah u cusboonaanaysa. Haddii aad wax dhib ah kala kulanto ama aad su'aalo qabto, nagala soo xiriir: info@garaad.org"
+                    content: "Qorshaha bilaashka ah (Bilaash) wax lacag ah laguma bixiyo. Challenge-ku waa hal mar oo lacag bixin ah — waana maalgelin muddo 3 bilood ah. Ma jirto lacag bixin si toos ah u cusboonaanaysa. Haddii aad wax dhib ah kala kulanto ama aad su'aalo qabto, nagala soo xiriir: info@garaad.org"
                 },
                 {
                     title: "3. Nuxurkaaga (Content)",

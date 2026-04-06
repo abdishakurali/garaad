@@ -189,7 +189,7 @@ export function LaunchpadListClient() {
 
                     <div className="mb-10 flex justify-center animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
                         <Link
-                            href="/challenge"
+                            href="/subscribe?plan=challenge"
                             className="inline-flex items-center justify-center rounded-2xl bg-violet-600 px-8 py-3.5 text-sm font-black text-white hover:bg-violet-500"
                         >
                             {t.challenge_cta} →
@@ -214,7 +214,7 @@ export function LaunchpadListClient() {
                                     Mashruucaaga Launchpad ku soo dir haddii aad Challenge-ka ku jirtid
                                 </p>
                                 <Link
-                                    href="/challenge"
+                                    href="/subscribe?plan=challenge"
                                     className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-black text-white hover:bg-violet-500"
                                 >
                                     {t.challenge_cta} →

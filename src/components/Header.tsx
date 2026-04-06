@@ -57,8 +57,7 @@ export function Header() {
   }, [isMobileMenuOpen]);
 
   const navLinks = useMemo(() => [
-    { name: "Koorsooyinka", href: "/courses" },
-    { name: "Challenge", href: "/challenge" },
+    { name: "Koorsooyinka", href: "/courses", badge: "bilaash" },
     { name: "Webinar", href: "/webinar" },
     { name: "Bulshada", href: user ? "/community" : "/communitypreview" },
     { name: "Blog", href: "/blog" },
@@ -96,18 +95,24 @@ export function Header() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={clsx(
-                  "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
-                  isLinkActive(link.href)
-                    ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-600/10"
-                    : "text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-50 dark:hover:bg-white/5"
+              <div key={link.href} className="relative">
+                <Link
+                  href={link.href}
+                  className={clsx(
+                    "block px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                    isLinkActive(link.href)
+                      ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-600/10"
+                      : "text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-50 dark:hover:bg-white/5"
+                  )}
+                >
+                  {link.name}
+                </Link>
+                {link.badge && (
+                  <span className="absolute -top-1 -right-1 inline-flex items-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                    {link.badge}
+                  </span>
                 )}
-              >
-                {link.name}
-              </Link>
+              </div>
             ))}
           </nav>
 
@@ -157,18 +162,24 @@ export function Header() {
             </div>
             <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 space-y-2">
               {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={clsx(
-                    "block px-4 py-3 text-base font-medium rounded-lg transition-colors",
-                    isLinkActive(link.href)
-                      ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-600/10"
-                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
+                <div key={link.href} className="relative">
+                  <Link
+                    href={link.href}
+                    className={clsx(
+                      "block px-4 py-3 text-base font-medium rounded-lg transition-colors",
+                      isLinkActive(link.href)
+                        ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-600/10"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
+                    )}
+                  >
+                    {link.name}
+                  </Link>
+                  {link.badge && (
+                    <span className="absolute -top-1 -right-1 inline-flex items-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                      {link.badge}
+                    </span>
                   )}
-                >
-                  {link.name}
-                </Link>
+                </div>
               ))}
             </nav>
             <div className="shrink-0 border-t border-slate-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-white/10">

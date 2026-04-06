@@ -44,7 +44,7 @@ export function UrgencyStrip() {
   return (
     <div className="relative w-full border-b border-white/10 bg-zinc-900">
       <Link
-        href={waitlist ? "/subscribe?plan=challenge" : "/challenge"}
+        href={waitlist ? "/subscribe?plan=challenge" : "/subscribe?plan=challenge"}
         className="flex w-full items-center justify-center px-10 py-2.5 text-center text-sm text-zinc-300 hover:text-zinc-100"
       >
         <span className="leading-snug">

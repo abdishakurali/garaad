@@ -11,10 +11,10 @@ export function CoursesChallengeBanner() {
         Challenge-ka; ma aha mid kugu qasab ah.
       </p>
       <Link
-        href="/challenge"
+        href="/subscribe?plan=challenge"
         className="inline-flex w-full items-center justify-center rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white hover:bg-violet-500 md:w-auto"
       >
-        {t.challenge_cta} — $149 hal mar →
+        {t.challenge_cta} — lacag celin ah →
       </Link>
     </div>
   );

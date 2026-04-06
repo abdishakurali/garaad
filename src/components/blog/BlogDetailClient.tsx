@@ -243,7 +243,7 @@ export function BlogDetailClient({ post, relatedPosts }: BlogDetailClientProps) 
                 wadada buuxda, eeg Challenge-ka.
               </p>
               <Link
-                href="/challenge"
+                href="/subscribe?plan=challenge"
                 className="mt-2 inline-block text-sm font-bold text-primary hover:underline"
               >
                 Bilow Challenge →

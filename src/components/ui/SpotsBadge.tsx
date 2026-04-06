@@ -1,20 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 export interface SpotsBadgeProps {
   spots: number;
   loading?: boolean;
   className?: string;
-  /** Sold out / waitlist: show invitation instead of "0 boos oo hadhay". */
   waitlistOnly?: boolean;
   cohortName?: string | null;
 }
 
-/**
- * Live cohort spots: red (≤3), orange (≤6), green (>6).
- * When waitlist-only, pivots to next-cohort scarcity (no dead-end zero).
- */
 export function SpotsBadge({
   spots,
   loading,
@@ -22,10 +18,17 @@ export function SpotsBadge({
   waitlistOnly,
   cohortName,
 }: SpotsBadgeProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   if (loading) {
     return (
       <div
-        className={cn("mx-auto h-9 w-48 max-w-full animate-pulse rounded-lg bg-zinc-800", className)}
+        className={cn(
+          "mx-auto h-9 w-48 max-w-full animate-pulse rounded-lg",
+          isDark ? "bg-zinc-800" : "bg-slate-200",
+          className
+        )}
         aria-hidden
       />
     );
@@ -36,7 +39,10 @@ export function SpotsBadge({
     return (
       <div
         className={cn(
-          "inline-flex max-w-full items-center justify-center rounded-lg border border-violet-500/40 bg-violet-950/40 px-3 py-2 text-center text-sm font-semibold text-violet-100 sm:text-base",
+          "inline-flex max-w-full items-center justify-center rounded-lg border px-3 py-2 text-center text-sm font-semibold sm:text-base",
+          isDark 
+            ? "border-violet-500/40 bg-violet-950/40 text-violet-100" 
+            : "border-violet-200 bg-violet-50 text-violet-700",
           className
         )}
         role="status"
@@ -50,15 +56,16 @@ export function SpotsBadge({
 
   const tone =
     spots <= 3
-      ? "border-violet-500/35 text-violet-200"
+      ? isDark ? "border-violet-500/35 text-violet-200" : "border-violet-300 text-violet-700"
       : spots <= 6
-        ? "border-white/15 text-zinc-300"
-        : "border-white/10 text-zinc-400";
+        ? isDark ? "border-white/15 text-zinc-300" : "border-slate-300 text-slate-600"
+        : isDark ? "border-white/10 text-zinc-400" : "border-slate-200 text-slate-500";
 
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-center rounded-lg border bg-zinc-900 px-3 py-2 text-sm font-medium sm:text-base",
+        "inline-flex items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium sm:text-base",
+        isDark ? "bg-zinc-900" : "bg-white",
         tone,
         className
       )}

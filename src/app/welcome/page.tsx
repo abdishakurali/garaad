@@ -1260,7 +1260,7 @@ function WelcomeOnboardingPage() {
                   {answers.barrier === "alone" && (
                     <li>✓ Mentor xirfadle ah toddobaad kasta (af Soomaali).</li>
                   )}
-                  <li>✓ $149 — hal bixis muddo 3 bilood ah.</li>
+                  <li>✓ Lacag celin ah — hal bixis muddo 3 bilood ah.</li>
                   <li>✓ 7 maalmood oo damaanad ah (lacag celin).</li>
                   <li>✓ Kaliya 10 arday ayaa koox kasta ka mid ah.</li>
                   <li>
