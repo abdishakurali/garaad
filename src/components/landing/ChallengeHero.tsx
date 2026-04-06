@@ -32,7 +32,7 @@ const AVATAR_RING_COLORS_DARK = [
 
 export function ChallengeHero() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = theme === "dark" || (typeof window !== "undefined" && document.documentElement.classList.contains("dark"));
   
   const { user } = useAuthStore();
   const isAuthenticated = !!user;
@@ -59,7 +59,8 @@ export function ChallengeHero() {
   const totalStudents = statsQuery.data?.students_count ?? 0;
 
   const heroAvatars = useMemo(() => {
-    const ordered = orderSocialProofForDisplay(proofUsers ?? []);
+    if (!proofUsers || proofUsers.length === 0) return [];
+    const ordered = orderSocialProofForDisplay(proofUsers);
     if (ordered.length === 0) return [];
     const colors = isDark ? AVATAR_RING_COLORS_DARK : AVATAR_RING_COLORS_LIGHT;
     return ordered.slice(0, 4).map((u, i) => {
