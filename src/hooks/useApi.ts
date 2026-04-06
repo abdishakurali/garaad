@@ -14,7 +14,7 @@ function localStorageProvider() {
   const cacheData = localStorage.getItem("swr-cache");
   const map = new Map(JSON.parse(cacheData || "[]"));
 
-  // This is a simple implementation. In a real app, you might want to 
+  // This is a simple implementation. In a real app, you might want to
   // throttle the storage update or use a more robust solution.
   window.addEventListener("beforeunload", () => {
     try {
@@ -218,10 +218,12 @@ export function useProblem(problemId: number | string | undefined | null) {
 
 // User Streak hook removed - API endpoint not available
 
-// Enrollments
+// Enrollments (only when authenticated — avoids 401 noise and useless errors when logged out)
 export function useEnrollments() {
+  const token =
+    typeof window !== "undefined" ? AuthService.getInstance().getToken() : null;
   const { data, error, isLoading, mutate } = useSWR(
-    `${API_BASE_URL}/api/lms/enrollments/`,
+    token ? `${API_BASE_URL}/api/lms/enrollments/` : null,
     fetcher,
     {
       revalidateOnFocus: false,

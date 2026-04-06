@@ -1,6 +1,6 @@
-// Version: 1.0.4 (Internal: garaad-v5) — bypass cross-origin fetches (Stripe, CDNs)
+// Version: 1.0.5 (Internal: garaad-v6) — never intercept Next.js /_next/ assets (stale chunks break webpack after deploy)
 
-const CACHE_VERSION = 'garaad-v5';
+const CACHE_VERSION = 'garaad-v6';
 const STATIC_CACHE = `garaad-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `garaad-dynamic-${CACHE_VERSION}`;
 
@@ -56,6 +56,13 @@ self.addEventListener('fetch', (event) => {
 
     // Skip API calls and WebSocket connections
     if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws/')) {
+        return;
+    }
+
+    // Next.js build output (chunks, webpack runtime, RSC, images optimizer, etc.).
+    // MUST NOT use cache-first here: after a new deploy, old cached chunks + new HTML
+    // cause "Cannot read properties of undefined (reading 'call')" in webpack.
+    if (url.pathname.startsWith('/_next/')) {
         return;
     }
 
