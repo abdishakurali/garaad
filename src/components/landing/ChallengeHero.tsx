@@ -7,11 +7,11 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useTheme } from "next-themes";
 import { API_BASE_URL } from "@/lib/constants";
 import { orderSocialProofForDisplay, type SocialProofUserRaw } from "@/lib/social-proof";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFetch } from "@/composables";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -31,19 +31,20 @@ const AVATAR_RING_COLORS_DARK = [
 ] as const;
 
 export function ChallengeHero() {
-  // All hooks must be called unconditionally at the top
-  const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const isDark = theme === "dark";
+
   const { user } = useAuthStore();
+  const isAuthenticated = !!user;
   const { data, loading } = useChallengeStatus();
+  const spots = data?.spots_remaining ?? 0;
+  const cohortName = data?.active_cohort_name ?? "Challenge";
   const startForCountdown = data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Computed values after hooks
-  const isDark = mounted ? theme === "dark" : true;
   const proofQuery = useFetch<SocialProofUserRaw[]>(
     `${API_BASE_URL}/api/public/social-proof/`,
     fetcher,
@@ -71,14 +72,6 @@ export function ChallengeHero() {
     });
   }, [proofUsers, isDark]);
 
-  const primaryHref = "/subscribe?plan=challenge";
-
-  const scrollToStory = () => {
-    const el = document.getElementById("our-story");
-    el?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // Before mount, render dark skeleton
   if (!mounted) {
     return (
       <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
@@ -95,13 +88,21 @@ export function ChallengeHero() {
     );
   }
 
+  const primaryHref = "/subscribe?plan=challenge";
+
+  const scrollToStory = () => {
+    const el = document.getElementById("our-story");
+    el?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <section className={cn(
       "relative min-h-screen overflow-hidden",
-      isDark 
-        ? "bg-zinc-950 text-zinc-100" 
+      isDark
+        ? "bg-zinc-950 text-zinc-100"
         : "bg-gradient-to-b from-white via-slate-50 to-white text-slate-900"
     )}>
+      {/* Background effects - subtle for both modes */}
       <div className="absolute inset-0" aria-hidden>
         {isDark ? (
           <>
@@ -121,8 +122,8 @@ export function ChallengeHero() {
         <div className="mb-6 flex flex-wrap items-center justify-center gap-3 sm:mb-8">
           <span className={cn(
             "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium",
-            isDark 
-              ? "border-violet-500/30 bg-violet-500/10 text-violet-300" 
+            isDark
+              ? "border-violet-500/30 bg-violet-500/10 text-violet-300"
               : "border-violet-200 bg-violet-50 text-violet-700"
           )}>
             <Sparkles className="h-3 w-3" />
@@ -134,8 +135,8 @@ export function ChallengeHero() {
           Laga soo bilaabo{" "}
           <span className={cn(
             "bg-clip-text text-transparent bg-gradient-to-r",
-            isDark 
-              ? "from-violet-400 to-violet-300" 
+            isDark
+              ? "from-violet-400 to-violet-300"
               : "from-violet-600 to-violet-500"
           )}>
             Eber
@@ -167,11 +168,11 @@ export function ChallengeHero() {
           <span className={isDark ? "text-zinc-200" : "text-slate-700"}>3 bilood gudahood</span>. Khibrad hore looma baahna.
         </p>
 
-        {heroAvatars.length > 0 && (
+        {mounted && heroAvatars.length > 0 && (
           <div className={cn(
             "mx-auto mt-6 flex w-fit items-center gap-3 rounded-full border px-4 py-2",
-            isDark 
-              ? "border-white/10 bg-white/5" 
+            isDark
+              ? "border-white/10 bg-white/5"
               : "border-slate-200 bg-white shadow-sm"
           )}>
             <div className="flex items-center -space-x-2">
@@ -203,13 +204,14 @@ export function ChallengeHero() {
           </div>
         )}
 
+        {/* CTA Row - Flex on desktop, stacked on mobile */}
         <div className="mx-auto mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:justify-center sm:gap-4">
           <Link
             href={primaryHref}
             className={cn(
               "order-1 flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all hover:shadow-xl sm:order-none sm:px-8 sm:py-4 sm:text-base",
-              isDark 
-                ? "bg-white text-zinc-900 hover:bg-zinc-100 hover:shadow-violet-500/20" 
+              isDark
+                ? "bg-white text-zinc-900 hover:bg-zinc-100 hover:shadow-violet-500/20"
                 : "bg-violet-600 text-white hover:bg-violet-700 hover:shadow-violet-500/30"
             )}
           >
@@ -228,6 +230,7 @@ export function ChallengeHero() {
           </button>
         </div>
 
+        {/* Scarcity Row */}
         <div className="mx-auto mt-8 flex flex-col items-center gap-3 sm:mt-10">
           <CountdownTimer
             targetDate={startForCountdown}
@@ -235,6 +238,7 @@ export function ChallengeHero() {
           />
         </div>
 
+        {/* Video */}
         <div className="mx-auto mt-10 w-full max-w-2xl sm:mt-12">
           <Link
             href={primaryHref}

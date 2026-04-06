@@ -1,10 +1,5 @@
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { WebinarPageClient } from "@/components/webinar/WebinarPageClient";
-
-const WhatsAppFloat = dynamic(() =>
-  import("@/components/landing/WhatsAppFloat").then((mod) => mod.WhatsAppFloat)
-);
 
 export const metadata: Metadata = {
   title: "Webinar AI — bilaash, 9 April 2026 | Garaad",
@@ -26,7 +21,6 @@ export default function WebinarPage() {
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
       <WebinarPageClient />
-      <WhatsAppFloat />
     </div>
   );
 }

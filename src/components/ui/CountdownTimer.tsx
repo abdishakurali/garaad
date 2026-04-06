@@ -18,9 +18,21 @@ export interface CountdownTimerProps {
 
 export function CountdownTimer({ targetDate, label, className = "" }: CountdownTimerProps) {
   const { theme } = useTheme();
-  
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const isDark = theme === "dark";
+  const target = useMemo(() => parseTargetMs(targetDate ?? null), [targetDate]);
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!mounted) return;
+    setNow(Date.now());
+    if (target == null) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [mounted, target]);
 
   if (!mounted) {
     return (
@@ -43,17 +55,6 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
     );
   }
 
-  const isDark = theme === "dark";
-  const target = useMemo(() => parseTargetMs(targetDate ?? null), [targetDate]);
-  const [now, setNow] = useState<number | null>(null);
-
-  useEffect(() => {
-    setNow(Date.now());
-    if (target == null) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, [target]);
-
   if (target == null) {
     return (
       <p className={cn("text-sm font-medium", isDark ? "text-zinc-500" : "text-slate-500", className)}>
@@ -65,7 +66,7 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   if (now === null) {
     return (
       <div className={cn(
-        "animate-pulse h-24 rounded-lg", 
+        "animate-pulse h-24 rounded-lg",
         isDark ? "bg-zinc-800" : "bg-slate-200",
         className
       )} />
@@ -104,8 +105,8 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
             key={c.label}
             className={cn(
               "min-w-[4rem] rounded-lg border px-3 py-2 text-center",
-              isDark 
-                ? "border-white/10 bg-zinc-900" 
+              isDark
+                ? "border-white/10 bg-zinc-900"
                 : "border-slate-200 bg-white"
             )}
           >
