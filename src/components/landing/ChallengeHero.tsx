@@ -31,10 +31,11 @@ const AVATAR_RING_COLORS_DARK = [
 ] as const;
 
 export function ChallengeHero() {
-  const { theme } = useTheme();
-  
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Default to dark mode to prevent hydration mismatch - actual theme applied after mount
+  const isDark = mounted ? (require("next-themes").useTheme().theme === "dark") : true;
 
   if (!mounted) {
     return (
@@ -52,8 +53,6 @@ export function ChallengeHero() {
     );
   }
 
-  const isDark = theme === "dark";
-  
   const { user } = useAuthStore();
   const isAuthenticated = !!user;
   const { data, loading } = useChallengeStatus();
