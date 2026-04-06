@@ -56,12 +56,21 @@ export function Header() {
     };
   }, [isMobileMenuOpen]);
 
-  const navLinks = useMemo(() => [
-    { name: "Koorsooyinka", href: "/courses", badge: "bilaash" },
-    { name: "Webinar", href: "/webinar" },
-    { name: "Bulshada", href: user ? "/community" : "/communitypreview" },
-    { name: "Blog", href: "/blog" },
-  ], [user]);
+  const navLinks = useMemo(() => {
+    const links = [
+      { name: "Koorsooyinka", href: "/courses", badge: "bilaash" },
+      { name: "Webinar", href: "/webinar" },
+      { name: "Blog", href: "/blog" },
+    ];
+    
+    if (mounted && user) {
+      links.splice(2, 0, { name: "Bulshada", href: "/community" });
+    } else if (!mounted) {
+      links.splice(2, 0, { name: "Bulshada", href: "/communitypreview" });
+    }
+    
+    return links;
+  }, [mounted, user]);
 
   const isLinkActive = useCallback(
     (href: string) => pathname === href || pathname.startsWith(`${href}/`),

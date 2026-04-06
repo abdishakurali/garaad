@@ -18,8 +18,32 @@ export interface CountdownTimerProps {
 
 export function CountdownTimer({ targetDate, label, className = "" }: CountdownTimerProps) {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
   
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className={className}>
+        {label ? (
+          <p className="mb-3 text-center text-sm text-zinc-500">{label}</p>
+        ) : null}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+          {["maalmood", "saacadood", "daqiiqo", "ilbiriqsi"].map((label) => (
+            <div
+              key={label}
+              className="min-w-[4rem] rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-center"
+            >
+              <div className="text-lg font-semibold tabular-nums text-zinc-100 sm:text-xl">0</div>
+              <div className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const isDark = theme === "dark";
   const target = useMemo(() => parseTargetMs(targetDate ?? null), [targetDate]);
   const [now, setNow] = useState<number | null>(null);
 
