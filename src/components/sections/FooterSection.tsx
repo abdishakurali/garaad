@@ -7,6 +7,7 @@ export function FooterSection() {
     product: [
       { name: "Bilaash", href: "/subscribe" },
       { name: "Koorsooyin", href: "/courses" },
+      { name: "Webinar AI", href: "/webinar" },
       { name: "Blog", href: "/blog" },
     ],
     company: [

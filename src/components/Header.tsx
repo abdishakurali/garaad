@@ -59,6 +59,7 @@ export function Header() {
   const navLinks = useMemo(() => [
     { name: "Koorsooyinka", href: "/courses" },
     { name: "Challenge", href: "/challenge" },
+    { name: "Webinar", href: "/webinar" },
     { name: "Bulshada", href: user ? "/community" : "/communitypreview" },
     { name: "Blog", href: "/blog" },
   ], [user]);
