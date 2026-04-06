@@ -89,7 +89,7 @@ export default function HomepageSEO() {
                             "https://twitter.com/garaad_so",
                             "https://facebook.com/garaad.org",
                             "https://instagram.com/garaad.org",
-                            "https://youtube.com/@garaad.org"
+                            "https://www.youtube.com/@garaadai"
                         ],
                         "address": {
                             "@type": "PostalAddress",
@@ -324,4 +324,4 @@ export default function HomepageSEO() {
             <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         </Head>
     );
-} 
+}

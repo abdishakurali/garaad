@@ -167,7 +167,7 @@ export default function SEOHead({
                             "https://twitter.com/garaad_so",
                             "https://facebook.com/garaad.org",
                             "https://instagram.com/garaad.org",
-                            "https://youtube.com/@garaad.org"
+                            "https://www.youtube.com/@garaadai"
                         ],
                         "contactPoint": {
                             "@type": "ContactPoint",
@@ -228,4 +228,4 @@ export default function SEOHead({
             <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         </Head>
     );
-} 
+}
