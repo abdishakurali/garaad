@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "Garaad",
     title: "Webinar AI — Garaad",
     description:
-      "Khamiis 9 April 2026 (4:00 PM Dublin). Is-diiwaangeli — email xaqiijin + link Zoom 1 saac ka hor.",
+      "Khamiis 9 April 2026 (6:00 PM Dublin · 8:00 PM Geeska Afrika · 1:00 PM US ET). Is-diiwaangeli — email xaqiijin + link Zoom 1 saac ka hor.",
     locale: "so_SO",
   },
 };

@@ -87,8 +87,8 @@ function buildWebinarIcs(): string {
     "BEGIN:VEVENT",
     "UID:webinar-garaad-ai-2026-04-09@garaad.org",
     `DTSTAMP:${formatIcsUtcCompact(new Date())}`,
-    "DTSTART:20260409T150000Z",
-    "DTEND:20260409T170000Z",
+    "DTSTART:20260409T170000Z",
+    "DTEND:20260409T190000Z",
     "SUMMARY:AI Webinar — Garaad",
     `DESCRIPTION:${escapeIcsText(
       "Kulan toos ah oo 2 saacadood ah (Ingiriis / Soomaali). Link-ga Zoom waxaa laguugu soo diri doonaa 1 saac ka hor."
@@ -356,15 +356,15 @@ export function WebinarPageClient() {
 
           <div className="mb-10 flex flex-wrap justify-center gap-2">
             <span className="rounded-full border border-primary/35 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm dark:border-primary/30 dark:bg-primary/15 dark:text-zinc-100">
-              <span className="font-bold">4:00 PM</span>
+              <span className="font-bold">6:00 PM</span>
               <span className="font-medium"> — Dublin · UK (IST / BST)</span>
             </span>
             <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2.5 text-sm text-zinc-900 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-zinc-100">
-              <span className="font-semibold">6:00 PM</span>
+              <span className="font-semibold">8:00 PM</span>
               <span className="font-medium text-zinc-800 dark:text-zinc-200"> — Geeska Afrika (EAT)</span>
             </span>
             <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2.5 text-sm text-zinc-900 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-zinc-100">
-              <span className="font-semibold">11:00 AM</span>
+              <span className="font-semibold">1:00 PM</span>
               <span className="font-medium text-zinc-800 dark:text-zinc-200"> — US (ET)</span>
             </span>
           </div>
