@@ -145,8 +145,8 @@ export function Header() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="absolute right-0 top-0 h-full w-72 max-w-[85vw] bg-white dark:bg-[#0a0a0f] shadow-xl animate-in slide-in-from-right duration-200">
-            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-white/10">
+          <div className="absolute right-0 top-0 flex h-[100dvh] max-h-[100dvh] w-72 max-w-[85vw] flex-col bg-white dark:bg-[#0a0a0f] shadow-xl animate-in slide-in-from-right duration-200">
+            <div className="flex shrink-0 items-center justify-between border-b border-slate-100 p-4 dark:border-white/10">
               <span className="font-semibold text-slate-800 dark:text-white">Menu</span>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -155,7 +155,7 @@ export function Header() {
                 <X className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               </button>
             </div>
-            <nav className="p-4 space-y-2">
+            <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 space-y-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -171,7 +171,7 @@ export function Header() {
                 </Link>
               ))}
             </nav>
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-100 dark:border-white/10">
+            <div className="shrink-0 border-t border-slate-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-white/10">
               {mounted && user ? (
                 <div className="space-y-2">
                   <div className="px-4 py-2 text-sm text-slate-500 dark:text-slate-400">

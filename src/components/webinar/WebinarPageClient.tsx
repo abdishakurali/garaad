@@ -355,17 +355,17 @@ export function WebinarPageClient() {
           </p>
 
           <div className="mb-10 flex flex-wrap justify-center gap-2">
-            <span className="rounded-full  px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/25">
+            <span className="rounded-full border border-primary/35 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm dark:border-primary/30 dark:bg-primary/15 dark:text-zinc-100">
               <span className="font-bold">4:00 PM</span>
               <span className="font-medium"> — Dublin · UK (IST / BST)</span>
             </span>
-            <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-white/65">
-              <span className="font-semibold text-foreground dark:text-inherit">6:00 PM</span>
-              <span className="font-medium"> — Geeska Afrika (EAT)</span>
+            <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2.5 text-sm text-zinc-900 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-zinc-100">
+              <span className="font-semibold">6:00 PM</span>
+              <span className="font-medium text-zinc-800 dark:text-zinc-200"> — Geeska Afrika (EAT)</span>
             </span>
-            <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-white/65">
-              <span className="font-semibold text-foreground dark:text-inherit">11:00 AM</span>
-              <span className="font-medium"> — US (ET)</span>
+            <span className="rounded-full border border-border/80 bg-muted/80 px-5 py-2.5 text-sm text-zinc-900 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.07] dark:text-zinc-100">
+              <span className="font-semibold">11:00 AM</span>
+              <span className="font-medium text-zinc-800 dark:text-zinc-200"> — US (ET)</span>
             </span>
           </div>
 
@@ -593,8 +593,8 @@ export function WebinarPageClient() {
                 Waad ku guulaysatay, {firstNameFromFullName(successName)}!
               </p>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-[15px] dark:text-zinc-400">
-                Hubi emailkaaga xaqiijinta. Link-ga Zoom waxaa laguugu soo diri
-                doonaa 1 saac ka hor intaanan bilownin.
+                Hubi sanduuqa soo gelitaanka (inbox) iyo spam-ka. Waxaad heli
+                doontaa email leh link-ga Zoom iyo faahfaahinta kulanka.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button
@@ -752,8 +752,8 @@ export function WebinarPageClient() {
                   {submitting ? "Waa la dirayaa…" : "Is-diiwaangeli lacag la'aan →"}
                 </button>
                 <p className="text-center text-xs leading-relaxed text-muted-foreground md:text-[13px]">
-                  Waxaad isla markiiba heli doontaa email xaqiijin ah. Link-ga
-                  Zoom-ka waxaa lagu soo diri doonaa 1 saac ka hor kulanka.
+                  Isla markiiba waxaad heli doontaa email leh link-ga Zoom iyo
+                  aqoonsiga kulanka. Hubi spam haddii aadan arkin.
                 </p>
               </div>
             </form>
@@ -772,12 +772,12 @@ export function WebinarPageClient() {
               <AccordionItem
                 key={item.q}
                 value={`item-${idx}`}
-                className="overflow-hidden rounded-xl border border-border border-b-0 bg-card/70 px-1 data-[state=open]:border-primary/25 dark:border-zinc-800/90 dark:bg-zinc-950/40"
+                className="rounded-xl border border-border border-b-0 bg-card/70 px-0 data-[state=open]:border-primary/30 data-[state=open]:shadow-sm dark:border-zinc-800/90 dark:bg-zinc-950/40"
               >
-                <AccordionTrigger className="cursor-pointer px-4 py-4 text-start text-[15px] font-medium text-foreground hover:no-underline md:px-5 md:text-base">
+                <AccordionTrigger className="cursor-pointer items-start gap-3 px-4 py-4 text-start text-[15px] font-medium leading-snug text-foreground hover:no-underline md:px-5 md:py-5 md:text-base [&>svg]:mt-1 [&>svg]:shrink-0">
                   {item.q}
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground md:px-5 md:text-[15px] dark:text-zinc-400">
+                <AccordionContent className="px-4 pb-5 pt-0 text-[15px] leading-relaxed text-zinc-800 md:px-5 md:pb-6 md:text-base dark:text-zinc-300">
                   {item.a}
                 </AccordionContent>
               </AccordionItem>
