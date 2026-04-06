@@ -7,11 +7,11 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTheme } from "next-themes";
 import { API_BASE_URL } from "@/lib/constants";
 import { orderSocialProofForDisplay, type SocialProofUserRaw } from "@/lib/social-proof";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { useFetch } from "@/composables";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -31,35 +31,19 @@ const AVATAR_RING_COLORS_DARK = [
 ] as const;
 
 export function ChallengeHero() {
+  // All hooks must be called unconditionally at the top
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  // Default to dark mode to prevent hydration mismatch - actual theme applied after mount
-  const isDark = mounted ? (require("next-themes").useTheme().theme === "dark") : true;
-
-  if (!mounted) {
-    return (
-      <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
-        <div className="relative z-10 mx-auto max-w-5xl px-6 py-16 sm:py-20 md:py-24 lg:px-8">
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-3 sm:mb-8">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-300">
-              <Sparkles className="h-3 w-3" />
-              3 bilood · lacag celin ah
-            </span>
-          </div>
-          <div className="h-[400px] animate-pulse rounded-lg bg-zinc-900/50" />
-        </div>
-      </section>
-    );
-  }
-
+  const { theme } = useTheme();
   const { user } = useAuthStore();
-  const isAuthenticated = !!user;
   const { data, loading } = useChallengeStatus();
-  const spots = data?.spots_remaining ?? 0;
-  const cohortName = data?.active_cohort_name ?? "Challenge";
   const startForCountdown = data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Computed values after hooks
+  const isDark = mounted ? theme === "dark" : true;
   const proofQuery = useFetch<SocialProofUserRaw[]>(
     `${API_BASE_URL}/api/public/social-proof/`,
     fetcher,
@@ -94,6 +78,23 @@ export function ChallengeHero() {
     el?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Before mount, render dark skeleton
+  if (!mounted) {
+    return (
+      <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
+        <div className="relative z-10 mx-auto max-w-5xl px-6 py-16 sm:py-20 md:py-24 lg:px-8">
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-3 sm:mb-8">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-300">
+              <Sparkles className="h-3 w-3" />
+              3 bilood · lacag celin ah
+            </span>
+          </div>
+          <div className="h-[400px] animate-pulse rounded-lg bg-zinc-900/50" />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={cn(
       "relative min-h-screen overflow-hidden",
@@ -101,7 +102,6 @@ export function ChallengeHero() {
         ? "bg-zinc-950 text-zinc-100" 
         : "bg-gradient-to-b from-white via-slate-50 to-white text-slate-900"
     )}>
-      {/* Background effects - subtle for both modes */}
       <div className="absolute inset-0" aria-hidden>
         {isDark ? (
           <>
@@ -167,7 +167,7 @@ export function ChallengeHero() {
           <span className={isDark ? "text-zinc-200" : "text-slate-700"}>3 bilood gudahood</span>. Khibrad hore looma baahna.
         </p>
 
-        {mounted && heroAvatars.length > 0 && (
+        {heroAvatars.length > 0 && (
           <div className={cn(
             "mx-auto mt-6 flex w-fit items-center gap-3 rounded-full border px-4 py-2",
             isDark 
@@ -203,7 +203,6 @@ export function ChallengeHero() {
           </div>
         )}
 
-        {/* CTA Row - Flex on desktop, stacked on mobile */}
         <div className="mx-auto mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:justify-center sm:gap-4">
           <Link
             href={primaryHref}
@@ -229,7 +228,6 @@ export function ChallengeHero() {
           </button>
         </div>
 
-        {/* Scarcity Row */}
         <div className="mx-auto mt-8 flex flex-col items-center gap-3 sm:mt-10">
           <CountdownTimer
             targetDate={startForCountdown}
@@ -237,7 +235,6 @@ export function ChallengeHero() {
           />
         </div>
 
-        {/* Video */}
         <div className="mx-auto mt-10 w-full max-w-2xl sm:mt-12">
           <Link
             href={primaryHref}
