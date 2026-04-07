@@ -21,7 +21,7 @@ export function ClosingCTA() {
                 </p>
 
                 <Link
-                    href="/subscribe?plan=challenge"
+                    href="/welcome"
                     className="inline-flex w-full max-w-md items-center justify-center rounded-lg bg-violet-600 px-8 py-3 text-base font-semibold text-white hover:bg-violet-500 sm:w-auto"
                 >
                     {t.challenge_cta} →

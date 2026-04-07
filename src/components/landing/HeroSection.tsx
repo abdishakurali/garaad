@@ -169,7 +169,7 @@ export function HeroSection() {
             </p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Link
-                href="/subscribe?plan=challenge"
+                href="/welcome"
                 className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-[#7c3aed] px-7 py-3.5 text-sm font-semibold text-white shadow-md shadow-violet-500/20 no-underline transition hover:bg-[#6d28d9]"
               >
                 Ku biir Challenge-ka →

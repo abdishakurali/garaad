@@ -88,7 +88,7 @@ export function ChallengeHero() {
     );
   }
 
-  const primaryHref = "/subscribe?plan=challenge";
+  const primaryHref = "/welcome";
 
   const scrollToStory = () => {
     const el = document.getElementById("our-story");
