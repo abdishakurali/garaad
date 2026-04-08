@@ -31,7 +31,6 @@ interface StreakData {
     next_update: string;
   };
   dailyActivity: DailyActivity[];
-  xp: number;
   daily_xp: number;
 }
 

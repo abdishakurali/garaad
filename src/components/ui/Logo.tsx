@@ -50,7 +50,7 @@ export function Logo({
                 className
             )}
             priority={priority}
-            loading={loading}
+            loading={priority ? undefined : loading}
             sizes={sizes}
         />
     );

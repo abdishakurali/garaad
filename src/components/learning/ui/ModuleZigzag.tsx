@@ -22,8 +22,6 @@ interface ModuleZigzagProps {
     freeLessonIdSet?: ReadonlySet<number>;
     /** Premium / paid: all lessons unlocked. */
     hasFullLessonAccess?: boolean;
-    /** Total XP from gamification (optional). Shown in progress summary. */
-    xp?: number;
     /** Course URL segments — used to open locked lessons in-place (upgrade modal) instead of /subscribe. */
     categoryId: string;
     courseSlug: string;
@@ -40,7 +38,6 @@ export default function ModuleZigzag({
     firstLessonIdOfCourse = null,
     freeLessonIdSet = new Set<number>(),
     hasFullLessonAccess = false,
-    xp,
     categoryId,
     courseSlug,
     suppressBottomCta = false,
@@ -224,11 +221,6 @@ export default function ModuleZigzag({
                     </div>
                     <span className="text-sm text-gray-400">{totalCount} casharro</span>
                 </div>
-                {isAuthenticated && xp !== undefined && (
-                    <span className="rounded-full bg-purple-600/20 text-purple-400 px-3 py-1 text-sm font-medium border border-purple-500/30">
-                        {xp} XP
-                    </span>
-                )}
             </div>
 
             {/* Course Modules - Zigzag Pattern (original gradient ring style) */}

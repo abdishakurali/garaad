@@ -77,7 +77,6 @@ export interface ContentBlockData {
     options?: Option[];
     correct_answer?: Option[];
     explanation?: string;
-    xp?: number;
     img?: string | null;
     diagram_config?: DiagramConfig;
     // Table specific fields
@@ -132,7 +131,6 @@ export interface ProblemData {
             estimated_time: number;
         };
     };
-    xp: number;
     order: number;
     img?: string | null;
     video_url?: string | null;

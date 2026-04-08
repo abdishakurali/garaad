@@ -18,7 +18,6 @@ import { AlertCircle, CheckCircle2, LogIn, PlayCircle, Reply } from "lucide-reac
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCourse, useEnrollments, useUserProgress } from "@/hooks/useApi";
-import { useGamificationData } from "@/hooks/useGamificationData";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { cn, getCourseThumbnailUrl } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
@@ -131,9 +130,6 @@ export function CourseDetailClient() {
         progress,
         isLoading: isProgressLoading,
     } = useUserProgress();
-
-    const { progress: gamificationStatus } = useGamificationData();
-    const xp = (gamificationStatus as { xp?: number } | undefined)?.xp ?? 0;
 
     const isLoading = isCourseLoading || isEnrollmentsLoading || isProgressLoading;
     const error = courseError;
@@ -578,7 +574,6 @@ export function CourseDetailClient() {
                                     firstLessonIdOfCourse={firstLessonIdOfCourse}
                                     freeLessonIdSet={freeLessonIdSet}
                                     hasFullLessonAccess={hasFullLessonAccess}
-                                    xp={xp}
                                     categoryId={String(categoryId)}
                                     courseSlug={String(courseSlug)}
                                     suppressBottomCta
@@ -709,7 +704,7 @@ export function CourseDetailClient() {
                                     </div>
                                     {!isAuthenticated && (
                                         <p className="border-t border-gray-100 pt-3 text-center text-xs text-muted-foreground dark:border-slate-800">
-                                            
+
                                         </p>
                                     )}
                                 </div>

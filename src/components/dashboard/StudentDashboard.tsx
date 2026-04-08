@@ -21,15 +21,9 @@ export function StudentDashboard() {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                const [progressData, gamificationData] = await Promise.all([
-                    progressService.getUserProgress(),
-                    progressService.getGamificationStatus().catch(err => {
-                        console.error("Gamification error:", err);
-                        return null;
-                    })
-                ]);
+                const progressData = await progressService.getUserProgress();
                 setProgress(progressData);
-                setGamification(gamificationData);
+                setGamification(null);
             } catch (error) {
                 console.error("Error fetching dashboard data:", error);
             } finally {
@@ -105,9 +99,9 @@ export function StudentDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     icon={<Trophy className="w-6 h-6 text-yellow-500" />}
-                    title="Dhibcahaaga"
-                    value={gamification?.xp?.toLocaleString() || "0"}
-                    description={`Heerka ${gamification?.level || 1}`}
+                    title="Horumarkaaga"
+                    value={completedLessonsCount.toString()}
+                    description="Casharro la dhammaystiray"
                     progress={gamification?.progress_percent}
                     color="yellow"
                 />
@@ -161,7 +155,7 @@ export function StudentDashboard() {
                             <CardContent className="space-y-4">
                                 <div className="flex items-end justify-between">
                                     <span className="text-4xl font-black text-primary">Lvl {gamification.level}</span>
-                                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{gamification.xp_to_next_level} XP u dhiman</span>
+                                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Sii wad horumarkaaga</span>
                                 </div>
                                 <Progress value={gamification.progress_percent} className="h-3 bg-slate-200 dark:bg-slate-800" />
                                 <div className="p-3 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/20 flex items-center gap-3">

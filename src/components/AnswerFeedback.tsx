@@ -16,7 +16,6 @@ interface AnswerFeedbackProps {
         image: string;
         type: "markdown" | "latex" | string;
     };
-    xp: number;
 }
 
 export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
@@ -26,7 +25,6 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
         onResetAnswer,
         onContinue,
         explanationData,
-        xp,
     }) => {
         const { resetAnswerState } = useLearningStore();
 
@@ -72,7 +70,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
             if (isCorrect) {
                 return {
                     title: "Jawaab Sax ah!",
-                    subtitle: `+${xp} XP`,
+                    subtitle: "Waa sax",
                     buttonText: isLastQuestion ? "Casharka xiga" : "Sii wad",
                     buttonAction: handleContinueClick,
                 };
@@ -83,7 +81,7 @@ export const AnswerFeedback: React.FC<AnswerFeedbackProps> = memo(
                 buttonText: "Isku day markale",
                 buttonAction: onResetAnswer,
             };
-        }, [isCorrect, isLastQuestion, xp, handleContinueClick, onResetAnswer]);
+        }, [isCorrect, isLastQuestion, handleContinueClick, onResetAnswer]);
 
         const inlineExplanationHtml = useMemo(() => {
             const ex = explanationData?.explanation;

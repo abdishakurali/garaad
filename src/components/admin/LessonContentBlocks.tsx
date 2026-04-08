@@ -430,7 +430,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 blockData = {
                     block_type: 'problem',
                     content: {
-                        points: content.xp || content.points || 10
+                        points: content.points || 10
                     },
                     order: specifiedOrder,
                     lesson: lessonId,
@@ -555,8 +555,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                 initialContent = {
                     ...initialContent,
                     ...problemData,
-                    type: 'problem',
-                    xp: problemData.points || initialContent.xp || 10 // Sync xp/points
+                    type: 'problem'
                 };
             } catch (err) {
                 setError('Lama soo saari karin macluumaadka su\'aasha.');
@@ -604,7 +603,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             blockData = {
                 block_type: 'problem',
                 content: {
-                    points: content.xp || content.points || 10
+                    points: content.points || 10
                 },
                 problem: problemId
             };
@@ -1147,15 +1146,6 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                                             <option value="code">Koodh (Code)</option>
                                             <option value="diagram">Jaantus (Diagram)</option>
                                         </select>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">Dhibcaha XP</label>
-                                        <input
-                                            type="number"
-                                            value={content.xp || 10}
-                                            onChange={e => setContent({ ...content, xp: parseInt(e.target.value) })}
-                                            className="w-full p-3 rounded-xl border border-gray-200 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-100"
-                                        />
                                     </div>
                                 </div>
 

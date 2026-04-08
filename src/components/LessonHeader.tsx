@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import LessonStreak from "./LessonStreak";
-import { useGamificationData } from "@/hooks/useGamificationData";
 import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
 
@@ -23,7 +21,6 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
   completedLessons = [],
   lessonTitle,
 }) => {
-  const { streak: streakData, isLoading: loading, hasError: error } = useGamificationData();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const activeDotRef = useRef<HTMLDivElement>(null);
@@ -93,12 +90,6 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
           )}
         </div>
 
-        {/* Right — XP / Streak (min 44px) */}
-        <div className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center">
-          {streakData && (
-            <LessonStreak streakData={streakData} loading={loading} error={error} />
-          )}
-        </div>
       </div>
     </header>
   );

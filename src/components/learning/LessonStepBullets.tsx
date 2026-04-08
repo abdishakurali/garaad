@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Flame } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LessonStepBulletsProps {
@@ -12,8 +12,6 @@ interface LessonStepBulletsProps {
   coursePath: string;
   /** If set, back opens this (e.g. quit confirm) instead of navigating away immediately */
   onBackRequest?: () => void;
-  /** Current learning streak for compact display (right side) */
-  currentStreak?: number;
   /** e.g. "Casharka 2 / 12" */
   lessonPositionLabel?: string;
   /** Estimated minutes left in this lesson */
@@ -29,7 +27,6 @@ export function LessonStepBullets({
   onStepClick,
   coursePath,
   onBackRequest,
-  currentStreak = 0,
   lessonPositionLabel,
   estMinutesRemaining,
 }: LessonStepBulletsProps) {
@@ -120,17 +117,6 @@ export function LessonStepBullets({
           </p>
         </div>
 
-        <div
-          className={cn(
-            "mt-0.5 shrink-0 flex h-11 min-w-[3rem] items-center justify-center rounded-2xl px-2.5",
-            "bg-violet-600/15 border border-violet-500/35 text-violet-200",
-            "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
-          )}
-          title="Xadhigga maalinlaha ah"
-        >
-          <Flame className="h-4 w-4 shrink-0 text-amber-400 mr-1" aria-hidden />
-          <span className="text-sm font-bold tabular-nums leading-none">{currentStreak}</span>
-        </div>
       </div>
     </header>
   );

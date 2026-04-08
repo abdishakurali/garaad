@@ -219,7 +219,7 @@ export function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalPr
                                 <div className="w-full text-left space-y-2.5 mb-8 px-2">
                                     <div className="flex justify-between items-end">
                                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Heerka {profile.level}</span>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary font-bold">{profile.xp_to_next_level} XP left</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary font-bold">{profile.level_progress_percentage}% complete</span>
                                     </div>
                                     <div className="relative h-3 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden shadow-inner p-0.5">
                                         <div

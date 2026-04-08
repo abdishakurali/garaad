@@ -124,7 +124,6 @@ export const DIAGRAM_EXAMPLE: ContentBlockData = {
     },
     diagram_config: DEFAULT_DIAGRAM_CONFIG,
     img: null,
-    xp: 10,
     order: 0,
 };
 
@@ -178,7 +177,6 @@ export const MULTIPLE_CHOICE_EXAMPLE: ContentBlockData = {
             estimated_time: 5,
         },
     },
-    xp: 10,
 };
 
 export const LIST_EXAMPLE: ContentBlockData = {

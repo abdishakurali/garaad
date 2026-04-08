@@ -5,7 +5,7 @@ Used for mobile-first redesign. Do not change: backend, block progression logic,
 ## Core
 
 - **LessonDetailClient.tsx** – Main lesson screen: container, block routing (text/image/video/code/problem/example), AnimatePresence, AnswerFeedback trigger. Inline `case "code"` and `case "example"` rendering.
-- **LessonHeader.tsx** – Progress bar, back button, dot nav, LessonStreak (XP). Receives currentQuestion, totalQuestions, coursePath, onDotClick, completedLessons.
+- **LessonHeader.tsx** – Progress bar, back button, dot nav, LessonStreak. Receives currentQuestion, totalQuestions, coursePath, onDotClick, completedLessons.
 
 ## Block components
 
@@ -23,8 +23,8 @@ Used for mobile-first redesign. Do not change: backend, block progression logic,
 
 ## Feedback & header widget
 
-- **AnswerFeedback.tsx** – Fixed bottom bar: correct/incorrect, XP, Sharaxaad, Continue/Try again. Rendered by LessonDetailClient when showFeedback.
-- **LessonStreak.tsx** – XP/streak popover in header.
+- **AnswerFeedback.tsx** – Fixed bottom bar: correct/incorrect, Sharaxaad, Continue/Try again. Rendered by LessonDetailClient when showFeedback.
+- **LessonStreak.tsx** – Streak popover in header.
 
 ## Shared UI (use as-is or minimal tweaks)
 

@@ -9,7 +9,7 @@ import { launchpadService } from "@/services/launchpad";
 import type { Project } from "@/types/launchpad";
 import { ChevronUp, ExternalLink, MessageSquare, ArrowLeft, Send, Github, Loader2 } from "lucide-react";
 import { TechIcon } from "@/components/launchpad/TechIcon";
-import { XPToast } from "@/components/launchpad/XPToast";
+import { ActionToast } from "@/components/launchpad/ActionToast";
 import { relativeTimeSomali } from "@/components/launchpad/relativeTime";
 
 export default function ProjectDetailPage() {
@@ -24,7 +24,7 @@ export default function ProjectDetailPage() {
     const [isVoting, setIsVoting] = useState(false);
     const [commentText, setCommentText] = useState("");
     const [isCommenting, setIsCommenting] = useState(false);
-    const [xpToast, setXPToast] = useState<number | null>(null);
+    const [showActionToast, setShowActionToast] = useState(false);
 
     useEffect(() => {
         if (!slug) return;
@@ -50,8 +50,8 @@ export default function ProjectDetailPage() {
             const res = await launchpadService.voteProject(project.slug);
             setProject({ ...project, vote_count: res.vote_count, has_voted: res.voted });
             if (res.voted) {
-                setXPToast(2);
-                setTimeout(() => setXPToast(null), 2500);
+                setShowActionToast(true);
+                setTimeout(() => setShowActionToast(false), 2500);
             }
         } catch (err) {
             console.error("Vote failed:", err);
@@ -72,8 +72,8 @@ export default function ProjectDetailPage() {
                 comments_count: (project.comments_count ?? 0) + 1,
             });
             setCommentText("");
-            setXPToast(5);
-            setTimeout(() => setXPToast(null), 2500);
+            setShowActionToast(true);
+            setTimeout(() => setShowActionToast(false), 2500);
         } catch (err) {
             console.error("Comment failed:", err);
         } finally {
@@ -101,7 +101,7 @@ export default function ProjectDetailPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            {xpToast != null && <XPToast xp={xpToast} onDismiss={() => setXPToast(null)} />}
+            {showActionToast && <ActionToast onDismiss={() => setShowActionToast(false)} />}
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <Link
                     href="/launchpad?tab=projects"

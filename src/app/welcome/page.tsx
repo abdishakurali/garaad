@@ -1287,6 +1287,19 @@ function WelcomeOnboardingPage() {
                         : `Ku soo biir Challenge-ga — ${spotsLabel} boos ayaa haray →`}
                     </Link>
                   </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="h-12 w-full rounded-xl border-violet-200 bg-violet-50/70 text-sm font-semibold text-violet-700 transition-all hover:bg-violet-100 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20"
+                  >
+                    <Link
+                      href="https://cal.com/garaad/assessment"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Book Appointment (Mentor Guidance)
+                    </Link>
+                  </Button>
                   <Link
                     href={postSignupDest}
                     onClick={() => {
@@ -1593,7 +1606,7 @@ function WelcomeOnboardingPage() {
                     className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                   />
                 </div>
-                
+
                 <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-4">
                   <input
                     type="checkbox"

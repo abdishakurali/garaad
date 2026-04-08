@@ -108,7 +108,6 @@ Used for webhooks, server-only secrets, and proxying where needed:
 | `services/auth.ts` | Auth service (login, signup, refresh, etc.) |
 | `services/progress.ts` | Progress, rewards, leaderboard, gamification status |
 | `services/activity.ts` | Activity update calls |
-| `services/gamification.ts` | Gamification/league/leaderboard APIs |
 | `services/lessons.ts` | Lesson fetching |
 | `services/pushNotifications.ts` | Push subscription handling |
 

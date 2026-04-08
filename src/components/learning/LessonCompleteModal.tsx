@@ -17,10 +17,6 @@ export interface LessonCompleteModalProps {
   score: number;
   /** When false, the score stat is hidden */
   hasQuiz?: boolean;
-  /** XP earned this lesson — hardcoded for now, ready for real value */
-  xpEarned?: number;
-  /** Current streak from useGamificationData (stub: 0) */
-  currentStreak?: number;
   /** Course progress 0–100 from CourseEnrollment */
   courseProgressPercent: number;
   /** Completed lessons count (e.g. 3) */
@@ -43,8 +39,6 @@ export function LessonCompleteModal({
   lessonTitle,
   score,
   hasQuiz = false,
-  xpEarned = 20,
-  currentStreak = 0,
   courseProgressPercent,
   completedLessonsCount,
   totalLessonsCount,
@@ -137,7 +131,6 @@ export function LessonCompleteModal({
         <h2 id="lesson-celebration-heading" className="mt-4 text-2xl font-black text-white">
           Hambalyo! Waxaad dhamaysay casharkii
         </h2>
-        <p className="mt-3 text-lg font-black text-purple-400 tabular-nums">+{xpEarned} XP</p>
       </div>
     );
   }
@@ -194,23 +187,8 @@ export function LessonCompleteModal({
             <p className="text-sm text-gray-400">{lessonTitle}</p>
           </div>
 
-          {/* 2. STATS ROW — 3 cards */}
-          <div
-            className={cn(
-              "grid gap-3",
-              hasQuiz ? "grid-cols-3" : "grid-cols-2"
-            )}
-          >
-            <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-wide">XP</p>
-              <p className="text-lg font-bold text-purple-400">+{xpEarned} XP</p>
-            </div>
-            <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-wide">Streak</p>
-              <p className="text-lg font-bold text-white">
-                🔥 {currentStreak} maalmood
-              </p>
-            </div>
+          {/* 2. STATS ROW */}
+          <div className={cn("grid gap-3 grid-cols-1")}>
             {hasQuiz && (
               <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
                 <p className="text-xs text-gray-400 uppercase tracking-wide">Score</p>

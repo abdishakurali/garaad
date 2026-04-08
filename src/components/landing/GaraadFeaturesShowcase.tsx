@@ -56,7 +56,7 @@ const features: FeatureDef[] = [
     ctaHref: "__FIRST_LESSON__",
   },
   {
-    title: "Horumar & XP",
+    title: "Horumar",
     desc: "Streak, dhibco, iyo aragti ku saabsan sida aad u socotid.",
     icon: Zap,
     ctaLabel: "Arag heerkaaga →",

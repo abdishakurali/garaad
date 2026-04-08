@@ -1,7 +1,14 @@
 import AuthService from "./auth";
 import MonitoringService from "./monitoring";
-import { ActivityUpdatePayload, ActivityUpdateResponse } from "@/types/gamification";
 import { API_BASE_URL } from "@/lib/constants";
+
+interface ActivityUpdateResponse {
+    success: boolean;
+    xp_gained?: number;
+    energy_used?: number;
+    new_status?: unknown;
+    milestones?: string[];
+}
 
 export class ActivityService {
     private static instance: ActivityService;

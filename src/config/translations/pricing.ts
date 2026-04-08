@@ -109,7 +109,6 @@ export const pricingTranslations = {
   compare_explorer_courses: "Dhammaan casharrada",
   compare_challenge_courses: "Dhammaan + koox & wicitaan",
   compare_free_support: "Bulshada (bilaash)",
-  compare_explorer_support: "XP, streaks, bulshada",
   compare_challenge_support: "WhatsApp + wicitaan toddobaadle",
 
   compare_row_price: "Qiimaha",

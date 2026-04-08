@@ -50,14 +50,12 @@ import CalculatorProblemBlock from "@/components/lesson/CalculatorProblemBlock";
 import { useSoundManager } from "@/hooks/use-sound-effects";
 import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
-import { useGamificationData } from "@/hooks/useGamificationData";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { LessonCompleteModal } from "@/components/learning/LessonCompleteModal";
 import { LessonChallengeSoftInvite } from "@/components/challenge/LessonChallengeSoftInvite";
 import { EmailVerificationBanner } from "@/components/learning/EmailVerificationBanner";
 import dynamic from "next/dynamic";
-import { useStreak } from "@/services/gamification";
 import posthog from "posthog-js";
 
 const ShikiCode = dynamic(() => import("@/components/lesson/ShikiCode"), {
@@ -229,7 +227,7 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
     // useCourse for breadcrumbs/info
     const { course: currentCourse } = useCourse(params.categoryId as string, params.courseSlug as string);
 
-    // Breadcrumbs courses (already handled by useCategories in useApi if needed, 
+    // Breadcrumbs courses (already handled by useCategories in useApi if needed,
     // but breadcrumbs often need all categories/courses)
     const { categories } = useCategories();
     const courses = useMemo(() => {
@@ -263,22 +261,16 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
     const [hasPlayedStartSound, setHasPlayedStartSound] = useState(false);
     const [problems, setProblems] = useState<ProblemContent[]>([]);
     const [problemLoading, setProblemLoading] = useState(false);
-    const [currentXp, setCurrentXp] = useState(10);
     const [showQuitConfirm, setShowQuitConfirm] = useState(false);
     /** Set after complete API succeeds; drives auto-advance toast + redirect */
     const [completionNavigateMeta, setCompletionNavigateMeta] = useState<CompletionNavigateMeta | null>(null);
 
-    const { mutateAll } = useGamificationData();
-    const { streak: streakFromApi, mutate: mutateStreak } = useStreak();
     const { enrollments } = useEnrollments();
     const { progress: userProgress } = useUserProgress();
 
     const { playSound } = useSoundManager();
     const { toast } = useToast();
     const continueRef = useRef<() => void>(() => { });
-
-    const streakCurrent =
-        (streakFromApi as { current_streak?: number } | null | undefined)?.current_streak ?? 0;
 
     const coursePath = useMemo(
         () => `/courses/${params.categoryId}/${params.courseSlug}`,
@@ -545,8 +537,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                     ? (pd.question_type as any)
                     : pd.question_type,
                 content: pd.content,
-                xp: pd.xp || pd.points || pd.xp_value,
-                points: pd.points || pd.xp || pd.xp_value,
             }));
 
             setProblems(transformed);
@@ -700,8 +690,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                             total_score: quizScore,
                         }
                     );
-                    mutateAll();
-                    void mutateStreak?.();
                     if (res?.status === "success") {
                         if ("next_lesson_id" in res) {
                             navMeta = {
@@ -734,7 +722,7 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
 
         setCompletionNavigateMeta(navMeta);
         setShowCompletionAnimation(true);
-        
+
         // Track lesson completion in PostHog
         if (posthog.__loaded && currentLesson?.id) {
             posthog.capture('lesson_completed', {
@@ -750,8 +738,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
         playSound,
         sortedBlocks,
         currentLesson?.id,
-        mutateAll,
-        mutateStreak,
         courseLessons,
     ]);
 
@@ -876,7 +862,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
         }
 
         if (isCorrect) {
-            setCurrentXp(currentProblem.xp || currentProblem.points || 10);
             if (currentProblem.id != null) {
                 solvedProblemIdsRef.current.add(Number(currentProblem.id));
             }
@@ -1164,8 +1149,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                 lessonTitle={currentLesson?.title || ""}
                 score={completionScore}
                 hasQuiz={completionHasQuiz}
-                xpEarned={currentXp}
-                currentStreak={streakCurrent}
                 courseProgressPercent={courseProgressPercent}
                 completedLessonsCount={completedLessonsCount}
                 totalLessonsCount={totalLessonsCount}
@@ -1212,7 +1195,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                 onStepClick={(blockIndex) => setCurrentBlockIndex(blockIndex)}
                 coursePath={coursePath}
                 onBackRequest={() => setShowQuitConfirm(true)}
-                currentStreak={streakCurrent}
                 lessonPositionLabel={lessonPositionLabel}
                 estMinutesRemaining={estMinutesRemaining}
             />
@@ -1275,7 +1257,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                     onResetAnswer={handleResetAnswer}
                     onContinue={handleContinue}
                     explanationData={explanationData}
-                    xp={currentXp}
                 />
             )}
         </div>

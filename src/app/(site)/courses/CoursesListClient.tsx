@@ -9,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, ChevronRight, CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -88,7 +88,7 @@ const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string
   );
 };
 
-export function CoursesListClient() {
+export function CoursesListClient({ initialCategories = [] }: { initialCategories?: Category[] }) {
     const { categories, isLoading: isSWRLoading, isError } = useCategories();
     const { enrollments } = useEnrollments();
     const posthog = usePostHog();
@@ -96,6 +96,7 @@ export function CoursesListClient() {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const { isAuthenticated } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
+    const [resolvedCategories, setResolvedCategories] = useState<Category[]>([]);
     const { href: firstFreeHref } = useFirstFreeLessonHref();
 
     const { data: landingStats } = useSWR<{ students_count?: number }>(
@@ -151,11 +152,64 @@ export function CoursesListClient() {
         );
     }
 
-    const safeCategories = Array.isArray(categories) ? categories : [];
+    const safeCategories = Array.isArray(categories) && categories.length > 0
+        ? categories
+        : (Array.isArray(initialCategories) ? initialCategories : []);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function hydrateCategoryCourses() {
+            if (!Array.isArray(safeCategories) || safeCategories.length === 0) {
+                if (!cancelled) setResolvedCategories([]);
+                return;
+            }
+
+            const hasMissingCourses = safeCategories.some((cat) => !Array.isArray(cat?.courses));
+            if (!hasMissingCourses) {
+                if (!cancelled) setResolvedCategories(safeCategories);
+                return;
+            }
+
+            try {
+                const hydrated = await Promise.all(
+                    safeCategories.map(async (cat) => {
+                        if (Array.isArray(cat?.courses)) return cat;
+                        const res = await fetch(`${API_BASE_URL}/api/lms/courses/?category=${cat.id}`);
+                        if (!res.ok) return { ...cat, courses: [] };
+                        const data = await res.json();
+                        const courses = Array.isArray(data) ? data : (Array.isArray(data?.results) ? data.results : []);
+                        return { ...cat, courses };
+                    })
+                );
+                if (!cancelled) setResolvedCategories(hydrated as Category[]);
+            } catch {
+                if (!cancelled) setResolvedCategories(safeCategories);
+            }
+        }
+
+        void hydrateCategoryCourses();
+        return () => {
+            cancelled = true;
+        };
+    }, [safeCategories]);
+
+    const categoriesForRender = useMemo(
+        () => (resolvedCategories.length > 0 ? resolvedCategories : safeCategories),
+        [resolvedCategories, safeCategories]
+    );
+
+    const visibleCategories = categoriesForRender
+        .filter((cat) => cat?.courses && cat.courses.length > 0)
+        .sort((a, b) => {
+            const seqA = (a?.sequence !== undefined && a.sequence !== null) ? a.sequence : Number.MAX_SAFE_INTEGER;
+            const seqB = (b?.sequence !== undefined && b.sequence !== null) ? b.sequence : Number.MAX_SAFE_INTEGER;
+            return seqA - seqB;
+        });
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
-            
+
             {/* Hero Section */}
             <div className="relative pt-20 pb-12 md:pt-40 md:pb-32 overflow-hidden">
                 {/* Simplified & Clean Background */}
@@ -210,14 +264,7 @@ export function CoursesListClient() {
             <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
                 <CoursesChallengeBanner />
                 <div className="space-y-32">
-                    {(isLoading ? Array(3).fill(null) : safeCategories
-                        .filter(cat => cat?.courses && cat.courses.length > 0)
-                        .sort((a, b) => {
-                            const seqA = (a?.sequence !== undefined && a.sequence !== null) ? a.sequence : Number.MAX_SAFE_INTEGER;
-                            const seqB = (b?.sequence !== undefined && b.sequence !== null) ? b.sequence : Number.MAX_SAFE_INTEGER;
-                            return seqA - seqB;
-                        })
-                    ).map(
+                    {(isLoading ? Array(3).fill(null) : visibleCategories).map(
                         (category: Category | null, idx) => {
                             const sortedCourses = isLoading
                                 ? Array(4).fill(null)
@@ -411,7 +458,7 @@ export function CoursesListClient() {
                                                                 )}
 
                                                                 <div className="mt-1 flex flex-col gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
-                                                                
+
                                                                     <Link
                                                                         href={courseHref}
                                                                         className="flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"
@@ -436,6 +483,12 @@ export function CoursesListClient() {
                         }
                     )}
                 </div>
+
+                {!isLoading && visibleCategories.length === 0 && (
+                    <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+                        Koorsooyin lama helin hadda. Fadlan dib u cusboonaysii bogga ama mar kale isku day.
+                    </div>
+                )}
 
                 {isAuthenticated && (
                     <div className="mt-20 mb-8 rounded-2xl border border-violet-500/25 bg-violet-950/20 px-5 py-4 text-center shadow-sm dark:bg-violet-950/30">

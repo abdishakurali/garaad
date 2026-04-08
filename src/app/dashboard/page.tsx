@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ProgressCard } from "@/components/progress/ProgressCard";
 import { PracticeSet } from "@/components/practice/PracticeSet";
-import { GamificationPanel } from "@/components/gamification/GamificationPanel";
 import { progressService } from "@/services/progress";
 import { practiceService } from "@/services/practice";
 import AuthService from "@/services/auth";
@@ -144,11 +143,10 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
-        <div className="space-y-8">
-          <ProgressCard progress={progress} />
+      <div className="space-y-8">
+        <ProgressCard progress={progress} />
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {practiceSets.map((practiceSet) => (
             <PracticeSet
               key={practiceSet.id}
@@ -160,11 +158,6 @@ export default function DashboardPage() {
             />
           ))}
         </div>
-        </div>
-
-        <aside className="lg:sticky lg:top-24 h-fit">
-          <GamificationPanel />
-        </aside>
       </div>
 
       <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">

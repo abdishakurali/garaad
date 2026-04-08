@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { StartupCard } from "@/components/launchpad/StartupCard";
 import { StartupCardSkeleton } from "@/components/launchpad/StartupCardSkeleton";
 import { ProjectCard } from "@/components/launchpad/ProjectCard";
-import { XPToast } from "@/components/launchpad/XPToast";
+import { ActionToast } from "@/components/launchpad/ActionToast";
 import { launchpadService } from "@/services/launchpad";
 import type {
     StartupListItem,
@@ -49,7 +49,7 @@ export function LaunchpadListClient() {
     const [categories, setCategories] = useState<StartupCategory[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [currentFilter, setCurrentFilter] = useState<StartupFilter>("trending");
-    const [xpToast, setXPToast] = useState<number | null>(null);
+    const [showActionToast, setShowActionToast] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -130,9 +130,9 @@ export function LaunchpadListClient() {
         return launchpadService.voteProject(slug);
     };
 
-    const handleProjectVoteSuccess = (xp: number) => {
-        setXPToast(xp);
-        setTimeout(() => setXPToast(null), 2500);
+    const handleProjectVoteSuccess = () => {
+        setShowActionToast(true);
+        setTimeout(() => setShowActionToast(false), 2500);
     };
 
     return (
@@ -265,8 +265,8 @@ export function LaunchpadListClient() {
                 </div>
             </section>
 
-            {xpToast != null && (
-                <XPToast xp={xpToast} onDismiss={() => setXPToast(null)} />
+            {showActionToast && (
+                <ActionToast onDismiss={() => setShowActionToast(false)} />
             )}
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -322,7 +322,7 @@ export function LaunchpadListClient() {
                                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
                                     <h4 className="text-xs font-bold text-muted-foreground uppercase mb-2">{LAUNCHPAD_UI_TEXT.projects}</h4>
                                     <p className="text-xs text-muted-foreground leading-relaxed">
-                                        Mashruucyada koorsaska laga dhisay. Codee kuwa aad jeceshahay — waxaad heleysaa XP.
+                                        Mashruucyada koorsaska laga dhisay. Codee kuwa aad jeceshahay si aad u taageerto.
                                     </p>
                                     {authReady && isAuthenticated && (
                                         <Link

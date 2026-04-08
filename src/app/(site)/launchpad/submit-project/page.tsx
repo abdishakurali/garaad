@@ -9,9 +9,7 @@ import type { ProjectFormData } from "@/types/launchpad";
 import { TECH_STACK_OPTIONS, LAUNCHPAD_UI_TEXT } from "@/types/launchpad";
 import { FolderKanban, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { XPToast } from "@/components/launchpad/XPToast";
-
-const XP_PROJECT_SUBMIT = 15;
+import { ActionToast } from "@/components/launchpad/ActionToast";
 
 export default function SubmitProjectPage() {
     const router = useRouter();
@@ -19,7 +17,7 @@ export default function SubmitProjectPage() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [showXPToast, setShowXPToast] = useState(false);
+    const [showActionToast, setShowActionToast] = useState(false);
 
     const [formData, setFormData] = useState<ProjectFormData>({
         title: "",
@@ -71,9 +69,9 @@ export default function SubmitProjectPage() {
                 tech_stack: formData.tech_stack ?? [],
                 course: formData.course ?? null,
             });
-            setShowXPToast(true);
+            setShowActionToast(true);
             setTimeout(() => {
-                setShowXPToast(false);
+                setShowActionToast(false);
                 router.push("/launchpad?tab=projects");
             }, 1500);
         } catch (err: unknown) {
@@ -97,8 +95,8 @@ export default function SubmitProjectPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            {showXPToast && (
-                <XPToast xp={XP_PROJECT_SUBMIT} onDismiss={() => setShowXPToast(false)} />
+            {showActionToast && (
+                <ActionToast message="✓ Project submitted" onDismiss={() => setShowActionToast(false)} />
             )}
             <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <Link

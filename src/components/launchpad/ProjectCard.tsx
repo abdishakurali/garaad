@@ -8,12 +8,10 @@ import { ChevronUp, ExternalLink, MessageSquare, Github } from "lucide-react";
 import { TechIcon } from "./TechIcon";
 import { relativeTimeSomali } from "./relativeTime";
 
-const XP_VOTE = 2;
-
 interface ProjectCardProps {
     project: Project;
     onVote: () => Promise<{ voted: boolean; vote_count: number }>;
-    onVoteSuccess?: (xp: number) => void;
+    onVoteSuccess?: () => void;
 }
 
 export function ProjectCard({ project, onVote, onVoteSuccess }: ProjectCardProps) {
@@ -36,7 +34,7 @@ export function ProjectCard({ project, onVote, onVoteSuccess }: ProjectCardProps
             const res = await onVote();
             setVoteCount(res.vote_count);
             setHasVoted(res.voted);
-            if (res.voted && onVoteSuccess) onVoteSuccess(XP_VOTE);
+            if (res.voted && onVoteSuccess) onVoteSuccess();
         } catch {
             setVoteCount(prevCount);
             setHasVoted(prevVoted);

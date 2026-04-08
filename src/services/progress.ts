@@ -312,28 +312,4 @@ export const progressService = {
     }
   },
 
-  async getGamificationStatus() {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/gamification/status/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to fetch gamification status");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error fetching gamification status:", error);
-      throw error;
-    }
-  },
 };

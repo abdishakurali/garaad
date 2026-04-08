@@ -156,7 +156,7 @@ Single diagram format:
       "text": "4"
     },
     {
-      "id": "b", 
+      "id": "b",
       "text": "8"
     },
     {
@@ -242,7 +242,6 @@ export interface ProblemContent {
     type?: string;
   };
   type?: string;
-  xp?: number;
   points?: number;
   xp_value?: number;
 }

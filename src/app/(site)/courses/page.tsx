@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { CoursesListClient } from "./CoursesListClient";
+import { Category } from "@/types/lms";
 import { API_BASE_URL } from "@/lib/constants";
 
 const COURSES_URL = "https://garaad.org/courses";
@@ -52,14 +53,14 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-async function getCategories() {
+async function getCategories(): Promise<Category[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/lms/categories/`, {
       next: { revalidate: 3600 }
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : (data.results || []);
+    return Array.isArray(data) ? (data as Category[]) : ((data.results || []) as Category[]);
   } catch (error) {
     return [];
   }
@@ -96,7 +97,7 @@ export default async function CoursesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <CoursesListClient />
+      <CoursesListClient initialCategories={categories} />
     </>
   );
 }
