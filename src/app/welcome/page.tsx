@@ -1246,6 +1246,79 @@ function WelcomeOnboardingPage() {
                   </p>
                 )}
 
+                <div className="rounded-2xl border border-violet-200/50 bg-violet-50/40 p-4 dark:border-violet-500/20 dark:bg-violet-500/10">
+                  <h3 className="text-base font-semibold text-foreground">
+                    Your Next Step: Dooro sida aad rabto inaad ku bilowdo
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Waxaa kuu furan laba waddo: si bilaash ah u bilow koorsooyinka ama ballan 1:1 ah la samee mentor si aad u hesho qorshe kugu habboon.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-2xl border border-border bg-background/80 p-4">
+                    <h4 className="text-sm font-semibold text-foreground">
+                      1) Start Free Courses
+                    </h4>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Ku habboon haddii aad rabto inaad hadda bilowdo adigoon sugin.
+                    </p>
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
+                      What we offer
+                    </p>
+                    <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      <li>- Casharro bilaash ah oo isla markiiba diyaar kuu ah</li>
+                      <li>- Dariiq cad oo aad ku dhisato aasaaskaaga</li>
+                      <li>- Waxaad Assessment qaadan kartaa mar kasta oo dambe</li>
+                    </ul>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="mt-4 h-11 w-full rounded-xl border-violet-200 bg-violet-50/70 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20"
+                    >
+                      <Link
+                        href={postSignupDest}
+                        onClick={() => {
+                          if (typeof window !== "undefined") {
+                            sessionStorage.setItem("post_signup_redirect", postSignupDest);
+                          }
+                        }}
+                      >
+                        Start Free Courses →
+                      </Link>
+                    </Button>
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-background/80 p-4">
+                    <h4 className="text-sm font-semibold text-foreground">
+                      2) Book Assessment
+                    </h4>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Ku habboon haddii aad rabto mentor ku hago talaabada xigta.
+                    </p>
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
+                      What we offer
+                    </p>
+                    <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      <li>- 1:1 assessment si loo ogaado heerkaaga</li>
+                      <li>- Qorshe gaar ah oo ku salaysan yoolkaaga</li>
+                      <li>- Talooyin cad oo ku saabsan koorsada aad ka bilaabayso</li>
+                    </ul>
+                    <Button
+                      asChild
+                      className="mt-4 h-11 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-purple-500"
+                    >
+                      <Link
+                        href="https://cal.com/garaad/assessment"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Book Assessment on Cal.com →
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-4 pt-2">
                   <Button
                     asChild
