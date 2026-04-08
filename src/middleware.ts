@@ -15,7 +15,7 @@ import type { NextRequest } from "next/server";
  *
  * PROTECTED (auth required; unauthenticated → /login or /admin/login with redirect param):
  *   /admin, /admin/* (except /admin/login),
- *   /dashboard, /profile, /settings, /orders, /orders/[id], /referrals,
+ *   /dashboard, /profile, /settings, /orders, /orders/[id],
  *   /launchpad/submit, /launchpad/submit-project, /launchpad/edit, /launchpad/edit/[id],
  *   /community, /community/* (not community-preview),
  *   /courses/.../lessons/[lessonId]
@@ -30,7 +30,6 @@ const protectedRoots = [
   "/profile",
   "/settings",
   "/orders",
-  "/referrals",
   "/launchpad/submit",
   "/launchpad/submit-project",
   "/launchpad/edit",
@@ -49,7 +48,6 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api") || // Let API routes handle their own auth
     pathname.startsWith("/images") ||
     pathname.startsWith("/icons") ||
-    pathname.startsWith("/sounds") ||
     pathname.includes(".") // Optimization: Assume files with extensions are public assets
   ) {
     return NextResponse.next();

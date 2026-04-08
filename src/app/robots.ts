@@ -30,8 +30,6 @@ export default function robots(): MetadataRoute.Robots {
           "/profile/",
           "/orders",
           "/orders/",
-          "/referrals",
-          "/referrals/",
           "/verify-email",
           "/verify-email/",
           "/subscribe",

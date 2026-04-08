@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import  { useEffect, useState,  useMemo } from 'react';
 import { useCommunityStore } from '@/store/useCommunityStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import communityService from '@/services/community';
 import CommunityWebSocket from '@/services/communityWebSocket';
 import { CategoryList } from '@/components/community/CategoryList';
-import { PostList } from '@/components/community/PostList';
-import { InlinePostInput } from '@/components/community/InlinePostInput';
-import { UserProfileModal } from '@/components/community/UserProfileModal';
+import { PostList } from '@/components/community/PostList';import { UserProfileModal } from '@/components/community/UserProfileModal';
 import { NotificationDropdown } from '@/components/community/NotificationCenter';
-import { AlertCircle, Menu, Bell, GraduationCap, Settings2, BellRing } from 'lucide-react';
+import { AlertCircle, Menu, Bell, BellRing } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { getMediaUrl } from '@/lib/utils';
@@ -32,11 +30,8 @@ import {
     DialogDescription
 } from "@/components/ui/dialog";
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuthReady } from '@/hooks/useAuthReady';
+import Image from 'next/image';import { useAuthReady } from '@/hooks/useAuthReady';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
-import ReferralModal from '@/components/referrals/ReferralModal';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
 import { CommunityChallengeBanner } from '@/components/challenge/CommunityChallengeBanner';
 import { CommunityPrivatePreview } from '@/components/community/CommunityPrivatePreview';
@@ -81,7 +76,6 @@ export default function CommunityPage() {
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [pendingScrollPostId, setPendingScrollPostId] = useState<string | null>(null);
     const [pendingScrollReplyId, setPendingScrollReplyId] = useState<string | null>(null);
-    const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
     const [isPushSettingsOpen, setIsPushSettingsOpen] = useState(false);
     const { data: challengeGate, loading: challengeGateLoading } = useChallengeStatus();
     const challengeJoinHref =
@@ -346,17 +340,6 @@ export default function CommunityPage() {
     );
     const actionIcons = (
         <div className="flex items-center gap-2">
-            {/* Referral Icon */}
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsReferralModalOpen(true)}
-                className="rounded-full w-8 h-8 lg:w-10 lg:h-10 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all active:scale-90"
-                title="Share the Opportunity"
-            >
-                <GraduationCap className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
-            </Button>
-
             {/* Notification Bell */}
             <Popover>
                 <PopoverTrigger asChild>
@@ -532,10 +515,6 @@ export default function CommunityPage() {
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
                 userId={selectedUserId}
-            />
-            <ReferralModal
-                isOpen={isReferralModalOpen}
-                onClose={() => setIsReferralModalOpen(false)}
             />
             <Dialog open={isPushSettingsOpen} onOpenChange={setIsPushSettingsOpen}>
                 <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none">

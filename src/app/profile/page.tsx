@@ -7,8 +7,6 @@ import Link from "next/link";
 import AuthService from "@/services/auth";
 import { progressService, type UserProgress } from "@/services/progress";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
@@ -19,31 +17,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { WhatsAppPhoneFields } from "@/components/whatsapp/WhatsAppPhoneFields";
-import {
-  buildWhatsappE164,
-  DEFAULT_WHATSAPP_DIAL,
-  splitWhatsappE164,
-} from "@/lib/whatsapp-countries";
 import {
   Loader2,
   Loader2 as Loader2Icon,
   UserIcon,
   Settings,
-  Trophy,
   BookOpen,
   Pencil,
   Mail,
   CheckCircle2,
   Users,
-  TrendingUp,
-  Flame,
-  Sparkles,
-  GraduationCap,
-  DollarSign,
-  Copy,
-  Check,
-  Share2,
+
+
+
   MessageCircle,
 } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -51,7 +37,6 @@ import { getMediaUrl } from "@/lib/utils";
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/lib/constants";
-import { getReferralDashboard, type ReferralDashboard } from "@/services/referral";
 
 import { DashboardProfile } from "@/services/auth";
 import type { OnboardingData } from "@/services/auth";
@@ -74,6 +59,25 @@ interface ExtendedUser extends User {
   whatsapp_number?: string;
 }
 
+const DEFAULT_WHATSAPP_DIAL = "+252";
+
+function splitWhatsappE164(value?: string): { dial: string; local: string } {
+  const raw = (value || "").trim();
+  if (!raw) return { dial: DEFAULT_WHATSAPP_DIAL, local: "" };
+  const normalized = raw.startsWith("+") ? raw : `+${raw}`;
+  if (normalized.startsWith("+252")) {
+    return { dial: "+252", local: normalized.slice(4) };
+  }
+  return { dial: DEFAULT_WHATSAPP_DIAL, local: normalized.replace(/\D/g, "") };
+}
+
+function buildWhatsappE164(dial: string, local: string): string {
+  const cleanDial = (dial || DEFAULT_WHATSAPP_DIAL).replace(/[^\d+]/g, "");
+  const cleanLocal = (local || "").replace(/\D/g, "");
+  if (!cleanLocal) return "";
+  return `${cleanDial}${cleanLocal}`;
+}
+
 export default function ProfilePage() {
   const [user, setUserState] = useState<ExtendedUser | null>(null);
   const [progress, setProgress] = useState<UserProgress[] | null>(null);
@@ -85,7 +89,6 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { setUser } = useAuthStore();
   const [dashboardProfile, setDashboardProfile] = useState<DashboardProfile | null>(null);
-  const [referralData, setReferralData] = useState<ReferralDashboard | null>(null);
   const [onboarding, setOnboarding] = useState<(OnboardingData & { has_completed_onboarding?: boolean }) | null>(null);
   const [showLearningPathModal, setShowLearningPathModal] = useState(false);
   const [learningPathStep, setLearningPathStep] = useState(0);
@@ -133,16 +136,14 @@ export default function ProfilePage() {
       setIsLoading(true);
       const authService = AuthService.getInstance();
       try {
-        const [basic, dashboard, referral, onboardingRes] = await Promise.all([
+        const [basic, dashboard, onboardingRes] = await Promise.all([
           authService.getBasicProfile(),
           authService.getDashboardProfile(),
-          getReferralDashboard(),
           authService.getOnboarding().catch(() => null),
         ]);
 
         setUserState(basic as ExtendedUser);
         setDashboardProfile(dashboard);
-        setReferralData(referral);
         setOnboarding(onboardingRes ?? null);
 
         setEditForm({
@@ -238,8 +239,6 @@ export default function ProfilePage() {
       setIsUploadingPicture(false);
     }
   };
-
-  const [isCopied, setIsCopied] = useState(false);
 
   const steps = [goals, topics, null, learningGoals];
   const learningPathOptions = (() => {
@@ -491,166 +490,24 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Right: Referral Management */}
+            {/* Right: Learning Summary */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Referral Stats Overview */}
-              {referralData && (
-                <>
-                  {/* Main Earnings Card */}
-                  <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-xl p-8 text-white">
-                    <div className="flex items-center justify-between mb-6">
-                      <div>
-                        <h2 className="text-2xl font-black mb-2">Abaalmarinta Casuumada</h2>
-                        <p className="text-emerald-100 text-sm">Dakhliga aad ka heshay casuumadaada</p>
-                      </div>
-                      <GraduationCap className="h-12 w-12 text-white/30" />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-2">
-                          <DollarSign className="h-6 w-6" />
-                          <span className="text-sm font-medium text-emerald-100">Wadarta Dakhliga</span>
-                        </div>
-                        <div className="text-4xl font-black">${Number(referralData.total_earnings || 0).toFixed(2)}</div>
-                      </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Users className="h-6 w-6" />
-                          <span className="text-sm font-medium text-emerald-100">Dadka la Casuumay</span>
-                        </div>
-                        <div className="text-4xl font-black">{referralData.total_referred}</div>
-                      </div>
-                    </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
+                  Horumarka Waxbarashada
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="rounded-xl bg-gray-50 dark:bg-gray-700/50 p-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Casharro la dhammeeyay</p>
+                    <p className="text-2xl font-black text-gray-900 dark:text-white">{lessonsCompleted}</p>
                   </div>
-
-                  {/* Referral Link Card */}
-                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Link-kaaga Casuumada</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-3">
-                        <code className="flex-1 text-sm font-mono text-gray-600 dark:text-gray-300 truncate">
-                          {referralData.referral_link}
-                        </code>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(referralData.referral_link);
-                            setIsCopied(true);
-                            setTimeout(() => setIsCopied(false), 2000);
-                          }}
-                          className={`shrink-0 transition-all ${isCopied ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
-                        >
-                          {isCopied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                          {isCopied ? 'La koobiyeyay' : 'Koobiyee'}
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button
-                          onClick={() => {
-                            const message = `Ku soo biir Garaad oo wax la baro! ${referralData.referral_link}`;
-                            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-                          }}
-                          className="bg-[#25D366] hover:bg-[#20bd5a] text-white"
-                        >
-                          <Share2 className="h-4 w-4 mr-2" />
-                          WhatsApp
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            const message = `Ku soo biir Garaad oo wax la baro! ${referralData.referral_link}`;
-                            window.open(`https://t.me/share/url?url=${encodeURIComponent(referralData.referral_link)}&text=${encodeURIComponent(message)}`, '_blank');
-                          }}
-                          className="bg-[#0088cc] hover:bg-[#0077b3] text-white"
-                        >
-                          <Share2 className="h-4 w-4 mr-2" />
-                          Telegram
-                        </Button>
-                      </div>
-
-                      <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
-                        <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium italic text-center">
-                          {referralData.motivational_message || "Sii wad casuumada saaxiibbadaada oo hel dakhli dheeraad ah!"}
-                        </p>
-                      </div>
-                    </div>
+                  <div className="rounded-xl bg-gray-50 dark:bg-gray-700/50 p-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Heerka dhammaystirka</p>
+                    <p className="text-2xl font-black text-gray-900 dark:text-white">{completedPercentage}%</p>
                   </div>
-
-                  {/* Referred Users List */}
-                  {referralData.referred_users && referralData.referred_users.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                        <Users className="h-5 w-5 mr-2 text-emerald-600" />
-                        Dadka aad Casuuntay ({referralData.referred_users.length})
-                      </h3>
-                      <div className="space-y-3">
-                        {referralData.referred_users.map((ref) => (
-                          <div key={ref.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                                <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
-                                  {ref.first_name?.[0]}{ref.last_name?.[0]}
-                                </span>
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-gray-900 dark:text-white">{ref.first_name} {ref.last_name}</h4>
-                                <p className="text-sm text-gray-500">@{ref.username}</p>
-                              </div>
-                            </div>
-                            <Badge className="bg-emerald-500 text-white">
-                              Active
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Recent Rewards */}
-                  {referralData.recent_rewards && referralData.recent_rewards.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                        <Trophy className="h-5 w-5 mr-2 text-yellow-600" />
-                        Abaalmarinnada ugu Dambeeyay
-                      </h3>
-                      <div className="space-y-3">
-                        {referralData.recent_rewards.map((reward) => (
-                          <div key={reward.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                                <DollarSign className="h-5 w-5 text-yellow-700 dark:text-yellow-400" />
-                              </div>
-                              <div>
-                                <h4 className="font-medium text-gray-900 dark:text-white">${reward.amount} USD</h4>
-                                <p className="text-sm text-gray-500">{new Date(reward.created_at).toLocaleDateString('so-SO')}</p>
-                              </div>
-                            </div>
-                            <Badge variant={reward.status === 'paid' ? 'default' : 'secondary'} className={reward.status === 'paid' ? 'bg-green-500 text-white' : ''}>
-                              {reward.status === 'paid' ? 'La bixiyay' : 'Sugaya'}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Empty State */}
-                  {(!referralData.referred_users || referralData.referred_users.length === 0) && (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 border border-gray-200 dark:border-gray-700 text-center">
-                      <GraduationCap className="h-16 w-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Bilow Casuumada Maanta!</h3>
-                      <p className="text-gray-500 dark:text-gray-400 mb-6">
-                        U dir link-kaaga saaxiibbadaada oo bilow in aad dakhli ka hesho marwalba oo ay koorso iibsadaan.
-                      </p>
-                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Dir Link-ka Hadda
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -805,14 +662,28 @@ export default function ProfilePage() {
                         placeholder="Wax nooga sheeg naftaada..."
                       />
                     </div>
-                    <WhatsAppPhoneFields
-                      dial={waDial}
-                      local={waLocal}
-                      onDialChange={setWaDial}
-                      onLocalChange={setWaLocal}
-                      idPrefix="profile-wa"
-                      compact
-                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="profile-wa-dial" className="text-sm font-medium text-gray-700 dark:text-gray-200">Code</Label>
+                        <Input
+                          id="profile-wa-dial"
+                          value={waDial}
+                          onChange={(e) => setWaDial(e.target.value)}
+                          className="rounded-lg bg-gray-50 dark:bg-gray-800"
+                          placeholder="+252"
+                        />
+                      </div>
+                      <div className="sm:col-span-2 space-y-2">
+                        <Label htmlFor="profile-wa-local" className="text-sm font-medium text-gray-700 dark:text-gray-200">WhatsApp Number</Label>
+                        <Input
+                          id="profile-wa-local"
+                          value={waLocal}
+                          onChange={(e) => setWaLocal(e.target.value)}
+                          className="rounded-lg bg-gray-50 dark:bg-gray-800"
+                          placeholder="612345678"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <DialogFooter className="gap-3">

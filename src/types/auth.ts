@@ -1,7 +1,7 @@
 
-export type UserIdentity = "explorer" | "builder" | "solver" | "mentor";
+type UserIdentity = "explorer" | "builder" | "solver" | "mentor";
 
-export interface NextAction {
+interface NextAction {
   title: string;
   action_type: string;
   priority: "normal" | "high" | "low";
@@ -36,11 +36,6 @@ export interface User {
   profile?: Profile;
   createdAt?: string;
   updatedAt?: string;
-  referral_code?: string;
-  referral_points?: number;
-  referral_count?: number;
-  referred_by?: string | null;
-  referred_by_username?: string | null;
   /** When false, user must complete /welcome before accessing /dashboard */
   has_completed_onboarding?: boolean;
   /** E.164 WhatsApp number from profile */
@@ -58,7 +53,7 @@ export interface Profile {
   };
 }
 
-export interface Tokens {
+interface Tokens {
   refresh: string;
   access: string;
 }
@@ -72,7 +67,7 @@ export interface AuthState {
   error: string | null;
 }
 
-export interface LoginResponse {
+interface LoginResponse {
   user: User;
   tokens: {
     refresh: string;
@@ -80,17 +75,17 @@ export interface LoginResponse {
   };
 }
 
-export interface LoginCredentials {
+interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export interface AuthError {
+interface AuthError {
   message: string;
   status?: number;
 }
 
-export interface ApiErrorResponse {
+interface ApiErrorResponse {
   message?: string;
   error?: string;
   detail?: string;
@@ -108,7 +103,7 @@ export interface ApiErrorResponse {
   };
 }
 
-export interface SignUpData {
+interface SignUpData {
   email: string;
   password?: string;
   name?: string;
@@ -137,7 +132,7 @@ export interface SignUpData {
   country_flag?: string;
 }
 
-export interface SignUpResponse {
+interface SignUpResponse {
   user: User;
   tokens: Tokens;
 }

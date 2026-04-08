@@ -26,7 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Check, Loader2, RotateCcw, Sparkles, X } from "lucide-react";
 import Logo from "@/components/ui/Logo";
-import { useSoundManager } from "@/hooks/use-sound-effects";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
 import { progressService } from "@/services/progress";
 import { getResumeLessonPath } from "@/lib/onboarding-resume";
@@ -302,7 +301,6 @@ function WelcomeOnboardingPage() {
     name: "",
     email: "",
     password: "",
-    referralCode: "",
     promoCode: "",
   });
   const [actualError, setActualError] = useState("");
@@ -312,7 +310,6 @@ function WelcomeOnboardingPage() {
   const [wizardHydrated, setWizardHydrated] = useState(false);
   const [postSignupDest, setPostSignupDest] = useState("/courses");
 
-  const { playSound } = useSoundManager();
   const posthog = usePostHog();
   const posthogRef = useRef(posthog);
   posthogRef.current = posthog;
@@ -443,13 +440,6 @@ function WelcomeOnboardingPage() {
       JSON.stringify({ answers, stepIndex, phase, userData })
     );
   }, [answers, stepIndex, phase, userData]);
-
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref) {
-      setUserData((prev) => ({ ...prev, referralCode: ref }));
-    }
-  }, [searchParams]);
 
   useEffect(() => {
     const auth = AuthService.getInstance();
@@ -598,7 +588,6 @@ function WelcomeOnboardingPage() {
 
   const handleSelectOption = (kind: StepKind, id: string) => {
     if (isLoading) return;
-    playSound("toggle-on");
 
     if (kind === "goal") {
       setAnswers((prev) => {
@@ -659,7 +648,6 @@ function WelcomeOnboardingPage() {
 
   const toggleDeselect = (kind: StepKind, id: string) => {
     if (selectIdForKind(kind) !== id) return;
-    playSound("toggle-on");
     setAnswers((prev) => {
       const next = { ...prev };
       if (kind === "goal") {
@@ -740,7 +728,6 @@ function WelcomeOnboardingPage() {
       name: "",
       email: "",
       password: "",
-      referralCode: userData.referralCode,
       promoCode: "",
     });
     setActualError("");
@@ -787,9 +774,6 @@ function WelcomeOnboardingPage() {
         const result = await authService.signInWithGoogle({
           credential,
           onboarding_data,
-          ...(userData.referralCode.trim()
-            ? { referral_code: userData.referralCode.trim() }
-            : {}),
           ...(userData.promoCode.trim() ? { promo_code: userData.promoCode.trim() } : {}),
         });
 
@@ -797,11 +781,6 @@ function WelcomeOnboardingPage() {
           setAuthStoreUser({
             ...result.user,
             is_premium: result.user.is_premium || false,
-            referral_code: result.user.referral_code,
-            referral_points: result.user.referral_points,
-            referral_count: result.user.referral_count,
-            referred_by: result.user.referred_by,
-            referred_by_username: result.user.referred_by_username,
           });
         }
 
@@ -841,7 +820,6 @@ function WelcomeOnboardingPage() {
     },
     [
       answers,
-      userData.referralCode,
       userData.promoCode,
       postAuthRedirect,
       posthog,
@@ -922,9 +900,6 @@ function WelcomeOnboardingPage() {
         username: userData.email.trim(),
         age: SIGNUP_DEFAULT_AGE,
         onboarding_data,
-        ...(userData.referralCode
-          ? { referral_code: userData.referralCode.trim() }
-          : {}),
         ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
       };
 
@@ -934,11 +909,6 @@ function WelcomeOnboardingPage() {
         setAuthStoreUser({
           ...result.user,
           is_premium: result.user.is_premium || false,
-          referral_code: result.user.referral_code,
-          referral_points: result.user.referral_points,
-          referral_count: result.user.referral_count,
-          referred_by: result.user.referred_by,
-          referred_by_username: result.user.referred_by_username,
         });
       }
 
@@ -1381,9 +1351,6 @@ function WelcomeOnboardingPage() {
             <p className="border-b border-border bg-muted/40 px-4 py-3.5 text-center text-xs text-muted-foreground sm:text-sm">
               <span className="font-semibold tabular-nums text-foreground">
                 Tallaabada {progressCurrent} / {progressTotal}
-              </span>
-              <span className="mt-1.5 block text-[11px] font-medium text-slate-600 sm:text-xs dark:text-slate-400">
-                Qiyaastii 2 daqiiqo haddii aad sii wadato
               </span>
             </p>
 

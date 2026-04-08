@@ -11,7 +11,6 @@ export interface SignUpData {
   name: string;
   username?: string;
   age: number;
-  referral_code?: string;
   promo_code?: string;
   onboarding_data: {
     goal: string;
@@ -31,7 +30,7 @@ export interface SignUpData {
   country_flag?: string;
 }
 
-export interface OnboardingData {
+interface OnboardingData {
   goal: string;
   learning_approach: string;
   topic: string;
@@ -42,7 +41,7 @@ export interface OnboardingData {
   wizard_progress?: Record<string, unknown>;
 }
 
-export interface DashboardProfile {
+interface DashboardProfile {
   id: number;
   username: string;
   community_profile: {
@@ -63,19 +62,18 @@ export interface SignUpResponse {
   };
 }
 
-export interface GoogleAuthPayload {
+interface GoogleAuthPayload {
   credential: string;
   onboarding_data?: SignUpData["onboarding_data"];
-  referral_code?: string;
   promo_code?: string;
 }
 
-export interface SignInData {
+interface SignInData {
   email: string;
   password: string;
 }
 
-export interface SignInResponse {
+interface SignInResponse {
   message?: string;
   user: User;
   tokens: {
@@ -90,7 +88,7 @@ interface JWTPayload {
   user_id: number;
 }
 
-export interface AuthResponse {
+interface AuthResponse {
   access: string;
   refresh: string;
   user: User;
@@ -104,7 +102,7 @@ type ApiAuthPayload = {
   refresh?: string;
 };
 
-export class AuthService {
+class AuthService {
   private static instance: AuthService;
   private user: User | null = null;
 
