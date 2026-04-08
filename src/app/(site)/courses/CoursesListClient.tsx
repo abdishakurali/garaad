@@ -136,22 +136,6 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
     }, [searchParams]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
-    if (hasMounted && isError) {
-        return (
-            <div className="min-h-screen bg-slate-50 dark:bg-black">
-                <div className="max-w-7xl mx-auto p-8">
-                    <Alert variant="destructive" className="rounded-3xl border-2">
-                        <AlertCircle className="h-5 w-5" />
-                        <AlertTitle className="font-black">Khalad ayaa dhacay</AlertTitle>
-                        <AlertDescription className="font-bold">
-                            Waan ka xunnahay, waxaa ku guuldareysatay soo dejinta koorsooyinka.
-                        </AlertDescription>
-                    </Alert>
-                </div>
-            </div>
-        );
-    }
-
     const safeCategories = Array.isArray(categories) && categories.length > 0
         ? categories
         : (Array.isArray(initialCategories) ? initialCategories : []);
@@ -206,6 +190,22 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
             const seqB = (b?.sequence !== undefined && b.sequence !== null) ? b.sequence : Number.MAX_SAFE_INTEGER;
             return seqA - seqB;
         });
+
+    if (hasMounted && isError) {
+        return (
+            <div className="min-h-screen bg-slate-50 dark:bg-black">
+                <div className="max-w-7xl mx-auto p-8">
+                    <Alert variant="destructive" className="rounded-3xl border-2">
+                        <AlertCircle className="h-5 w-5" />
+                        <AlertTitle className="font-black">Khalad ayaa dhacay</AlertTitle>
+                        <AlertDescription className="font-bold">
+                            Waan ka xunnahay, waxaa ku guuldareysatay soo dejinta koorsooyinka.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
