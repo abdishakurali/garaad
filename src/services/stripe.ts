@@ -6,7 +6,7 @@ import type {
 } from "@stripe/stripe-js";
 import AuthService from "@/services/auth";
 
-export class StripeService {
+class StripeService {
   private static instance: StripeService;
   private stripe: Stripe | null = null;
 

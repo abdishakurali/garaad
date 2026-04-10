@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { adminApi as api, ApiError } from "@/lib/admin-api";
 import { Modal } from "@/components/admin/ui/Modal";
-import { Upload, ImageIcon, Loader2, X } from "lucide-react";
+import { Upload,  Loader2, X } from "lucide-react";
 
 interface Category {
     id: string;

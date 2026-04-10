@@ -26,7 +26,7 @@ import {
     Loader2,
     Search,
     Filter,
-    Download,
+    
     Eye,
     RefreshCw,
     Calendar,
@@ -45,7 +45,7 @@ import {
     OrderFilters,
     ORDER_STATUS_OPTIONS,
     PAYMENT_METHOD_OPTIONS,
-    CURRENCY_OPTIONS,
+    
 } from "@/types/order";
 import { useAuthStore } from "@/store/useAuthStore";
 

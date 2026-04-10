@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Image as ImageIcon, Upload } from "lucide-react";
+import { Loader2, ArrowLeft,  Upload } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 

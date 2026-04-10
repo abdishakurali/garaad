@@ -7,7 +7,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useSoundManager } from "@/hooks/use-sound-effects";
 
 interface PracticeSetProps {
   practiceSet: IPracticeSet;
@@ -27,13 +26,9 @@ export const PracticeSet: React.FC<PracticeSetProps> = ({
   const [problemStates, setProblemStates] = useState<
     Record<number, ProblemState>
   >({});
-  const { playSound } = useSoundManager();
 
   const handleAnswerSelect = (problem: PracticeSetProblem, answer: string) => {
     if (problemStates[problem.id]?.isSubmitted) return;
-
-    // Play toggle-on sound when an option is selected
-    playSound("toggle-on");
 
     setProblemStates((prev) => ({
       ...prev,

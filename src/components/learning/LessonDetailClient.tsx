@@ -1,7 +1,4 @@
-"use client";
-
-import type React from "react";
-import {
+"use client";import {
     useEffect,
     useState,
     useRef,
@@ -10,16 +7,14 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import useSWR from "swr";
-import { useLearningStore } from "@/store/useLearningStore";
-import { useLesson, useCourse, useCategories, useProblem, useEnrollments, useUserProgress } from "@/hooks/useApi";
+import { useParams, useRouter, useSearchParams } from "next/navigation";import { useLearningStore } from "@/store/useLearningStore";
+import { useLesson, useCourse, useCategories,  useEnrollments, useUserProgress } from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
 import {
     ChevronRight,
     RefreshCw,
     Home,
-    Loader,
+
     Sparkles,
 } from "lucide-react";
 import {
@@ -39,15 +34,11 @@ import type { Course, Lesson } from "@/types/lms";
 import AuthService from "@/services/auth";
 import { FREE_TIER_LESSON_COUNT } from "@/lib/lessonTierAccess";
 import { useAuthStore } from "@/store/useAuthStore";
-import katex from 'katex';
-
 import 'katex/dist/katex.min.css';
 import ProblemBlock from "@/components/lesson/ProblemBlock";
 import TextBlock from "@/components/lesson/TextBlock";
 import ImageBlock from "@/components/lesson/ImageBlock";
 import VideoBlock from "@/components/lesson/VideoBlock";
-import CalculatorProblemBlock from "@/components/lesson/CalculatorProblemBlock";
-import { useSoundManager } from "@/hooks/use-sound-effects";
 import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
@@ -268,7 +259,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
     const { enrollments } = useEnrollments();
     const { progress: userProgress } = useUserProgress();
 
-    const { playSound } = useSoundManager();
     const { toast } = useToast();
     const continueRef = useRef<() => void>(() => { });
 
@@ -425,10 +415,9 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
     // Play start lesson sound when lesson is loaded and ready
     useEffect(() => {
         if (currentLesson && !isLoading && (sortedBlocks?.length || 0) > 0 && !hasPlayedStartSound) {
-            playSound("start-lesson");
             setHasPlayedStartSound(true);
         }
-    }, [currentLesson, isLoading, sortedBlocks?.length, playSound, hasPlayedStartSound]);
+    }, [currentLesson, isLoading, sortedBlocks?.length, hasPlayedStartSound]);
 
     // Warm bridge: on lesson load, silent fetch first video URL with Range to prime cache/session
     useEffect(() => {
@@ -636,7 +625,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
         const lastIndex = (sortedBlocks?.length || 0) - 1;
         const isLastBlock = currentBlockIndex === lastIndex;
 
-        playSound("continue");
         window.scrollTo({ top: 0, behavior: "instant" });
         setShowFeedback(false);
 
@@ -733,13 +721,7 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                 has_next_lesson: !!(navMeta?.nextLessonId),
             });
         }
-    }, [
-        currentBlockIndex,
-        playSound,
-        sortedBlocks,
-        currentLesson?.id,
-        courseLessons,
-    ]);
+    }, [currentBlockIndex, sortedBlocks, currentLesson?.id, courseLessons]);
 
     useEffect(() => {
         if (!showCompletionAnimation || completionNavigateMeta === null) return;
@@ -924,7 +906,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
 
         setIsCorrect(isCorrect);
         setShowFeedback(true);
-        playSound(isCorrect ? "correct" : "incorrect");
 
         if (!isCorrect && currentProblem.question_type !== "short_input") {
             // For single choice: disable the wrong option so it can't be selected again; keep it visually selected
@@ -934,7 +915,7 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
             }
             // For multiple choice, we don't disable options, just reset
         }
-    }, [selectedOption, currentProblem, playSound]);
+    }, [selectedOption, currentProblem]);
 
     const handleResetAnswer = useCallback(() => {
         resetAnswerState();

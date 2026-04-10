@@ -1,7 +1,4 @@
-"use client";
-
-import React from "react";
-import {
+"use client";import {
     LineChart,
     Line,
     AreaChart,

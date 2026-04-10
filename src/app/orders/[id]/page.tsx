@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import {
     ArrowLeft,
     Loader2,
-    Download,
+    
     Receipt,
     CreditCard,
     Calendar,
@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import OrderService from "@/services/orders";
-import { Order, OrderItem } from "@/types/order";
+import { Order,  } from "@/types/order";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function OrderDetailPage() {

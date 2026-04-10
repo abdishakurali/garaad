@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/Header";
-import Footer from "@/components/sections/FooterSection";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 /** Hide main header and footer on lesson pages so they don't cover lesson content. */
 function isLessonPage(pathname: string | null): boolean {
@@ -21,7 +21,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
     <>
       <Header />
       {children}
-      <Footer />
+      <SiteFooter />
     </>
   );
 }

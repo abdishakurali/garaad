@@ -22,7 +22,7 @@ export const getServerStripe = (): Stripe => {
 };
 
 // Legacy export for backward compatibility (lazy-loaded)
-export const stripe = typeof window === "undefined" ? getServerStripe : null;
+const stripe = typeof window === "undefined" ? getServerStripe : null;
 
 // Client-side Stripe configuration
 export const getStripe = async () => {
@@ -60,7 +60,7 @@ export const STRIPE_PRICE_IDS = {
 };
 
 // Webhook events to handle
-export const STRIPE_WEBHOOK_EVENTS = [
+const STRIPE_WEBHOOK_EVENTS = [
   "customer.subscription.created",
   "customer.subscription.updated",
   "customer.subscription.deleted",

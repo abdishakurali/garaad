@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { launchpadService } from "@/services/launchpad";
 import { coursesService, type Course } from "@/services/courses";
 import type { ProjectFormData } from "@/types/launchpad";
-import { TECH_STACK_OPTIONS, LAUNCHPAD_UI_TEXT } from "@/types/launchpad";
+import { TECH_STACK_OPTIONS,  } from "@/types/launchpad";
 import { FolderKanban, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ActionToast } from "@/components/launchpad/ActionToast";

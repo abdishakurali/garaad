@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
-export interface SpotsBadgeProps {
+interface SpotsBadgeProps {
   spots: number;
   loading?: boolean;
   className?: string;

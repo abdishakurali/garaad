@@ -10,14 +10,11 @@ import {
   Github,
   Twitter,
   Linkedin,
-  Mail,
-  ArrowRight,
+  
+  
   Search
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { cn } from "@/lib/utils";import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Abdishakur Ali — Founder of Garaad | Somali Tech Entrepreneur",

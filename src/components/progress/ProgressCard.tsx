@@ -4,7 +4,7 @@ import React from "react";
 import { UserProgress } from "@/services/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Book, Folder, Layers, FileText, CheckCircle2, Circle, Clock } from "lucide-react";
+import { Book, Folder, Layers,  CheckCircle2, Circle, Clock } from "lucide-react";
 
 interface LessonProgress {
     id: number;

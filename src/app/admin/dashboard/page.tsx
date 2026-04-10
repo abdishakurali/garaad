@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import  { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { analyticsService, UserAnalytics, RevenueAnalytics, CourseAnalytics, RecentActivity } from "@/lib/admin/analytics";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";

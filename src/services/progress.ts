@@ -19,7 +19,7 @@ export interface UserProgress {
   completed_at: string | null;
 }
 
-export interface UserReward {
+interface UserReward {
   id: number;
   user: number;
   reward_type: "points" | "badge" | "streak";
@@ -28,7 +28,7 @@ export interface UserReward {
   awarded_at: string;
 }
 
-export interface LeaderboardEntry {
+interface LeaderboardEntry {
   id: number;
   user: number;
   username: string;
@@ -51,7 +51,7 @@ export interface LeaderboardEntry {
   };
 }
 
-export interface UserRank {
+interface UserRank {
   rank: number;
   points: number;
   entries_above: Array<{ user__username: string; points: number }>;

@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
-export interface CodeEditorProps {
+interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
   language?: string;

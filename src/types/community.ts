@@ -94,7 +94,7 @@ export interface CreateReplyData {
 }
 
 // Post Creation Form Types
-export interface PostFormData {
+interface PostFormData {
   title: string;
   content: string;
   room_id: string | null;
@@ -106,9 +106,9 @@ export interface PostFormData {
   is_public: boolean;
 }
 
-export type PostFormErrors = Partial<Record<keyof PostFormData | 'image' | 'general', string>>;
+type PostFormErrors = Partial<Record<keyof PostFormData | 'image' | 'general', string>>;
 
-export interface CampusRoom {
+interface CampusRoom {
   id: string;
   title: string;
   slug: string;
@@ -173,20 +173,20 @@ export interface Notification {
 }
 
 // API Response types
-export interface PaginatedResponse<T> {
+interface PaginatedResponse<T> {
   count: number;
   next: string | null;
   previous: string | null;
   results: T[];
 }
 
-export interface ApiError {
+interface ApiError {
   status: number;
   message: string;
   data?: any;
 }
 
-export interface ApiErrorResponse {
+interface ApiErrorResponse {
   type:
   | "validation"
   | "auth"
@@ -199,7 +199,7 @@ export interface ApiErrorResponse {
 }
 
 // UI State types
-export interface CommunityState {
+interface CommunityState {
   // Data
   categories: CommunityCategory[];
   posts: CommunityPost[];
@@ -240,7 +240,7 @@ export interface CommunityState {
 }
 
 // Badge and Achievement types
-export interface Badge {
+interface Badge {
   level: "dhalinyaro" | "dhexe" | "sare" | "weyne" | "hogaamiye";
   display_name: string;
   emoji: string;
@@ -250,7 +250,7 @@ export interface Badge {
 }
 
 // Constants
-export const BADGE_LEVELS: Record<string, Badge> = {
+const BADGE_LEVELS: Record<string, Badge> = {
   dhalinyaro: {
     level: "dhalinyaro",
     display_name: "Garaad Dhalinyaro",

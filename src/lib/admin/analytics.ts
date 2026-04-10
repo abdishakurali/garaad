@@ -154,24 +154,6 @@ export interface AdminUserRow {
     whatsapp_href?: string | null;
 }
 
-export interface AdminWhatsappRow {
-    id: number;
-    name: string;
-    email: string;
-    whatsapp_number: string;
-    whatsapp_href: string | null;
-    date_joined: string | null;
-    last_active: string | null;
-}
-
-export interface AdminWhatsappUsersResponse {
-    count: number;
-    next: number | null;
-    previous: number | null;
-    results: AdminWhatsappRow[];
-    total_with_whatsapp: number;
-}
-
 export interface AdminUsersResponse {
     count: number;
     next: number | null;
@@ -213,18 +195,6 @@ export const analyticsService = {
         if (filters?.is_email_verified === "false") params.set("is_email_verified", "false");
         if (filters?.user_filter) params.set("user_filter", filters.user_filter);
         const response = await api.get(`/admin/users/?${params.toString()}`);
-        return response.data;
-    },
-    getAdminWhatsappUsers: async (
-        page: number = 1,
-        search?: string,
-        pageSize: number = 25
-    ): Promise<AdminWhatsappUsersResponse> => {
-        const params = new URLSearchParams();
-        params.set("page", String(page));
-        params.set("page_size", String(pageSize));
-        if (search && search.trim()) params.set("search", search.trim());
-        const response = await api.get(`/admin/whatsapp-users/?${params.toString()}`);
         return response.data;
     },
     getCohortEnrollments: async (): Promise<{

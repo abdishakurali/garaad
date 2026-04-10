@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface InputFieldWithLabelProps {

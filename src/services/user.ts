@@ -1,11 +1,11 @@
 // User service for handling premium status updates
-export interface UserPremiumUpdate {
+interface UserPremiumUpdate {
   userId: string;
   isPremium: boolean;
   subscriptionId?: string;
 }
 
-export class UserService {
+class UserService {
   private static instance: UserService;
 
   private constructor() { }

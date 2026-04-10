@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
-import { CommunityPost, CommunityReply, UserProfile, ReactionType, SOMALI_UI_TEXT, REACTION_ICONS, getUserDisplayName } from "@/types/community";
+import {  CommunityReply, UserProfile, ReactionType, SOMALI_UI_TEXT, REACTION_ICONS, getUserDisplayName } from "@/types/community";
 import { useAuthStore } from "@/store/useAuthStore";
 import { LinkifiedText } from "@/components/ui/linkified-text";
 import { useCommunityStore } from "@/store/useCommunityStore";
@@ -10,8 +10,7 @@ import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, Trash2, Paperclip, X, Video, Play, File } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { UserProfileModal } from "./UserProfileModal";
+ import { UserProfileModal } from "./UserProfileModal";
 import { AttachmentDisplay } from "./AttachmentDisplay";
 import {
     DropdownMenu,

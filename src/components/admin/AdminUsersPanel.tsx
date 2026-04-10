@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import  { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { analyticsService } from "@/lib/admin/analytics";
 import type { AdminUsersResponse, AdminUserRow } from "@/lib/admin/analytics";

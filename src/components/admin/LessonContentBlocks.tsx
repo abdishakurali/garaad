@@ -2,26 +2,24 @@
 
 import { useState, useEffect, FormEvent, MouseEvent, Fragment } from 'react';
 import { adminApi as api, ApiError } from '@/lib/admin-api';
-import type { ContentBlock, ContentBlockData, Option, DiagramConfig, DiagramObject, ProblemData } from '@/app/admin/types/content';
+import type { ContentBlock, ContentBlockData, Option,   ProblemData } from '@/app/admin/types/content';
 import { ContentBlockModal } from './ContentBlockModal';
 import { Modal } from './ui/Modal';
 import posthog from 'posthog-js';
 import { toast } from '@/hooks/use-toast';
 import {
-    Plus, Trash2, Video, Type, Image as LucideImage, HelpCircle, Save, X,
-    GripVertical, Info, Layout, List as ListIcon, Table as TableIcon,
-    Square, CheckSquare, AlignLeft, Hash, Link, Calculator, BarChart2,
-    Upload, Loader2, Sparkles, ChevronUp, ChevronDown, CheckCircle, PlusCircle,
+    Plus, Trash2, Video,     X,
+    GripVertical,    
+        Link,  
+    Upload, Loader2, Sparkles, ChevronUp, ChevronDown, CheckCircle, 
     ArrowUpDown
 } from 'lucide-react';
-import { addStyles, EditableMathField } from 'react-mathquill';
+import { addStyles,  } from 'react-mathquill';
 
 // Load MathQuill styles
 if (typeof window !== 'undefined') {
     addStyles();
-}
-import axios from 'axios';
-import { DEFAULT_CONTENT, DIAGRAM_EXAMPLE, MULTIPLE_CHOICE_EXAMPLE, TABLE_EXAMPLE, DEFAULT_DIAGRAM_CONFIG, LIST_EXAMPLE } from '@/lib/admin/Block_Examples';
+}import { DEFAULT_CONTENT,  MULTIPLE_CHOICE_EXAMPLE, TABLE_EXAMPLE,  LIST_EXAMPLE } from '@/lib/admin/Block_Examples';
 import { RichTextEditor } from './ui/RichTextEditor';
 
 /** Parse pasted table data (JSON or YAML-like) into { header, rows }. */

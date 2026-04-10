@@ -20,7 +20,7 @@ export function freeTierLessonIdSet(
   );
 }
 
-export function isLessonIdUnlocked(
+function isLessonIdUnlocked(
   user: User | null | undefined,
   courseLessons: { id: number | string; lesson_number?: number | null }[],
   lessonId: number | string
@@ -30,7 +30,7 @@ export function isLessonIdUnlocked(
   return free.has(Number(lessonId));
 }
 
-export function isGuestLessonUnlocked(
+function isGuestLessonUnlocked(
   courseLessons: { id: number | string; lesson_number?: number | null }[],
   lessonId: number | string
 ): boolean {

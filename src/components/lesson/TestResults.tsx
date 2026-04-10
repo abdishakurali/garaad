@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { Check, X, Loader2, ChevronDown, ChevronRight } from "lucide-react";
+import  { useState } from "react";
+import {   Loader2, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TestResult } from "@/lib/codeRunner";
 
-export interface TestResultsProps {
+interface TestResultsProps {
   results: TestResult[];
   isRunning: boolean;
 }

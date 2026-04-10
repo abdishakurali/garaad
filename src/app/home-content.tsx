@@ -5,14 +5,12 @@ import { OurStorySection } from "@/components/landing/OurStorySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
-import { usePostHog } from 'posthog-js/react';
+ import { usePostHog } from 'posthog-js/react';
 
 const selectShowDashboard = (s: { _hasHydrated: boolean; isAuthenticated: boolean }) =>
     s._hasHydrated && s.isAuthenticated;
 
 export function HomeContent() {
-    const showDashboard = useAuthStore(selectShowDashboard);
     const user = useAuthStore((s) => s.user);
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
     const posthog = usePostHog();
@@ -26,9 +24,7 @@ export function HomeContent() {
 
     return (
         <main className="min-h-screen bg-zinc-950 text-zinc-100">
-            {showDashboard ? (
-                <StudentDashboard />
-            ) : (
+           
                 <>
                     <ChallengeHero />
                     
@@ -39,7 +35,7 @@ export function HomeContent() {
                         innerClassName="px-3 sm:px-4 md:px-6 lg:px-8"
                     />
                 </>
-            )}
+         
         </main>
     );
 }

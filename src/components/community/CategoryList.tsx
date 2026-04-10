@@ -1,8 +1,6 @@
 import React from "react";
 import { CommunityCategory } from "@/types/community";
-import { useCommunityStore } from "@/store/useCommunityStore";
-import { toast } from "sonner";
-import { SOMALI_UI_TEXT } from "@/types/community";
+import { useCommunityStore } from "@/store/useCommunityStore";import { SOMALI_UI_TEXT } from "@/types/community";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";

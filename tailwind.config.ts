@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["'FK Grotesk Neue'", "'Source Han Sans'", "var(--font-noto-sans-sc)", "sans-serif"],
-        display: ["'FK Grotesk'", "'Source Han Sans'", "var(--font-noto-sans-sc)", "sans-serif"],
+        sans: ["var(--font-inter)", "'Source Han Sans'", "var(--font-noto-sans-sc)", "sans-serif"],
+        display: ["var(--font-inter)", "'Source Han Sans'", "var(--font-noto-sans-sc)", "sans-serif"],
         syne: ["var(--font-syne)", "sans-serif"],
         dmsans: ["var(--font-dm-sans)", "sans-serif"],
       },

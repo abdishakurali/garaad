@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import  { Suspense } from "react";
 import AdminUsersPanel from "@/components/admin/AdminUsersPanel";
 import { Loader2 } from "lucide-react";
 

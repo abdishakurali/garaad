@@ -14,7 +14,7 @@ import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { EmojiPicker } from "./EmojiPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { Share2, Globe, GraduationCap } from "lucide-react";
+import {  Globe,  } from "lucide-react";
 import { UserProfileModal } from "./UserProfileModal";
 
 interface InlinePostInputProps {

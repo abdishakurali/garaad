@@ -2,14 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MessageCircle, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import Logo from '../ui/Logo';
 
 const NAV_ITEMS = [
     { key: "home", label: "Home", icon: "⌂", path: "/admin" },
     { key: "dashboard", label: "Dashboard", icon: "▦", path: "/admin/dashboard" },
     { key: "users", label: "Isticmaalayaasha", icon: "users", path: "/admin/users" },
-    { key: "whatsapp", label: "WhatsApp", icon: "chat", path: "/admin/whatsapp" },
     { key: "cohorts", label: "Kooxaha", icon: "◎", path: "/admin/cohorts" },
     { key: "qaybaha", label: "Qaybaha", icon: "◫", path: "/admin/qaybaha" },
     { key: "koorsooyinka", label: "Koorsooyinka", icon: "◎", path: "/admin/koorsooyinka" },
@@ -69,9 +68,7 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
                                 `}
                             >
                                 {/* Icon */}
-                                {item.icon === "chat" ? (
-                                    <MessageCircle className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-600" : "text-gray-400"}`} aria-hidden />
-                                ) : item.icon === "users" ? (
+                                {item.icon === "users" ? (
                                     <Users className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-600" : "text-gray-400"}`} aria-hidden />
                                 ) : (
                                     <span className={`

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, FileSpreadsheet, FileImage, Video, File, Eye, X } from 'lucide-react';
+import { Download, FileText, FileSpreadsheet, FileImage, Video, File, Eye,  } from 'lucide-react';
 import { CommunityAttachment } from '@/types/community';
 import { getMediaUrl } from '@/lib/utils';
 import {
@@ -7,7 +7,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
+    
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 

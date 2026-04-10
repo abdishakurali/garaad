@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
-
 interface Props {
   children: React.ReactNode;
   fallback?: React.ReactNode;

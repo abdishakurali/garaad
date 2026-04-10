@@ -1,6 +1,4 @@
-import { CommunityPost, UserProfile, SOMALI_UI_TEXT } from "@/types/community";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { PostCard } from "./PostCard";
+import { CommunityPost, UserProfile, SOMALI_UI_TEXT } from "@/types/community";import { PostCard } from "./PostCard";
 import { AlertCircle } from "lucide-react";
 import { InlinePostInput } from "./InlinePostInput";
 

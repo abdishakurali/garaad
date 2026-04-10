@@ -22,7 +22,7 @@ export const optimizeCloudinaryUrl = (url: string | undefined): string => {
 /**
  * Generates a poster image URL for a Cloudinary video.
  */
-export const getCloudinaryVideoPoster = (url: string | undefined): string | undefined => {
+const getCloudinaryVideoPoster = (url: string | undefined): string | undefined => {
     if (!url || !url.includes("res.cloudinary.com")) return undefined;
     return url
         .replace("/video/upload/", "/video/upload/f_auto,q_30,so_0/")

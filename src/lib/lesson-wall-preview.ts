@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/lib/constants";
 
-export type LessonWallPreviewApiLesson = {
+type LessonWallPreviewApiLesson = {
   id: number;
   title: string;
   course: number;
@@ -12,7 +12,7 @@ export type LessonWallPreviewApiLesson = {
   }>;
 };
 
-export type LessonWallPreviewData = {
+type LessonWallPreviewData = {
   lessonId: number;
   lessonTitle: string;
   courseId: number;
@@ -33,7 +33,7 @@ function sentenceFromLessonText(raw: string): string {
 }
 
 /** One-sentence teaser from ordered content blocks (lesson has no separate description field). */
-export function extractLessonTeaserFromBlocks(
+function extractLessonTeaserFromBlocks(
   contentBlocks: LessonWallPreviewApiLesson["content_blocks"]
 ): string | null {
   if (!contentBlocks?.length) return null;
@@ -76,7 +76,7 @@ export function extractLessonTeaserFromBlocks(
   return null;
 }
 
-export function fallbackTeaser(lessonTitle: string, estimatedMinutes?: number | null): string {
+function fallbackTeaser(lessonTitle: string, estimatedMinutes?: number | null): string {
   if (estimatedMinutes && estimatedMinutes > 0) {
     return `Casharkan “${lessonTitle}” wuxuu qiyaastii qaadanayaa ${estimatedMinutes} daqiiqo — fur akoon si aad u bilowdo.`;
   }

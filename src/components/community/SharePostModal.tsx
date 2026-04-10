@@ -21,12 +21,12 @@ import {
 import {
     CommunityPost,
     REACTION_ICONS,
-    SOMALI_UI_TEXT,
+
     getUserDisplayName
 } from "@/types/community";
-import { Logo } from "@/components/ui/Logo";
+import Logo from "@/components/ui/Logo";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
-import { getMediaUrl, cn, formatSomaliRelativeTime } from "@/lib/utils";
+import { getMediaUrl,  formatSomaliRelativeTime } from "@/lib/utils";
 import { toast } from "sonner";
 import html2canvas from "html2canvas-pro";
 

@@ -12,7 +12,7 @@ export const EXPLORER_IS_FREE =
  * Deprecated: all signed-in users have full lesson access in app code.
  * Kept for env parity only; `lessonTierAccess` no longer reads this flag.
  */
-export const ALL_LESSONS_FREE =
+const ALL_LESSONS_FREE =
   process.env.NEXT_PUBLIC_ALL_LESSONS_FREE !== "false" &&
   process.env.NEXT_PUBLIC_ALL_LESSONS_FREE !== "0";
 

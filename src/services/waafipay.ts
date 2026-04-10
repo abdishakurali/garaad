@@ -2,7 +2,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 // Types
-export interface WaafiPayConfig {
+interface WaafiPayConfig {
   merchantUid: string;
   apiUserId: string;
   apiKey: string;
@@ -11,7 +11,7 @@ export interface WaafiPayConfig {
   hppKey: string;
 }
 
-export interface PayerInfo {
+interface PayerInfo {
   accountNo?: string;
   cardNumber?: string;
   cardHolderName?: string;
@@ -20,7 +20,7 @@ export interface PayerInfo {
   cardCvv?: string;
 }
 
-export interface TransactionInfo {
+interface TransactionInfo {
   referenceId: string;
   invoiceId: string;
   amount: string;
@@ -28,7 +28,7 @@ export interface TransactionInfo {
   description: string;
 }
 
-export interface CardPaymentInfo {
+interface CardPaymentInfo {
   cardNumber: string;
   cardHolderName: string;
   cardExpiryMonth: string;
@@ -36,7 +36,7 @@ export interface CardPaymentInfo {
   cardCvv: string;
 }
 
-export type PaymentMethod =
+type PaymentMethod =
   | "MWALLET_ACCOUNT"
   | "MWALLET_EVC"
   | "MWALLET_ZAAD"
@@ -60,7 +60,7 @@ interface ServiceParams {
   description?: string;
 }
 
-export interface WaafiPayRequest {
+interface WaafiPayRequest {
   schemaVersion: string;
   requestId: string;
   timestamp: string;
@@ -69,7 +69,7 @@ export interface WaafiPayRequest {
   serviceParams: ServiceParams;
 }
 
-export interface WaafiPayResponse {
+interface WaafiPayResponse {
   schemaVersion: string;
   timestamp: string;
   responseId: string;

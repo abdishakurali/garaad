@@ -1,7 +1,4 @@
 "use client";
-
-import { useEffect } from "react";
-
 /**
  * VersionCheck - Disabled for now to prevent potential reload issues
  * Can be re-enabled later when needed

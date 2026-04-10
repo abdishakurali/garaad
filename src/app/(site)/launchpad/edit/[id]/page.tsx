@@ -5,9 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import { launchpadService } from "@/services/launchpad";
 import { useAuth } from "@/hooks/useAuth";
 
-import type { StartupCategory, StartupFormData, StartupDetail } from "@/types/launchpad";
+import type { StartupCategory, StartupFormData,  } from "@/types/launchpad";
 import { TECH_STACK_OPTIONS } from "@/types/launchpad";
-import { Rocket, Upload, X, Check, Loader2, ArrowLeft, ChevronDown, ChevronUp as ChevronUpIcon, Github, Linkedin, Twitter, Facebook, Instagram, Video, Image as ImageIcon, Save, Trash2 } from "lucide-react";
+import { Rocket, Upload, X,  Loader2, ArrowLeft,   Github, Linkedin, Twitter, Facebook,  Video, Image as ImageIcon, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { PITCH_QUESTIONS } from "@/constants/pitch_questions";

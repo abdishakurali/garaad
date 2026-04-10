@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-export type ChallengeStatusData = {
+type ChallengeStatusData = {
   spots_remaining: number;
   next_cohort_start_date: string | null;
   is_waitlist_only: boolean;

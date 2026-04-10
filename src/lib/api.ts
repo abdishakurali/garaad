@@ -183,4 +183,3 @@ class ApiClient {
 }
 
 export const api = ApiClient.getInstance();
-export default api;

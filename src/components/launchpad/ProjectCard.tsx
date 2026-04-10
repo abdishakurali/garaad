@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Project } from "@/types/launchpad";
-import { ChevronUp, ExternalLink, MessageSquare, Github } from "lucide-react";
+import { ChevronUp,  MessageSquare, Github } from "lucide-react";
 import { TechIcon } from "./TechIcon";
 import { relativeTimeSomali } from "./relativeTime";
 

@@ -7,16 +7,14 @@
  * Set Problem.correct_answer to "passed" (or [{"text": "passed"}]) so the
  * lesson progression marks the challenge complete when all tests pass.
  */
-import React, { useState, useCallback } from "react";
+import  { useState, useCallback } from "react";
 import { Loader2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "./CodeEditor";
 import { TestResults } from "./TestResults";
 import { runCode, evaluateResults } from "@/lib/codeRunner";
 import type { TestCase, TestResult } from "@/lib/codeRunner";
-import { cn } from "@/lib/utils";
-
-export interface CodeChallengeBlockProps {
+interface CodeChallengeBlockProps {
   questionText: string;
   explanation: string;
   starterCode: string;

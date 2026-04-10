@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useAuthReady } from "@/hooks/useAuthReady";
 import { usePathname, useRouter } from "next/navigation";
 import { X, Menu, LogIn } from "lucide-react";
 import clsx from "clsx";
 import { useMemo, useCallback, useState, useEffect, useSyncExternalStore } from "react";
 import AuthService from "@/services/auth";
-import NotificationPanel from "./Notifications";
 import Logo from "./ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
@@ -59,16 +57,15 @@ export function Header() {
   const navLinks = useMemo(() => {
     const links = [
       { name: "Koorsooyinka", href: "/courses", badge: "bilaash" },
-      { name: "Webinar", href: "/webinar" },
       { name: "Blog", href: "/blog" },
     ];
-    
+
     if (mounted && user) {
-      links.splice(2, 0, { name: "Bulshada", href: "/community" });
+      links.splice(1, 0, { name: "Bulshada", href: "/community" });
     } else if (!mounted) {
-      links.splice(2, 0, { name: "Bulshada", href: "/communitypreview" });
+      links.splice(1, 0, { name: "Bulshada", href: "/communitypreview" });
     }
-    
+
     return links;
   }, [mounted, user]);
 

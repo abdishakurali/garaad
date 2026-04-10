@@ -20,6 +20,13 @@ export const metadata: Metadata = {
 export default function WebinarPage() {
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      <div className="w-full border-b border-primary/20 bg-primary/10 py-3 px-6 text-center">
+        <p className="text-sm font-medium text-primary">
+          This webinar has ended.
+          <br />
+          Watch for the next session at garaad.org
+        </p>
+      </div>
       <WebinarPageClient />
     </div>
   );

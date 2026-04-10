@@ -79,13 +79,13 @@ export function useCategories() {
   };
 }
 
-export interface OnboardingStatus {
+interface OnboardingStatus {
   has_completed_onboarding: boolean;
   goal?: string;
   goal_label?: string;
 }
 
-export function useOnboarding() {
+function useOnboarding() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data, error, isLoading, mutate } = useSWR<OnboardingStatus>(
     isAuthenticated ? `${API_BASE_URL}/api/auth/onboarding-status/` : null,
@@ -121,7 +121,7 @@ export function useOnboarding() {
 // }
 
 // Modules
-export function useModule(courseId: string, moduleId: string) {
+function useModule(courseId: string, moduleId: string) {
   const { data, error, isLoading, mutate } = useSWR<Module>(
     courseId && moduleId
       ? `${API_BASE_URL}/api/lms/courses/${courseId}/modules/${moduleId}/`
@@ -153,7 +153,7 @@ export function useLesson(lessonId: string | undefined) {
 }
 
 // Leaderboard
-export function useLeaderboard(
+function useLeaderboard(
   timePeriod: "daily" | "weekly" | "all_time" = "all_time"
 ) {
   const { data, error, isLoading, mutate } = useSWR(
@@ -170,7 +170,7 @@ export function useLeaderboard(
 }
 
 // User Rank
-export function useUserRank() {
+function useUserRank() {
   const { data, error, isLoading, mutate } = useSWR(
     `${API_BASE_URL}/api/lms/leaderboard/my_rank/`,
     fetcher
@@ -185,7 +185,7 @@ export function useUserRank() {
 }
 
 // User Rewards
-export function useUserRewards(lessonId?: string) {
+function useUserRewards(lessonId?: string) {
   const { data, error, isLoading, mutate } = useSWR(
     lessonId
       ? `${API_BASE_URL}/api/lms/rewards?lesson_id=${lessonId}`

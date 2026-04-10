@@ -84,12 +84,12 @@ function FakeCommunityLayout() {
   );
 }
 
-export type CommunityPrivatePreviewCTA = {
+type CommunityPrivatePreviewCTA = {
   href: string;
   label: string;
 };
 
-export interface CommunityPrivatePreviewProps {
+interface CommunityPrivatePreviewProps {
   /** Shown under the lock */
   title: string;
   description: string;

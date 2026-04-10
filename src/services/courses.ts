@@ -20,7 +20,7 @@ export interface Course {
   updated_at: string;
 }
 
-export interface Module {
+interface Module {
   id: number;
   course: number;
   title: string;
@@ -31,7 +31,7 @@ export interface Module {
   lessons: Lesson[];
 }
 
-export interface Lesson {
+interface Lesson {
   id: number;
   module: number;
   title: string;
@@ -43,7 +43,7 @@ export interface Lesson {
   exercises: Exercise[];
 }
 
-export interface Exercise {
+interface Exercise {
   id: number;
   lesson: number;
   question: string;

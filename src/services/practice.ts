@@ -45,7 +45,7 @@ export interface PracticeSet {
   updated_at: string;
 }
 
-export interface PracticeCompletionResponse {
+interface PracticeCompletionResponse {
   practice_set: number;
   score: number;
   completed: boolean;

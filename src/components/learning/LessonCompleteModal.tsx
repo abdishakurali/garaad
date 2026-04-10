@@ -11,7 +11,7 @@ import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 import { pricingTranslations as pricingT } from "@/config/translations/pricing";
 import { cn } from "@/lib/utils";
 
-export interface LessonCompleteModalProps {
+interface LessonCompleteModalProps {
   lessonTitle: string;
   /** Quiz score 0–100 when the lesson had problem blocks; ignored when hasQuiz is false */
   score: number;

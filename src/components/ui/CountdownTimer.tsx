@@ -10,7 +10,7 @@ function parseTargetMs(iso: string | null | undefined): number | null {
   return Number.isFinite(t) ? t : null;
 }
 
-export interface CountdownTimerProps {
+interface CountdownTimerProps {
   targetDate: string | null | undefined;
   label?: string;
   className?: string;

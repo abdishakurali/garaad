@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 import type { CreatePostData, CreateReplyData, ReactionType } from "@/types/community";
 
 // Category Management APIs
-export const categoryService = {
+const categoryService = {
   // Get all categories (Campuses)
   getCategories: async () => {
     return api.get("/api/community/categories/");
@@ -24,7 +24,7 @@ export const categoryService = {
 };
 
 // Post Management APIs
-export const postService = {
+const postService = {
   getPosts: async (categoryId: string, page?: number) => {
     return api.get(`/api/community/categories/${categoryId}/posts/`, page ? { page: page.toString() } : undefined);
   },
@@ -99,7 +99,7 @@ export const postService = {
 };
 
 // Reply Management APIs
-export const replyService = {
+const replyService = {
   // Reply to post
   createReply: async (postId: string, replyData: CreateReplyData) => {
     // If there are attachments, we must use FormData
@@ -151,7 +151,7 @@ export const replyService = {
 };
 
 // User Profile APIs
-export const profileService = {
+const profileService = {
   getUserProfile: async () => {
     return api.get("/api/community/profiles/me/");
   },
@@ -198,7 +198,7 @@ export const profileService = {
 };
 
 // Notification Management APIs
-export const notificationService = {
+const notificationService = {
   // List notifications
   getNotifications: async (page?: number) => {
     return api.get("/api/community/notifications/", page ? { page: page.toString() } : undefined);
@@ -216,7 +216,7 @@ export const notificationService = {
 };
 
 // Error handling helper
-export const handleApiError = (error: {
+const handleApiError = (error: {
   status: number;
   data?: unknown;
   message?: string;

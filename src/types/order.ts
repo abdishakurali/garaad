@@ -207,7 +207,7 @@ export interface WaafiWebhookData {
   };
 }
 
-export interface PaymentMethodInfo {
+interface PaymentMethodInfo {
   key: string;
   label: string;
   label_somali: string;
@@ -219,7 +219,7 @@ export interface PaymentMethodInfo {
   is_active: boolean;
 }
 
-export interface CurrencyInfo {
+interface CurrencyInfo {
   code: string;
   symbol: string;
   name: string;
@@ -228,7 +228,7 @@ export interface CurrencyInfo {
   is_default: boolean;
 }
 
-export interface OrderErrorResponse {
+interface OrderErrorResponse {
   success: false;
   error: string;
   message?: string;
@@ -236,7 +236,7 @@ export interface OrderErrorResponse {
 }
 
 // Union type for all possible responses
-export type OrderResponse =
+type OrderResponse =
   | OrderListResponse
   | OrderDetailResponse
   | OrderStatsResponse
@@ -245,7 +245,7 @@ export type OrderResponse =
   | OrderErrorResponse;
 
 // Utility types for form handling
-export interface OrderFormData {
+interface OrderFormData {
   subscription_type: "monthly" | "yearly" | "lifetime";
   payment_method: string;
   currency: string;
@@ -255,7 +255,7 @@ export interface OrderFormData {
   description: string;
 }
 
-export interface OrderSearchFilters {
+interface OrderSearchFilters {
   status: string;
   payment_method: string;
   start_date: string;

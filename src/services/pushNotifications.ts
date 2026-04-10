@@ -17,7 +17,7 @@ const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 /**
  * Check if push notifications are supported in the current browser
  */
-export const isPushSupported = (): boolean => {
+const isPushSupported = (): boolean => {
     return (
         'serviceWorker' in navigator &&
         'PushManager' in window &&
@@ -28,7 +28,7 @@ export const isPushSupported = (): boolean => {
 /**
  * Check current notification permission status
  */
-export const getNotificationPermission = (): NotificationPermission => {
+const getNotificationPermission = (): NotificationPermission => {
     if (!('Notification' in window)) {
         return 'denied';
     }
@@ -38,7 +38,7 @@ export const getNotificationPermission = (): NotificationPermission => {
 /**
  * Request notification permission from the user
  */
-export const requestNotificationPermission = async (): Promise<NotificationPermission> => {
+const requestNotificationPermission = async (): Promise<NotificationPermission> => {
     if (!('Notification' in window)) {
         console.warn('Notifications not supported');
         return 'denied';
@@ -75,7 +75,7 @@ const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
  * Subscribe to push notifications
  * Registers a service worker and creates a push subscription
  */
-export const subscribeToPushNotifications = async (): Promise<boolean> => {
+const subscribeToPushNotifications = async (): Promise<boolean> => {
     if (!isPushSupported()) {
         console.warn('Push notifications not supported');
         return false;
@@ -168,7 +168,7 @@ export const subscribeToPushNotifications = async (): Promise<boolean> => {
 /**
  * Unsubscribe from push notifications
  */
-export const unsubscribeFromPushNotifications = async (): Promise<boolean> => {
+const unsubscribeFromPushNotifications = async (): Promise<boolean> => {
     if (!isPushSupported()) {
         return false;
     }
@@ -216,7 +216,7 @@ export const unsubscribeFromPushNotifications = async (): Promise<boolean> => {
 /**
  * Check if user is currently subscribed to push notifications
  */
-export const isSubscribedToPush = async (): Promise<boolean> => {
+const isSubscribedToPush = async (): Promise<boolean> => {
     if (!isPushSupported()) {
         return false;
     }

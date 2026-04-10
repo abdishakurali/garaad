@@ -260,5 +260,3 @@ export const launchpadService = {
         return api.get<Project[]>(`${BASE_URL}/projects/my_projects/`);
     },
 };
-
-export default launchpadService;

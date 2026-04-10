@@ -4,11 +4,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Check, X, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-import katex from 'katex';
-import 'katex/dist/katex.min.css';
+import { cn } from "@/lib/utils";import 'katex/dist/katex.min.css';
 import { ProblemContent } from "@/types/learning";
-import { useSoundManager } from "@/hooks/use-sound-effects";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { useProblem } from "@/hooks/useApi";
 import { Input } from "@/components/ui/input";
@@ -163,7 +160,6 @@ const ProblemBlock: React.FC<{
     const [imgLoading, setImgLoading] = useState(false);
     const [imgSrc, setImgSrc] = useState(content?.img);
     const [textAnswer, setTextAnswer] = useState("");
-    const { playSound } = useSoundManager();
 
     useEffect(() => {
       if (content?.img) {
@@ -324,10 +320,9 @@ const ProblemBlock: React.FC<{
                   onOptionSelect("matching_success"); // Mark as selected
                   onCheckAnswer();
                 } else {
-                  // If it's a "live" matching that checks on every drop, 
+                  // If it's a "live" matching that checks on every drop,
                   // we might not want to show full red feedback yet.
                   // For now, let's just play the sound.
-                  playSound("incorrect");
                 }
               }}
               isCorrect={answerState.isCorrect}

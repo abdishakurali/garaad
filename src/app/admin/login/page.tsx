@@ -6,7 +6,7 @@ import { useAdminAuthStore } from "@/store/admin/auth";
 import { adminApi as api, ApiError } from "@/lib/admin-api";
 import { Lock, Mail, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
 
-import { AuthService } from "@/services/auth";
+import AuthService from "@/services/auth";
 
 interface User {
     id: number;

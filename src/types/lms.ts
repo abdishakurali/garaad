@@ -70,38 +70,38 @@ export interface Problem {
 }
 
 // State interfaces
-export interface CategoryState {
+interface CategoryState {
   items: Category[];
   currentCategory: Category | null;
   loading: boolean;
   error: string | null;
 }
 
-export interface CourseState {
+interface CourseState {
   items: Course[];
   currentCourse: Course | null;
   loading: boolean;
   error: string | null;
 }
 
-export interface ModuleState {
+interface ModuleState {
   items: Module[];
   currentModule: Module | null;
   loading: boolean;
   error: string | null;
 }
 
-export interface LessonState {
+interface LessonState {
   items: Lesson[];
   currentLesson: Lesson | null;
   loading: boolean;
   error: string | null;
 }
 
-export type Position = "left" | "center" | "right";
-export type Orientation = "vertical" | "horizontal" | "none";
+type Position = "left" | "center" | "right";
+type Orientation = "vertical" | "horizontal" | "none";
 
-export interface DiagramObject {
+interface DiagramObject {
   type: "cube" | "triangle" | "weight" | "circle" | "trapezoid_weight";
   color: string;
   number: number;
@@ -110,7 +110,7 @@ export interface DiagramObject {
   weight_value?: number;
 }
 
-export interface DiagramConfig {
+interface DiagramConfig {
   diagram_id: number;
   diagram_type: string;
   scale_weight: number;
@@ -118,7 +118,7 @@ export interface DiagramConfig {
 }
 
 // The shape returned by your `/api/lms/lessons/:id/` endpoint
-export interface LessonResponse {
+interface LessonResponse {
   id: number;
   title: string;
   // Each block in the lesson can be one of several types:
@@ -139,7 +139,7 @@ export interface LessonResponse {
 }
 
 // The shape returned by your `/api/lms/problems/:id/` endpoint
-export interface ProblemResponse {
+interface ProblemResponse {
   id: number;
   question_text: string;
   which: string;

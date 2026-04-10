@@ -154,10 +154,10 @@ export interface ProjectFormData {
 }
 
 // Filter types for project listing
-export type ProjectSort = 'trending' | 'new' | 'top' | 'this_week';
+type ProjectSort = 'trending' | 'new' | 'top' | 'this_week';
 
 // UI State for launchpad
-export interface LaunchpadState {
+interface LaunchpadState {
     startups: StartupListItem[];
     categories: StartupCategory[];
     selectedCategory: string | null;

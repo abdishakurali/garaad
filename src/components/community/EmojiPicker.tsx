@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Smile, Leaf, Coffee, Plane, Trophy, Lightbulb, Symbols, Flag } from "lucide-react";
+import { Search, Smile, Leaf, Coffee, Plane, Trophy, Lightbulb,   } from "lucide-react";
 import { SOMALI_UI_TEXT } from "@/types/community";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";

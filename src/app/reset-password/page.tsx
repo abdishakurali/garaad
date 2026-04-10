@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, CheckCircle2, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { Logo } from "@/components/ui/Logo";
+import Logo from "@/components/ui/Logo";
 import Link from "next/link";
 
 export default function ResetPasswordPage() {

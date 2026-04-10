@@ -4,7 +4,7 @@
  * No eval() on the main thread. 5s timeout.
  */
 
-export interface RunResult {
+interface RunResult {
   success: boolean;
   output: unknown;
   error: string | null;

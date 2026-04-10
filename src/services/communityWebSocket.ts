@@ -1,7 +1,7 @@
 import AuthService from "@/services/auth";
 import { useCommunityStore } from "@/store/useCommunityStore";
 
-export class CommunityWebSocket {
+class CommunityWebSocket {
     private static instance: CommunityWebSocket | null = null;
     private ws: WebSocket | null = null;
     private currentCategoryId: string | null = null;

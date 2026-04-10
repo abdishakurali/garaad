@@ -16,7 +16,7 @@ export interface ApiErrorResponse {
 
 export type ApiError = AxiosError<ApiErrorResponse>;
 
-export interface ApiResponse<T> {
+interface ApiResponse<T> {
     data: T;
     message?: string;
 }

@@ -52,4 +52,4 @@ export const useLearningStore = create<LearningStore>((set) => ({
 }));
 
 // Helper to set lesson from server components
-export const setLessonInStore = useLearningStore.getState().setLesson;
+const setLessonInStore = useLearningStore.getState().setLesson;

@@ -14,7 +14,7 @@ import type {
     Project,
 } from "@/types/launchpad";
 import { LAUNCHPAD_UI_TEXT } from "@/types/launchpad";
-import { ChevronDown, Rocket, TrendingUp, Clock, Award, Briefcase, Plus, Terminal, Code2, Database, Cpu, FolderKanban, CalendarDays } from "lucide-react";
+import {  Rocket, TrendingUp, Clock, Award,  Plus, Terminal, Code2,   FolderKanban, CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { TechIcon } from "@/components/launchpad/TechIcon";
 import { useAuthReady } from "@/hooks/useAuthReady";

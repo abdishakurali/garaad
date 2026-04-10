@@ -1,9 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion,  } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Check, X } from "lucide-react";
-
 interface MatchingPair {
     left: string;
     right: string;

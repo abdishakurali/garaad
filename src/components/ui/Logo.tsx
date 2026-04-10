@@ -16,7 +16,7 @@ interface LogoProps {
     preferDark?: boolean;
 }
 
-export function Logo({
+function Logo({
     className,
     priority = false,
     loading = "lazy",

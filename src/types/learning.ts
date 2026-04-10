@@ -255,7 +255,7 @@ export interface Exercise {
   content: string;
 }
 
-export interface Problem {
+interface Problem {
   id: number;
   question_text: string;
   question_type: "mcq" | "code" | "short_input";
@@ -268,21 +268,21 @@ export interface Problem {
   solution_steps?: SolutionStep[];
 }
 
-export interface Hint {
+interface Hint {
   id: number;
   problem_id: number;
   content: string;
   order: number;
 }
 
-export interface SolutionStep {
+interface SolutionStep {
   id: number;
   problem_id: number;
   explanation: string;
   order: number;
 }
 
-export interface PracticeSet {
+interface PracticeSet {
   id: number;
   title: string;
   lesson_id?: number;
@@ -295,7 +295,7 @@ export interface PracticeSet {
   problems?: Problem[];
 }
 
-export interface LearningState {
+interface LearningState {
   categories: {
     items: Category[];
     status: "idle" | "loading" | "succeeded" | "failed";

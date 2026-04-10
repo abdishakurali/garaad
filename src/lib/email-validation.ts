@@ -1,5 +1,5 @@
 // Email validation utility for preventing fake users
-export class EmailValidator {
+class EmailValidator {
   // Common fake/disposable email domains that should be blocked
   private static readonly FAKE_DOMAINS = [
     // Disposable email services
@@ -369,6 +369,3 @@ export function validateEmail(email: string): {
 } {
   return EmailValidator.validateEmail(email);
 }
-
-// Export default for convenience
-export default EmailValidator;

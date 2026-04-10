@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Menu, User, Settings, LogOut, Home, FolderDot, Users } from "lucide-react";
+import {  User, Settings, LogOut,    } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -12,8 +12,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import AuthService from "@/services/auth";
-
 export const ProfileDropdown: React.FC = () => {
   const [open, setOpen] = React.useState(false);
   const { logout } = useAuthStore();

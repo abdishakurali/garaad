@@ -72,7 +72,7 @@ export const TABLE_EXAMPLE: ContentBlockData = {
         ],
     };
 
-export const DEFAULT_DIAGRAM_CONFIG: DiagramConfig = {
+const DEFAULT_DIAGRAM_CONFIG: DiagramConfig = {
     diagram_id: 101,
     diagram_type: "scale",
     scale_weight: 15,
@@ -94,7 +94,7 @@ export const DEFAULT_DIAGRAM_CONFIG: DiagramConfig = {
     ],
 };
 
-export const DIAGRAM_EXAMPLE: ContentBlockData = {
+const DIAGRAM_EXAMPLE: ContentBlockData = {
     type: "problem",
     question_type: "diagram",
     which: "diagram",

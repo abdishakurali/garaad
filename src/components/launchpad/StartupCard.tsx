@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { StartupListItem } from "@/types/launchpad";
-import { ChevronUp, ExternalLink, CheckCircle2, MessageSquare } from "lucide-react";
+import { ChevronUp,  CheckCircle2, MessageSquare } from "lucide-react";
 
 import { TechIcon } from "./TechIcon";
 

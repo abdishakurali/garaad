@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { adminApi as api, ApiError } from "@/lib/admin-api";
 import { Modal } from "@/components/admin/ui/Modal";
-import { Plus, Search, BookOpen, Clock, Layers, Edit, Trash2, Eye } from "lucide-react";
+import { Plus,  BookOpen, Clock, Layers, Edit, Trash2, Eye } from "lucide-react";
 
 interface Course {
     id: number;

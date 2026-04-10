@@ -9,7 +9,7 @@ import React from "react";
 // ─────────────────────────────────────────────
 // STEP TITLES (legacy indices for profile learning-path UI: 0–3)
 // ─────────────────────────────────────────────
-export const stepTitles = [
+const stepTitles = [
     "Maxaad doonaysaa inaad gaarto?",
     "Maxaad doonaysaa inaad dhisato?",
     "Heerkaaga hadda?",
@@ -184,7 +184,7 @@ export const topicsByGoal: Record<string, string[]> = {
 // ─────────────────────────────────────────────
 // LEVELS PER TRACK
 // ─────────────────────────────────────────────
-export const topicLevelsByTopic: Record<string, Array<{
+const topicLevelsByTopic: Record<string, Array<{
     title: string;
     description: string;
     example: string;

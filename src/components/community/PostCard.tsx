@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState,  } from "react";
 import { CommunityPost, UserProfile, ReactionType, SOMALI_UI_TEXT, REACTION_ICONS, getUserDisplayName } from "@/types/community";
 import { LinkifiedText } from "@/components/ui/linkified-text";
 import { useCommunityStore } from "@/store/useCommunityStore";
@@ -6,7 +6,7 @@ import communityService from "@/services/community";
 import { getMediaUrl, cn, formatSomaliRelativeTime } from "@/lib/utils";
 import AuthenticatedAvatar from "@/components/ui/authenticated-avatar";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Loader2, Plus, Smile, Play, Globe, Share2 } from "lucide-react";
+import { MessageSquare, Trash2, Loader2, Plus,  Play, Globe, Share2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { ReplyList } from "./ReplyList";
 import { AttachmentDisplay } from "./AttachmentDisplay";
@@ -16,8 +16,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDistanceToNow } from "date-fns";
-import { UserProfileModal } from "./UserProfileModal";
+ import { UserProfileModal } from "./UserProfileModal";
 import { SharePostModal } from "./SharePostModal";
 
 interface PostCardProps {

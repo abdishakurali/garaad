@@ -3,9 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';import { Tabs,  TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Notification, NOTIFICATION_ICONS } from '@/types/community';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import {
@@ -14,14 +12,14 @@ import {
     CheckCheck,
     Trash2,
     Clock,
-    Filter,
-    X,
+    
+    
     Heart,
     MessageCircle,
     AtSign,
     Users,
-    Star,
-    AlertCircle
+    
+    
 } from 'lucide-react';
 import { getMediaUrl } from '@/lib/utils';
 
@@ -36,7 +34,7 @@ interface NotificationCenterProps {
     showTabs?: boolean;
 }
 
-export const NotificationCenter: React.FC<NotificationCenterProps> = ({
+const NotificationCenter: React.FC<NotificationCenterProps> = ({
     notifications,
     unreadCount,
     onMarkAsRead,
