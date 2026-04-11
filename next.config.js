@@ -105,6 +105,21 @@ const nextConfig = {
     ];
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/challenge",
+        destination: "/subscribe?plan=challenge",
+        permanent: true,
+      },
+      {
+        source: "/community-preview",
+        destination: "/community",
+        permanent: true,
+      },
+    ];
+  },
+
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,

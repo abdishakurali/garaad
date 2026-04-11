@@ -104,7 +104,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
         : ["Garaad Blog", "STEM Soomaali"];
     const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "BlogPosting",
+        "@type": "Article",
         "mainEntityOfPage": { "@type": "WebPage", "@id": `https://garaad.org/blog/${slug}` },
         "headline": post.title,
         "image": post.cover || post.cover_image_url || "https://garaad.org/images/og-blog.jpg",

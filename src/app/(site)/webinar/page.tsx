@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import { WebinarPageClient } from "@/components/webinar/WebinarPageClient";
 
 export const metadata: Metadata = {
-  title: "Webinar AI — bilaash, 9 April 2026 | Garaad",
+  title: "Webinar AI — Bilaash | Garaad",
   description:
-    "Kulan toos ah oo 2 saacadood ah: AI waa maxay, sababta ay muhiim u tahay, waxaadna ku qaban karto. Loogu talagalay bulshada Soomaaliyeed. Ma jiro duubis.",
+    "Kulan toos ah oo 2 saacadood ah: AI waa maxay, sababta ay muhiim u tahay, waxaadna ku qaban karto. Loogu talagalay bulshada Soomaaliyeed.",
   alternates: { canonical: "https://garaad.org/webinar" },
   openGraph: {
     type: "website",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     siteName: "Garaad",
     title: "Webinar AI — Garaad",
     description:
-      "Khamiis 9 April 2026 (6:00 PM Dublin · 8:00 PM Geeska Afrika · 1:00 PM US ET). Is-diiwaangeli — email xaqiijin + link Zoom 1 saac ka hor.",
+      "Kulan toos ah oo 2 saacadood ah: AI waa maxay, sababta ay muhiim u tahay, waxaadna ku qaban karto. Loogu talagalay bulshada Soomaaliyeed.",
     locale: "so_SO",
   },
 };
