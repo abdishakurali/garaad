@@ -1216,29 +1216,6 @@ function WelcomeOnboardingPage() {
                 <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 md:mx-0">
                   <Sparkles className="size-6" aria-hidden />
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-                  Soo dhowow, {firstName}.
-                </h1>
-                <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
-                  {narrative}
-                </p>
-
-                <ul className="space-y-2 text-left text-sm text-muted-foreground">
-                  {answers.barrier === "english" && (
-                    <li>✓ Wax kasta waxaa lagu baranayaa af Soomaali.</li>
-                  )}
-                  {answers.barrier === "alone" && (
-                    <li>✓ Mentor xirfadle ah toddobaad kasta (af Soomaali).</li>
-                  )}
-                  <li>✓ Lacag celin ah — hal bixis muddo 3 bilood ah.</li>
-                  <li>✓ 7 maalmood oo damaanad ah (lacag celin).</li>
-                  <li>✓ Kaliya 10 arday ayaa koox kasta ka mid ah.</li>
-                  <li>
-                    ✓ {spotsLabel} boos ayaa ka haray kooxdan.
-                    {challengeLoading && !challengeData ? " …" : ""}
-                  </li>
-                </ul>
-
                 {waitlist && (
                   <p className="text-sm text-muted-foreground">
                     Kooxda hadda wey buuxdaa — kii xiga markuu furmo waxaad
@@ -1248,7 +1225,7 @@ function WelcomeOnboardingPage() {
 
                 <div className="rounded-2xl border border-violet-200/50 bg-violet-50/40 p-4 dark:border-violet-500/20 dark:bg-violet-500/10">
                   <h3 className="text-base font-semibold text-foreground">
-                    Your Next Step: Dooro sida aad rabto inaad ku bilowdo
+                    Tallaabadaada xigta: Dooro sida aad rabto inaad ku bilowdo
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Waxaa kuu furan laba waddo: si bilaash ah u bilow koorsooyinka ama ballan 1:1 ah la samee mentor si aad u hesho qorshe kugu habboon.
@@ -1258,18 +1235,18 @@ function WelcomeOnboardingPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-border bg-background/80 p-4">
                     <h4 className="text-sm font-semibold text-foreground">
-                      1) Start Free Courses
+                      1) Bilaaw Casharrada Bilaashka ah
                     </h4>
                     <p className="mt-2 text-sm text-muted-foreground">
                       Ku habboon haddii aad rabto inaad hadda bilowdo adigoon sugin.
                     </p>
                     <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
-                      What we offer
+                      Waxa aan bixino
                     </p>
                     <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                       <li>- Casharro bilaash ah oo isla markiiba diyaar kuu ah</li>
                       <li>- Dariiq cad oo aad ku dhisato aasaaskaaga</li>
-                      <li>- Waxaad Assessment qaadan kartaa mar kasta oo dambe</li>
+                      <li>- Qiimaynta waxaad qaadan kartaa mar kasta oo dambe</li>
                     </ul>
                     <Button
                       asChild
@@ -1284,23 +1261,23 @@ function WelcomeOnboardingPage() {
                           }
                         }}
                       >
-                        Start Free Courses →
+                        Bilaaw Casharrada →
                       </Link>
                     </Button>
                   </div>
 
                   <div className="rounded-2xl border border-border bg-background/80 p-4">
                     <h4 className="text-sm font-semibold text-foreground">
-                      2) Book Assessment
+                      2) Ballan Samee (Qiimaynta)
                     </h4>
                     <p className="mt-2 text-sm text-muted-foreground">
                       Ku habboon haddii aad rabto mentor ku hago talaabada xigta.
                     </p>
                     <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
-                      What we offer
+                      Waxa aan bixino
                     </p>
                     <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                      <li>- 1:1 assessment si loo ogaado heerkaaga</li>
+                      <li>- 1:1 qiimayn si loo ogaado heerkaaga</li>
                       <li>- Qorshe gaar ah oo ku salaysan yoolkaaga</li>
                       <li>- Talooyin cad oo ku saabsan koorsada aad ka bilaabayso</li>
                     </ul>
@@ -1313,51 +1290,12 @@ function WelcomeOnboardingPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        Book Assessment on Cal.com →
+                        Ballan Samee →
                       </Link>
                     </Button>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-4 pt-2">
-                  <Button
-                    asChild
-                    className="h-14 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-base font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-purple-500 hover:shadow-violet-500/35"
-                  >
-                    <Link href="/subscribe?plan=challenge">
-                      {waitlist
-                        ? "Liiska Sugitaanka gal →"
-                        : `Ku soo biir Challenge-ga — ${spotsLabel} boos ayaa haray →`}
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="h-12 w-full rounded-xl border-violet-200 bg-violet-50/70 text-sm font-semibold text-violet-700 transition-all hover:bg-violet-100 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20"
-                  >
-                    <Link
-                      href="https://cal.com/garaad/assessment"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Book Appointment (Mentor Guidance)
-                    </Link>
-                  </Button>
-                  <Link
-                    href={postSignupDest}
-                    onClick={() => {
-                      if (typeof window !== "undefined") {
-                        sessionStorage.setItem(
-                          "post_signup_redirect",
-                          postSignupDest
-                        );
-                      }
-                    }}
-                    className="text-center text-sm font-medium text-violet-600 underline-offset-4 hover:underline dark:text-violet-400"
-                  >
-                    Marka hore bilaash ku tijaabi — eeg casharrada
-                  </Link>
-                </div>
               </CardContent>
             </Card>
           </main>
