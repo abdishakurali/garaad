@@ -41,7 +41,7 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
           <p className="mb-3 text-center text-sm text-zinc-500">{label}</p>
         ) : null}
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-          {["maalmood", "saacadood", "daqiiqo", "ilbiriqsi"].map((label) => (
+          {["maalmo", "saacadood", "daqiiqo", "ilbiriqsi"].map((label) => (
             <div
               key={label}
               className="min-w-[4rem] rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-center"
@@ -58,7 +58,7 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   if (target == null) {
     return (
       <p className={cn("text-sm font-medium", isDark ? "text-zinc-500" : "text-slate-500", className)}>
-        Taariikhda kooxdu ay ku bilaabeyso weli lama dhigin.
+        Taariikhda bilaabashada cohort-ka weli lama cayimin.
       </p>
     );
   }
@@ -77,7 +77,7 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   if (diff === 0) {
     return (
       <p className={cn("text-base font-medium", isDark ? "text-zinc-300" : "text-slate-600", className)}>
-        Kooxdu way bilaabatay!
+        Cohort-ku mar hore ayuu bilaabmay!
       </p>
     );
   }
@@ -88,7 +88,7 @@ export function CountdownTimer({ targetDate, label, className = "" }: CountdownT
   const seconds = Math.floor((diff % 60000) / 1000);
 
   const cells: { label: string; value: number }[] = [
-    { label: "maalmood", value: days },
+    { label: "maalmo", value: days },
     { label: "saacadood", value: hours },
     { label: "daqiiqo", value: minutes },
     { label: "ilbiriqsi", value: seconds },

@@ -1218,17 +1218,16 @@ function WelcomeOnboardingPage() {
                 </div>
                 {waitlist && (
                   <p className="text-sm text-muted-foreground">
-                    Kooxda hadda wey buuxdaa — kii xiga markuu furmo waxaad
-                    ahaanaysaa Qofka ugu horreeyay ee la xiriiraa.
+                    Cohort-ka hadda waa buuxaa — markii kan xiga uu furmo adiga ayaa noqon doona qofka ugu horreeya ee lala soo xiriiro.
                   </p>
                 )}
 
                 <div className="rounded-xl border border-violet-200/50 bg-violet-50/40 p-3 dark:border-violet-500/20 dark:bg-violet-500/10 sm:rounded-2xl sm:p-4">
                   <h3 className="text-sm font-semibold text-foreground sm:text-base">
-                    Tallaabadaada xigta: Dooro sida aad rabto inaad ku bilowdo
+                    Tallaabadaada xigta: Dooro sida aad rabto inaad ku bilaubto
                   </h3>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                    Waxaa kuu furan laba waddo: mentor ku hago tallaabaad ka tallaabaad, ama si bilaash ah u bilow casharrada.
+                    Waxaad leedahay laba waddo: in mentor uu tallaabo-tallaabo kuu haggo, ama inaad koorsooyinka ku bilaubto lacag la&apos;aan.
                   </p>
                 </div>
 
@@ -1236,21 +1235,21 @@ function WelcomeOnboardingPage() {
                   {/* Option 1 — Recommended: Ballan Samee */}
                   <div className="relative rounded-xl border-2 border-violet-500/60 bg-violet-50/50 p-3 dark:bg-violet-500/10 sm:rounded-2xl sm:p-4">
                     <span className="absolute -top-2.5 left-3 rounded-full bg-violet-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                      Lagula talinayo
+                      Lagu taliyay
                     </span>
                     <h4 className="mt-1 text-sm font-semibold text-foreground sm:text-sm">
-                      1) Ballan Samee — Mentor 1:1
+                      1) Qabso Ballan — Mentor 1:1
                     </h4>
                     <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                      Mentor ku hago qorshaha kugu haboon — bilaash ah.
+                      Ha kuu hanuuniyo mentor qorshaha kugu habboon — si bilaash ah.
                     </p>
                     <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300 sm:text-xs">
-                      Waxa aad helayso
+                      Maxaad helaysaa
                     </p>
                     <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground sm:text-sm">
-                      <li>✓ 1:1 qiimayn si loo ogaado heerkaaga</li>
-                      <li>✓ Qorshe gaar ah oo ku salaysan yoolkaaga</li>
-                      <li>✓ Tallaabaad cad oo aad ka bilaabayso</li>
+                      <li>✓ Qiimeyn 1:1 ah si loo ogaado heerkaaga</li>
+                      <li>✓ Qorshe adiga kuu gaar ah oo ku salaysan hadafkaaga</li>
+                      <li>✓ Tallaabo koowaad oo cad oo aad ku bilaubto</li>
                     </ul>
                     <Button
                       asChild
@@ -1261,7 +1260,7 @@ function WelcomeOnboardingPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        Ballan Samee →
+                        Qabso Ballan →
                       </Link>
                     </Button>
                   </div>
@@ -1269,18 +1268,18 @@ function WelcomeOnboardingPage() {
                   {/* Option 2 — Free Courses */}
                   <div className="rounded-xl border border-border bg-background/80 p-3 sm:rounded-2xl sm:p-4">
                     <h4 className="text-sm font-semibold text-foreground">
-                      2) Bilaaw Casharrada Bilaashka ah
+                      2) Billow Koorsooyin Bilaash ah
                     </h4>
                     <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                      Ku habboon haddii aad rabto inaad hadda bilowdo adigoon sugin.
+                      Way fiican tahay haddii aad rabto inaad hadda bilowdo adigoon sugin.
                     </p>
                     <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200 sm:text-xs">
-                      Waxa aad helayso
+                      Maxaad helaysaa
                     </p>
                     <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground sm:text-sm">
-                      <li>✓ Casharro bilaash ah oo isla markiiba diyaar ah</li>
-                      <li>✓ Dariiq cad oo aad ku dhisato aasaaskaaga</li>
-                      <li>✓ Qiimaynta waxaad qaadan kartaa mar kasta</li>
+                      <li>✓ Koorsooyin bilaash ah oo diyaarsan isla hadda</li>
+                      <li>✓ Waddada cad oo aad ku dhisato aasaaskaaga</li>
+                      <li>✓ Waxaad qabsan kartaa qiimeyn waqti kasta</li>
                     </ul>
                     <Button
                       asChild
@@ -1295,7 +1294,7 @@ function WelcomeOnboardingPage() {
                           }
                         }}
                       >
-                        Bilaaw Casharrada →
+                        Billow Koorsooyinka →
                       </Link>
                     </Button>
                   </div>

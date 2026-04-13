@@ -3,10 +3,10 @@ import Link from "next/link";
 const footerLinks = [
   { href: "/courses", label: "Koorsooyinka" },
   { href: "/blog", label: "Blog" },
-  { href: "/feedback", label: "Student feedback" },
-  { href: "/about", label: "About" },
-  { href: "/privacy", label: "Privacy" },
-  { href: "/terms", label: "Terms" },
+  { href: "/feedback", label: "Aragtida ardayda" },
+  { href: "/about", label: "Ku saabsan" },
+  { href: "/privacy", label: "Arrimaha Khaaska ah" },
+  { href: "/terms", label: "Shuruudaha" },
 ] as const;
 
 export function SiteFooter() {
@@ -18,7 +18,7 @@ export function SiteFooter() {
           <div>
             <p className="text-sm font-semibold text-foreground">Garaad</p>
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              STEM iyo Full-Stack — baro Af-Soomaali.
+              STEM iyo Full-Stack — ku baro af Somali.
             </p>
           </div>
           <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer">
@@ -34,7 +34,7 @@ export function SiteFooter() {
           </nav>
         </div>
         <p className="mt-8 border-t border-border pt-8 text-center text-xs text-muted-foreground md:text-left">
-          © {year} Garaad. All rights reserved.
+          © {year} Garaad. Xuquuqda oo dhan waa dhowran tahay.
         </p>
       </div>
     </footer>

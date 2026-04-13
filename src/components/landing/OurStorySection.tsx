@@ -20,49 +20,49 @@ interface Era {
 const eras: Era[] = [
     {
         number: 1,
-        title: "Mucjisada Is-baridda",
-        subtitle: "Toosniin | The Awakening",
+        title: "Mucjisada Is-barashada",
+        subtitle: "Baraarugga",
         location: "Muqdisho, Soomaaliya",
         period: "2019–2020",
-        age: "16–17 Sanno",
-        body: "Markii aan ahaa 16 jir, anigoo dareemaya inay waxbarashada rasmiga ahi i xaddidayso, waxaan billabay inaan si madax-banaan u barto koodhka (coding-ka) casriga ah anigoo ka faa'iideysanaya khayraadka ka furan internet-ka.",
-        quote: "Barashada dhabta ah waxay ka bilaabataa halka ay hamigu yaallo. Waxaan dhisay mustaqbalkayga anigoo adeegsanaya wax kasta oo gacantayda soo galay.",
-        tags: ["Is-barid", "Hammi", "Dadaal"],
+        age: "16–17 Sano jir",
+        body: "Markii aan ahaa 16 sano jir, anigoo dareemaya in waxbarashada rasmiga ahi ay i xaddidayso, waxaan bilaabay inaan naftayda baro koodhka (coding) casriga ah anigoo isticmaalaya agabka bilaashka ah ee internet-ka laga helo.",
+        quote: "Barashada dhabta ahi waxay ka bilaabataa halka uu hamigu jiro. Waxaan mustaqbalkayga ku dhisay wax kasta oo gacantayda soo gala.",
+        tags: ["Is-baray", "Hami", "Dadaal"],
         image: "/images/garaad.jpg",
     },
     {
         number: 2,
-        title: "Shaqo Madax-banaan",
-        subtitle: "Dadaal | The Hustle",
+        title: "Shaqada Freelance",
+        subtitle: "Halganka",
         location: "Muqdisho, Soomaaliya",
         period: "2020–2021",
-        age: "17–18 Sanno",
-        body: "Waxaan u gudbay dunida shaqada madaxa-banaan (freelancing), anigoo software u dhisay macaamiil caalami ah oo jooga qaaradaha kala duwan. Halkaas waxaan ku bartay maamulka mashaariicda iyo tayada adeegga.",
-        quote: "Khibradda dhabta ah waxaa laga helaa shaqada. Mashruuc kasta oo aan qabtay wuxuu ii furaayay albaab cusub.",
-        tags: ["Freelancing", "Macaamiil Caalami ah", "Ganacsi"],
+        age: "17–18 Sano jir",
+        body: "Waxaan u gudbay freelancing, anigoo software u dhisaya macaamiil caalami ah oo ku kala baahsan qaaradaha aduunka. Halkaas waxaan ku bartay maaraynta mashruuca iyo tayada adeegga.",
+        quote: "Khibrada dhabta ahi waxay ka timaadaa shaqada. Mashruuc kasta oo aan qabtay wuxuu ii furay albaab cusub.",
+        tags: ["Freelancing", "Macaamiisha Caalamiga ah", "Ganacsi"],
         image: "/images/freelancer.png",
     },
     {
         number: 3,
-        title: "Dhisaha Caalamiga",
-        subtitle: "The Global Builder",
-        location: "Nairobi → Yurub",
+        title: "Dhisaha Caalamiga ah",
+        subtitle: "Dhisaha Caalamiga ah",
+        location: "Nairobi → Europe",
         period: "2022–2023",
-        age: "19–20 Sanno",
-        body: "Waxaan fursad u helay inaan si remote ah ula shaqeeyo shirkado teknoolajiyadeed oo fadhigoodu yahay Yurub, anigoo qayb ka ahaa dhisidda barnaamijyo SaaS ah oo ay isticmaalaan kumanaan qof.",
-        quote: "Internet-ku xuduud maleh. Waxaan ogaaday in aqoontu tahay baasaboorka kaliya ee aad ugu baahan tahay suuqa caalamiga ah.",
+        age: "19–20 Sano jir",
+        body: "Waxaan helay fursad aan meel fog (remotely) ugala shaqeeyo shirkadaha tignoolajiyada ee fadhigoodu yahay Europe, anigoo qayb ka ahaa dhisidda mashaariic SaaS ah oo ay isticmaalaan kumanaan qof.",
+        quote: "Internet-ku xudduud ma leh. Waxaan ogaaday in aqoontu tahay baasaboorka kaliya ee aad ugu baahan tahay suuqa caalamiga ah.",
         tags: ["SaaS", "Remote Work", "Engineering"],
         image: "/images/builder.png",
     },
     {
         number: 4,
-        title: "Aragtida Fog",
-        subtitle: "The Visionary Founder",
-        location: "Yurub",
+        title: "Aragti-dheeraha",
+        subtitle: "Aasaasaha leh Aragtida Dheer",
+        location: "Europe",
         period: "2023–2024",
-        age: "20–21 Sanno",
-        body: "Maanta, anigoo maamula dhowr shirkadood oo SaaS ah, hadafkaygu waa inaan dhalinyarada Soomaaliyeed u furaa albaabada teknoolajiyada. Garaad waa halkii aan ku wadaagi lahaa khibraddayda si aan u abuuro saameyn dhab ah.",
-        quote: "Guusha dhabta ahi waa markaad kor u qaaddo inta kugu hareeraysan oo aad dhaxal reebto.",
+        age: "20–21 Sano jir",
+        body: "Maanta, anigoo maamula dhowr shirkadood oo SaaS ah, hadafkaygu waa inaan albaabbada tignoolajiyada u furo dhalinyarada Somaliyeed. Garaad waa halka aan ku wadaago khibradayda si aan u abuuro saameyn dhab ah.",
+        quote: "Guusha dhabta ahi waa markaad kor u qaaddo dadka kugu xeeran oo aad ka tagto dhaxal.",
         tags: ["Founder", "Impact", "Community"],
         image: "/images/last.png",
     },
@@ -110,9 +110,9 @@ export function OurStorySection({
                 <div className="text-center mb-16 md:mb-24">
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter">
                         <span className="bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">
-                            Founder
+                            Sheekada
                         </span>{" "}
-                        Story
+                        Aasaasaha
                     </h2>
                     <p
                         className={cn(
@@ -120,7 +120,7 @@ export function OurStorySection({
                             light ? "text-slate-500" : "text-slate-400"
                         )}
                     >
-                        Eber ilaa SaaS Builder
+                        Laga soo bilaabo Eber ilaa SaaS Builder
                     </p>
                 </div>
 

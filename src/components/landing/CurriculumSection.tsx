@@ -3,27 +3,26 @@
 import Link from "next/link";
 import { ArrowRight, Code2, Server, Zap, CheckCircle2 } from "lucide-react";
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
 const MONTHS = [
   {
-    month: "Bilood 1",
-    title: "Aasaaska",
+    month: "Bisha 1-aad",
+    title: "Aasaaska (Foundations)",
     subtitle: "HTML · CSS · JavaScript · React",
     icon: Code2,
     color: "from-violet-600 to-violet-500",
     borderColor: "border-violet-500/40",
     glowColor: "shadow-violet-500/15",
     lessons: [
-      "HTML & CSS — Dhis wax ka muuqda",
-      "JavaScript aasaaska — ku hadal browser-ka",
-      "React — UI-yada casriga ah",
-      "Git & VS Code — qalab horumariyaha",
+      "HTML & CSS — Dhis waxyaabaha muuqda",
+      "JavaScript basics — la hadal browser-ka",
+      "React — UIs-ka casriga ah",
+      "Git & VS Code — agabka developer-ka",
     ],
-    outcome: "Dhis: Portfolio website oo shaqaynaysa",
+    outcome: "Dhis: website Portfolio ah oo shaqaynaya",
     outcomeColor: "text-violet-300",
   },
   {
-    month: "Bilood 2",
+    month: "Bisha 2-aad",
     title: "Full-Stack",
     subtitle: "Node.js · Express · MongoDB · API",
     icon: Server,
@@ -31,16 +30,16 @@ const MONTHS = [
     borderColor: "border-purple-500/40",
     glowColor: "shadow-purple-500/15",
     lessons: [
-      "Node.js & Express — server-ka dib u dhis",
-      "MongoDB — xogta keydi",
-      "API REST — front iyo back xidh",
-      "Xaqiijinta isticmaalaha (Auth)",
+      "Node.js & Express — dhis server-ka",
+      "MongoDB — kaydi xogta",
+      "REST API — isku xir front iyo back",
+      "User Authentication (Auth)",
     ],
-    outcome: "Dhis: Full-stack app oo xog keydisa",
+    outcome: "Dhis: app full-stack ah oo xog kaydinaya",
     outcomeColor: "text-purple-300",
   },
   {
-    month: "Bilood 3",
+    month: "Bisha 3-aad",
     title: "SaaS & AI",
     subtitle: "Next.js · TypeScript · AI Integration",
     icon: Zap,
@@ -48,12 +47,12 @@ const MONTHS = [
     borderColor: "border-fuchsia-500/40",
     glowColor: "shadow-fuchsia-500/15",
     lessons: [
-      "Next.js — web apps heerka korporaatka",
-      "TypeScript — code ammaan ah",
-      "AI API (ChatGPT/Claude) — ku dar garaadka",
-      "Deploy & launch — adduunka soo geli",
+      "Next.js — web apps heer shirkadeed ah",
+      "TypeScript — kood ammaan ah",
+      "AI API (ChatGPT/Claude) — ku dar garaad macmal ah",
+      "Deploy & launch — hawada geli aduunka oo dhan",
     ],
-    outcome: "Dhis: SaaS product oo macaamiil leh",
+    outcome: "Dhis: wax soo saar SaaS ah oo leh isticmaalayaal dhab ah",
     outcomeColor: "text-fuchsia-300",
   },
 ];
@@ -61,34 +60,31 @@ const MONTHS = [
 const OUTCOMES = [
   {
     emoji: "💼",
-    title: "Hel Shaqo",
-    body: "Portfolio + shahado + xirfado suuqa shaqada looga baahan yahay.",
+    title: "Shaqo Hel",
+    body: "Portfolio + certification + xirfadaha suuqa shaqadu u baahan yahay.",
   },
   {
     emoji: "🚀",
-    title: "Dhis Mashruuc",
-    body: "Alaab SaaS ah oo shaqaynaysa, joogaan macaamiil la hadlayaan.",
+    title: "Dhis Wax-soo-saar (Product)",
+    body: "SaaS product shaqaynaya, oo ay isticmaalayaashu isticmaalayaan.",
   },
   {
     emoji: "🌍",
-    title: "Shaqo Madax-banaan",
-    body: "Portfolio leh oo macaamiisha caalamiga ah lagu tusayo.",
+    title: "Ka shaqayso Freelance",
+    body: "Portfolio aad u tustid macaamiisha caalamiga ah.",
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export function CurriculumSection() {
   return (
     <section
       id="curriculum"
       className="relative overflow-hidden bg-zinc-950 py-16 text-zinc-100 sm:py-20 md:py-24"
     >
-      {/* Subtle grid pattern */}
       <div
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.04)_1px,transparent_1px)] bg-[size:48px_48px]"
         aria-hidden
       />
-      {/* Glow */}
       <div
         className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-700/6 blur-[140px]"
         aria-hidden
@@ -96,19 +92,20 @@ export function CurriculumSection() {
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
 
-        {/* Section header */}
+        {/* Header */}
         <div className="mb-10 text-center sm:mb-14">
           <span className="mb-3 inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-violet-300">
-            Barnaamijka 3-Bilood
+            Barnaamijka 3-Bilood ah
           </span>
           <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
-            Waxa Aad{" "}
-            <span className="text-violet-400">Baran</span> &{" "}
-            <span className="text-violet-400">Dhisan</span> Doontid
+            Waxaad{" "}
+            <span className="text-violet-400">Baran doonto</span>{" "}
+            &{" "}
+            <span className="text-violet-400">Dhisi doonto</span>
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
-            Koorso kasta waxay kugu dhammaanaysaa mashruuc dhab ah. Markaad 3da bilood dhammaato —
-            waxaad haysan doontaa portfolio, xirfado, iyo waayo-aragnimo diyaar u ah suuqa shaqada.
+            Koorso kasta waxay ku dhammaanaysaa mashruuc dhab ah. Markaad dhammayso 3-da bilood —
+            waxaad yeelan doontaa portfolio, xirfado, iyo khibrad aad ugu diyaar tahay suuqa shaqada.
           </p>
         </div>
 
@@ -119,24 +116,18 @@ export function CurriculumSection() {
               key={month}
               className={`relative flex flex-col rounded-2xl border ${borderColor} bg-zinc-900/70 p-5 shadow-xl ${glowColor} transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:rounded-3xl sm:p-6`}
             >
-              {/* Month badge */}
-              <div className={`mb-4 flex items-center gap-2`}>
+              <div className="mb-4 flex items-center gap-2">
                 <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${color} shadow-lg sm:h-10 sm:w-10`}>
                   <Icon className="h-4 w-4 text-white sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 sm:text-xs">
-                    {month}
-                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 sm:text-xs">{month}</p>
                   <p className="text-sm font-bold text-zinc-100 sm:text-base">{title}</p>
                 </div>
               </div>
 
-              <p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-600 sm:text-xs">
-                {subtitle}
-              </p>
+              <p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-600 sm:text-xs">{subtitle}</p>
 
-              {/* Lesson list */}
               <ul className="mb-5 flex-1 space-y-2">
                 {lessons.map((lesson) => (
                   <li key={lesson} className="flex items-start gap-2 text-xs text-zinc-400 sm:text-sm">
@@ -146,35 +137,27 @@ export function CurriculumSection() {
                 ))}
               </ul>
 
-              {/* Outcome */}
               <div className="rounded-xl border border-white/8 bg-white/4 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 sm:text-xs">
-                  Natiijada
-                </p>
-                <p className={`mt-1 text-xs font-semibold ${outcomeColor} sm:text-sm`}>
-                  {outcome}
-                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 sm:text-xs">Natiijada</p>
+                <p className={`mt-1 text-xs font-semibold ${outcomeColor} sm:text-sm`}>{outcome}</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Divider with label */}
+        {/* Divider */}
         <div className="my-12 flex items-center gap-4 sm:my-14">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
           <span className="text-xs font-semibold uppercase tracking-widest text-zinc-600">
-            Markad 3da bilood dhammaato
+            Markaad dhammayso 3-da bilood
           </span>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
         </div>
 
-        {/* Outcomes grid */}
+        {/* Outcomes */}
         <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
           {OUTCOMES.map(({ emoji, title, body }) => (
-            <div
-              key={title}
-              className="rounded-2xl border border-white/8 bg-zinc-900/60 p-4 text-center sm:p-6"
-            >
+            <div key={title} className="rounded-2xl border border-white/8 bg-zinc-900/60 p-4 text-center sm:p-6">
               <span className="text-3xl sm:text-4xl" aria-hidden>{emoji}</span>
               <h3 className="mt-3 text-sm font-bold text-zinc-100 sm:text-base">{title}</h3>
               <p className="mt-1.5 text-xs leading-relaxed text-zinc-500 sm:text-sm">{body}</p>
@@ -182,35 +165,32 @@ export function CurriculumSection() {
           ))}
         </div>
 
-        {/* Challenge CTA banner */}
+        {/* CTA banner */}
         <div className="mt-12 overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-r from-violet-950/70 to-zinc-900/80 p-6 text-center sm:mt-14 sm:rounded-3xl sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-violet-400 sm:text-sm">
             Maxaad sugaysaa?
           </p>
           <h3 className="mt-2 text-xl font-extrabold text-zinc-100 sm:text-2xl md:text-3xl">
-            Ku biir Challenge-ka — Mentor Ayaa Kula Joogi Doona
+            Ku biir Challenge-ka — Mentor ayaa kula joogi doona
           </h3>
           <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-zinc-400 sm:text-base">
-            Casharrada oo kaliya kuuma filan. Challenge-ka waxaad helaysaa mentor 1:1,
-            koox, iyo taageero toos ah — tallaabaad ka tallaabaad ilaa dhammaadka.
+            Koorsooyinka kaligood kuma filna. Challenge-ka dhexdiisa waxaad ka helaysaa mentor 1:1 ah,
+            cohort, iyo taageero toos ah — tallaabo-tallaabo ilaa dhammaadka.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
             <Link
               href="/welcome"
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto"
             >
-              Bilaaw Challenge-ka
+              Billow Challenge-ka →
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              href="/welcome"
-              className="text-sm font-medium text-zinc-500 underline-offset-4 hover:text-zinc-300 hover:underline"
-            >
-              Marka hore casharrada tijaabi →
+            <Link href="/welcome" className="text-sm font-medium text-zinc-500 underline-offset-4 hover:text-zinc-300 hover:underline">
+              Marka hore tijaabi koorsooyinka →
             </Link>
           </div>
           <p className="mt-4 text-xs text-zinc-600">
-            ✓ 7 maalmood oo damaanad ah &nbsp;·&nbsp; ✓ Lacag celin ah &nbsp;·&nbsp; ✓ Kaliya 10 arday koox kasta
+            ✓ 7-bari dammaanad lacag celin ah &nbsp;·&nbsp; ✓ Lacagta waa la soo celin karaa &nbsp;·&nbsp; ✓ Kaliya 10 arday cohort kasta
           </p>
         </div>
 

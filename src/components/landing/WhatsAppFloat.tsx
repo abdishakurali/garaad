@@ -52,7 +52,7 @@ export function WhatsAppFloat() {
                 </button>
                 <p className="text-sm text-foreground font-medium leading-snug">
                     Su&apos;aal ma qabtaa?{" "}
-                    <span className="text-primary">Nagala hadal halkan</span>
+                    <span className="text-primary">Nagala sheekayso halkan</span>
                 </p>
                 {/* Arrow */}
                 <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-card" />

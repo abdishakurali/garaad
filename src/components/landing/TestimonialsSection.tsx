@@ -12,11 +12,11 @@ const reviewImages = [
         src: "/images/review/1.png",
         alt: "Ilyas Omar — dib u eegis WhatsApp",
         name: "Ilyas Omar",
-        byline: "3 bilood ka hor waxba ma aqoon — hadda waa Tailwind CSS expert.",
+        byline: "3 bilood ka hor waxba ma aqoon — hadda waxaan ahay khabiir Tailwind CSS ah.",
         outcome: "Isbeddel dhab ah",
         outcomeLine:
-            "Wax ka barasho eber ilaa xirfadle layout & Tailwind CSS: wuxuu hadda ku dhawaaday shaqooyinka dhabta ah.",
-        nowTag: "Tailwind CSS expert",
+            "Laga soo bilaabo eber ilaa khabiir layout-ka & Tailwind CSS: hadda wuxuu ku dhow yahay inuu helo shaqooyin dhab ah.",
+        nowTag: "khabiir Tailwind CSS ah",
         featured: false,
     },
     {
@@ -24,9 +24,9 @@ const reviewImages = [
         src: "/images/review/2.png",
         alt: "Abdiladif Salah — dib u eegis WhatsApp",
         name: "Abdiladif Salah",
-        byline: "Laga soo bilaabo barashada ilaa horumariye coding wax ku ool ah",
-        outcome: "Front Developer noqday",
-        outcomeLine: "Natiijada: barashadii waxay noqotay shaqo dhab ah oo isku xiran — ma ahan kaliya teori.",
+        byline: "Laga soo bilaabo barasho ilaa dhisidda wax faa'iido leh",
+        outcome: "Noqday Front Developer",
+        outcomeLine: "Natiijada: barashadu waxay noqotay shaqo dhab ah oo la isku xiray — ma ahan kaliya aragti (theory).",
         nowTag: "Front-End Developer",
         featured: false,
     },
@@ -35,9 +35,9 @@ const reviewImages = [
         src: "/images/review/3.jpeg",
         alt: "Abdiaziz — dib u eegis WhatsApp",
         name: "Abdiaziz",
-        byline: "Garaad waxay i bartay sida fikrad loogu beddelo shirkad (Sofaritech).",
+        byline: "Garaad wuxuu i baray sida fikrad loogu beddelo shirkad (Sofaritech).",
         outcome: "Fikrad → shirkad dhab ah",
-        outcomeLine: "3 bilood kadib: shirkad IT oo macaamiil leh, website la shaqeeya, mustaqbal la taaban karo.",
+        outcomeLine: "3 bilood ka dib: shirkad IT ah oo leh macaamiil, website shaqaynaya, iyo mustaqbal muuqda.",
         nowTag: "Aasaasaha Sofaritech",
         featured: true,
         companyHref: "https://sofaritech-global-it-solutions.vercel.app",
@@ -47,14 +47,14 @@ const reviewImages = [
 const videos = [
     {
         id: "bolhbU8tiU8",
-        title: "Dhisidda SaaS-ka",
-        subtitle: "Daawo sida ardaydeena ay u dhisayaan SaaS mashaariicda ah.",
+        title: "Dhisidda SaaS",
+        subtitle: "Daawo sida ardaydayadu u dhisaan mashaariicda SaaS.",
         thumbnail: "https://img.youtube.com/vi/bolhbU8tiU8/maxresdefault.jpg"
     },
     {
         id: "78HYiX0FwxE",
         title: "Sheekada Guusha",
-        subtitle: "Sidee Garaad u beddeshay nolosheyda - Sheeko arday.",
+        subtitle: "Sida Garaad uu noloshayda u beddelay — Sheekada arday.",
         thumbnail: "https://img.youtube.com/vi/78HYiX0FwxE/maxresdefault.jpg"
     }
 ];
@@ -71,7 +71,7 @@ export function TestimonialsSection() {
                             Sheekooyinka <span className="text-primary">Guusha</span>
                         </h2>
                         <p className="mt-2 sm:mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-                            Sheekooyinka isbeddelka — sida eber ugu noqoshada xirfad ama ganacsi dhab ah.
+                            Sheekooyinka isbeddelka — laga soo bilaabo eber ilaa xirfad dhab ah ama ganacsi.
                         </p>
                     </div>
                 </Reveal>
@@ -120,7 +120,7 @@ export function TestimonialsSection() {
                                             {img.outcomeLine}
                                         </p>
                                         <p className="mt-1.5 text-xs font-medium text-muted-foreground sm:text-sm">
-                                            Tan xigta adiga ayay noqon kartaa.
+                                            Adiguna kan xiga ayaad noqon kartaa.
                                         </p>
                                         {"companyHref" in img && img.companyHref ? (
                                             <a
@@ -141,7 +141,7 @@ export function TestimonialsSection() {
                     {/* 2. Video testimonials */}
                     <Reveal>
                         <h3 className="mb-5 text-center text-lg font-black text-foreground sm:mb-6 sm:text-xl">
-                            Muuqaallada <span className="text-primary">dhiirigelinta</span>
+                            Muuqaallada <span className="text-primary">Dhiirigelinta</span>
                         </h3>
                         <div className="grid w-full min-w-0 grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
                             {videos.map((vid) => (

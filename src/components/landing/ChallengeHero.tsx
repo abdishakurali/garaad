@@ -14,7 +14,6 @@ function CodeRainCanvas() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -42,37 +41,27 @@ function CodeRainCanvas() {
 
     function draw(now: number) {
       rafId = requestAnimationFrame(draw);
-      if (now - lastTime < 60) return; // ~16 fps — subtle, not distracting
+      if (now - lastTime < 60) return;
       lastTime = now;
-
       if (!ctx || !canvas) return;
 
       ctx.fillStyle = "rgba(9,9,15,0.18)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       ctx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
-        // Vary color between violet and purple tones
         const r = 120 + Math.floor(Math.random() * 60);
-        const g = 40;
         const b = 200 + Math.floor(Math.random() * 55);
-        ctx.fillStyle = `rgba(${r},${g},${b},0.55)`;
+        ctx.fillStyle = `rgba(${r},40,${b},0.55)`;
         ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i] += 0.5;
       }
     }
 
     rafId = requestAnimationFrame(draw);
-    return () => {
-      cancelAnimationFrame(rafId);
-      ro.disconnect();
-    };
+    return () => { cancelAnimationFrame(rafId); ro.disconnect(); };
   }, []);
 
   return (
@@ -84,22 +73,21 @@ function CodeRainCanvas() {
   );
 }
 
-// ─── Social proof avatars ──────────────────────────────────────────────────────
+// ─── Static data ──────────────────────────────────────────────────────────────
 const AVATARS = [
   { initials: "AA", bg: "bg-emerald-600/90" },
   { initials: "MA", bg: "bg-violet-600/90" },
   { initials: "RR", bg: "bg-amber-600/90" },
-  { initials: "M", bg: "bg-cyan-600/90" },
+  { initials: "M",  bg: "bg-cyan-600/90" },
 ];
 
-// ─── Hero stats ────────────────────────────────────────────────────────────────
 const STATS = [
-  { icon: Users, label: "97+ arday", sub: "hadda baranaya" },
-  { icon: Trophy, label: "3 bilood", sub: "lacag celin ah" },
-  { icon: Clock, label: "30 daqiiqo", sub: "maalintii ayaa kugu filan" },
+  { icon: Users,  label: "97+ arday",  sub: "hadda wax baranaya" },
+  { icon: Trophy, label: "3 bilood",   sub: "dammaanad lacag celin ah" },
+  { icon: Clock,  label: "30 daqiiqo", sub: "maalintii waa ku filan tahay" },
 ];
 
-// ─── Main component ────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 export function ChallengeHero() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -107,17 +95,13 @@ export function ChallengeHero() {
   const { user } = useAuthStore();
   void user;
   const { data, loading } = useChallengeStatus();
-  const startForCountdown =
-    data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
+  const startForCountdown = data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
   void loading;
-
-  const primaryHref = "/welcome";
 
   const scrollToCurriculum = () => {
     document.getElementById("curriculum")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ── Skeleton (pre-hydration) ──────────────────────────────────────────────
   if (!mounted) {
     return (
       <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
@@ -130,26 +114,23 @@ export function ChallengeHero() {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
-      {/* Animated code-rain background */}
       <CodeRainCanvas />
 
-      {/* Soft radial glows */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-violet-700/10 blur-[160px]" />
         <div className="absolute bottom-0 right-0 h-[400px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-purple-600/8 blur-[120px]" />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 md:py-24 lg:px-8">
 
-        {/* Badge row */}
+        {/* Badges */}
         <div className="mb-5 flex flex-wrap items-center justify-center gap-2 sm:mb-8 sm:gap-3">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/35 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-300">
             <Sparkles className="h-3 w-3" />
-            3 bilood · lacag celin ah
+            3 bilood · dammaanad lacag celin ah
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
-            ✓ Af-Soomaali oo dhan
+            ✓ Isagoo dhammaystiran waa Somali
           </span>
         </div>
 
@@ -158,54 +139,39 @@ export function ChallengeHero() {
           Noqo{" "}
           <span className="relative inline-block text-violet-400">
             Developer
-            <svg
-              className="absolute -bottom-1 left-0 w-full sm:-bottom-2"
-              viewBox="0 0 100 8"
-              preserveAspectRatio="none"
-              aria-hidden
-            >
-              <path
-                d="M2 4 Q 25 8 50 4 T 98 4"
-                fill="none"
-                stroke="#7c3aed"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
+            <svg className="absolute -bottom-1 left-0 w-full sm:-bottom-2" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden>
+              <path d="M2 4 Q 25 8 50 4 T 98 4" fill="none" stroke="#7c3aed" strokeWidth="4" strokeLinecap="round" />
             </svg>
           </span>{" "}
-          3 Bilood Gudahood
+          3 Bilood gudahood
         </h1>
 
         {/* Subtext */}
         <p className="mx-auto mt-4 max-w-xl text-balance text-center text-base leading-relaxed text-zinc-400 sm:mt-6 sm:text-lg">
-          Mentor Soomaali ah ayaa kula joogi doona{" "}
-          <span className="font-semibold text-zinc-200">tallaabaad ka tallaabaad</span>.
-          Dhis mashaariic dhab ah, hel xirfadaha suuqa, oo aad hor u socoto —{" "}
+          Mentor Somali ah ayaa{" "}
+          <span className="font-semibold text-zinc-200">tallaabo-tallaabo</span>{" "}
+          kuu hagi doona. Dhis mashruucyo dhab ah, baro xirfadaha suuqu rabo, horey u soco —{" "}
           <span className="font-semibold text-zinc-200">30 daqiiqo</span> maalintii.
         </p>
 
-        {/* Social proof pill */}
+        {/* Social proof */}
         <div className="mx-auto mt-5 flex w-fit items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 sm:mt-6">
           <div className="flex items-center -space-x-2">
             {AVATARS.map(({ initials, bg }) => (
-              <div
-                key={initials}
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-zinc-900 text-[9px] font-bold text-white ${bg}`}
-                aria-hidden
-              >
+              <div key={initials} className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-zinc-900 text-[9px] font-bold text-white ${bg}`} aria-hidden>
                 {initials}
               </div>
             ))}
           </div>
           <span className="text-sm text-zinc-400">
-            <span className="font-semibold text-zinc-200">97+</span> developer baranaya
+            <span className="font-semibold text-zinc-200">97+</span> developers oo baranaya
           </span>
         </div>
 
-        {/* CTA buttons */}
+        {/* CTA */}
         <div className="mx-auto mt-7 flex flex-col items-center gap-3 sm:mt-9 sm:flex-row sm:justify-center sm:gap-4">
           <Link
-            href={primaryHref}
+            href="/welcome"
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
           >
             Ku biir Challenge-ka
@@ -215,17 +181,14 @@ export function ChallengeHero() {
             onClick={scrollToCurriculum}
             className="text-sm font-medium text-zinc-500 underline-offset-4 transition-colors hover:text-zinc-300 hover:underline"
           >
-            Eeg curriculum ↓
+            Arag manhajka ↓
           </button>
         </div>
 
-        {/* Why Challenge — 3 stat chips */}
+        {/* Stats */}
         <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-2 sm:mt-10 sm:gap-3">
           {STATS.map(({ icon: Icon, label, sub }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center rounded-xl border border-white/8 bg-white/5 px-2 py-3 text-center sm:px-3"
-            >
+            <div key={label} className="flex flex-col items-center rounded-xl border border-white/8 bg-white/5 px-2 py-3 text-center sm:px-3">
               <Icon className="mb-1 h-4 w-4 text-violet-400 sm:h-5 sm:w-5" />
               <span className="text-xs font-bold text-zinc-200 sm:text-sm">{label}</span>
               <span className="mt-0.5 text-[10px] text-zinc-500 sm:text-xs">{sub}</span>
@@ -235,18 +198,12 @@ export function ChallengeHero() {
 
         {/* Countdown */}
         <div className="mx-auto mt-7 flex flex-col items-center gap-3 sm:mt-9">
-          <CountdownTimer
-            targetDate={startForCountdown}
-            label="Kooxdu waxey bilaabaysaa:"
-          />
+          <CountdownTimer targetDate={startForCountdown} label="Cohort-ka wuxuu bilaabanayaa:" />
         </div>
 
-        {/* Video embed */}
+        {/* Video */}
         <div className="mx-auto mt-8 w-full max-w-2xl sm:mt-10">
-          <Link
-            href={primaryHref}
-            className="group relative block overflow-hidden rounded-xl border border-white/10 bg-black"
-          >
+          <Link href="/welcome" className="group relative block overflow-hidden rounded-xl border border-white/10 bg-black">
             <div className="relative w-full" style={{ padding: "56.25% 0 0 0" }}>
               <iframe
                 src="https://player.vimeo.com/video/1152611300?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&controls=1&background=0"
@@ -260,16 +217,13 @@ export function ChallengeHero() {
           </Link>
         </div>
 
-        {/* Soft note about free courses */}
+        {/* Soft note */}
         <p className="mt-6 text-center text-xs text-zinc-600 sm:mt-7 sm:text-sm">
           Haddii aad rabto inaad marka hore tijaabiso —{" "}
-          <Link
-            href="/welcome"
-            className="font-medium text-violet-500 underline-offset-4 hover:underline"
-          >
-            bilaash ku bilow casharrada
+          <Link href="/welcome" className="font-medium text-violet-500 underline-offset-4 hover:underline">
+            koorsooyinka ku billow lacag la&apos;aan
           </Link>
-          . Laakiin xasuuso: casharrada oo kaliya kuuma filan waayo-aragnimada buuxda.
+          . Laakiin xasuuso: koorsooyinka kaligood kuma filna khibrad dhammaystiran.
         </p>
       </div>
     </section>
