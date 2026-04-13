@@ -1,6 +1,7 @@
 "use client";
 
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
+import { CurriculumSection } from "@/components/landing/CurriculumSection";
 import { OurStorySection } from "@/components/landing/OurStorySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { useEffect } from "react";
@@ -24,18 +25,15 @@ export function HomeContent() {
 
     return (
         <main className="min-h-screen bg-zinc-950 text-zinc-100">
-           
-                <>
-                    <ChallengeHero />
-                    
-                    <TestimonialsSection />
-                    
-                    <OurStorySection
-                        className="py-12 md:py-16"
-                        innerClassName="px-3 sm:px-4 md:px-6 lg:px-8"
-                    />
-                </>
-         
+            <>
+                <ChallengeHero />
+                <CurriculumSection />
+                <TestimonialsSection />
+                <OurStorySection
+                    className="py-12 md:py-16"
+                    innerClassName="px-3 sm:px-4 md:px-6 lg:px-8"
+                />
+            </>
         </main>
     );
 }

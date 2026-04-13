@@ -1212,9 +1212,9 @@ function WelcomeOnboardingPage() {
 
           <main className="flex flex-1 flex-col justify-center pb-8">
             <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
-              <CardContent className="space-y-8 p-6 text-center sm:p-8 md:text-left">
-                <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 md:mx-0">
-                  <Sparkles className="size-6" aria-hidden />
+              <CardContent className="space-y-4 p-4 text-center sm:space-y-5 sm:p-6 md:text-left">
+                <div className="mx-auto flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 md:mx-0">
+                  <Sparkles className="size-5" aria-hidden />
                 </div>
                 {waitlist && (
                   <p className="text-sm text-muted-foreground">
@@ -1223,35 +1223,69 @@ function WelcomeOnboardingPage() {
                   </p>
                 )}
 
-                <div className="rounded-2xl border border-violet-200/50 bg-violet-50/40 p-4 dark:border-violet-500/20 dark:bg-violet-500/10">
-                  <h3 className="text-base font-semibold text-foreground">
+                <div className="rounded-xl border border-violet-200/50 bg-violet-50/40 p-3 dark:border-violet-500/20 dark:bg-violet-500/10 sm:rounded-2xl sm:p-4">
+                  <h3 className="text-sm font-semibold text-foreground sm:text-base">
                     Tallaabadaada xigta: Dooro sida aad rabto inaad ku bilowdo
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Waxaa kuu furan laba waddo: si bilaash ah u bilow koorsooyinka ama ballan 1:1 ah la samee mentor si aad u hesho qorshe kugu habboon.
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                    Waxaa kuu furan laba waddo: mentor ku hago tallaabaad ka tallaabaad, ama si bilaash ah u bilow casharrada.
                   </p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-border bg-background/80 p-4">
-                    <h4 className="text-sm font-semibold text-foreground">
-                      1) Bilaaw Casharrada Bilaashka ah
+                <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+                  {/* Option 1 — Recommended: Ballan Samee */}
+                  <div className="relative rounded-xl border-2 border-violet-500/60 bg-violet-50/50 p-3 dark:bg-violet-500/10 sm:rounded-2xl sm:p-4">
+                    <span className="absolute -top-2.5 left-3 rounded-full bg-violet-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                      Lagula talinayo
+                    </span>
+                    <h4 className="mt-1 text-sm font-semibold text-foreground sm:text-sm">
+                      1) Ballan Samee — Mentor 1:1
                     </h4>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
+                      Mentor ku hago qorshaha kugu haboon — bilaash ah.
+                    </p>
+                    <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300 sm:text-xs">
+                      Waxa aad helayso
+                    </p>
+                    <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground sm:text-sm">
+                      <li>✓ 1:1 qiimayn si loo ogaado heerkaaga</li>
+                      <li>✓ Qorshe gaar ah oo ku salaysan yoolkaaga</li>
+                      <li>✓ Tallaabaad cad oo aad ka bilaabayso</li>
+                    </ul>
+                    <Button
+                      asChild
+                      className="mt-3 h-10 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-purple-500 sm:mt-4 sm:h-11"
+                    >
+                      <Link
+                        href="https://cal.com/garaad/assessment"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Ballan Samee →
+                      </Link>
+                    </Button>
+                  </div>
+
+                  {/* Option 2 — Free Courses */}
+                  <div className="rounded-xl border border-border bg-background/80 p-3 sm:rounded-2xl sm:p-4">
+                    <h4 className="text-sm font-semibold text-foreground">
+                      2) Bilaaw Casharrada Bilaashka ah
+                    </h4>
+                    <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
                       Ku habboon haddii aad rabto inaad hadda bilowdo adigoon sugin.
                     </p>
-                    <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
-                      Waxa aan bixino
+                    <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200 sm:text-xs">
+                      Waxa aad helayso
                     </p>
-                    <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                      <li>- Casharro bilaash ah oo isla markiiba diyaar kuu ah</li>
-                      <li>- Dariiq cad oo aad ku dhisato aasaaskaaga</li>
-                      <li>- Qiimaynta waxaad qaadan kartaa mar kasta oo dambe</li>
+                    <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground sm:text-sm">
+                      <li>✓ Casharro bilaash ah oo isla markiiba diyaar ah</li>
+                      <li>✓ Dariiq cad oo aad ku dhisato aasaaskaaga</li>
+                      <li>✓ Qiimaynta waxaad qaadan kartaa mar kasta</li>
                     </ul>
                     <Button
                       asChild
                       variant="outline"
-                      className="mt-4 h-11 w-full rounded-xl border-violet-200 bg-violet-50/70 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20"
+                      className="mt-3 h-10 w-full rounded-xl border-violet-200 bg-violet-50/70 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20 sm:mt-4 sm:h-11"
                     >
                       <Link
                         href={postSignupDest}
@@ -1262,35 +1296,6 @@ function WelcomeOnboardingPage() {
                         }}
                       >
                         Bilaaw Casharrada →
-                      </Link>
-                    </Button>
-                  </div>
-
-                  <div className="rounded-2xl border border-border bg-background/80 p-4">
-                    <h4 className="text-sm font-semibold text-foreground">
-                      2) Ballan Samee (Qiimaynta)
-                    </h4>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Ku habboon haddii aad rabto mentor ku hago talaabada xigta.
-                    </p>
-                    <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
-                      Waxa aan bixino
-                    </p>
-                    <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                      <li>- 1:1 qiimayn si loo ogaado heerkaaga</li>
-                      <li>- Qorshe gaar ah oo ku salaysan yoolkaaga</li>
-                      <li>- Talooyin cad oo ku saabsan koorsada aad ka bilaabayso</li>
-                    </ul>
-                    <Button
-                      asChild
-                      className="mt-4 h-11 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-purple-500"
-                    >
-                      <Link
-                        href="https://cal.com/garaad/assessment"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Ballan Samee →
                       </Link>
                     </Button>
                   </div>
