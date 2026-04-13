@@ -6,7 +6,7 @@ import { OurStorySection } from "@/components/landing/OurStorySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
- import { usePostHog } from 'posthog-js/react';
+import { usePostHog } from 'posthog-js/react';
 
 const selectShowDashboard = (s: { _hasHydrated: boolean; isAuthenticated: boolean }) =>
     s._hasHydrated && s.isAuthenticated;
@@ -24,7 +24,7 @@ export function HomeContent() {
     }, [isAuthenticated, user?.id, posthog]);
 
     return (
-        <main className="min-h-screen bg-zinc-950 text-zinc-100">
+        <main className="min-h-screen bg-background text-foreground">
             <>
                 <ChallengeHero />
                 <CurriculumSection />

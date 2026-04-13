@@ -6,9 +6,10 @@ import { ArrowRight, Sparkles, Users, Trophy, Clock } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTheme } from "next-themes";
 
 // ─── Animated code-rain canvas ────────────────────────────────────────────────
-function CodeRainCanvas() {
+function CodeRainCanvas({ isDark }: { isDark: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -17,11 +18,10 @@ function CodeRainCanvas() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const chars =
-      "01アイウエオカキ{}=>/[]();:,.+-*#<>ReactNextNodeMongo".split("");
+    const chars = "01アイウエオ{}=>/[]();:,.+-*#ReactNextNodeMongo".split("");
     const fontSize = 13;
     let columns = Math.floor(canvas.width / fontSize);
-    const drops: number[] = Array(columns).fill(1);
+    const drops: number[] = [];
 
     function resize() {
       if (!canvas) return;
@@ -45,15 +45,20 @@ function CodeRainCanvas() {
       lastTime = now;
       if (!ctx || !canvas) return;
 
-      ctx.fillStyle = "rgba(9,9,15,0.18)";
+      // Fade trail
+      ctx.fillStyle = isDark ? "rgba(9,9,15,0.18)" : "rgba(248,248,252,0.22)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
-        const r = 120 + Math.floor(Math.random() * 60);
-        const b = 200 + Math.floor(Math.random() * 55);
-        ctx.fillStyle = `rgba(${r},40,${b},0.55)`;
+        if (isDark) {
+          const r = 120 + Math.floor(Math.random() * 60);
+          const b = 200 + Math.floor(Math.random() * 55);
+          ctx.fillStyle = `rgba(${r},40,${b},0.55)`;
+        } else {
+          ctx.fillStyle = `rgba(124,58,237,${0.08 + Math.random() * 0.1})`;
+        }
         ctx.fillText(char, i * fontSize, drops[i] * fontSize);
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i] += 0.5;
@@ -62,12 +67,12 @@ function CodeRainCanvas() {
 
     rafId = requestAnimationFrame(draw);
     return () => { cancelAnimationFrame(rafId); ro.disconnect(); };
-  }, []);
+  }, [isDark]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none absolute inset-0 h-full w-full opacity-30"
+      className={`pointer-events-none absolute inset-0 h-full w-full ${isDark ? "opacity-30" : "opacity-60"}`}
       aria-hidden
     />
   );
@@ -92,6 +97,9 @@ export function ChallengeHero() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const { resolvedTheme } = useTheme();
+  const isDark = mounted ? resolvedTheme === "dark" : true;
+
   const { user } = useAuthStore();
   void user;
   const { data, loading } = useChallengeStatus();
@@ -102,34 +110,56 @@ export function ChallengeHero() {
     document.getElementById("curriculum")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // ── Skeleton ──────────────────────────────────────────────────────────────
   if (!mounted) {
     return (
-      <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
+      <section className="relative min-h-screen overflow-hidden bg-background">
         <div className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 md:py-24 lg:px-8">
-          <div className="h-[420px] animate-pulse rounded-2xl bg-zinc-900/50" />
+          <div className="h-[420px] animate-pulse rounded-2xl bg-muted" />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
-      <CodeRainCanvas />
+    <section className={`relative min-h-screen overflow-hidden transition-colors duration-300 ${
+      isDark
+        ? "bg-zinc-950 text-zinc-100"
+        : "bg-slate-50 text-slate-900"
+    }`}>
+      {/* Code rain */}
+      <CodeRainCanvas isDark={isDark} />
 
+      {/* Glows */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-violet-700/10 blur-[160px]" />
-        <div className="absolute bottom-0 right-0 h-[400px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-purple-600/8 blur-[120px]" />
+        <div className={`absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/3 rounded-full blur-[160px] ${
+          isDark ? "bg-violet-700/10" : "bg-violet-300/40"
+        }`} />
+        <div className={`absolute bottom-0 right-0 h-[400px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full blur-[120px] ${
+          isDark ? "bg-purple-600/8" : "bg-violet-200/50"
+        }`} />
+        {!isDark && (
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.025)_1px,transparent_1px)] bg-[size:64px_64px]" />
+        )}
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 md:py-24 lg:px-8">
 
         {/* Badges */}
         <div className="mb-5 flex flex-wrap items-center justify-center gap-2 sm:mb-8 sm:gap-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/35 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-300">
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+            isDark
+              ? "border-violet-500/35 bg-violet-500/10 text-violet-300"
+              : "border-violet-200 bg-violet-50 text-violet-700"
+          }`}>
             <Sparkles className="h-3 w-3" />
             3 bilood · dammaanad lacag celin ah
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+            isDark
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          }`}>
             ✓ Isagoo dhammaystiran waa Somali
           </span>
         </div>
@@ -137,7 +167,7 @@ export function ChallengeHero() {
         {/* Headline */}
         <h1 className="mx-auto max-w-3xl text-balance text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
           Noqo{" "}
-          <span className="relative inline-block text-violet-400">
+          <span className="relative inline-block text-violet-500 dark:text-violet-400">
             Developer
             <svg className="absolute -bottom-1 left-0 w-full sm:-bottom-2" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden>
               <path d="M2 4 Q 25 8 50 4 T 98 4" fill="none" stroke="#7c3aed" strokeWidth="4" strokeLinecap="round" />
@@ -147,24 +177,30 @@ export function ChallengeHero() {
         </h1>
 
         {/* Subtext */}
-        <p className="mx-auto mt-4 max-w-xl text-balance text-center text-base leading-relaxed text-zinc-400 sm:mt-6 sm:text-lg">
+        <p className={`mx-auto mt-4 max-w-xl text-balance text-center text-base leading-relaxed sm:mt-6 sm:text-lg ${
+          isDark ? "text-zinc-400" : "text-slate-600"
+        }`}>
           Mentor Somali ah ayaa{" "}
-          <span className="font-semibold text-zinc-200">tallaabo-tallaabo</span>{" "}
+          <span className={`font-semibold ${isDark ? "text-zinc-200" : "text-slate-800"}`}>tallaabo-tallaabo</span>{" "}
           kuu hagi doona. Dhis mashruucyo dhab ah, baro xirfadaha suuqu rabo, horey u soco —{" "}
-          <span className="font-semibold text-zinc-200">30 daqiiqo</span> maalintii.
+          <span className={`font-semibold ${isDark ? "text-zinc-200" : "text-slate-800"}`}>30 daqiiqo</span> maalintii.
         </p>
 
         {/* Social proof */}
-        <div className="mx-auto mt-5 flex w-fit items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 sm:mt-6">
+        <div className={`mx-auto mt-5 flex w-fit items-center gap-3 rounded-full border px-4 py-2 sm:mt-6 ${
+          isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"
+        }`}>
           <div className="flex items-center -space-x-2">
             {AVATARS.map(({ initials, bg }) => (
-              <div key={initials} className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-zinc-900 text-[9px] font-bold text-white ${bg}`} aria-hidden>
+              <div key={initials} className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[9px] font-bold text-white ${bg} ${
+                isDark ? "border-zinc-900" : "border-white"
+              }`} aria-hidden>
                 {initials}
               </div>
             ))}
           </div>
-          <span className="text-sm text-zinc-400">
-            <span className="font-semibold text-zinc-200">97+</span> developers oo baranaya
+          <span className={`text-sm ${isDark ? "text-zinc-400" : "text-slate-500"}`}>
+            <span className={`font-semibold ${isDark ? "text-zinc-200" : "text-slate-800"}`}>97+</span> developers oo baranaya
           </span>
         </div>
 
@@ -179,19 +215,23 @@ export function ChallengeHero() {
           </Link>
           <button
             onClick={scrollToCurriculum}
-            className="text-sm font-medium text-zinc-500 underline-offset-4 transition-colors hover:text-zinc-300 hover:underline"
+            className={`text-sm font-medium underline-offset-4 transition-colors hover:underline ${
+              isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"
+            }`}
           >
             Arag manhajka ↓
           </button>
         </div>
 
-        {/* Stats */}
+        {/* Stat chips */}
         <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-2 sm:mt-10 sm:gap-3">
           {STATS.map(({ icon: Icon, label, sub }) => (
-            <div key={label} className="flex flex-col items-center rounded-xl border border-white/8 bg-white/5 px-2 py-3 text-center sm:px-3">
-              <Icon className="mb-1 h-4 w-4 text-violet-400 sm:h-5 sm:w-5" />
-              <span className="text-xs font-bold text-zinc-200 sm:text-sm">{label}</span>
-              <span className="mt-0.5 text-[10px] text-zinc-500 sm:text-xs">{sub}</span>
+            <div key={label} className={`flex flex-col items-center rounded-xl border px-2 py-3 text-center sm:px-3 ${
+              isDark ? "border-white/8 bg-white/5" : "border-slate-200 bg-white shadow-sm"
+            }`}>
+              <Icon className={`mb-1 h-4 w-4 sm:h-5 sm:w-5 ${isDark ? "text-violet-400" : "text-violet-600"}`} />
+              <span className={`text-xs font-bold sm:text-sm ${isDark ? "text-zinc-200" : "text-slate-800"}`}>{label}</span>
+              <span className={`mt-0.5 text-[10px] sm:text-xs ${isDark ? "text-zinc-500" : "text-slate-500"}`}>{sub}</span>
             </div>
           ))}
         </div>
@@ -203,7 +243,7 @@ export function ChallengeHero() {
 
         {/* Video */}
         <div className="mx-auto mt-8 w-full max-w-2xl sm:mt-10">
-          <Link href="/welcome" className="group relative block overflow-hidden rounded-xl border border-white/10 bg-black">
+          <Link href="/welcome" className="group relative block overflow-hidden rounded-xl border bg-black border-white/10">
             <div className="relative w-full" style={{ padding: "56.25% 0 0 0" }}>
               <iframe
                 src="https://player.vimeo.com/video/1152611300?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&controls=1&background=0"
@@ -218,7 +258,7 @@ export function ChallengeHero() {
         </div>
 
         {/* Soft note */}
-        <p className="mt-6 text-center text-xs text-zinc-600 sm:mt-7 sm:text-sm">
+        <p className={`mt-6 text-center text-xs sm:mt-7 sm:text-sm ${isDark ? "text-zinc-600" : "text-slate-400"}`}>
           Haddii aad rabto inaad marka hore tijaabiso —{" "}
           <Link href="/welcome" className="font-medium text-violet-500 underline-offset-4 hover:underline">
             koorsooyinka ku billow lacag la&apos;aan

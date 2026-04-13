@@ -100,7 +100,7 @@ const landingJsonLd = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#f8f8fc] transition-colors duration-300 dark:bg-[#0a0a0f]">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(landingJsonLd) }}
