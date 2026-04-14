@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Sparkles, Users, Trophy, Clock } from "lucide-react";
+import { ArrowRight, Users, Trophy, Clock } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -144,25 +144,6 @@ export function ChallengeHero() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 md:py-24 lg:px-8">
-
-        {/* Badges */}
-        <div className="mb-5 flex flex-wrap items-center justify-center gap-2 sm:mb-8 sm:gap-3">
-          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
-            isDark
-              ? "border-violet-500/35 bg-violet-500/10 text-violet-300"
-              : "border-violet-200 bg-violet-50 text-violet-700"
-          }`}>
-            <Sparkles className="h-3 w-3" />
-            7-bari dammaanad lacag celin ah
-          </span>
-          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
-            isDark
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-              : "border-emerald-200 bg-emerald-50 text-emerald-700"
-          }`}>
-            ✓ Isagoo dhammaystiran waa Somali
-          </span>
-        </div>
 
         {/* Headline */}
         <h1 className="mx-auto max-w-3xl text-balance text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
