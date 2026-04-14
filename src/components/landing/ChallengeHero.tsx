@@ -88,7 +88,7 @@ const AVATARS = [
 
 const STATS = [
   { icon: Users,  label: "97+ arday",  sub: "hadda wax baranaya" },
-  { icon: Trophy, label: "3 bilood",   sub: "dammaanad lacag celin ah" },
+  { icon: Trophy, label: "Mentor 1:1", sub: "hanuunin toos ah" },
   { icon: Clock,  label: "30 daqiiqo", sub: "maalintii waa ku filan tahay" },
 ];
 
@@ -153,7 +153,7 @@ export function ChallengeHero() {
               : "border-violet-200 bg-violet-50 text-violet-700"
           }`}>
             <Sparkles className="h-3 w-3" />
-            3 bilood · dammaanad lacag celin ah
+            7-bari dammaanad lacag celin ah
           </span>
           <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
             isDark

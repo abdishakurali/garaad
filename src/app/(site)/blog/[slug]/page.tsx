@@ -3,6 +3,7 @@ import { getBlogAuthorDisplayName } from "@/lib/blogAuthor";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { BlogDetailClient } from "@/components/blog/BlogDetailClient";
+import Link from "next/link";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -158,6 +159,37 @@ export default async function BlogPostPage({ params }: PostPageProps) {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
             />
             <BlogDetailClient post={post} relatedPosts={relatedPosts} />
+            <section className="mx-auto mt-8 max-w-4xl px-4 pb-12">
+                <div className="rounded-xl border border-border bg-card p-5">
+                    <h2 className="text-base font-semibold text-foreground">Continue learning</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Akhri qoraallo la xiriira ama u gudub koorsooyinka si aad si practical ah ugu dabaqdo mawduucan.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                        <Link
+                            href="/courses"
+                            className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                        >
+                            All Courses
+                        </Link>
+                        <Link
+                            href="/blog"
+                            className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                        >
+                            More Blog Posts
+                        </Link>
+                        {post.tags.slice(0, 3).map((t) => (
+                            <Link
+                                key={t.slug}
+                                href={`/blog/tag/${t.slug}`}
+                                className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                            >
+                                #{t.name}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
         </>
     );
 }

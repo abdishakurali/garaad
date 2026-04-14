@@ -14,9 +14,17 @@ export default function PWARegister() {
     if (!("serviceWorker" in navigator)) return;
     if (window.location.hostname === "localhost") return;
 
+    const safeReloadOnce = () => {
+      if (typeof window === "undefined") return;
+      const key = "sw-reload-once";
+      if (sessionStorage.getItem(key) === "1") return;
+      sessionStorage.setItem(key, "1");
+      window.location.reload();
+    };
+
     const registerSW = () => {
       navigator.serviceWorker
-        .register("/sw.js")
+        .register(`/sw.js?v=${Date.now()}`)
         .then((registration) => {
           console.log("[PWA] Service Worker registered");
 
@@ -70,8 +78,28 @@ export default function PWARegister() {
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    const onControllerChange = () => {
+      // Prevent runtime/chunk mismatch after deploy:
+      // once a new SW controls the page, reload one time.
+      safeReloadOnce();
+    };
+    navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
+
+    const onGlobalError = (event: ErrorEvent) => {
+      const msg = String(event?.message || "");
+      if (msg.includes("ChunkLoadError") || msg.includes("loading chunk")) {
+        safeReloadOnce();
+      }
+    };
+    window.addEventListener("error", onGlobalError);
+
     return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+        window.removeEventListener("error", onGlobalError);
+      };
   }, []);
 
   return null;

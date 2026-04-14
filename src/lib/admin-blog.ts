@@ -64,6 +64,28 @@ export const blogAdminApi = {
         return res.data;
     },
 
+    seoAudit: async (payload: {
+        title: string;
+        body: string;
+        meta_description: string;
+        tags: string;
+    }) => {
+        const res = await axios.post(`${API_URL}/blog/posts/seo-audit/`, payload, {
+            headers: {
+                ...getAuthHeader(),
+                "Content-Type": "application/json",
+            },
+        });
+        return res.data as {
+            score: number;
+            primary_keyword: string;
+            recommendations: string[];
+            internal_links_count: number;
+            internal_link_suggestions: string[];
+            headline_suggestions: string[];
+        };
+    },
+
     getTags: async () => {
         const res = await axios.get(`${API_URL}/blog/tags/`, {
             headers: getAuthHeader(),

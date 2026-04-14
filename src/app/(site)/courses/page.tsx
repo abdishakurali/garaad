@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { CoursesListClient } from "./CoursesListClient";
 import { Category } from "@/types/lms";
 import { API_BASE_URL } from "@/lib/constants";
+import Link from "next/link";
 
 const COURSES_URL = "https://garaad.org/courses";
 
@@ -98,6 +99,28 @@ export default async function CoursesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <CoursesListClient initialCategories={categories} />
+      <section className="mx-auto mt-8 max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-base font-semibold text-foreground">Read and apply</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Akhri blog-ga si aad u hesho sharaxaad dheeraad ah ka hor ama kadib casharrada.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/blog" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
+              Blog Home
+            </Link>
+            <Link href="/blog/tag/react" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
+              React Articles
+            </Link>
+            <Link href="/blog/tag/nextjs" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
+              Next.js Articles
+            </Link>
+            <Link href="/blog/tag/javascript" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
+              JavaScript Articles
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

@@ -13,6 +13,13 @@ import { Loader2, ArrowLeft,  Upload } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+type SeoAudit = {
+    score: number;
+    recommendations: string[];
+    internal_link_suggestions: string[];
+    headline_suggestions: string[];
+};
+
 export default function EditBlogPostPage() {
     const router = useRouter();
     const params = useParams();
@@ -28,6 +35,7 @@ export default function EditBlogPostPage() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isPublished, setIsPublished] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [seoAudit, setSeoAudit] = useState<SeoAudit | null>(null);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -94,6 +102,17 @@ export default function EditBlogPostPage() {
         if (file) setFileFrom(file);
     }, [setFileFrom]);
 
+    const runSeoAudit = async () => {
+        const audit = await blogAdminApi.seoAudit({
+            title,
+            body,
+            meta_description: metaDescription,
+            tags,
+        });
+        setSeoAudit(audit);
+        return audit;
+    };
+
     const handleSubmit = async (publish: boolean = isPublished) => {
         if (!title || !body || !metaDescription) {
             toast.error("Fadlan buuxi dhammaan meelaha muhiimka ah");
@@ -102,6 +121,14 @@ export default function EditBlogPostPage() {
 
         try {
             setSaving(true);
+            if (publish) {
+                const audit = await runSeoAudit();
+                if (audit.score < 70) {
+                    toast.error(`SEO score waa hooseeyaa (${audit.score}/100). Hagaaji ka hor publish.`);
+                    setSaving(false);
+                    return;
+                }
+            }
             const formData = new FormData();
             formData.append("title", title);
             formData.append("body", body);
@@ -164,6 +191,9 @@ export default function EditBlogPostPage() {
                         className="text-xl font-bold py-6"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
+                        onBlur={() => {
+                            void runSeoAudit();
+                        }}
                     />
                 </div>
 
@@ -215,6 +245,9 @@ export default function EditBlogPostPage() {
                                 maxLength={160}
                                 value={metaDescription}
                                 onChange={(e) => setMetaDescription(e.target.value)}
+                                onBlur={() => {
+                                    void runSeoAudit();
+                                }}
                             />
                             <div className="text-right text-xs text-slate-400">
                                 {metaDescription.length}/160
@@ -228,10 +261,42 @@ export default function EditBlogPostPage() {
                                 placeholder="coding, stem, tech..."
                                 value={tags}
                                 onChange={(e) => setTags(e.target.value)}
+                                onBlur={() => {
+                                    void runSeoAudit();
+                                }}
                             />
                         </div>
                     </div>
                 </div>
+
+                {seoAudit && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-sm font-semibold text-slate-800">
+                            SEO Score: {seoAudit.score}/100
+                        </p>
+                        {seoAudit.recommendations.length > 0 && (
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-600">
+                                {seoAudit.recommendations.map((rec) => (
+                                    <li key={rec}>{rec}</li>
+                                ))}
+                            </ul>
+                        )}
+                        <div className="mt-3">
+                            <p className="text-xs font-semibold text-slate-700">Suggested internal links</p>
+                            <p className="text-xs text-slate-600">
+                                {seoAudit.internal_link_suggestions.join(" , ")}
+                            </p>
+                        </div>
+                        <div className="mt-3">
+                            <p className="text-xs font-semibold text-slate-700">Headline ideas</p>
+                            <ul className="mt-1 list-disc space-y-1 pl-5 text-xs text-slate-600">
+                                {seoAudit.headline_suggestions.map((h) => (
+                                    <li key={h}>{h}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
 
                 <div className="space-y-2">
                     <Label className="text-lg font-semibold">Faahfaahinta Qoraalka (Main Content)</Label>
