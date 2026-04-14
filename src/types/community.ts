@@ -243,7 +243,7 @@ interface Badge {
 }
 
 // Constants
-const BADGE_LEVELS: Record<string, Badge> = {
+export const BADGE_LEVELS: Record<string, Badge> = {
   dhalinyaro: {
     level: "dhalinyaro",
     display_name: "Garaad Dhalinyaro",

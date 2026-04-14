@@ -54,10 +54,10 @@ const nextConfig = {
     const cspHeader = `
       default-src 'self';
       script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://*.posthog.com *.vercel-scripts.com https://player.vimeo.com https://accounts.google.com;
-      style-src 'self' 'unsafe-inline' fonts.googleapis.com;
+      style-src 'self' 'unsafe-inline' fonts.googleapis.com https://accounts.google.com;
       img-src 'self' blob: data: https: res.cloudinary.com api.garaad.org localhost:8000 127.0.0.1:8000 images.ctfassets.net *.posthog.com https://*.stripe.com https://img.youtube.com https://www.transparenttextures.com;
       media-src 'self' blob: data: https://res.cloudinary.com https://api.garaad.org http://localhost:8000 http://127.0.0.1:8000;
-      font-src 'self' fonts.gstatic.com data:;
+      font-src 'self' fonts.gstatic.com data: https://r2cdn.perplexity.ai;
       object-src 'none';
       base-uri 'self';
       form-action 'self';
@@ -75,6 +75,7 @@ const nextConfig = {
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },

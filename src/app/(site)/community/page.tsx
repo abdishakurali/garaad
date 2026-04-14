@@ -33,6 +33,7 @@ import Image from 'next/image';import { useAuthReady } from '@/hooks/useAuthRead
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
 import { CommunityPrivatePreview } from '@/components/community/CommunityPrivatePreview';
+import { NotificationEnablePrompt } from '@/components/community/NotificationEnablePrompt';
 import { pricingTranslations as pt } from '@/config/translations/pricing';
 import { useChallengeStatus } from '@/hooks/useChallengeStatus';
 
@@ -481,6 +482,7 @@ export default function CommunityPage() {
 
                         {/* Posts */}
                         <div className="flex-1 flex flex-col overflow-hidden">
+                            <NotificationEnablePrompt />
                             <PostList
                                 posts={posts}
                                 loading={loading.posts}

@@ -23,6 +23,8 @@ function loadGsi(): Promise<void> {
 
 declare global {
   interface Window {
+    __garaadGoogleOnCredential?: (credential: string) => void | Promise<void>;
+    __garaadGoogleInitializedForClientId?: string;
     google?: {
       accounts: {
         id: {
@@ -66,17 +68,23 @@ export function GoogleSignInButton({
     if (!clientId || !divRef.current || disabled) return;
     const el = divRef.current;
     let cancelled = false;
+    window.__garaadGoogleOnCredential = (credential: string) => onCredRef.current(credential);
 
     loadGsi()
       .then(() => {
         if (cancelled || !el || !window.google?.accounts?.id) return;
         el.innerHTML = "";
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (res: { credential?: string }) => {
-            if (res.credential) void onCredRef.current(res.credential);
-          },
-        });
+        if (window.__garaadGoogleInitializedForClientId !== clientId) {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (res: { credential?: string }) => {
+              if (res.credential) {
+                void window.__garaadGoogleOnCredential?.(res.credential);
+              }
+            },
+          });
+          window.__garaadGoogleInitializedForClientId = clientId;
+        }
         window.google.accounts.id.renderButton(el, {
           type: "standard",
           theme: "outline",
