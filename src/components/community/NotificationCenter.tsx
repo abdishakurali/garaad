@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';import { Tabs,  TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Notification, NOTIFICATION_ICONS } from '@/types/community';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import {
@@ -12,14 +13,13 @@ import {
     CheckCheck,
     Trash2,
     Clock,
-    
-    
+
+
     Heart,
     MessageCircle,
     AtSign,
-    Users,
-    
-    
+
+
 } from 'lucide-react';
 import { getMediaUrl } from '@/lib/utils';
 
@@ -70,18 +70,17 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         const iconEmoji = NOTIFICATION_ICONS[type] || '🔔';
 
         switch (type) {
-            case 'post_like':
+            case 'post_liked':
                 return <Heart className="h-4 w-4 text-red-500" />;
-            case 'comment_like':
+            case 'reply_liked':
                 return <Heart className="h-4 w-4 text-red-500" />;
-            case 'post_comment':
+            case 'post_reply_created':
                 return <MessageCircle className="h-4 w-4 text-blue-500" />;
-            case 'comment_reply':
+            case 'reply_reply_created':
                 return <MessageCircle className="h-4 w-4 text-blue-500" />;
-            case 'mention':
+            case 'mention_in_post':
+            case 'mention_in_reply':
                 return <AtSign className="h-4 w-4 text-purple-500" />;
-            case 'new_campus_member':
-                return <Users className="h-4 w-4 text-green-500" />;
             default:
                 return <Bell className="h-4 w-4 text-gray-500" />;
         }
@@ -92,7 +91,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             case 'unread':
                 return notifications.filter(n => !n.is_read);
             case 'mentions':
-                return notifications.filter(n => n.notification_type === 'mention');
+                return notifications.filter(
+                    (n) =>
+                        n.type === 'mention_in_post' ||
+                        n.type === 'mention_in_reply'
+                );
             default:
                 return notifications;
         }
@@ -150,7 +153,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                                 Aan akhriyin ({notifications.filter(n => !n.is_read).length})
                             </TabsTrigger>
                             <TabsTrigger value="mentions">
-                                Magacyada (@) ({notifications.filter(n => n.notification_type === 'mention').length})
+                                Magacyada (@) ({
+                                    notifications.filter(
+                                        (n) =>
+                                            n.type === 'mention_in_post' ||
+                                            n.type === 'mention_in_reply'
+                                    ).length
+                                })
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -182,16 +191,16 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             >
                                 {/* Notification Icon */}
                                 <div className="flex-shrink-0">
-                                    {notification.sender ? (
+                                    {notification.actor ? (
                                         <AuthenticatedAvatar
-                                            src={getMediaUrl(notification.sender.profile_picture, 'profile_pics')}
-                                            alt={notification.sender.username}
-                                            fallback={notification.sender.username[0].toUpperCase()}
+                                            src={getMediaUrl(notification.actor.profile_picture, 'profile_pics')}
+                                            alt={notification.actor.username}
+                                            fallback={notification.actor.username[0].toUpperCase()}
                                             size="lg"
                                         />
                                     ) : (
                                         <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
-                                            {getNotificationIcon(notification.notification_type)}
+                                            {getNotificationIcon(notification.type)}
                                         </div>
                                     )}
                                 </div>
@@ -206,7 +215,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                                             </h4>
                                             <p className={`text-sm mt-1 ${notification.is_read ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'
                                                 }`}>
-                                                {notification.message}
+                                                {notification.body}
                                             </p>
 
                                             {/* Context Information */}
@@ -216,14 +225,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                                                     <span>{formatTimeAgo(notification.created_at)}</span>
                                                 </span>
 
-                                                {notification.campus_name && (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {notification.campus_name}
-                                                    </Badge>
-                                                )}
-
                                                 <Badge variant="secondary" className="text-xs">
-                                                    {notification.notification_type_display}
+                                                    {notification.type}
                                                 </Badge>
                                             </div>
                                         </div>
@@ -354,17 +357,17 @@ export const NotificationDropdown: React.FC<{
                                 >
                                     <div className="flex space-x-2">
                                         <div className="flex-shrink-0">
-                                            {notification.sender ? (
+                                            {notification.actor ? (
                                                 <AuthenticatedAvatar
-                                                    src={getMediaUrl(notification.sender.profile_picture, 'profile_pics')}
-                                                    alt={notification.sender.username}
-                                                    fallback={notification.sender.username[0].toUpperCase()}
+                                                    src={getMediaUrl(notification.actor.profile_picture, 'profile_pics')}
+                                                    alt={notification.actor.username}
+                                                    fallback={notification.actor.username[0].toUpperCase()}
                                                     size="sm"
                                                 />
                                             ) : (
                                                 <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
                                                     <span className="text-xs">
-                                                        {NOTIFICATION_ICONS[notification.notification_type] || '🔔'}
+                                                        {NOTIFICATION_ICONS[notification.type] || '🔔'}
                                                     </span>
                                                 </div>
                                             )}
@@ -374,7 +377,7 @@ export const NotificationDropdown: React.FC<{
                                                 {notification.title}
                                             </p>
                                             <p className="text-xs text-gray-500 truncate">
-                                                {notification.message}
+                                                {notification.body}
                                             </p>
                                             <p className="text-xs text-gray-400 mt-1">
                                                 {formatTimeAgo(notification.created_at)}
@@ -420,4 +423,4 @@ export const NotificationDropdown: React.FC<{
             const diffInDays = Math.floor(diffInHours / 24);
             return `${diffInDays} Maalmood`;
         }
-    }; 
+    };

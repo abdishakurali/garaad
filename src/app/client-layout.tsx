@@ -14,7 +14,7 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const { setUser, logout, isAuthenticated } = useAuthStore();
-  const { setNotifications, setUserProfile } = useCommunityStore();
+  const { setNotifications, setUserProfile, setUnreadCount } = useCommunityStore();
 
   const pathname = usePathname();
   /** Avoid re-running full init on every route change (was reconnecting global WS and refetching profile each time). */
@@ -40,9 +40,14 @@ export default function ClientLayout({
               console.warn("Failed to fetch notifications:", err);
               return { results: [] };
             });
+            const unread = await communityService.notification.getUnreadCount().catch(err => {
+              console.warn("Failed to fetch unread count:", err);
+              return { unread_count: 0 };
+            });
 
             if (profile) setUserProfile(profile as any);
             if (notifs) setNotifications(((notifs as any).results || notifs) as any[]);
+            if (typeof (unread as any).unread_count === "number") setUnreadCount((unread as any).unread_count);
           } catch (err) {
             console.error("Failed to fetch initial community data:", err);
           }
@@ -59,7 +64,7 @@ export default function ClientLayout({
     };
 
     init();
-  }, [setUser, logout, isAuthenticated, setNotifications, setUserProfile]);
+  }, [setUser, logout, isAuthenticated, setNotifications, setUserProfile, setUnreadCount]);
 
   // Reconnect global notification WS only when navigating away from /community (not on every route).
   const prevPathnameRef = useRef<string | null>(null);
@@ -77,6 +82,26 @@ export default function ClientLayout({
       });
     }
   }, [pathname, isAuthenticated]);
+
+  // Mark notification read when user taps OS push and SW posts back.
+  useEffect(() => {
+    const onMessage = async (event: MessageEvent) => {
+      const data = event.data || {};
+      if (data.type !== "NOTIFICATION_CLICKED" || !data.notification_id) return;
+      try {
+        await communityService.notification.markNotificationRead(String(data.notification_id));
+      } catch (err) {
+        console.warn("Failed to mark notification from SW click:", err);
+      }
+    };
+    if (typeof navigator !== "undefined" && navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener("message", onMessage as EventListener);
+      return () => {
+        navigator.serviceWorker.removeEventListener("message", onMessage as EventListener);
+      };
+    }
+    return;
+  }, []);
 
   // Just render children - no Providers here
   return (

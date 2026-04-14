@@ -42,10 +42,12 @@ export default function CommunityPage() {
         selectedCategory,
         userProfile,
         notifications,
+        unreadCount,
         setSelectedCategory,
         setPosts,
         setUserProfile,
         setNotifications,
+        setUnreadCount,
         markNotificationRead: markNotificationReadLocal,
         markAllNotificationsRead: markAllNotificationsReadLocal
     } = useCommunityStore();
@@ -57,7 +59,6 @@ export default function CommunityPage() {
         return [...allCategories].sort((a, b) => (b.order || 0) - (a.order || 0));
     }, [allCategories]);
 
-    const unreadCount = useMemo(() => notifications.filter(n => !n.is_read).length, [notifications]);
     const { user, isAuthenticated, hydrate: hydrateAuthFromCookies } = useAuthStore();
     const authReady = useAuthReady();
     /** Full community (post, WS, clear UI) is Challenge-only; others see a blurred preview + CTA. */
@@ -92,25 +93,31 @@ export default function CommunityPage() {
         }
 
         // 2. Navigate to category and post
-        if (notification.category_id) {
-            const category = allCategories.find(c => c.id === notification.category_id);
+        const payload = notification.payload || {};
+        if (notification.url) {
+            router.push(notification.url);
+            return;
+        }
+
+        if (payload.category_id) {
+            const category = allCategories.find(c => c.id === payload.category_id);
             if (category) {
                 setSelectedCategory(category);
-                if (notification.post_id) {
-                    setPendingScrollPostId(notification.post_id);
+                if (payload.post_id) {
+                    setPendingScrollPostId(payload.post_id);
                 }
-                if (notification.reply_id) {
-                    setPendingScrollReplyId(notification.reply_id);
+                if (payload.reply_id) {
+                    setPendingScrollReplyId(payload.reply_id);
                 }
             }
-        } else if (notification.post_id && selectedCategory) {
+        } else if (payload.post_id && selectedCategory) {
             // Already in category or category unknown, just scroll
-            const element = document.getElementById(`post-${notification.post_id}`);
+            const element = document.getElementById(`post-${payload.post_id}`);
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                if (notification.reply_id) {
-                    setPendingScrollReplyId(notification.reply_id);
+                if (payload.reply_id) {
+                    setPendingScrollReplyId(payload.reply_id);
                 }
             }
         }
@@ -172,10 +179,12 @@ export default function CommunityPage() {
                     communityService.category.getCategories(),
                     communityService.profile.getUserProfile(),
                     communityService.notification.getNotifications(),
+                    communityService.notification.getUnreadCount(),
                 ]);
                 const cats = results[0].status === "fulfilled" ? results[0].value : null;
                 const profile = results[1].status === "fulfilled" ? results[1].value : null;
                 const notifs = results[2].status === "fulfilled" ? results[2].value : null;
+                const unread = results[3].status === "fulfilled" ? results[3].value : null;
                 if (results[0].status === "rejected") {
                     console.error("Failed to load community categories:", results[0].reason);
                 }
@@ -185,6 +194,9 @@ export default function CommunityPage() {
                 if (results[2].status === "rejected") {
                     console.error("Failed to load community notifications:", results[2].reason);
                 }
+                if (results[3].status === "rejected") {
+                    console.error("Failed to load community unread count:", results[3].reason);
+                }
                 if (cats) {
                     setAllCategories(((cats as any).results || cats) as any[]);
                 }
@@ -193,6 +205,9 @@ export default function CommunityPage() {
                 }
                 if (notifs) {
                     setNotifications(((notifs as any).results || notifs) as any[]);
+                }
+                if (unread && typeof (unread as any).unread_count === "number") {
+                    setUnreadCount((unread as any).unread_count);
                 }
             } catch (err) {
                 console.error("Failed to init community data:", err);

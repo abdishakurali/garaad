@@ -14,6 +14,7 @@ interface CommunityStore {
     posts: CommunityPost[];
     userProfile: UserProfile | null;
     notifications: Notification[];
+    unreadCount: number;
     pinnedCategoryIds: string[];
     loading: {
         categories: boolean;
@@ -33,6 +34,7 @@ interface CommunityStore {
     setPosts: (posts: CommunityPost[]) => void;
     setUserProfile: (profile: UserProfile | null) => void;
     setNotifications: (notifications: Notification[]) => void;
+    setUnreadCount: (count: number) => void;
     setPinnedCategoryIds: (ids: string[]) => void;
     setLoading: (key: keyof CommunityStore['loading'], value: boolean) => void;
     setError: (key: keyof CommunityStore['errors'], value: string | null) => void;
@@ -72,6 +74,7 @@ export const useCommunityStore = create<CommunityStore>((set) => ({
     posts: [],
     userProfile: null,
     notifications: [],
+    unreadCount: 0,
     pinnedCategoryIds: typeof window !== 'undefined'
         ? JSON.parse(localStorage.getItem('pinnedCategoryIds') || '[]')
         : [],
@@ -92,7 +95,11 @@ export const useCommunityStore = create<CommunityStore>((set) => ({
     setSelectedCategory: (selectedCategory) => set({ selectedCategory }),
     setPosts: (posts) => set({ posts }),
     setUserProfile: (userProfile) => set({ userProfile }),
-    setNotifications: (notifications) => set({ notifications }),
+    setNotifications: (notifications) => set({
+        notifications,
+        unreadCount: notifications.filter((n) => !n.is_read).length,
+    }),
+    setUnreadCount: (unreadCount) => set({ unreadCount }),
     setPinnedCategoryIds: (pinnedCategoryIds) => {
         set({ pinnedCategoryIds });
         localStorage.setItem('pinnedCategoryIds', JSON.stringify(pinnedCategoryIds));
@@ -246,17 +253,20 @@ export const useCommunityStore = create<CommunityStore>((set) => ({
     })),
 
     handleWebSocketNotification: (notification) => set((state) => ({
-        notifications: [notification, ...state.notifications]
+        notifications: [notification, ...state.notifications],
+        unreadCount: state.unreadCount + (notification.is_read ? 0 : 1),
     })),
 
     handleWebSocketNotificationRead: (notificationId) => set((state) => ({
-        notifications: state.notifications.map(n =>
+        notifications: state.notifications.map((n) =>
             n.id === notificationId ? { ...n, is_read: true } : n
-        )
+        ),
+        unreadCount: Math.max(0, state.unreadCount - 1),
     })),
 
     handleWebSocketAllNotificationsRead: () => set((state) => ({
-        notifications: state.notifications.map(n => ({ ...n, is_read: true }))
+        notifications: state.notifications.map((n) => ({ ...n, is_read: true })),
+        unreadCount: 0,
     })),
 
     handleWebSocketReplyReactionUpdate: (postId, replyId, reactions) => set((state) => ({
@@ -272,13 +282,20 @@ export const useCommunityStore = create<CommunityStore>((set) => ({
     })),
 
     markNotificationRead: (notificationId) => set((state) => ({
-        notifications: state.notifications.map(n =>
+        notifications: state.notifications.map((n) =>
             n.id === notificationId ? { ...n, is_read: true } : n
-        )
+        ),
+        unreadCount: Math.max(
+            0,
+            state.notifications.some((n) => n.id === notificationId && !n.is_read)
+                ? state.unreadCount - 1
+                : state.unreadCount
+        ),
     })),
 
     markAllNotificationsRead: () => set((state) => ({
-        notifications: state.notifications.map(n => ({ ...n, is_read: true }))
+        notifications: state.notifications.map((n) => ({ ...n, is_read: true })),
+        unreadCount: 0,
     })),
 
     fetchPublicPosts: async (page) => {

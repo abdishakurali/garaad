@@ -1,68 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Bell, BellOff, AlertCircle, CheckCircle2 } from "lucide-react";
-import pushNotificationService from "@/services/pushNotifications";
 import { useAuthStore } from "@/store/useAuthStore";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 
 export default function PushNotificationSettings() {
     const { user } = useAuthStore();
     const isAuthenticated = !!user;
-    const [isSupported, setIsSupported] = useState(false);
-    const [isSubscribed, setIsSubscribed] = useState(false);
-    const [permission, setPermission] = useState<NotificationPermission>("default");
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!isAuthenticated) return;
-
-        // Check if push notifications are supported
-        const supported = pushNotificationService.isPushSupported();
-        setIsSupported(supported);
-
-        if (supported) {
-            // Check current permission
-            const currentPermission = pushNotificationService.getNotificationPermission();
-            setPermission(currentPermission);
-
-            // Check if already subscribed
-            pushNotificationService.isSubscribedToPush().then(setIsSubscribed);
-        }
-    }, [isAuthenticated]);
+    const {
+        isSupported,
+        isSubscribed,
+        permission,
+        isLoading,
+        error,
+        toggle,
+    } = usePushSubscription(isAuthenticated);
 
     const handleToggle = async (enabled: boolean) => {
-        setIsLoading(true);
-        setError(null);
-
         try {
-            if (enabled) {
-                // Subscribe to push notifications
-                const success = await pushNotificationService.subscribeToPushNotifications();
-                if (success) {
-                    setIsSubscribed(true);
-                    setPermission("granted");
-                } else {
-                    setError("Waxaa dhacday cillad. Fadlan dib u day.");
-                    setIsSubscribed(false);
-                }
-            } else {
-                // Unsubscribe from push notifications
-                const success = await pushNotificationService.unsubscribeFromPushNotifications();
-                if (success) {
-                    setIsSubscribed(false);
-                } else {
-                    setError("Waxaa dhacday cillad. Fadlan dib u day.");
-                }
-            }
+            await toggle(enabled);
         } catch (err) {
             console.error("Error toggling push notifications:", err);
-            setError("Waxaa dhacday cillad. Fadlan dib u day.");
-        } finally {
-            setIsLoading(false);
         }
     };
 

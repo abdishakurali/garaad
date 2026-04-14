@@ -206,12 +206,16 @@ const notificationService = {
 
   // Mark notification as read
   markNotificationRead: async (notificationId: string) => {
-    return api.post(`/api/community/notifications/${notificationId}/mark_as_read/`);
+    return api.post(`/api/community/notifications/mark-read/`, { notification_id: notificationId });
   },
 
   // Mark all notifications as read
   markAllNotificationsRead: async () => {
     return api.post("/api/community/notifications/mark_all_as_read/");
+  },
+
+  getUnreadCount: async (): Promise<{ unread_count: number }> => {
+    return api.get("/api/community/notifications/unread-count/");
   },
 };
 

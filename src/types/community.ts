@@ -149,27 +149,20 @@ export interface UserProfile extends User {
 // Notification-related types
 export interface Notification {
   id: string;
-  sender?: User;
-  notification_type:
-  | "post_like"
-  | "comment_like"
-  | "post_comment"
-  | "comment_reply"
-  | "mention"
-  | "new_campus_member"
-  | "post_deleted"
-  | "reply_deleted";
-  notification_type_display: string;
+  actor?: User;
+  type:
+  | "post_reply_created"
+  | "reply_reply_created"
+  | "mention_in_post"
+  | "mention_in_reply"
+  | "post_liked"
+  | "reply_liked";
+  payload?: Record<string, unknown>;
   title: string;
-  message: string;
+  body: string;
+  url?: string;
   is_read: boolean;
   created_at: string;
-  post_title?: string;
-  post_id?: string;
-  category_id?: string;
-  comment_id?: string;
-  campus_name?: string;
-  campus_slug?: string;
 }
 
 // API Response types
@@ -308,12 +301,12 @@ export const REACTION_ICONS: Record<ReactionType, string> = {
 };
 
 export const NOTIFICATION_ICONS: Record<string, string> = {
-  post_like: "❤️",
-  comment_like: "❤️",
-  post_comment: "💬",
-  comment_reply: "💬",
-  mention: "@",
-  new_campus_member: "👥",
+  post_liked: "❤️",
+  reply_liked: "❤️",
+  post_reply_created: "💬",
+  reply_reply_created: "💬",
+  mention_in_post: "@",
+  mention_in_reply: "@",
 };
 
 export const SOMALI_UI_TEXT = {

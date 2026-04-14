@@ -115,25 +115,25 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
     console.log('[SW] Push notification received');
 
-    let notificationData = {
+    const fallback = {
         title: 'Garaad',
         body: 'Waxaa soo kordhay warar cusub!',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-192x192.png',
         url: '/community',
+        type: 'community_update',
+        notification_id: null,
+        data: {},
     };
 
-    // Parse the push data if available
+    let payload = { ...fallback };
     if (event.data) {
         try {
-            const data = event.data.json();
-            notificationData = {
-                title: data.title || notificationData.title,
-                body: data.body || notificationData.body,
-                icon: data.icon || notificationData.icon,
-                badge: data.badge || notificationData.badge,
-                url: data.url || notificationData.url,
-                data: data.data || {},
+            const parsed = event.data.json();
+            payload = {
+                ...fallback,
+                ...parsed,
+                data: { ...(parsed?.data || {}) },
             };
         } catch (error) {
             console.error('[SW] Error parsing push data:', error);
@@ -141,15 +141,17 @@ self.addEventListener('push', (event) => {
     }
 
     const options = {
-        body: notificationData.body,
-        icon: notificationData.icon,
-        badge: notificationData.badge,
+        body: payload.body,
+        icon: payload.icon,
+        badge: payload.badge,
         vibrate: [200, 100, 200],
-        tag: 'garaad-notification',
+        tag: payload.type || 'garaad-notification',
         requireInteraction: false,
         data: {
-            url: notificationData.url,
-            ...notificationData.data,
+            url: payload.url || '/community',
+            notification_id: payload.notification_id || null,
+            type: payload.type || 'community_update',
+            ...payload.data,
         },
         actions: [
             {
@@ -165,7 +167,7 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-        self.registration.showNotification(notificationData.title, options)
+        self.registration.showNotification(payload.title || fallback.title, options)
     );
 });
 
@@ -175,6 +177,7 @@ self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     const urlToOpen = event.notification.data?.url || '/community';
+    const notificationId = event.notification.data?.notification_id || null;
 
     // Handle action buttons
     if (event.action === 'close') {
@@ -192,6 +195,12 @@ self.addEventListener('notificationclick', (event) => {
                 for (let i = 0; i < clientList.length; i++) {
                     const client = clientList[i];
                     if (client.url.includes(urlToOpen) && 'focus' in client) {
+                        if (notificationId) {
+                            client.postMessage({
+                                type: 'NOTIFICATION_CLICKED',
+                                notification_id: notificationId,
+                            });
+                        }
                         return client.focus();
                     }
                 }
