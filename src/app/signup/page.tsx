@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
+
+export const metadata: Metadata = {
+  title: "Sign Up | Garaad",
+  description: "Abuur akoon Garaad si aad u bilowdo waxbarashada coding-ka.",
+  alternates: { canonical: "https://garaad.org/signup" },
+  robots: { index: false, follow: false },
+};
 
 type PageProps = {
   searchParams: Promise<{ redirect?: string | string[] }>;

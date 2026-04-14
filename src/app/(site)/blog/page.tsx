@@ -1,12 +1,13 @@
 import { getBlogPosts } from "@/lib/blog";
 import { BlogListClient } from "@/components/blog/BlogListClient";
+import type { Metadata } from "next";
 
 /** Always fetch posts on the server (avoids stale empty page if first static/ISR build missed the API). */
 export const dynamic = "force-dynamic";
 
 const BLOG_URL = "https://garaad.org/blog";
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Blog — Baro React, Next.js, AI & Full-Stack Development | Garaad",
     description:
@@ -14,7 +15,7 @@ export async function generateMetadata() {
     keywords: [
       "blog programming Somali",
       "baro React Somali",
-      "baro Next.js Somali", 
+      "baro Next.js Somali",
       "baro JavaScript Somali",
       "baro full-stack development Somali",
       "baro AI Somali",
@@ -65,8 +66,25 @@ export default async function BlogListPage() {
         }
     }
 
+    const itemListJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Garaad Blog",
+      url: BLOG_URL,
+      hasPart: posts.slice(0, 20).map((post, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${BLOG_URL}/${post.slug}`,
+        name: post.title,
+      })),
+    };
+
     return (
         <main className="min-h-screen bg-slate-50/30 dark:bg-black transition-colors duration-500">
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+            />
             <BlogListClient initialPosts={posts} />
         </main>
     );

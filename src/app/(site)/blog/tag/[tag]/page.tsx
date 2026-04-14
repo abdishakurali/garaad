@@ -12,6 +12,7 @@ interface TagPageProps {
 
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
     const { tag } = await params;
+    const posts = await getBlogPosts(tag).catch(() => []);
     const tagName = tag.charAt(0).toUpperCase() + tag.slice(1).replace(/-/g, " ");
     const canonicalUrl = `https://garaad.org/blog/tag/${tag}`;
     return {
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
             title: `Qoraalada ku saabsan ${tagName} | Garaad Blog`,
             images: ["/images/og-blog.jpg"],
         },
-        robots: { index: true, follow: true },
+        robots: posts.length > 0 ? { index: true, follow: true } : { index: false, follow: true },
     };
 }
 

@@ -17,13 +17,21 @@ export async function generateMetadata(
         const startup = await launchpadService.getStartup(id);
         const previousImages = (await parent).openGraph?.images || [];
 
+        const canonicalSlug = startup.slug || id;
+        const canonicalUrl = `https://garaad.org/launchpad/${canonicalSlug}`;
+        const titleBase = (startup.title || "Startup").trim();
+        const title = titleBase.length > 55 ? `${titleBase.slice(0, 55).trim()}… | Garaad Launchpad` : `${titleBase} | Garaad Launchpad`;
+        const rawDesc = (startup.tagline || startup.description || "").trim();
+        const description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157).trim()}…` : rawDesc;
+
         return {
-            title: `${startup.title} | Garaad Launchpad`,
-            description: startup.tagline || startup.description.substring(0, 160),
+            title,
+            description,
+            alternates: { canonical: canonicalUrl },
             openGraph: {
-                title: startup.title,
-                description: startup.tagline,
-                url: `https://garaad.org/launchpad/${id}`,
+                title,
+                description,
+                url: canonicalUrl,
                 images: [
                     startup.logo_url || startup.logo || "",
                     ...startup.images.map((img) => img.image_url || img.image || "").filter(Boolean),
@@ -32,14 +40,17 @@ export async function generateMetadata(
             },
             twitter: {
                 card: "summary_large_image",
-                title: startup.title,
-                description: startup.tagline,
+                title,
+                description,
                 images: [startup.logo_url || startup.logo || ""].filter(Boolean),
             },
+            robots: { index: true, follow: true },
         };
     } catch (error) {
         return {
             title: "Startup Detail | Garaad Launchpad",
+            description: "Faahfaahinta startup-ka ee Garaad Launchpad.",
+            robots: { index: false, follow: true },
         };
     }
 }

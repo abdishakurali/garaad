@@ -26,8 +26,20 @@ function descriptionFromBody(body: string | null | undefined, maxLength = 155): 
     if (stripped.length <= maxLength) return stripped;
     return stripped.slice(0, maxLength).trim() + "…";
 }
+function plainText(body: string | null | undefined): string {
+    if (!body || typeof body !== "string") return "";
+    return body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
 
 const OG_FALLBACK = "https://garaad.org/images/og-main.jpg";
+const TITLE_SUFFIX = " | Garaad Blog";
+
+function seoTitle(title: string): string {
+    const clean = (title || "").trim();
+    const max = 60 - TITLE_SUFFIX.length;
+    const clipped = clean.length > max ? clean.slice(0, max).trim() + "…" : clean;
+    return `${clipped || "Blog"}${TITLE_SUFFIX}`;
+}
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
     const { slug } = await params;
@@ -52,14 +64,15 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         : undefined;
     const ogImage = absoluteCoverImage || OG_FALLBACK;
 
+    const title = seoTitle(post.title);
     return {
-        title: `${post.title} | Garaad Blog`,
+        title,
         description: description || post.title,
         keywords,
         authors: [{ name: authorDisplay }],
         alternates: { canonical: canonicalUrl },
         openGraph: {
-            title: `${post.title} | Garaad Blog`,
+            title,
             description: ogDescription,
             type: "article",
             url: canonicalUrl,
@@ -73,7 +86,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         twitter: {
             card: "summary_large_image",
             site: "@garaadorg",
-            title: `${post.title} | Garaad Blog`,
+            title,
             description: ogDescription,
             images: [ogImage],
         },
@@ -102,6 +115,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
     const keywordsForSeo = post.tags?.length
         ? [...post.tags.map((t: { name: string }) => t.name), "Garaad Blog", "STEM Soomaali"]
         : ["Garaad Blog", "STEM Soomaali"];
+    const plain = plainText(post.body);
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "Article",
@@ -119,6 +133,8 @@ export default async function BlogPostPage({ params }: PostPageProps) {
         "description":
             post.meta_description?.trim() || descriptionFromBody(post.body, 160) || post.title,
         "keywords": keywordsForSeo.join(", "),
+        "articleSection": post.tags?.[0]?.name || "Technology",
+        "wordCount": plain ? plain.split(" ").length : undefined,
     };
 
     const breadcrumbJsonLd = {

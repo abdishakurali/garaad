@@ -27,8 +27,30 @@ export const metadata: Metadata = {
 };
 
 export default function StartupsPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Startups — Garaad",
+    url: STARTUPS_URL,
+    description:
+      "Hagaha dhisidda startup: MVP, tech stack, iyo deployment oo Af-Soomaali ah.",
+    about: [
+      "Startup MVP",
+      "React",
+      "Next.js",
+      "Node.js",
+      "MongoDB",
+      "Vercel Deployment",
+    ],
+    inLanguage: "so",
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
