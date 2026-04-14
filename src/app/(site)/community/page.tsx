@@ -9,7 +9,6 @@ import { CategoryList } from '@/components/community/CategoryList';
 import { PostList } from '@/components/community/PostList';import { UserProfileModal } from '@/components/community/UserProfileModal';
 import { NotificationDropdown } from '@/components/community/NotificationCenter';
 import { AlertCircle, Menu, Bell, BellRing } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { getMediaUrl } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -33,7 +32,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';import { useAuthReady } from '@/hooks/useAuthReady';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
-import { CommunityChallengeBanner } from '@/components/challenge/CommunityChallengeBanner';
 import { CommunityPrivatePreview } from '@/components/community/CommunityPrivatePreview';
 import { pricingTranslations as pt } from '@/config/translations/pricing';
 import { useChallengeStatus } from '@/hooks/useChallengeStatus';
@@ -381,8 +379,6 @@ export default function CommunityPage() {
                 </PopoverContent>
             </Popover>
 
-            <ThemeToggle />
-
             {/* Push Notification Settings */}
             <Button
                 variant="ghost"
@@ -397,8 +393,8 @@ export default function CommunityPage() {
     );
 
     return (
-        <div className="w-full max-w-7xl mx-auto h-[100dvh] min-h-0 overflow-hidden bg-background">
-        <div className="relative flex h-full min-h-0 bg-background overflow-hidden">
+        <div className="mx-auto h-[calc(100dvh-3.5rem)] w-full max-w-7xl min-h-0 overflow-hidden bg-background px-2 pt-2 sm:px-4 sm:pt-3 md:h-[calc(100dvh-4rem)]">
+        <div className="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-gray-100 bg-background dark:border-white/5">
             <div className="flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden">
             <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
                 <div className="h-20 ml-0 pl-0 px-8 flex items-center justify-center">
@@ -454,8 +450,6 @@ export default function CommunityPage() {
 
                 {selectedCategory ? (
                     <>
-                        <CommunityChallengeBanner />
-
                         {/* Header */}
                         <div className="hidden lg:flex h-20 px-8 items-center justify-between border-b border-gray-100 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-md z-10 sticky top-0">
                             <div className="min-w-0">
