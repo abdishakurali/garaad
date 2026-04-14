@@ -5,9 +5,8 @@ import { useEffect } from "react";
 /**
  * PWARegister
  *
- * Registers the service worker WITHOUT ever triggering a hard reload.
- * When a new SW is available, it activates silently in the background.
- * The user gets the new version on their next natural navigation — no disruption.
+ * Keep SW updates silent to avoid forced refresh loops.
+ * Only reload once when a real chunk/runtime error happens.
  */
 export default function PWARegister() {
   useEffect(() => {
@@ -16,7 +15,7 @@ export default function PWARegister() {
 
     const safeReloadOnce = () => {
       if (typeof window === "undefined") return;
-      const key = "sw-reload-once";
+      const key = "sw-runtime-reload-once";
       if (sessionStorage.getItem(key) === "1") return;
       sessionStorage.setItem(key, "1");
       window.location.reload();
@@ -24,7 +23,8 @@ export default function PWARegister() {
 
     const registerSW = () => {
       navigator.serviceWorker
-        .register(`/sw.js?v=${Date.now()}`)
+        // Stable URL: timestamp query here forces needless re-installs and controller changes.
+        .register("/sw.js")
         .then((registration) => {
           console.log("[PWA] Service Worker registered");
 
@@ -79,13 +79,6 @@ export default function PWARegister() {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    const onControllerChange = () => {
-      // Prevent runtime/chunk mismatch after deploy:
-      // once a new SW controls the page, reload one time.
-      safeReloadOnce();
-    };
-    navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
-
     const onGlobalError = (event: ErrorEvent) => {
       const msg = String(event?.message || "");
       if (msg.includes("ChunkLoadError") || msg.includes("loading chunk")) {
@@ -97,7 +90,6 @@ export default function PWARegister() {
     return () =>
       {
         document.removeEventListener("visibilitychange", handleVisibilityChange);
-        navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
         window.removeEventListener("error", onGlobalError);
       };
   }, []);
