@@ -95,6 +95,46 @@ const landingJsonLd = {
         text: "Garaad is for Somali speakers worldwide — beginners with no coding experience and developers who want to level up. Somalia, Ireland, UK, US diaspora all welcome.",
       },
     },
+    {
+      "@type": "Question",
+      name: "How long does it take to become a developer?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Garaad's Challenge program is a 3-month intensive program. With 30 minutes daily practice, you can build real projects and be job-ready.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What is the Garaad Challenge?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Garaad Challenge is a 3-month mentorship program with 1:1 mentor guidance, real project building, and cohort-based learning — the fastest way to become a professional developer.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Do I need prior coding experience?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "No prior experience required. Garaad is designed for complete beginners. You start from HTML, CSS, and JavaScript basics.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What languages are courses taught in?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "All courses are taught in Somali (Af-Soomaali), with English technical terms preserved. This makes learning accessible for Somali speakers worldwide.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can I get a job after completing Garaad?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. Garaad provides portfolio projects, certifications, and job placement support. Our graduates have started careers at tech companies and as freelancers.",
+      },
+    },
   ],
 };
 

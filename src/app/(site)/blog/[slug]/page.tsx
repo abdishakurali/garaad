@@ -148,6 +148,23 @@ export default async function BlogPostPage({ params }: PostPageProps) {
         ],
     };
 
+    const faqJsonLd = post.tags?.some(t => 
+        ["faq", "q&a", "questions", "su'aalo"].includes(t.name.toLowerCase())
+    ) ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+            {
+                "@type": "Question",
+                name: post.title,
+                acceptedAnswer: {
+                    "@type": "Answer",
+                    text: post.meta_description?.trim() || descriptionFromBody(post.body, 300) || `Learn about ${post.title} on Garaad STEM.`,
+                },
+            },
+        ],
+    } : null;
+
     return (
         <>
             <script
@@ -158,25 +175,43 @@ export default async function BlogPostPage({ params }: PostPageProps) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
             />
+            {faqJsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+                />
+            )}
             <BlogDetailClient post={post} relatedPosts={relatedPosts} />
             <section className="mx-auto mt-8 max-w-4xl px-4 pb-12">
                 <div className="rounded-xl border border-border bg-card p-5">
-                    <h2 className="text-base font-semibold text-foreground">Continue learning</h2>
+                    <h2 className="text-base font-semibold text-foreground">Related Resources</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Akhri qoraallo la xiriira ama u gudub koorsooyinka si aad si practical ah ugu dabaqdo mawduucan.
+                        Continue learning with these resources related to this post.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                         <Link
                             href="/courses"
                             className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
                         >
-                            All Courses
+                            Free Programming Courses
+                        </Link>
+                        <Link
+                            href="/welcome"
+                            className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                        >
+                            Start Learning Journey
                         </Link>
                         <Link
                             href="/blog"
                             className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
                         >
-                            More Blog Posts
+                            All Blog Posts
+                        </Link>
+                        <Link
+                            href="/about"
+                            className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                        >
+                            About Garaad
                         </Link>
                         {post.tags.slice(0, 3).map((t) => (
                             <Link
@@ -184,7 +219,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
                                 href={`/blog/tag/${t.slug}`}
                                 className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
                             >
-                                #{t.name}
+                                {t.name} Articles
                             </Link>
                         ))}
                     </div>

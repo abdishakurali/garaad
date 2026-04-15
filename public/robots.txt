@@ -1,0 +1,19 @@
+# Garaad STEM - Robots.txt
+# Allow all AI crawlers and search engines
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://garaad.org/sitemap.xml
