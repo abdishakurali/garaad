@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { notoSansSC, inter, instrumentSerif, dmMono } from "@/lib/fonts";
+import { notoSansSC, inter, instrumentSerif, dmMono, dmSerifDisplay } from "@/lib/fonts";
 
 import ClientLayout from "./client-layout";
 import { Analytics } from "@vercel/analytics/react";
@@ -146,7 +146,7 @@ export default function RootLayout({
           strategy="lazyOnload"
         />
       </head>
-      <body className={`${notoSansSC.variable} ${inter.variable} ${instrumentSerif.variable} ${dmMono.variable} font-sans antialiased text-foreground bg-background`}>
+      <body className={`${notoSansSC.variable} ${inter.variable} ${instrumentSerif.variable} ${dmMono.variable} ${dmSerifDisplay.variable} font-sans antialiased text-foreground bg-background`}>
 
         <Providers>
           <RootErrorBoundary>

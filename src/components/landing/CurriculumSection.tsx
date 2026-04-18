@@ -1,284 +1,271 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Code2, Server, Zap, CheckCircle2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+
+// ─── FadeIn ───────────────────────────────────────────────────────────────────
+function useFadeIn() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return { ref, visible };
+}
+
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const { ref, visible } = useFadeIn();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(28px)",
+        transition: `opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const OUTCOMES = [
+  {
+    num: "01",
+    so: "Hel shaqo teknoolajiyada",
+    en: "Get a job in tech",
+  },
+  {
+    num: "02",
+    so: "Dhis product-kaaga oo gaarsii suuqa",
+    en: "Build and ship your own product",
+  },
+  {
+    num: "03",
+    so: "Ka shaqee anywhere-ka dunida oo dhan",
+    en: "Work remotely from anywhere",
+  },
+  {
+    num: "04",
+    so: "Noqo developer xirfadlaha ah 3 bilood gudahood",
+    en: "Become a professional developer in 3 months",
+  },
+];
 
 const MONTHS = [
   {
-    month: "Bisha 1-aad",
-    title: "Aasaaska (Foundations)",
-    subtitle: "HTML · CSS · JavaScript · React",
-    icon: Code2,
-    gradientLight: "from-violet-600 to-violet-500",
-    gradientDark: "from-violet-600 to-violet-500",
-    borderLight: "border-violet-300/60",
-    borderDark: "border-violet-500/40",
-    lessons: [
-      "HTML & CSS — Dhis waxyaabaha muuqda",
-      "JavaScript basics — la hadal browser-ka",
-      "React — UIs-ka casriga ah",
-      "Git & VS Code — agabka developer-ka",
-    ],
-    outcome: "Dhis: website Portfolio ah oo shaqaynaya",
-    outcomeColorLight: "text-violet-700",
-    outcomeColorDark: "text-violet-300",
+    num: "01",
+    so: "Aasaaska",
+    en: "Foundations",
+    stack: "HTML · CSS · JavaScript · React",
+    desc: "Waxaad baranaysaa sida shabakaddu u shaqayso, sida aad ula xiriirtid browser-ka, iyo sida aad ku dhisid UI-yada casriga ah React-ka.",
+    descEn: "How the web works, how to talk to the browser, and how to build modern UIs with React.",
+    outcome: "Dhis: Portfolio website oo shaqaynaysa",
   },
   {
-    month: "Bisha 2-aad",
-    title: "Full-Stack",
-    subtitle: "Node.js · Express · MongoDB · API",
-    icon: Server,
-    gradientLight: "from-purple-600 to-purple-500",
-    gradientDark: "from-purple-600 to-purple-500",
-    borderLight: "border-purple-300/60",
-    borderDark: "border-purple-500/40",
-    lessons: [
-      "Node.js & Express — dhis server-ka",
-      "MongoDB — kaydi xogta",
-      "REST API — isku xir front iyo back",
-      "User Authentication (Auth)",
-    ],
-    outcome: "Dhis: app full-stack ah oo xog kaydinaya",
-    outcomeColorLight: "text-purple-700",
-    outcomeColorDark: "text-purple-300",
+    num: "02",
+    so: "Full-Stack",
+    en: "Back-end & Database",
+    stack: "Node.js · Express · MongoDB · REST API",
+    desc: "Waxaad dhisaysaa server-ka, kaydisaa xogta, iyo ku xiraysaa front-end iyo back-end si xogtu u socoto labada dhinac.",
+    descEn: "Build the server, save real data, and connect front-end to back-end so information flows both ways.",
+    outcome: "Dhis: App full-stack ah oo xog kaydinaysa",
   },
   {
-    month: "Bisha 3-aad",
-    title: "SaaS & AI",
-    subtitle: "Next.js · TypeScript · AI Integration",
-    icon: Zap,
-    gradientLight: "from-fuchsia-600 to-fuchsia-500",
-    gradientDark: "from-fuchsia-600 to-fuchsia-500",
-    borderLight: "border-fuchsia-300/60",
-    borderDark: "border-fuchsia-500/40",
-    lessons: [
-      "Next.js — web apps heer shirkadeed ah",
-      "TypeScript — kood ammaan ah",
-      "AI API (ChatGPT/Claude) — ku dar garaad macmal ah",
-      "Deploy & launch — hawada geli aduunka oo dhan",
-    ],
-    outcome: "Dhis: wax soo saar SaaS ah oo leh isticmaalayaal dhab ah",
-    outcomeColorLight: "text-fuchsia-700",
-    outcomeColorDark: "text-fuchsia-300",
+    num: "03",
+    so: "SaaS & AI",
+    en: "Production & AI",
+    stack: "Next.js · TypeScript · AI API · Deploy",
+    desc: "Waxaad baranaysaa sida aad ku dhisid app-yada heer shirkadeed ah, ku dartid garaadka macmalka (AI), oo aduunka u geysid.",
+    descEn: "Build production-grade apps, integrate AI intelligence, and deploy to the world.",
+    outcome: "Dhis: SaaS app leh isticmaalayaal dhab ah",
   },
 ];
 
-const OUTCOMES = [
-  {
-    emoji: "💼",
-    title: "Shaqo Hel",
-    body: "Portfolio + certification + xirfadaha suuqa shaqadu u baahan yahay.",
-  },
-  {
-    emoji: "🚀",
-    title: "Dhis Wax-soo-saar (Product)",
-    body: "SaaS product shaqaynaya, oo ay isticmaalayaashu isticmaalayaan.",
-  },
-  {
-    emoji: "🌍",
-    title: "Ka shaqayso Freelance",
-    body: "Portfolio aad u tustid macaamiisha caalamiga ah.",
-  },
-];
-
+// ─── Component ────────────────────────────────────────────────────────────────
 export function CurriculumSection() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const { resolvedTheme } = useTheme();
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
+  const border = isDark ? "border-white/10" : "border-slate-200";
+  const muted = isDark ? "text-zinc-500" : "text-slate-400";
+  const subtle = isDark ? "text-zinc-400" : "text-slate-500";
+  const heading = isDark ? "text-zinc-100" : "text-slate-900";
+  const bg = isDark ? "bg-zinc-950" : "bg-white";
+  const cardBg = isDark ? "bg-zinc-900/60 border-white/8" : "bg-slate-50 border-slate-200";
+
   return (
     <section
       id="curriculum"
-      className={`relative overflow-hidden py-16 sm:py-20 md:py-24 transition-colors duration-300 ${
-        isDark ? "bg-zinc-950 text-zinc-100" : "bg-white text-slate-900"
-      }`}
+      className={`relative overflow-hidden transition-colors duration-300 ${bg}`}
     >
-      {/* Grid pattern (dark only) */}
-      {isDark && (
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.04)_1px,transparent_1px)] bg-[size:48px_48px]"
-          aria-hidden
-        />
-      )}
-      {/* Light grid */}
-      {!isDark && (
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.04)_1px,transparent_1px)] bg-[size:48px_48px]"
-          aria-hidden
-        />
-      )}
-      {/* Center glow */}
-      <div
-        className={`pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[140px] ${
-          isDark ? "bg-violet-700/6" : "bg-violet-200/50"
-        }`}
-        aria-hidden
-      />
+      {/* Thin top border rule */}
+      <div className={`w-full border-t ${border}`} />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-5 sm:px-8 lg:px-10">
 
-        {/* Header */}
-        <div className="mb-10 text-center sm:mb-14">
-          <span className={`mb-3 inline-block rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-widest ${
-            isDark
-              ? "border-violet-500/30 bg-violet-500/10 text-violet-300"
-              : "border-violet-200 bg-violet-50 text-violet-700"
-          }`}>
+        {/* ── Hero headline ───────────────────────────────────────────────── */}
+        <FadeIn className="py-16 sm:py-20 md:py-24 text-center">
+          <p className={`mb-3 text-xs font-semibold uppercase tracking-[0.2em] ${muted}`}>
             Barnaamijka 3-Bilood ah
-          </span>
-          <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
-            Waxaad{" "}
-            <span className={isDark ? "text-violet-400" : "text-violet-600"}>Baran doonto</span>{" "}
-            &{" "}
-            <span className={isDark ? "text-violet-400" : "text-violet-600"}>Dhisi doonto</span>
+          </p>
+          <h2
+            className={`font-[family-name:var(--font-dm-serif-display)] text-4xl leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl ${heading}`}
+          >
+            Ku baro code-ka.{" "}
+            <span className="italic text-violet-500">Hel shaqo.</span>{" "}
+            Dhis wax aad leedahay.
           </h2>
-          <p className={`mx-auto mt-3 max-w-xl text-sm leading-relaxed sm:text-base ${
-            isDark ? "text-zinc-400" : "text-slate-500"
-          }`}>
-            Koorso kasta waxay ku dhammaanaysaa mashruuc dhab ah. Markaad dhammayso 3-da bilood —
-            waxaad yeelan doontaa portfolio, xirfado, iyo khibrad aad ugu diyaar tahay suuqa shaqada.
+          <p className={`mx-auto mt-6 max-w-xl text-sm leading-relaxed sm:text-base ${subtle}`}>
+            Koorso kasta waxay ku dhammaanaysaa mashruuc dhab ah —
+            markaad dhammayso waxaad yeelan doontaa portfolio, xirfado, iyo khibrad suuqa shaqada u diyaar ah.
           </p>
-        </div>
+        </FadeIn>
 
-        {/* Month cards */}
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
-          {MONTHS.map(({ month, title, subtitle, icon: Icon, gradientLight, gradientDark, borderLight, borderDark, lessons, outcome, outcomeColorLight, outcomeColorDark }) => (
-            <div
-              key={month}
-              className={`relative flex flex-col rounded-2xl border p-5 shadow-lg transition-all duration-300 hover:-translate-y-1 sm:rounded-3xl sm:p-6 ${
-                isDark
-                  ? `${borderDark} bg-zinc-900/70 hover:shadow-xl`
-                  : `${borderLight} bg-white hover:shadow-xl hover:shadow-violet-100`
-              }`}
-            >
-              <div className="mb-4 flex items-center gap-2">
-                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg sm:h-10 sm:w-10 ${
-                  isDark ? gradientDark : gradientLight
-                }`}>
-                  <Icon className="h-4 w-4 text-white sm:h-5 sm:w-5" />
-                </div>
-                <div>
-                  <p className={`text-[10px] font-semibold uppercase tracking-widest sm:text-xs ${
-                    isDark ? "text-zinc-500" : "text-slate-400"
-                  }`}>{month}</p>
-                  <p className={`text-sm font-bold sm:text-base ${
-                    isDark ? "text-zinc-100" : "text-slate-900"
-                  }`}>{title}</p>
+        <div className={`border-t ${border}`} />
+
+        {/* ── Outcomes numbered list ───────────────────────────────────────── */}
+        <div className="py-12 sm:py-16">
+          <FadeIn>
+            <p className={`mb-8 text-xs font-semibold uppercase tracking-[0.2em] ${muted}`}>
+              Waxa aad ka heli doontaa
+            </p>
+          </FadeIn>
+
+          {OUTCOMES.map(({ num, so, en }, i) => (
+            <FadeIn key={num} delay={i * 80}>
+              <div className={`flex items-start gap-5 border-t py-5 sm:py-6 ${border}`}>
+                <span
+                  className={`font-[family-name:var(--font-dm-serif-display)] text-sm italic shrink-0 pt-0.5 ${muted}`}
+                >
+                  {num}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-base font-semibold sm:text-lg ${heading}`}>{so}</p>
+                  <p className={`mt-0.5 text-sm italic ${muted}`}>{en}</p>
                 </div>
               </div>
-
-              <p className={`mb-4 text-[11px] font-semibold uppercase tracking-wider sm:text-xs ${
-                isDark ? "text-zinc-600" : "text-slate-400"
-              }`}>{subtitle}</p>
-
-              <ul className="mb-5 flex-1 space-y-2">
-                {lessons.map((lesson) => (
-                  <li key={lesson} className={`flex items-start gap-2 text-xs sm:text-sm ${
-                    isDark ? "text-zinc-400" : "text-slate-600"
-                  }`}>
-                    <CheckCircle2 className={`mt-0.5 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 ${
-                      isDark ? "text-violet-500" : "text-violet-600"
-                    }`} />
-                    {lesson}
-                  </li>
-                ))}
-              </ul>
-
-              <div className={`rounded-xl border p-3 ${
-                isDark
-                  ? "border-white/8 bg-white/4"
-                  : "border-violet-100 bg-violet-50/60"
-              }`}>
-                <p className={`text-[10px] font-bold uppercase tracking-widest sm:text-xs ${
-                  isDark ? "text-zinc-600" : "text-slate-500"
-                }`}>Natiijada</p>
-                <p className={`mt-1 text-xs font-semibold sm:text-sm ${
-                  isDark ? outcomeColorDark : outcomeColorLight
-                }`}>{outcome}</p>
-              </div>
-            </div>
+            </FadeIn>
           ))}
+
+          <div className={`border-t ${border}`} />
         </div>
 
-        {/* Divider */}
-        <div className="my-12 flex items-center gap-4 sm:my-14">
-          <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${
-            isDark ? "via-zinc-700" : "via-slate-200"
-          } to-transparent`} />
-          <span className={`text-xs font-semibold uppercase tracking-widest ${
-            isDark ? "text-zinc-600" : "text-slate-400"
-          }`}>
-            Markaad dhammayso 3-da bilood
-          </span>
-          <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${
-            isDark ? "via-zinc-700" : "via-slate-200"
-          } to-transparent`} />
+        <div className={`border-t ${border}`} />
+
+        {/* ── What you learn ───────────────────────────────────────────────── */}
+        <div className="py-12 sm:py-16">
+          <FadeIn>
+            <p className={`mb-10 text-xs font-semibold uppercase tracking-[0.2em] ${muted}`}>
+              Manhajka — Waxa aad baran doontaa
+            </p>
+          </FadeIn>
+
+          <div className="space-y-12 sm:space-y-14">
+            {MONTHS.map(({ num, so, en, stack, desc, descEn, outcome }, i) => (
+              <FadeIn key={num} delay={i * 100}>
+                <div className={`grid gap-6 sm:grid-cols-[1fr_2fr] sm:gap-10 border-t pt-8 ${border}`}>
+                  {/* Left: number + labels */}
+                  <div>
+                    <span
+                      className={`block font-[family-name:var(--font-dm-serif-display)] text-6xl leading-none sm:text-7xl ${isDark ? "text-zinc-800" : "text-slate-200"}`}
+                    >
+                      {num}
+                    </span>
+                    <p className={`mt-3 text-lg font-bold sm:text-xl ${heading}`}>{so}</p>
+                    <p className={`mt-0.5 text-sm italic ${muted}`}>{en}</p>
+                    <p className={`mt-3 text-[11px] font-semibold uppercase tracking-wider ${muted}`}>{stack}</p>
+                  </div>
+
+                  {/* Right: description + outcome */}
+                  <div className="flex flex-col justify-center gap-4">
+                    <div>
+                      <p className={`text-sm leading-relaxed sm:text-base ${subtle}`}>{desc}</p>
+                      <p className={`mt-1.5 text-sm italic ${muted}`}>{descEn}</p>
+                    </div>
+                    <div className={`rounded-xl border px-4 py-3 ${cardBg}`}>
+                      <p className={`text-[10px] font-bold uppercase tracking-widest ${muted}`}>Natiijada</p>
+                      <p className={`mt-1 text-sm font-semibold text-violet-500`}>{outcome}</p>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
         </div>
 
-        {/* Outcome cards */}
-        <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
-          {OUTCOMES.map(({ emoji, title, body }) => (
-            <div key={title} className={`rounded-2xl border p-4 text-center sm:p-6 ${
-              isDark
-                ? "border-white/8 bg-zinc-900/60"
-                : "border-slate-200 bg-slate-50"
-            }`}>
-              <span className="text-3xl sm:text-4xl" aria-hidden>{emoji}</span>
-              <h3 className={`mt-3 text-sm font-bold sm:text-base ${
-                isDark ? "text-zinc-100" : "text-slate-800"
-              }`}>{title}</h3>
-              <p className={`mt-1.5 text-xs leading-relaxed sm:text-sm ${
-                isDark ? "text-zinc-500" : "text-slate-500"
-              }`}>{body}</p>
-            </div>
-          ))}
-        </div>
+        <div className={`border-t ${border}`} />
 
-        {/* CTA banner */}
-        <div className={`mt-12 overflow-hidden rounded-2xl border p-6 text-center sm:mt-14 sm:rounded-3xl sm:p-8 ${
-          isDark
-            ? "border-violet-500/30 bg-gradient-to-r from-violet-950/70 to-zinc-900/80"
-            : "border-violet-200 bg-gradient-to-r from-violet-50 to-purple-50"
-        }`}>
-          <p className={`text-xs font-semibold uppercase tracking-widest sm:text-sm ${
-            isDark ? "text-violet-400" : "text-violet-600"
-          }`}>
-            Maxaad sugaysaa?
+        {/* ── Honesty section ──────────────────────────────────────────────── */}
+        <FadeIn className="py-12 sm:py-16 max-w-2xl">
+          <p className={`mb-4 text-xs font-semibold uppercase tracking-[0.2em] ${muted}`}>
+            Daacadnimo
           </p>
-          <h3 className={`mt-2 text-xl font-extrabold sm:text-2xl md:text-3xl ${
-            isDark ? "text-zinc-100" : "text-slate-900"
-          }`}>
-            Ku biir Challenge-ka — Mentor ayaa kula joogi doona
-          </h3>
-          <p className={`mx-auto mt-3 max-w-lg text-sm leading-relaxed sm:text-base ${
-            isDark ? "text-zinc-400" : "text-slate-600"
-          }`}>
-            Koorsooyinka kaligood kuma filna. Challenge-ka dhexdiisa waxaad ka helaysaa mentor 1:1 ah,
-            cohort, iyo taageero toos ah — tallaabo-tallaabo ilaa dhammaadka.
+          <p
+            className={`font-[family-name:var(--font-dm-serif-display)] text-2xl leading-snug sm:text-3xl ${heading}`}
+          >
+            Koorsooyinka kaligood kuma filna.
           </p>
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
+          <p className={`mt-4 text-sm leading-relaxed sm:text-base ${subtle}`}>
+            Waxa xaqiiqa ah — koorsooyinka online ee badan waxaad ka dhammaysataa aad ogaatay sida ay waxyaabuhu u shaqeeyaan, laakiin aadan wax dhisi karin oo suuqa loogu sheegi karo.
+            Taas ayuu Challenge-ku xaliyaa: mentor gaar ah, koox kaa daba socota, iyo mashruucyo dhab ah oo laga dhaafsado tutorial-ka.
+          </p>
+          <p className={`mt-2 text-sm italic leading-relaxed ${muted}`}>
+            Courses alone rarely lead to jobs. The Challenge adds a mentor, a cohort, and real projects — the pieces that actually matter.
+          </p>
+        </FadeIn>
+
+        <div className={`border-t ${border}`} />
+
+        {/* ── CTA ──────────────────────────────────────────────────────────── */}
+        <FadeIn className="py-16 sm:py-20 text-center">
+          <p
+            className={`font-[family-name:var(--font-dm-serif-display)] text-3xl sm:text-4xl md:text-5xl ${heading}`}
+          >
+            Diyaar baad tahay?
+          </p>
+          <p className={`mx-auto mt-4 max-w-md text-sm leading-relaxed sm:text-base ${subtle}`}>
+            Ku biir Challenge-ka — mentor ayaa tallaabo kasta kula joogi doona.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/welcome"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-8 py-4 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto"
             >
               Billow Challenge-ka
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/welcome" className={`text-sm font-medium underline-offset-4 hover:underline ${
-              isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"
-            }`}>
+            <Link
+              href="/welcome"
+              className={`text-sm font-medium underline-offset-4 hover:underline ${isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"}`}
+            >
               Marka hore tijaabi koorsooyinka →
             </Link>
           </div>
-          <p className={`mt-4 text-xs ${isDark ? "text-zinc-600" : "text-slate-400"}`}>
-            ✓ 7-bari dammaanad lacag celin ah &nbsp;·&nbsp; ✓ Lacagta waa la soo celin karaa &nbsp;·&nbsp; ✓ Kaliya 10 arday cohort kasta
+          <p className={`mt-6 text-xs ${muted}`}>
+            ✓ 7-bari dammaanad lacag-celin · ✓ Kaliya 10 arday cohort kasta · ✓ Lacagta waa la soo celin karaa
           </p>
-        </div>
+        </FadeIn>
 
       </div>
+
+      {/* Thin bottom border rule */}
+      <div className={`w-full border-b ${border}`} />
     </section>
   );
 }
