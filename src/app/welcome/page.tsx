@@ -1182,7 +1182,7 @@ function WelcomeOnboardingPage() {
   // Email verification required
   if (phase === "verify_email") {
     const verifyEmail = userData.email || AuthService.getInstance().getCurrentUser()?.email || "";
-    const otpDigits = verifyCode.padEnd(6, "").slice(0, 6).split("");
+    const otpDigits = Array.from({ length: 6 }, (_, i) => verifyCode[i] ?? "");
 
     const submitCode = async (code: string) => {
       if (code.trim().length < 6) return;
@@ -1212,25 +1212,28 @@ function WelcomeOnboardingPage() {
 
     const handleOtpChange = (index: number, value: string) => {
       const digit = value.replace(/\D/g, "").slice(-1);
-      const next = otpDigits.map((d, i) => (i === index ? digit : d)).join("").slice(0, 6);
+      const arr = Array.from({ length: 6 }, (_, i) => verifyCode[i] ?? "");
+      arr[index] = digit;
+      const next = arr.join("");
       setVerifyCode(next);
       if (digit && index < 5) {
         otpInputRefs.current[index + 1]?.focus();
       }
-      if (next.replace(/ /g, "").length === 6 && !next.includes(" ")) {
+      if (digit && index === 5 && arr.every((d) => d !== "")) {
         void submitCode(next);
       }
     };
 
     const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Backspace") {
-        if (otpDigits[index]) {
-          const next = otpDigits.map((d, i) => (i === index ? "" : d)).join("");
-          setVerifyCode(next);
+        const arr = Array.from({ length: 6 }, (_, i) => verifyCode[i] ?? "");
+        if (arr[index]) {
+          arr[index] = "";
+          setVerifyCode(arr.join(""));
         } else if (index > 0) {
+          arr[index - 1] = "";
+          setVerifyCode(arr.join(""));
           otpInputRefs.current[index - 1]?.focus();
-          const next = otpDigits.map((d, i) => (i === index - 1 ? "" : d)).join("");
-          setVerifyCode(next);
         }
       } else if (e.key === "ArrowLeft" && index > 0) {
         otpInputRefs.current[index - 1]?.focus();
