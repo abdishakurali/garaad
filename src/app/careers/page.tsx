@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Providers } from '../providers';
 
 export const metadata: Metadata = {
   title: 'Careers - Garaad',
@@ -31,7 +32,7 @@ const coreValues = [
 
 export default function CareersPage() {
   return (
-    <>
+    <Providers>
       <Header />
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-4xl mx-auto px-6 py-16">
@@ -118,6 +119,6 @@ export default function CareersPage() {
         </section>
       </div>
       <SiteFooter />
-    </>
+    </Providers>
   );
 }
