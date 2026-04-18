@@ -309,6 +309,8 @@ function WelcomeOnboardingPage() {
   const [showAllStepOptions, setShowAllStepOptions] = useState(false);
   const [wizardHydrated, setWizardHydrated] = useState(false);
   const [postSignupDest, setPostSignupDest] = useState("/courses");
+  const [verifyCode, setVerifyCode] = useState("");
+  const [verifySuccess, setVerifySuccess] = useState(false);
 
   const posthog = usePostHog();
   const posthogRef = useRef(posthog);
@@ -335,7 +337,7 @@ function WelcomeOnboardingPage() {
   useEffect(() => {
     if (!wizardHydrated) return;
     const auth = AuthService.getInstance();
-    if (auth.isAuthenticated() && !auth.user?.is_email_verified) {
+    if (auth.isAuthenticated() && !auth.getCurrentUser()?.is_email_verified) {
       setPhase("verify_email");
     }
   }, [wizardHydrated]);
@@ -945,7 +947,7 @@ function WelcomeOnboardingPage() {
         });
 
         clearWelcomeStorage();
-        setPhase("challenge");
+        setPhase("verify_email");
       }
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : "";
@@ -1178,6 +1180,50 @@ function WelcomeOnboardingPage() {
 
   // Email verification required
   if (phase === "verify_email") {
+    const verifyEmail = userData.email || AuthService.getInstance().getCurrentUser()?.email || "";
+
+    const handleVerifyCode = async () => {
+      if (!verifyCode.trim()) return;
+      setActualError("");
+      setIsLoading(true);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/accounts/verify-email/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: verifyEmail, code: verifyCode.trim() }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed");
+        // Refresh user data then go to challenge
+        await AuthService.getInstance().fetchAndUpdateUserData();
+        const updated = AuthService.getInstance().getCurrentUser();
+        if (updated) setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
+        setVerifySuccess(true);
+        setPhase("challenge");
+      } catch (e) {
+        setActualError(e instanceof Error ? e.message : "Waxbaa khaldamay. Mar kale isku day.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const handleResend = async () => {
+      setActualError("");
+      setIsLoading(true);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/accounts/resend-verification/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: verifyEmail }),
+        });
+        if (!res.ok) throw new Error("Failed");
+      } catch {
+        setActualError("Waxbaa khaldamay. Mar kale isku day.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     return (
       <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
         <div
@@ -1192,48 +1238,54 @@ function WelcomeOnboardingPage() {
           </header>
           <main className="flex flex-1 flex-col justify-center pb-6">
             <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
-              <CardContent className="space-y-6 p-6 text-center">
-                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400">
-                  <AlertTriangle className="size-7" />
+              <CardContent className="space-y-5 p-6 text-center">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">
+                  <Check className="size-7" />
                 </div>
-                <h2 className="text-xl font-bold">Xaqiiji Email-kaaga</h2>
-                <p className="text-sm text-muted-foreground">
-                  Email-kaaga ma xaqiijin. Fadlan emaylkaaga checkiga oo click link-ka xaqiijinta.
-                </p>
-                <div className="pt-2">
-                  <p className="text-sm font-medium">Link-ka xaqiijinta emaylka loo diray:</p>
-                  <p className="mt-1 font-mono text-sm text-violet-600 dark:text-violet-400">
-                    {userData.email}
+                <div>
+                  <h2 className="text-xl font-bold">Xaqiiji Email-kaaga</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Koodhka 6-lambareed waxaa loo diray:
+                  </p>
+                  <p className="mt-1 font-mono text-sm font-semibold text-violet-600 dark:text-violet-400">
+                    {verifyEmail}
                   </p>
                 </div>
+                <div className="space-y-2 text-left">
+                  <Label htmlFor="verifyCode" className="text-sm font-semibold text-foreground">
+                    Geli koodhka xaqiijinta
+                  </Label>
+                  <Input
+                    id="verifyCode"
+                    value={verifyCode}
+                    onChange={(e) => setVerifyCode(e.target.value)}
+                    placeholder="123456"
+                    maxLength={6}
+                    disabled={isLoading}
+                    onKeyDown={(e) => { if (e.key === "Enter") void handleVerifyCode(); }}
+                    className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-center text-2xl tracking-[0.4em] transition-shadow focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
+                  />
+                </div>
                 <Button
-                  onClick={async () => {
-                    try {
-                      setIsLoading(true);
-                      // Call backend to resend verification email
-                      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/accounts/resend-verification/`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email: userData.email }),
-                      });
-                      if (!res.ok) throw new Error("Failed");
-                      setActualError("");
-                    } catch (e) {
-                      setActualError("Waxbaa khaldamay. Mar kale isku day.");
-                    } finally {
-                      setIsLoading(false);
-                    }
-                  }}
-                  disabled={isLoading}
-                  className="w-full"
+                  onClick={() => void handleVerifyCode()}
+                  disabled={isLoading || verifyCode.trim().length < 4}
+                  className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-purple-500 disabled:opacity-60"
                 >
-                  {isLoading ? "Waa la dirayaa..." : "Dir link kale"}
+                  {isLoading ? <Loader2 className="size-5 animate-spin" /> : "Xaqiiji →"}
                 </Button>
                 {actualError && (
                   <Alert variant="destructive">
                     <AlertDescription>{actualError}</AlertDescription>
                   </Alert>
                 )}
+                <button
+                  type="button"
+                  onClick={() => void handleResend()}
+                  disabled={isLoading}
+                  className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  Koodhka ma heshay? <span className="font-semibold text-violet-600 dark:text-violet-400">Dir mar kale</span>
+                </button>
               </CardContent>
             </Card>
           </main>
