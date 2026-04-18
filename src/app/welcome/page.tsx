@@ -1060,10 +1060,10 @@ function WelcomeOnboardingPage() {
               {option.icon}
             </div>
             <div className="min-w-0 flex-1 pt-0.5">
-              <p className="text-sm font-bold leading-snug text-foreground md:text-base">
+              <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
                 {option.text}
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground md:text-sm">
+              <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                 {sub}
               </p>
             </div>
@@ -1096,7 +1096,7 @@ function WelcomeOnboardingPage() {
       <div key={option.id} className="group relative">
         <div
           className={cn(
-            "flex min-h-[88px] items-stretch overflow-hidden rounded-2xl border-2 transition-all duration-200 ease-in-out",
+            "flex min-h-[68px] items-stretch overflow-hidden rounded-xl border-2 transition-all duration-200 ease-in-out",
             isSelected
               ? "border-violet-500/80 bg-violet-500/10 shadow-md shadow-violet-500/10 ring-1 ring-violet-500/15 dark:border-violet-400/70 dark:bg-violet-500/15"
               : "border-border bg-card/50 hover:border-violet-400/45 hover:bg-muted/40 dark:bg-slate-900/50",
@@ -1124,18 +1124,18 @@ function WelcomeOnboardingPage() {
                 else handleSelectOption(kind, option.id);
               }
             }}
-            className="flex min-w-0 flex-1 cursor-pointer flex-col gap-0 p-4 text-left"
+            className="flex min-w-0 flex-1 cursor-pointer flex-col gap-0 p-3 text-left"
           >
-            <div className="flex items-start gap-3 md:gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-500/12 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
+            <div className="flex items-start gap-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-500/12 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
                 {option.icon}
               </div>
               <div className="min-w-0 flex-1 pt-0.5">
-                <p className="text-sm font-semibold leading-snug text-foreground md:text-base">
+                <p className="text-sm font-semibold leading-snug text-foreground">
                   {option.text}
                 </p>
                 {isSelected && (
-                  <p className="mt-3 border-t border-violet-500/25 pt-3 text-xs leading-relaxed text-muted-foreground md:text-sm">
+                  <p className="mt-1.5 border-t border-violet-500/25 pt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                     {option.badge}
                   </p>
                 )}
@@ -1446,7 +1446,7 @@ function WelcomeOnboardingPage() {
   const selectedId = selectIdForKind(currentKind);
 
   const optionStepGridClass = (itemCount: number) =>
-    "flex flex-col gap-2";
+    "flex flex-col gap-1.5";
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
@@ -1467,38 +1467,34 @@ function WelcomeOnboardingPage() {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-3 py-6 sm:px-4 sm:py-10">
-        <header className="mb-6 flex flex-col items-center gap-4 sm:mb-8">
-          <Link
-            href="/"
-            className="rounded-2xl outline-offset-4 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            <Logo priority loading="eager" className="h-11 sm:h-12" />
-          </Link>
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-3 py-3 sm:px-4 sm:py-5">
+        <header className="mb-2 flex items-center justify-between">
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="size-4 shrink-0" aria-hidden />
-            Ku laabo koorsooyinka
+            <ArrowLeft className="size-3 shrink-0" aria-hidden />
+            Koorsooyinka
           </Link>
+          <Link
+            href="/"
+            className="rounded-xl outline-offset-4 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+          >
+            <Logo priority loading="eager" className="h-7" />
+          </Link>
+          <div className="w-20" />
         </header>
 
         <Card className="mx-auto w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
           <CardContent className="p-0">
             <Progress
               value={animatedProgress}
-              className="h-1.5 rounded-none bg-muted [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-purple-600 [&>div]:transition-none"
+              className="h-1 rounded-none bg-muted [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-purple-600 [&>div]:transition-none"
             />
-            <p className="border-b border-border bg-muted/40 px-4 py-3.5 text-center text-xs text-muted-foreground sm:text-sm">
-              <span className="font-semibold tabular-nums text-foreground">
-                Tallaabada {progressCurrent} / {progressTotal}
-              </span>
-            </p>
 
-            <div className="flex flex-col p-4 md:p-6">
-              <div className="mb-5 flex items-start justify-between gap-3">
-                <h2 className="text-pretty text-xl font-bold tracking-tight text-foreground md:text-2xl">
+            <div className="flex flex-col p-3 md:p-4">
+              <div className="mb-1.5 flex items-start justify-between gap-3">
+                <h2 className="text-pretty text-lg font-bold tracking-tight text-foreground md:text-xl">
                   {currentKind === "personal"
                     ? "Waxyar ayaa kuu dhiman."
                     : STEP_COPY[currentKind as Exclude<StepKind, "personal">]
@@ -1517,14 +1513,14 @@ function WelcomeOnboardingPage() {
               </div>
 
               {currentKind !== "personal" && (
-                <p className="mb-6 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                <p className="mb-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
                   {STEP_COPY[currentKind as Exclude<StepKind, "personal">]
                     .subheading}
                 </p>
               )}
 
               {currentKind === "personal" && (
-                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+                <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
                   Sameyso account si aad u xafidato horumarkaaga.
                 </p>
               )}
@@ -1552,7 +1548,7 @@ function WelcomeOnboardingPage() {
               )}
 
             {currentKind === "goal" && listOpts && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 {listOpts.map((opt) => renderGoalOptionCard(opt))}
               </div>
             )}
@@ -1752,7 +1748,7 @@ function WelcomeOnboardingPage() {
 
             <div
               className={cn(
-                "mt-8 flex w-full items-center justify-between gap-3",
+                "mt-4 flex w-full items-center justify-between gap-3",
                 "max-md:sticky max-md:bottom-4 max-md:z-20 max-md:-mx-4 max-md:border-t max-md:border-border max-md:bg-background/95 max-md:px-4 max-md:pb-1 max-md:pt-4 max-md:backdrop-blur-sm"
               )}
             >
