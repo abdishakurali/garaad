@@ -24,7 +24,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Loader2, RotateCcw, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Check, Loader2, RotateCcw, Sparkles, X, AlertTriangle } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
 import { progressService } from "@/services/progress";
@@ -294,7 +294,7 @@ function WelcomeOnboardingPage() {
   }, [searchParams]);
 
   const [resumeRedirecting, setResumeRedirecting] = useState(false);
-  const [phase, setPhase] = useState<"wizard" | "challenge">("wizard");
+  const [phase, setPhase] = useState<"wizard" | "verify_email" | "challenge">("wizard");
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [userData, setUserData] = useState({
@@ -330,6 +330,15 @@ function WelcomeOnboardingPage() {
   useEffect(() => {
     setStepIndex((i) => Math.min(i, Math.max(0, steps.length - 1)));
   }, [steps.length]);
+
+  // Check email verification on mount and redirect to verify if needed
+  useEffect(() => {
+    if (!wizardHydrated) return;
+    const auth = AuthService.getInstance();
+    if (auth.isAuthenticated() && !auth.user?.is_email_verified) {
+      setPhase("verify_email");
+    }
+  }, [wizardHydrated]);
 
   useEffect(() => {
     if (answers.experience !== "tried_before" && answers.barrier != null) {
@@ -1163,6 +1172,72 @@ function WelcomeOnboardingPage() {
           aria-hidden
         />
         <Loader2 className="relative z-10 size-10 animate-spin text-violet-600 dark:text-violet-400" />
+      </div>
+    );
+  }
+
+  // Email verification required
+  if (phase === "verify_email") {
+    return (
+      <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
+          aria-hidden
+        />
+        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-10 sm:py-14">
+          <header className="mb-8 flex flex-col items-center gap-5 sm:mb-10">
+            <Link href="/" className="rounded-2xl">
+              <Logo priority loading="eager" className="h-11 sm:h-12" />
+            </Link>
+          </header>
+          <main className="flex flex-1 flex-col justify-center pb-8">
+            <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
+              <CardContent className="space-y-6 p-6 text-center">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400">
+                  <AlertTriangle className="size-7" />
+                </div>
+                <h2 className="text-xl font-bold">Xaqiiji Email-kaaga</h2>
+                <p className="text-sm text-muted-foreground">
+                  Email-kaaga ma xaqiijin. Fadlan emaylkaaga checkiga oo click link-ka xaqiijinta.
+                </p>
+                <div className="pt-2">
+                  <p className="text-sm font-medium">Link-ka xaqiijinta emaylka loo diray:</p>
+                  <p className="mt-1 font-mono text-sm text-violet-600 dark:text-violet-400">
+                    {userData.email}
+                  </p>
+                </div>
+                <Button
+                  onClick={async () => {
+                    try {
+                      setIsLoading(true);
+                      // Call backend to resend verification email
+                      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/accounts/resend-verification/`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: userData.email }),
+                      });
+                      if (!res.ok) throw new Error("Failed");
+                      setActualError("");
+                    } catch (e) {
+                      setActualError("Waxbaa khaldamay. Mar kale isku day.");
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="w-full"
+                >
+                  {isLoading ? "Waa la dirayaa..." : "Dir link kale"}
+                </Button>
+                {actualError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{actualError}</AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </main>
+        </div>
       </div>
     );
   }
