@@ -42,12 +42,12 @@ const MONTHS = [
     borderLight: "border-violet-300/60",
     borderDark: "border-violet-500/40",
     lessons: [
-      "HTML & CSS — Dhis interface-ka muuqda",
-      "JavaScript basics — La hadal browser-ka",
-      "React — Dhis UIs casri ah",
-      "Git & VS Code — Qalabka developer-ka",
+      "HTML & CSS — Dhis waxyaabaha muuqda",
+      "JavaScript basics — la hadal browser-ka",
+      "React — UIs-ka casriga ah",
+      "Git & VS Code — agabka developer-ka",
     ],
-    outcome: "Dhis: Portfolio website oo shaqaynaya",
+    outcome: "Dhis: website Portfolio ah oo shaqaynaya",
     outcomeColorLight: "text-violet-700",
     outcomeColorDark: "text-violet-300",
   },
@@ -61,12 +61,12 @@ const MONTHS = [
     borderLight: "border-purple-300/60",
     borderDark: "border-purple-500/40",
     lessons: [
-      "Node.js & Express — Dhis server-ka",
-      "MongoDB — Kaydi xogta (Database)",
-      "REST API — Isku xir frontend iyo backend",
+      "Node.js & Express — dhis server-ka",
+      "MongoDB — kaydi xogta",
+      "REST API — isku xir front iyo back",
       "User Authentication (Auth)",
     ],
-    outcome: "Dhis: Full-stack App xog kaydiya",
+    outcome: "Dhis: app full-stack ah oo xog kaydinaya",
     outcomeColorLight: "text-purple-700",
     outcomeColorDark: "text-purple-300",
   },
@@ -80,12 +80,12 @@ const MONTHS = [
     borderLight: "border-fuchsia-300/60",
     borderDark: "border-fuchsia-500/40",
     lessons: [
-      "Next.js — Web apps heer shirkadeed ah",
-      "TypeScript — Qor kood (code) ammaan ah",
-      "AI API (ChatGPT/Claude) — Ku dar AI",
-      "Deploy & Launch — Adduunka u soo bandhig",
+      "Next.js — web apps heer shirkadeed ah",
+      "TypeScript — kood ammaan ah",
+      "AI API (ChatGPT/Claude) — ku dar garaad macmal ah",
+      "Deploy & launch — hawada geli aduunka oo dhan",
     ],
-    outcome: "Dhis: SaaS product leh isticmaalayaal dhab ah",
+    outcome: "Dhis: wax soo saar SaaS ah oo leh isticmaalayaal dhab ah",
     outcomeColorLight: "text-fuchsia-700",
     outcomeColorDark: "text-fuchsia-300",
   },
@@ -96,19 +96,19 @@ const OUTCOMES = [
     num: "01",
     emoji: "💼",
     title: "Shaqo Hel",
-    body: "Portfolio + Certification + Xirfadaha suuqa shaqadu u baahan yahay.",
+    body: "Portfolio + certification + xirfadaha suuqa shaqadu u baahan yahay.",
   },
   {
     num: "02",
     emoji: "🚀",
-    title: "Dhis Product",
+    title: "Dhis Wax-soo-saar (Product)",
     body: "SaaS product shaqaynaya, oo ay isticmaalayaashu isticmaalayaan.",
   },
   {
     num: "03",
     emoji: "🌍",
     title: "Ka shaqayso Freelance",
-    body: "Portfolio aad u tusto macaamiisha caalamiga ah.",
+    body: "Portfolio aad u tustid macaamiisha caalamiga ah.",
   },
 ];
 
@@ -156,10 +156,10 @@ export function CurriculumSection() {
               ? "border-violet-500/30 bg-violet-500/10 text-violet-300"
               : "border-violet-200 bg-violet-50 text-violet-700"
           }`}>
-            Barnaamijka 3 Bilood ah
+            Barnaamijka 3-Bilood ah
           </span>
           <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
-            Waxa aad{" "}
+            Waxaad{" "}
             <span className={isDark ? "text-violet-400" : "text-violet-600"}>Baran doonto</span>{" "}
             &{" "}
             <span className={isDark ? "text-violet-400" : "text-violet-600"}>Dhisi doonto</span>
@@ -167,7 +167,7 @@ export function CurriculumSection() {
           <p className={`mx-auto mt-3 max-w-xl text-sm leading-relaxed sm:text-base ${
             isDark ? "text-zinc-400" : "text-slate-500"
           }`}>
-            Module kasta wuxuu ku dhammaanayaa mashruuc dhab ah. Markaad dhammayso 3-da bilood —
+            Koorso kasta waxay ku dhammaanaysaa mashruuc dhab ah. Markaad dhammayso 3-da bilood —
             waxaad yeelan doontaa portfolio, xirfado, iyo khibrad aad ugu diyaar tahay suuqa shaqada.
           </p>
         </div>
@@ -223,7 +223,7 @@ export function CurriculumSection() {
               }`}>
                 <p className={`text-[10px] font-bold uppercase tracking-widest sm:text-xs ${
                   isDark ? "text-zinc-600" : "text-slate-500"
-                }`}>Natiijada (Outcome)</p>
+                }`}>Natiijada</p>
                 <p className={`mt-1 text-xs font-semibold sm:text-sm ${
                   isDark ? outcomeColorDark : outcomeColorLight
                 }`}>{outcome}</p>
@@ -287,12 +287,12 @@ export function CurriculumSection() {
           <h3 className={`mt-2 text-xl font-extrabold sm:text-2xl md:text-3xl ${
             isDark ? "text-zinc-100" : "text-slate-900"
           }`}>
-            Ku biir Challenge-ka — Mentor ayaa ku caawin doona
+            Ku biir Challenge-ka — Mentor ayaa kula joogi doona
           </h3>
           <p className={`mx-auto mt-3 max-w-lg text-sm leading-relaxed sm:text-base ${
             isDark ? "text-zinc-400" : "text-slate-600"
           }`}>
-            Koorsooyinka kaligood kuma filna. Challenge-ka dhexdiisa waxaad ka helaysaa 1:1 Mentor,
+            Koorsooyinka kaligood kuma filna. Challenge-ka dhexdiisa waxaad ka helaysaa mentor 1:1 ah,
             cohort, iyo taageero toos ah — tallaabo-tallaabo ilaa dhammaadka.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
@@ -300,17 +300,17 @@ export function CurriculumSection() {
               href="/welcome"
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto"
             >
-              Bilow Challenge-ka
+              Billow Challenge-ka
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/welcome" className={`text-sm font-medium underline-offset-4 hover:underline ${
               isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"
             }`}>
-              Marka hore tijaabi casharrada →
+              Marka hore tijaabi koorsooyinka →
             </Link>
           </div>
           <p className={`mt-4 text-xs ${isDark ? "text-zinc-600" : "text-slate-400"}`}>
-            ✓ 7-bari oo dammaanad lacag celin ah &nbsp;·&nbsp; ✓ Lacagta waa la soo celin karaa &nbsp;·&nbsp; ✓ Kaliya 10 arday cohort kasta
+            ✓ 7-bari dammaanad lacag celin ah &nbsp;·&nbsp; ✓ Lacagta waa la soo celin karaa &nbsp;·&nbsp; ✓ Kaliya 10 arday cohort kasta
           </p>
         </div>
 
