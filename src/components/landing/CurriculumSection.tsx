@@ -358,7 +358,7 @@ export function CurriculumSection() {
   const bgSection = isDark ? "#18181b" : "#FAFAFA";
 
   return (
-    <section style={{ background: bg, color: text }}>
+    <section id="curriculum" style={{ background: bg, color: text }}>
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "120px 32px 80px" }}>
         <FadeIn>
           <div style={{
