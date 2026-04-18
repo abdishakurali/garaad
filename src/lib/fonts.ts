@@ -1,4 +1,4 @@
-import { Noto_Sans_SC, Inter, Instrument_Serif, DM_Mono, DM_Serif_Display } from "next/font/google";
+import { Noto_Sans_SC, Inter, Instrument_Serif, DM_Mono } from "next/font/google";
 
 export const notoSansSC = Noto_Sans_SC({
     subsets: ["latin"],
@@ -27,12 +27,4 @@ export const dmMono = DM_Mono({
     weight: ["400", "500"],
     display: "swap",
     variable: "--font-dm-mono"
-});
-
-export const dmSerifDisplay = DM_Serif_Display({
-    subsets: ["latin"],
-    weight: ["400"],
-    style: ["normal", "italic"],
-    display: "swap",
-    variable: "--font-dm-serif-display"
 });
