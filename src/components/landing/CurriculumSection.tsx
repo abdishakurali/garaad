@@ -1,100 +1,86 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Code2, Server, Zap, CheckCircle2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 
-// ─── FadeIn ───────────────────────────────────────────────────────────────────
-function useFadeIn() {
+// ─── Hooks ────────────────────────────────────────────────────────────────────
+function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [inView, setInView] = useState(false);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.1 }
+      ([e]) => { if (e.isIntersecting) setInView(true); },
+      { threshold }
     );
-    obs.observe(el);
+    if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
-  return { ref, visible };
+  }, [threshold]);
+  return [ref, inView] as const;
 }
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const { ref, visible } = useFadeIn();
+  const [ref, inView] = useInView();
   return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(24px)",
-        transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
-      }}
-    >
+    <div ref={ref} className={className} style={{
+      opacity: inView ? 1 : 0,
+      transform: inView ? "translateY(0)" : "translateY(24px)",
+      transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
+    }}>
       {children}
     </div>
   );
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
-const MONTHS = [
+const outcomes = [
   {
-    month: "Bisha 1-aad",
-    title: "Aasaaska (Foundations)",
-    subtitle: "HTML · CSS · JavaScript · React",
-    icon: Code2,
-    accent: "text-violet-500",
-    accentBg: "bg-violet-600",
-    border: "border-violet-500/30",
-    lessons: [
-      "HTML & CSS — Dhis waxyaabaha muuqda",
-      "JavaScript basics — la hadal browser-ka",
-      "React — UIs-ka casriga ah",
-      "Git & VS Code — agabka developer-ka",
-    ],
-    outcome: "Dhis: website Portfolio ah oo shaqaynaya",
+    num: "01",
+    so: "Shan mashruuc oo dhab ah oo GitHub-kaaga ku jira — mid kasta oo aad u samaystay oo aad sharrixi kartaa interview-ka.",
+    en: "Five real projects on your GitHub — each one you built yourself and can explain in an interview.",
   },
   {
-    month: "Bisha 2-aad",
-    title: "Full-Stack",
-    subtitle: "Node.js · Express · MongoDB · API",
-    icon: Server,
-    accent: "text-purple-500",
-    accentBg: "bg-purple-600",
-    border: "border-purple-500/30",
-    lessons: [
-      "Node.js & Express — dhis server-ka",
-      "MongoDB — kaydi xogta",
-      "REST API — isku xir front iyo back",
-      "User Authentication (Auth)",
-    ],
-    outcome: "Dhis: app full-stack ah oo xog kaydinaya",
+    num: "02",
+    so: "App full-stack ah oo deployed — frontend, backend, database, iyo login system — URL dhab ah oo aad tusi kartid.",
+    en: "A deployed full stack app — frontend, backend, database, and login system — with a real URL you can show anyone.",
   },
   {
-    month: "Bisha 3-aad",
-    title: "SaaS & AI",
-    subtitle: "Next.js · TypeScript · AI Integration",
-    icon: Zap,
-    accent: "text-fuchsia-500",
-    accentBg: "bg-fuchsia-600",
-    border: "border-fuchsia-500/30",
-    lessons: [
-      "Next.js — web apps heer shirkadeed ah",
-      "TypeScript — kood ammaan ah",
-      "AI API (ChatGPT/Claude) — ku dar garaad macmal ah",
-      "Deploy & launch — hawada geli aduunka oo dhan",
-    ],
-    outcome: "Dhis: wax soo saar SaaS ah oo leh isticmaalayaal dhab ah",
+    num: "03",
+    so: "SaaS product aad la tegi kartid macaamiisha ama isticmaalayaasha — oo leh AI integration iyo Stripe payments.",
+    en: "A SaaS product you can take to customers or users — with AI integration and Stripe payments.",
+  },
+  {
+    num: "04",
+    so: "CV, LinkedIn, iyo portfolio diyaar u ah codsiga shaqada — oo leh xirfadaha suuqa shaqadu u baahan yahay.",
+    en: "A CV, LinkedIn, and portfolio ready for job applications — with the skills the market actually needs.",
   },
 ];
 
-const OUTCOMES = [
-  { emoji: "💼", title: "Shaqo Hel", body: "Portfolio + certification + xirfadaha suuqa shaqadu u baahan yahay." },
-  { emoji: "🚀", title: "Dhis Wax-soo-saar (Product)", body: "SaaS product shaqaynaya, oo ay isticmaalayaashu isticmaalayaan." },
-  { emoji: "🌍", title: "Ka shaqayso Freelance", body: "Portfolio aad u tustid macaamiisha caalamiga ah." },
+const months = [
+  {
+    num: "01",
+    label: "Bishii 1aad",
+    title: "Aasaaska",
+    stack: "HTML · CSS · JavaScript · React",
+    so: "Aasaaska. Ku dhammaanaysaa mashruuc frontend ah oo aad dhistay.",
+    en: "Foundations. You finish with a frontend project you built yourself.",
+  },
+  {
+    num: "02",
+    label: "Bishii 2aad",
+    title: "Full-Stack",
+    stack: "Node.js · Express · MongoDB · Auth",
+    so: "Full stack. Ku dhammaanaysaa app aad deployed garayso.",
+    en: "Full stack. You finish with a deployed app.",
+  },
+  {
+    num: "03",
+    label: "Bishii 3aad",
+    title: "SaaS & AI",
+    stack: "Next.js · AI Integration · Stripe · Deploy",
+    so: "SaaS. Ku dhammaanaysaa wax soo saar dhab ah oo leh isticmaalayaal.",
+    en: "SaaS. You finish with a real product with real users.",
+  },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -104,154 +90,284 @@ export function CurriculumSection() {
   const { resolvedTheme } = useTheme();
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
-  const borderRule = isDark ? "border-white/8" : "border-slate-200";
-  const muted = isDark ? "text-zinc-500" : "text-slate-400";
-  const subtle = isDark ? "text-zinc-400" : "text-slate-600";
-  const strong = isDark ? "text-zinc-100" : "text-slate-900";
-  const bg = isDark ? "bg-zinc-950" : "bg-white";
-  const cardBg = isDark ? "bg-zinc-900/70 border-white/8" : "bg-white border-slate-200";
-  const outcomeBg = isDark ? "border-white/6 bg-white/4" : "border-violet-100 bg-violet-50/60";
-  const chipBg = isDark ? "border-zinc-800 bg-zinc-900/60" : "border-slate-200 bg-slate-50";
+  const PURPLE = "#7C3AED";
+  const bg = isDark ? "#09090f" : "#ffffff";
+  const bgAlt = isDark ? "#111118" : "#FAFAFA";
+  const text = isDark ? "#f4f4f5" : "#0A0A0A";
+  const textMuted = isDark ? "#71717a" : "#555555";
+  const textFaint = isDark ? "#52525b" : "#999999";
+  const borderColor = isDark ? "rgba(255,255,255,0.08)" : "#EBEBEB";
+  const numColor = isDark ? "#27272a" : "#CACACA";
+  const pillBg = isDark ? "rgba(124,58,237,0.15)" : "#F5F0FF";
+  const serif = "var(--font-dm-serif-display), Georgia, serif";
+  const sans = "var(--font-inter), 'Helvetica Neue', sans-serif";
 
   return (
-    <section
-      id="curriculum"
-      className={`relative overflow-hidden transition-colors duration-300 ${bg}`}
-    >
-      <div className={`w-full border-t ${borderRule}`} />
+    <div id="curriculum" style={{ fontFamily: sans, background: bg, color: text, transition: "background 0.3s, color 0.3s" }}>
 
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      {/* ── HERO ── */}
+      <section style={{ maxWidth: 760, margin: "0 auto", padding: "100px 32px 72px" }}>
+        <FadeIn>
+          <div style={{
+            display: "inline-block",
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: PURPLE,
+            background: pillBg,
+            padding: "6px 14px",
+            borderRadius: 4,
+            marginBottom: 32,
+          }}>
+            Garaad Challenge — 3 Bilood
+          </div>
+        </FadeIn>
 
-        {/* ── Header ──────────────────────────────────────────────────────── */}
-        <FadeIn className="py-14 text-center sm:py-18 md:py-20">
-          <span className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-widest ${
-            isDark ? "border-violet-500/30 bg-violet-500/10 text-violet-300" : "border-violet-200 bg-violet-50 text-violet-700"
-          }`}>
-            Barnaamijka 3-Bilood ah
-          </span>
-          <h2
-            className={`mt-4 font-[family-name:var(--font-dm-serif-display)] text-3xl leading-tight tracking-tight sm:text-4xl md:text-5xl ${strong}`}
-          >
-            Waxaad{" "}
-            <span className="italic text-violet-500">Baran doonto</span>{" "}
-            &{" "}
-            <span className="italic text-violet-500">Dhisi doonto</span>
+        <FadeIn delay={0.1}>
+          <h2 style={{
+            fontFamily: serif,
+            fontSize: "clamp(36px, 6vw, 64px)",
+            lineHeight: 1.1,
+            fontWeight: 400,
+            letterSpacing: "-0.02em",
+            marginBottom: 10,
+          }}>
+            Ku baro code-ka.<br />
+            <span style={{ color: PURPLE }}>Hel shaqo.</span>
           </h2>
-          <p className={`mx-auto mt-4 max-w-xl text-sm leading-relaxed sm:text-base ${subtle}`}>
-            Koorso kasta waxay ku dhammaanaysaa mashruuc dhab ah. Markaad dhammayso 3-da bilood —
-            waxaad yeelan doontaa portfolio, xirfado, iyo khibrad aad ugu diyaar tahay suuqa shaqada.
+          <h2 style={{
+            fontFamily: serif,
+            fontSize: "clamp(36px, 6vw, 64px)",
+            lineHeight: 1.1,
+            fontWeight: 400,
+            fontStyle: "italic",
+            letterSpacing: "-0.02em",
+            marginBottom: 32,
+            color: textMuted,
+          }}>
+            Dhis wax aad leedahay.
+          </h2>
+        </FadeIn>
+
+        <FadeIn delay={0.2}>
+          <p style={{ fontSize: 18, lineHeight: 1.7, color: textMuted, maxWidth: 580, marginBottom: 8 }}>
+            Garaad waa barnaamij 3-bilood ah oo lagugu bara MERN stack —{" "}
+            <strong style={{ color: text }}>af Soomaali</strong> — laga bilaabo eber ilaa aad u diyaar tahay suuqa shaqada.
+          </p>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: textFaint, maxWidth: 560, fontStyle: "italic" }}>
+            A 3-month program teaching MERN stack in Somali — from zero to job-ready.
           </p>
         </FadeIn>
+      </section>
 
-        <div className={`border-t ${borderRule}`} />
-
-        {/* ── Month cards ─────────────────────────────────────────────────── */}
-        <div className="grid gap-5 py-12 sm:py-14 md:grid-cols-3 md:gap-6">
-          {MONTHS.map(({ month, title, subtitle, icon: Icon, accent, accentBg, border, lessons, outcome }, i) => (
-            <FadeIn key={month} delay={i * 90}>
-              <div className={`flex h-full flex-col rounded-2xl border p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:p-6 ${cardBg}`}>
-                {/* Icon + labels */}
-                <div className="mb-4 flex items-center gap-3">
-                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${accentBg}`}>
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <p className={`text-[10px] font-semibold uppercase tracking-widest ${muted}`}>{month}</p>
-                    <p className={`text-sm font-bold ${strong}`}>{title}</p>
-                  </div>
-                </div>
-
-                <p className={`mb-4 text-[11px] font-semibold uppercase tracking-wider ${muted}`}>{subtitle}</p>
-
-                {/* Lessons */}
-                <ul className="mb-5 flex-1 space-y-2">
-                  {lessons.map((lesson) => (
-                    <li key={lesson} className={`flex items-start gap-2 text-xs sm:text-sm ${subtle}`}>
-                      <CheckCircle2 className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${accent}`} />
-                      {lesson}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Outcome */}
-                <div className={`rounded-xl border p-3 ${outcomeBg}`}>
-                  <p className={`text-[10px] font-bold uppercase tracking-widest ${muted}`}>Natiijada</p>
-                  <p className={`mt-1 text-xs font-semibold sm:text-sm ${accent}`}>{outcome}</p>
-                </div>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-
-        <div className={`border-t ${borderRule}`} />
-
-        {/* ── Divider label ───────────────────────────────────────────────── */}
-        <FadeIn className="flex items-center gap-4 py-10 sm:py-12">
-          <div className={`h-px flex-1 ${isDark ? "bg-zinc-800" : "bg-slate-200"}`} />
-          <span className={`text-xs font-semibold uppercase tracking-widest ${muted}`}>
-            Markaad dhammayso 3-da bilood
-          </span>
-          <div className={`h-px flex-1 ${isDark ? "bg-zinc-800" : "bg-slate-200"}`} />
-        </FadeIn>
-
-        {/* ── Outcome chips ────────────────────────────────────────────────── */}
-        <div className="grid gap-4 pb-12 sm:grid-cols-3 sm:gap-6 sm:pb-14">
-          {OUTCOMES.map(({ emoji, title, body }, i) => (
-            <FadeIn key={title} delay={i * 80}>
-              <div className={`rounded-2xl border p-5 text-center sm:p-6 ${chipBg}`}>
-                <span className="text-3xl sm:text-4xl" aria-hidden>{emoji}</span>
-                <h3 className={`mt-3 text-sm font-bold sm:text-base ${strong}`}>{title}</h3>
-                <p className={`mt-1.5 text-xs leading-relaxed sm:text-sm ${subtle}`}>{body}</p>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-
-        <div className={`border-t ${borderRule}`} />
-
-        {/* ── CTA banner ──────────────────────────────────────────────────── */}
-        <FadeIn className="py-12 sm:py-14">
-          <div className={`overflow-hidden rounded-2xl border p-6 text-center sm:rounded-3xl sm:p-10 ${
-            isDark
-              ? "border-violet-500/20 bg-gradient-to-br from-violet-950/60 to-zinc-900/80"
-              : "border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50"
-          }`}>
-            <p className={`text-xs font-semibold uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600"}`}>
-              Maxaad sugaysaa?
-            </p>
-            <h3
-              className={`mt-3 font-[family-name:var(--font-dm-serif-display)] text-2xl sm:text-3xl md:text-4xl ${strong}`}
-            >
-              Ku biir Challenge-ka — Mentor ayaa kula joogi doona
-            </h3>
-            <p className={`mx-auto mt-3 max-w-lg text-sm leading-relaxed sm:text-base ${subtle}`}>
-              Koorsooyinka kaligood kuma filna. Challenge-ka dhexdiisa waxaad ka helaysaa mentor 1:1 ah,
-              cohort, iyo taageero toos ah — tallaabo-tallaabo ilaa dhammaadka.
-            </p>
-            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
-              <Link
-                href="/welcome"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto"
-              >
-                Billow Challenge-ka
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/welcome"
-                className={`text-sm font-medium underline-offset-4 hover:underline ${isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"}`}
-              >
-                Marka hore tijaabi koorsooyinka →
-              </Link>
-            </div>
-            <p className={`mt-5 text-xs ${muted}`}>
-              ✓ 7-bari dammaanad lacag celin ah &nbsp;·&nbsp; ✓ Lacagta waa la soo celin karaa &nbsp;·&nbsp; ✓ Kaliya 10 arday cohort kasta
+      {/* ── OUTCOMES ── */}
+      <section style={{ maxWidth: 760, margin: "0 auto", padding: "0 32px 96px" }}>
+        <FadeIn>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 48 }}>
+            <div style={{ width: 32, height: 1, background: text }} />
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: text }}>
+              Marka aad dhammayso — waxaad yeelan doontaa
             </p>
           </div>
         </FadeIn>
 
-      </div>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {outcomes.map((o, i) => (
+            <FadeIn key={i} delay={i * 0.08}>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "64px 1fr",
+                gap: 24,
+                padding: "28px 0",
+                borderBottom: `1px solid ${borderColor}`,
+                borderTop: i === 0 ? `1px solid ${borderColor}` : "none",
+              }}>
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: numColor,
+                  fontFamily: serif,
+                  paddingTop: 3,
+                }}>
+                  {o.num}
+                </span>
+                <div>
+                  <p style={{ fontSize: 17, lineHeight: 1.65, color: text, marginBottom: 6, fontWeight: 400 }}>
+                    {o.so}
+                  </p>
+                  <p style={{ fontSize: 14, lineHeight: 1.6, color: textFaint, fontStyle: "italic" }}>
+                    {o.en}
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </section>
 
-      <div className={`w-full border-b ${borderRule}`} />
-    </section>
+      {/* ── WHAT YOU LEARN ── */}
+      <section style={{ background: bgAlt, borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}` }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "80px 32px" }}>
+          <FadeIn>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
+              <div style={{ width: 32, height: 1, background: text }} />
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: text }}>
+                Maxaad baranaysaa — todobaad kasta?
+              </p>
+            </div>
+            <p style={{ fontSize: 13, color: textFaint, marginBottom: 56, paddingLeft: 48, fontStyle: "italic" }}>
+              What you learn — every week
+            </p>
+          </FadeIn>
+
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {months.map((m, i) => (
+              <FadeIn key={i} delay={i * 0.1}>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "64px 1fr",
+                  gap: 24,
+                  padding: "36px 0",
+                  borderBottom: i < 2 ? `1px solid ${borderColor}` : "none",
+                }}>
+                  <div style={{
+                    fontSize: 36,
+                    fontFamily: serif,
+                    fontWeight: 400,
+                    color: numColor,
+                    lineHeight: 1,
+                    paddingTop: 4,
+                  }}>
+                    {m.num}
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 11, color: textFaint, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                        {m.label}
+                      </span>
+                      <span style={{ width: 3, height: 3, borderRadius: "50%", background: isDark ? "#52525b" : "#CCC", flexShrink: 0 }} />
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        letterSpacing: "0.06em",
+                        color: PURPLE,
+                        background: pillBg,
+                        padding: "2px 8px",
+                        borderRadius: 3,
+                      }}>
+                        {m.title}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 12, color: isDark ? "#3f3f46" : "#BBBBBB", letterSpacing: "0.06em", marginBottom: 12, fontWeight: 500 }}>
+                      {m.stack}
+                    </p>
+                    <p style={{ fontSize: 16, lineHeight: 1.65, color: text, marginBottom: 4 }}>
+                      {m.so}
+                    </p>
+                    <p style={{ fontSize: 13, color: textFaint, fontStyle: "italic" }}>
+                      {m.en}
+                    </p>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HONESTY ── */}
+      <section style={{ maxWidth: 760, margin: "0 auto", padding: "96px 32px" }}>
+        <FadeIn>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 40 }}>
+            <div style={{ width: 32, height: 1, background: text }} />
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: text }}>
+              Run ahaan — this is hard work
+            </p>
+          </div>
+        </FadeIn>
+
+        <FadeIn delay={0.1}>
+          <p style={{
+            fontFamily: serif,
+            fontSize: "clamp(22px, 4vw, 34px)",
+            lineHeight: 1.35,
+            fontWeight: 400,
+            letterSpacing: "-0.01em",
+            color: text,
+            marginBottom: 28,
+            maxWidth: 620,
+          }}>
+            Ma aha koorso aad daawanayso. Maalin kasta waxaad dhisaysaa wax. Todobaad kasta waxaad push garayso GitHub.
+          </p>
+        </FadeIn>
+
+        <FadeIn delay={0.15}>
+          <p style={{ fontSize: 16, lineHeight: 1.75, color: textMuted, marginBottom: 16, maxWidth: 560 }}>
+            3-da bilood waxay u baahan tahay <strong style={{ color: text }}>2–3 saacadood maalin kasta.</strong> Haddaad taas gashid — dhamaadka waxaad haysataa xirfado, portfolio, iyo khibrad aadan ka helin meel kale.
+          </p>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: textFaint, fontStyle: "italic", maxWidth: 520 }}>
+            3 months requires 2–3 hours per day. If you put that in — by the end you have skills, a portfolio, and experience you won't find anywhere else.
+          </p>
+        </FadeIn>
+      </section>
+
+      {/* ── CTA ── */}
+      <section style={{ borderTop: `1px solid ${borderColor}`, background: bgAlt }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "80px 32px", textAlign: "center" }}>
+          <FadeIn>
+            <p style={{
+              fontFamily: serif,
+              fontSize: "clamp(26px, 4vw, 40px)",
+              fontWeight: 400,
+              letterSpacing: "-0.01em",
+              marginBottom: 12,
+              color: text,
+            }}>
+              Bilow Hadda
+            </p>
+            <p style={{ fontSize: 15, color: textFaint, marginBottom: 36 }}>
+              Kaliya 10 arday cohort kasta — seats way xaddidan yihiin.
+            </p>
+            <Link
+              href="/welcome"
+              style={{
+                display: "inline-block",
+                background: PURPLE,
+                color: "#fff",
+                padding: "16px 40px",
+                fontSize: 15,
+                fontWeight: 600,
+                borderRadius: 6,
+                textDecoration: "none",
+                letterSpacing: "0.02em",
+                boxShadow: "0 4px 14px rgba(124,58,237,0.25)",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "#6D28D9";
+                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)";
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 24px rgba(124,58,237,0.3)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = PURPLE;
+                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 14px rgba(124,58,237,0.25)";
+              }}
+            >
+              Ku biir Challenge-ka →
+            </Link>
+            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20, flexWrap: "wrap" }}>
+              {["7-bari dammaanad lacag celin ah", "Lacagta waa la soo celin karaa", "Kaliya 10 arday cohort kasta"].map((t, i) => (
+                <span key={i} style={{ fontSize: 12, color: textFaint, display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ color: PURPLE }}>✓</span> {t}
+                </span>
+              ))}
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+    </div>
   );
 }
