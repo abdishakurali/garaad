@@ -145,14 +145,11 @@ export function ChallengeHero() {
 
         {/* Headline */}
         <h1 className="mx-auto max-w-3xl text-balance text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-          Noqo{" "}
-          <span className="relative inline-block text-violet-500 dark:text-violet-400">
+          Baro{" "}
+          <span className="text-violet-500 dark:text-violet-400">
             Software Dev
-            <svg className="absolute -bottom-1 left-0 w-full sm:-bottom-2" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden>
-              <path d="M2 4 Q 25 8 50 4 T 98 4" fill="none" stroke="#7c3aed" strokeWidth="4" strokeLinecap="round" />
-            </svg>
           </span>{" "}
-          & AI — 3 Bilood
+          & AI — 3 Bilood gudahood
         </h1>
 
         {/* Subtext */}

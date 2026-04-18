@@ -425,7 +425,7 @@ export function CurriculumSection() {
             letterSpacing: "-0.02em",
             marginBottom: 16,
           }}>
-            Ku baro code.<br />
+            Baro code.<br />
             <span style={{ color: PURPLE }}>Hel shaqo.</span>
           </h1>
         </FadeIn>
