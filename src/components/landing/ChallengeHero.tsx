@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Users, Trophy, Clock } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
-import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
 
@@ -103,7 +102,6 @@ export function ChallengeHero() {
   const { user } = useAuthStore();
   void user;
   const { data, loading } = useChallengeStatus();
-  const startForCountdown = data?.cohort_start_date ?? data?.next_cohort_start_date ?? null;
   void loading;
 
   const scrollToCurriculum = () => {
@@ -217,13 +215,8 @@ export function ChallengeHero() {
           ))}
         </div>
 
-        {/* Countdown */}
-        <div className="mx-auto mt-7 flex flex-col items-center gap-3 sm:mt-9">
-          <CountdownTimer targetDate={startForCountdown} label="Cohort-ka wuxuu bilaabanayaa:" />
-        </div>
-
         {/* Video */}
-        <div className="mx-auto mt-8 w-full max-w-2xl sm:mt-10">
+        <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5">
           <Link href="/welcome" className="group relative block overflow-hidden rounded-xl border bg-black border-white/10">
             <div className="relative w-full" style={{ padding: "56.25% 0 0 0" }}>
               <iframe

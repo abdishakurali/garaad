@@ -1,22 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { ArrowRight, Code2, Server, Zap, CheckCircle2 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState, useRef } from "react";
 
-// ─── Hooks ────────────────────────────────────────────────────────────────────
+const PURPLE = "#7C3AED";
+
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setInView(true); },
-      { threshold }
-    );
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, [threshold]);
-  return [ref, inView] as const;
+  return [ref, inView];
 }
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -32,342 +31,290 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const outcomes = [
+const MONTHS = [
   {
-    num: "01",
-    so: "Shan mashruuc oo dhab ah oo GitHub-kaaga ku jira — mid kasta oo aad u samaystay oo aad sharrixi kartaa interview-ka.",
-    en: "Five real projects on your GitHub — each one you built yourself and can explain in an interview.",
+    month: "Bisha 1-aad",
+    title: "Aasaaska (Foundations)",
+    subtitle: "HTML · CSS · JavaScript · React",
+    icon: Code2,
+    gradientLight: "from-violet-600 to-violet-500",
+    gradientDark: "from-violet-600 to-violet-500",
+    borderLight: "border-violet-300/60",
+    borderDark: "border-violet-500/40",
+    lessons: [
+      "HTML & CSS — Dhis interface-ka muuqda",
+      "JavaScript basics — La hadal browser-ka",
+      "React — Dhis UIs casri ah",
+      "Git & VS Code — Qalabka developer-ka",
+    ],
+    outcome: "Dhis: Portfolio website oo shaqaynaya",
+    outcomeColorLight: "text-violet-700",
+    outcomeColorDark: "text-violet-300",
   },
   {
-    num: "02",
-    so: "App full-stack ah oo deployed — frontend, backend, database, iyo login system — URL dhab ah oo aad tusi kartid.",
-    en: "A deployed full stack app — frontend, backend, database, and login system — with a real URL you can show anyone.",
-  },
-  {
-    num: "03",
-    so: "SaaS product aad la tegi kartid macaamiisha ama isticmaalayaasha — oo leh AI integration iyo Stripe payments.",
-    en: "A SaaS product you can take to customers or users — with AI integration and Stripe payments.",
-  },
-  {
-    num: "04",
-    so: "CV, LinkedIn, iyo portfolio diyaar u ah codsiga shaqada — oo leh xirfadaha suuqa shaqadu u baahan yahay.",
-    en: "A CV, LinkedIn, and portfolio ready for job applications — with the skills the market actually needs.",
-  },
-];
-
-const months = [
-  {
-    num: "01",
-    label: "Bishii 1aad",
-    title: "Aasaaska",
-    stack: "HTML · CSS · JavaScript · React",
-    so: "Aasaaska. Ku dhammaanaysaa mashruuc frontend ah oo aad dhistay.",
-    en: "Foundations. You finish with a frontend project you built yourself.",
-  },
-  {
-    num: "02",
-    label: "Bishii 2aad",
+    month: "Bisha 2-aad",
     title: "Full-Stack",
-    stack: "Node.js · Express · MongoDB · Auth",
-    so: "Full stack. Ku dhammaanaysaa app aad deployed garayso.",
-    en: "Full stack. You finish with a deployed app.",
+    subtitle: "Node.js · Express · MongoDB · API",
+    icon: Server,
+    gradientLight: "from-purple-600 to-purple-500",
+    gradientDark: "from-purple-600 to-purple-500",
+    borderLight: "border-purple-300/60",
+    borderDark: "border-purple-500/40",
+    lessons: [
+      "Node.js & Express — Dhis server-ka",
+      "MongoDB — Kaydi xogta (Database)",
+      "REST API — Isku xir frontend iyo backend",
+      "User Authentication (Auth)",
+    ],
+    outcome: "Dhis: Full-stack App xog kaydiya",
+    outcomeColorLight: "text-purple-700",
+    outcomeColorDark: "text-purple-300",
   },
   {
-    num: "03",
-    label: "Bishii 3aad",
+    month: "Bisha 3-aad",
     title: "SaaS & AI",
-    stack: "Next.js · AI Integration · Stripe · Deploy",
-    so: "SaaS. Ku dhammaanaysaa wax soo saar dhab ah oo leh isticmaalayaal.",
-    en: "SaaS. You finish with a real product with real users.",
+    subtitle: "Next.js · TypeScript · AI Integration",
+    icon: Zap,
+    gradientLight: "from-fuchsia-600 to-fuchsia-500",
+    gradientDark: "from-fuchsia-600 to-fuchsia-500",
+    borderLight: "border-fuchsia-300/60",
+    borderDark: "border-fuchsia-500/40",
+    lessons: [
+      "Next.js — Web apps heer shirkadeed ah",
+      "TypeScript — Qor kood (code) ammaan ah",
+      "AI API (ChatGPT/Claude) — Ku dar AI",
+      "Deploy & Launch — Adduunka u soo bandhig",
+    ],
+    outcome: "Dhis: SaaS product leh isticmaalayaal dhab ah",
+    outcomeColorLight: "text-fuchsia-700",
+    outcomeColorDark: "text-fuchsia-300",
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const OUTCOMES = [
+  {
+    num: "01",
+    emoji: "💼",
+    title: "Shaqo Hel",
+    body: "Portfolio + Certification + Xirfadaha suuqa shaqadu u baahan yahay.",
+  },
+  {
+    num: "02",
+    emoji: "🚀",
+    title: "Dhis Product",
+    body: "SaaS product shaqaynaya, oo ay isticmaalayaashu isticmaalayaan.",
+  },
+  {
+    num: "03",
+    emoji: "🌍",
+    title: "Ka shaqayso Freelance",
+    body: "Portfolio aad u tusto macaamiisha caalamiga ah.",
+  },
+];
+
 export function CurriculumSection() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const { resolvedTheme } = useTheme();
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
-  const PURPLE = "#7C3AED";
-  const bg = isDark ? "#09090f" : "#ffffff";
-  const bgAlt = isDark ? "#111118" : "#FAFAFA";
-  const text = isDark ? "#f4f4f5" : "#0A0A0A";
-  const textMuted = isDark ? "#71717a" : "#555555";
-  const textFaint = isDark ? "#52525b" : "#999999";
-  const borderColor = isDark ? "rgba(255,255,255,0.08)" : "#EBEBEB";
-  const numColor = isDark ? "#27272a" : "#CACACA";
-  const pillBg = isDark ? "rgba(124,58,237,0.15)" : "#F5F0FF";
-  const serif = "var(--font-dm-serif-display), Georgia, serif";
-  const sans = "var(--font-inter), 'Helvetica Neue', sans-serif";
-
   return (
-    <div id="curriculum" style={{ fontFamily: sans, background: bg, color: text, transition: "background 0.3s, color 0.3s" }}>
+    <section
+      id="curriculum"
+      className={`relative overflow-hidden py-16 sm:py-20 md:py-24 transition-colors duration-300 ${
+        isDark ? "bg-zinc-950 text-zinc-100" : "bg-white text-slate-900"
+      }`}
+    >
+      {/* Grid pattern (dark only) */}
+      {isDark && (
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.04)_1px,transparent_1px)] bg-[size:48px_48px]"
+          aria-hidden
+        />
+      )}
+      {/* Light grid */}
+      {!isDark && (
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.04)_1px,transparent_1px)] bg-[size:48px_48px]"
+          aria-hidden
+        />
+      )}
+      {/* Center glow */}
+      <div
+        className={`pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[140px] ${
+          isDark ? "bg-violet-700/6" : "bg-violet-200/50"
+        }`}
+        aria-hidden
+      />
 
-      {/* ── HERO ── */}
-      <section style={{ maxWidth: 760, margin: "0 auto", padding: "100px 32px 72px" }}>
-        <FadeIn>
-          <div style={{
-            display: "inline-block",
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: PURPLE,
-            background: pillBg,
-            padding: "6px 14px",
-            borderRadius: 4,
-            marginBottom: 32,
-          }}>
-            Garaad Challenge — 3 Bilood
-          </div>
-        </FadeIn>
+      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
 
-        <FadeIn delay={0.1}>
-          <h2 style={{
-            fontFamily: serif,
-            fontSize: "clamp(36px, 6vw, 64px)",
-            lineHeight: 1.1,
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-            marginBottom: 10,
-          }}>
-            Ku baro code-ka.<br />
-            <span style={{ color: PURPLE }}>Hel shaqo.</span>
+        {/* Header */}
+        <div className="mb-10 text-center sm:mb-14">
+          <span className={`mb-3 inline-block rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-widest ${
+            isDark
+              ? "border-violet-500/30 bg-violet-500/10 text-violet-300"
+              : "border-violet-200 bg-violet-50 text-violet-700"
+          }`}>
+            Barnaamijka 3 Bilood ah
+          </span>
+          <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
+            Waxa aad{" "}
+            <span className={isDark ? "text-violet-400" : "text-violet-600"}>Baran doonto</span>{" "}
+            &{" "}
+            <span className={isDark ? "text-violet-400" : "text-violet-600"}>Dhisi doonto</span>
           </h2>
-          <h2 style={{
-            fontFamily: serif,
-            fontSize: "clamp(36px, 6vw, 64px)",
-            lineHeight: 1.1,
-            fontWeight: 400,
-            fontStyle: "italic",
-            letterSpacing: "-0.02em",
-            marginBottom: 32,
-            color: textMuted,
-          }}>
-            Dhis wax aad leedahay.
-          </h2>
-        </FadeIn>
-
-        <FadeIn delay={0.2}>
-          <p style={{ fontSize: 18, lineHeight: 1.7, color: textMuted, maxWidth: 580, marginBottom: 8 }}>
-            Garaad waa barnaamij 3-bilood ah oo lagugu bara MERN stack —{" "}
-            <strong style={{ color: text }}>af Soomaali</strong> — laga bilaabo eber ilaa aad u diyaar tahay suuqa shaqada.
+          <p className={`mx-auto mt-3 max-w-xl text-sm leading-relaxed sm:text-base ${
+            isDark ? "text-zinc-400" : "text-slate-500"
+          }`}>
+            Module kasta wuxuu ku dhammaanayaa mashruuc dhab ah. Markaad dhammayso 3-da bilood —
+            waxaad yeelan doontaa portfolio, xirfado, iyo khibrad aad ugu diyaar tahay suuqa shaqada.
           </p>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: textFaint, maxWidth: 560, fontStyle: "italic" }}>
-            A 3-month program teaching MERN stack in Somali — from zero to job-ready.
-          </p>
-        </FadeIn>
-      </section>
+        </div>
 
-      {/* ── OUTCOMES ── */}
-      <section style={{ maxWidth: 760, margin: "0 auto", padding: "0 32px 96px" }}>
-        <FadeIn>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 48 }}>
-            <div style={{ width: 32, height: 1, background: text }} />
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: text }}>
-              Marka aad dhammayso — waxaad yeelan doontaa
-            </p>
-          </div>
-        </FadeIn>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          {outcomes.map((o, i) => (
-            <FadeIn key={i} delay={i * 0.08}>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "64px 1fr",
-                gap: 24,
-                padding: "28px 0",
-                borderBottom: `1px solid ${borderColor}`,
-                borderTop: i === 0 ? `1px solid ${borderColor}` : "none",
-              }}>
-                <span style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: numColor,
-                  fontFamily: serif,
-                  paddingTop: 3,
-                }}>
-                  {o.num}
-                </span>
-                <div>
-                  <p style={{ fontSize: 17, lineHeight: 1.65, color: text, marginBottom: 6, fontWeight: 400 }}>
-                    {o.so}
-                  </p>
-                  <p style={{ fontSize: 14, lineHeight: 1.6, color: textFaint, fontStyle: "italic" }}>
-                    {o.en}
-                  </p>
+        {/* Month cards */}
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+          {MONTHS.map(({ month, title, subtitle, icon: Icon, gradientLight, gradientDark, borderLight, borderDark, lessons, outcome, outcomeColorLight, outcomeColorDark }) => (
+            <div
+              key={month}
+              className={`relative flex flex-col rounded-2xl border p-5 shadow-lg transition-all duration-300 hover:-translate-y-1 sm:rounded-3xl sm:p-6 ${
+                isDark
+                  ? `${borderDark} bg-zinc-900/70 hover:shadow-xl`
+                  : `${borderLight} bg-white hover:shadow-xl hover:shadow-violet-100`
+              }`}
+            >
+              <div className="mb-4 flex items-center gap-2">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg sm:h-10 sm:w-10 ${
+                  isDark ? gradientDark : gradientLight
+                }`}>
+                  <Icon className="h-4 w-4 text-white sm:h-5 sm:w-5" />
                 </div>
+                <div>
+                  <p className={`text-[10px] font-semibold uppercase tracking-widest sm:text-xs ${
+                    isDark ? "text-zinc-500" : "text-slate-400"
+                  }`}>{month}</p>
+                  <p className={`text-sm font-bold sm:text-base ${
+                    isDark ? "text-zinc-100" : "text-slate-900"
+                  }`}>{title}</p>
+                </div>
+              </div>
+
+              <p className={`mb-4 text-[11px] font-semibold uppercase tracking-wider sm:text-xs ${
+                isDark ? "text-zinc-600" : "text-slate-400"
+              }`}>{subtitle}</p>
+
+              <ul className="mb-5 flex-1 space-y-2">
+                {lessons.map((lesson) => (
+                  <li key={lesson} className={`flex items-start gap-2 text-xs sm:text-sm ${
+                    isDark ? "text-zinc-400" : "text-slate-600"
+                  }`}>
+                    <CheckCircle2 className={`mt-0.5 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 ${
+                      isDark ? "text-violet-500" : "text-violet-600"
+                    }`} />
+                    {lesson}
+                  </li>
+                ))}
+              </ul>
+
+              <div className={`rounded-xl border p-3 ${
+                isDark
+                  ? "border-white/8 bg-white/4"
+                  : "border-violet-100 bg-violet-50/60"
+              }`}>
+                <p className={`text-[10px] font-bold uppercase tracking-widest sm:text-xs ${
+                  isDark ? "text-zinc-600" : "text-slate-500"
+                }`}>Natiijada (Outcome)</p>
+                <p className={`mt-1 text-xs font-semibold sm:text-sm ${
+                  isDark ? outcomeColorDark : outcomeColorLight
+                }`}>{outcome}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="my-12 flex items-center gap-4 sm:my-14">
+          <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${
+            isDark ? "via-zinc-700" : "via-slate-200"
+          } to-transparent`} />
+          <span className={`text-xs font-semibold uppercase tracking-widest ${
+            isDark ? "text-zinc-600" : "text-slate-400"
+          }`}>
+            Markaad dhammayso 3-da bilood
+          </span>
+          <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${
+            isDark ? "via-zinc-700" : "via-slate-200"
+          } to-transparent`} />
+        </div>
+
+        {/* Outcome cards */}
+        <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
+          {OUTCOMES.map(({ num, emoji, title, body }, i) => (
+            <FadeIn key={title} delay={i * 0.08}>
+              <div className={`rounded-2xl border p-4 text-center sm:p-6 transition-colors duration-200 ${
+                isDark
+                  ? "border-white/8 bg-zinc-900/60 hover:border-violet-500/40"
+                  : "border-slate-200 bg-slate-50 hover:border-violet-300"
+              }`}>
+                <span className={`text-[28px] font-serif font-bold ${
+                  isDark ? "text-zinc-700" : "text-violet-200"
+                }`}>
+                  {num}
+                </span>
+                <span className="text-3xl sm:text-4xl block mt-2" aria-hidden>{emoji}</span>
+                <h3 className={`mt-3 text-sm font-bold sm:text-base ${
+                  isDark ? "text-zinc-100" : "text-slate-800"
+                }`}>{title}</h3>
+                <p className={`mt-1.5 text-xs leading-relaxed sm:text-sm ${
+                  isDark ? "text-zinc-500" : "text-slate-500"
+                }`}>{body}</p>
               </div>
             </FadeIn>
           ))}
         </div>
-      </section>
 
-      {/* ── WHAT YOU LEARN ── */}
-      <section style={{ background: bgAlt, borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}` }}>
-        <div style={{ maxWidth: 760, margin: "0 auto", padding: "80px 32px" }}>
-          <FadeIn>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
-              <div style={{ width: 32, height: 1, background: text }} />
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: text }}>
-                Maxaad baranaysaa — todobaad kasta?
-              </p>
-            </div>
-            <p style={{ fontSize: 13, color: textFaint, marginBottom: 56, paddingLeft: 48, fontStyle: "italic" }}>
-              What you learn — every week
-            </p>
-          </FadeIn>
-
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            {months.map((m, i) => (
-              <FadeIn key={i} delay={i * 0.1}>
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "64px 1fr",
-                  gap: 24,
-                  padding: "36px 0",
-                  borderBottom: i < 2 ? `1px solid ${borderColor}` : "none",
-                }}>
-                  <div style={{
-                    fontSize: 36,
-                    fontFamily: serif,
-                    fontWeight: 400,
-                    color: numColor,
-                    lineHeight: 1,
-                    paddingTop: 4,
-                  }}>
-                    {m.num}
-                  </div>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 11, color: textFaint, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                        {m.label}
-                      </span>
-                      <span style={{ width: 3, height: 3, borderRadius: "50%", background: isDark ? "#52525b" : "#CCC", flexShrink: 0 }} />
-                      <span style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        letterSpacing: "0.06em",
-                        color: PURPLE,
-                        background: pillBg,
-                        padding: "2px 8px",
-                        borderRadius: 3,
-                      }}>
-                        {m.title}
-                      </span>
-                    </div>
-                    <p style={{ fontSize: 12, color: isDark ? "#3f3f46" : "#BBBBBB", letterSpacing: "0.06em", marginBottom: 12, fontWeight: 500 }}>
-                      {m.stack}
-                    </p>
-                    <p style={{ fontSize: 16, lineHeight: 1.65, color: text, marginBottom: 4 }}>
-                      {m.so}
-                    </p>
-                    <p style={{ fontSize: 13, color: textFaint, fontStyle: "italic" }}>
-                      {m.en}
-                    </p>
-                  </div>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── HONESTY ── */}
-      <section style={{ maxWidth: 760, margin: "0 auto", padding: "96px 32px" }}>
-        <FadeIn>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 40 }}>
-            <div style={{ width: 32, height: 1, background: text }} />
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: text }}>
-              Run ahaan — this is hard work
-            </p>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.1}>
-          <p style={{
-            fontFamily: serif,
-            fontSize: "clamp(22px, 4vw, 34px)",
-            lineHeight: 1.35,
-            fontWeight: 400,
-            letterSpacing: "-0.01em",
-            color: text,
-            marginBottom: 28,
-            maxWidth: 620,
-          }}>
-            Ma aha koorso aad daawanayso. Maalin kasta waxaad dhisaysaa wax. Todobaad kasta waxaad push garayso GitHub.
+        {/* CTA banner */}
+        <div className={`mt-12 overflow-hidden rounded-2xl border p-6 text-center sm:mt-14 sm:rounded-3xl sm:p-8 ${
+          isDark
+            ? "border-violet-500/30 bg-gradient-to-r from-violet-950/70 to-zinc-900/80"
+            : "border-violet-200 bg-gradient-to-r from-violet-50 to-purple-50"
+        }`}>
+          <p className={`text-xs font-semibold uppercase tracking-widest sm:text-sm ${
+            isDark ? "text-violet-400" : "text-violet-600"
+          }`}>
+            Maxaad sugaysaa?
           </p>
-        </FadeIn>
-
-        <FadeIn delay={0.15}>
-          <p style={{ fontSize: 16, lineHeight: 1.75, color: textMuted, marginBottom: 16, maxWidth: 560 }}>
-            3-da bilood waxay u baahan tahay <strong style={{ color: text }}>2–3 saacadood maalin kasta.</strong> Haddaad taas gashid — dhamaadka waxaad haysataa xirfado, portfolio, iyo khibrad aadan ka helin meel kale.
+          <h3 className={`mt-2 text-xl font-extrabold sm:text-2xl md:text-3xl ${
+            isDark ? "text-zinc-100" : "text-slate-900"
+          }`}>
+            Ku biir Challenge-ka — Mentor ayaa ku caawin doona
+          </h3>
+          <p className={`mx-auto mt-3 max-w-lg text-sm leading-relaxed sm:text-base ${
+            isDark ? "text-zinc-400" : "text-slate-600"
+          }`}>
+            Koorsooyinka kaligood kuma filna. Challenge-ka dhexdiisa waxaad ka helaysaa 1:1 Mentor,
+            cohort, iyo taageero toos ah — tallaabo-tallaabo ilaa dhammaadka.
           </p>
-          <p style={{ fontSize: 14, lineHeight: 1.7, color: textFaint, fontStyle: "italic", maxWidth: 520 }}>
-            3 months requires 2–3 hours per day. If you put that in — by the end you have skills, a portfolio, and experience you won't find anywhere else.
-          </p>
-        </FadeIn>
-      </section>
-
-      {/* ── CTA ── */}
-      <section style={{ borderTop: `1px solid ${borderColor}`, background: bgAlt }}>
-        <div style={{ maxWidth: 760, margin: "0 auto", padding: "80px 32px", textAlign: "center" }}>
-          <FadeIn>
-            <p style={{
-              fontFamily: serif,
-              fontSize: "clamp(26px, 4vw, 40px)",
-              fontWeight: 400,
-              letterSpacing: "-0.01em",
-              marginBottom: 12,
-              color: text,
-            }}>
-              Bilow Hadda
-            </p>
-            <p style={{ fontSize: 15, color: textFaint, marginBottom: 36 }}>
-              Kaliya 10 arday cohort kasta — seats way xaddidan yihiin.
-            </p>
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
             <Link
               href="/welcome"
-              style={{
-                display: "inline-block",
-                background: PURPLE,
-                color: "#fff",
-                padding: "16px 40px",
-                fontSize: 15,
-                fontWeight: 600,
-                borderRadius: 6,
-                textDecoration: "none",
-                letterSpacing: "0.02em",
-                boxShadow: "0 4px 14px rgba(124,58,237,0.25)",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "#6D28D9";
-                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)";
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 24px rgba(124,58,237,0.3)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = PURPLE;
-                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 14px rgba(124,58,237,0.25)";
-              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto"
             >
-              Ku biir Challenge-ka →
+              Bilow Challenge-ka
+              <ArrowRight className="h-4 w-4" />
             </Link>
-            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20, flexWrap: "wrap" }}>
-              {["7-bari dammaanad lacag celin ah", "Lacagta waa la soo celin karaa", "Kaliya 10 arday cohort kasta"].map((t, i) => (
-                <span key={i} style={{ fontSize: 12, color: textFaint, display: "flex", alignItems: "center", gap: 5 }}>
-                  <span style={{ color: PURPLE }}>✓</span> {t}
-                </span>
-              ))}
-            </div>
-          </FadeIn>
+            <Link href="/welcome" className={`text-sm font-medium underline-offset-4 hover:underline ${
+              isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"
+            }`}>
+              Marka hore tijaabi casharrada →
+            </Link>
+          </div>
+          <p className={`mt-4 text-xs ${isDark ? "text-zinc-600" : "text-slate-400"}`}>
+            ✓ 7-bari oo dammaanad lacag celin ah &nbsp;·&nbsp; ✓ Lacagta waa la soo celin karaa &nbsp;·&nbsp; ✓ Kaliya 10 arday cohort kasta
+          </p>
         </div>
-      </section>
 
-    </div>
+      </div>
+    </section>
   );
 }
