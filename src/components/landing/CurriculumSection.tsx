@@ -226,7 +226,7 @@ const months = [
   },
 ];
 
-function Timesheet() {
+function Timesheet({ isDark }: { isDark: boolean }) {
   const [openMonth, setOpenMonth] = useState<number | null>(null);
   const [openWeeks, setOpenWeeks] = useState<Record<string, boolean>>({});
 
@@ -239,15 +239,25 @@ function Timesheet() {
     setOpenWeeks(prev => ({ ...prev, [key]: !prev[key] }));
   }
 
+  const bgMonth = isDark ? "#18181b" : "#fff";
+  const bgWeek = isDark ? "#1f1f23" : "#F9F7FF";
+  const textPrimary = isDark ? "#fafafa" : "#0A0A0A";
+  const textMuted = isDark ? "#a1a1aa" : "#555";
+  const textLight = isDark ? "#71717a" : "#AAA";
+  const border = isDark ? "#3f3f46" : "#E8E8E8";
+  const borderLight = isDark ? "#27272a" : "#F0F0F0";
+  const bgTable = isDark ? "#18181b" : "#F5F5F5";
+  const bgProject = isDark ? "#1e1e24" : "#FDFBFF";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {timesheet.map((m, mi) => (
-        <div key={mi} style={{ border: "1px solid #E8E8E8", borderRadius: 8, overflow: "hidden" }}>
+        <div key={mi} style={{ border: `1px solid ${border}`, borderRadius: 8, overflow: "hidden" }}>
           <button
             onClick={() => toggleMonth(mi)}
             style={{
               width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "20px 24px", background: openMonth === mi ? "#FAFAFA" : "#fff",
+              padding: "20px 24px", background: openMonth === mi ? bgWeek : bgMonth,
               border: "none", cursor: "pointer", textAlign: "left", transition: "background 0.2s",
               fontFamily: "inherit",
             }}
@@ -260,12 +270,12 @@ function Timesheet() {
                 {m.monthEn.split("—")[0].trim()}
               </span>
               <div>
-                <span style={{ fontSize: 15, fontWeight: 600, color: "#0A0A0A" }}>{m.month}</span>
-                <span style={{ fontSize: 12, color: "#AAA", marginLeft: 10, letterSpacing: "0.05em" }}>{m.stack}</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: textPrimary }}>{m.month}</span>
+                <span style={{ fontSize: 12, color: textLight, marginLeft: 10, letterSpacing: "0.05em" }}>{m.stack}</span>
               </div>
             </div>
             <span style={{
-              fontSize: 18, color: "#999", transform: openMonth === mi ? "rotate(180deg)" : "rotate(0deg)",
+              fontSize: 18, color: textLight, transform: openMonth === mi ? "rotate(180deg)" : "rotate(0deg)",
               transition: "transform 0.25s", lineHeight: 1,
             }}>
               ↓
@@ -273,38 +283,38 @@ function Timesheet() {
           </button>
 
           {openMonth === mi && (
-            <div style={{ borderTop: "1px solid #F0F0F0", padding: "8px 0" }}>
+            <div style={{ borderTop: `1px solid ${borderLight}`, padding: "8px 0" }}>
               {m.weeks.map((w, wi) => {
                 const weekKey = `${mi}-${wi}`;
                 const isOpen = openWeeks[weekKey];
                 return (
-                  <div key={wi} style={{ borderBottom: wi < m.weeks.length - 1 ? "1px solid #F5F5F5" : "none" }}>
+                  <div key={wi} style={{ borderBottom: wi < m.weeks.length - 1 ? `1px solid ${borderLight}` : "none" }}>
                     <button
                       onClick={() => toggleWeek(weekKey)}
                       style={{
                         width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                        padding: "14px 24px 14px 40px", background: isOpen ? "#F9F7FF" : "transparent",
+                        padding: "14px 24px 14px 40px", background: isOpen ? bgWeek : "transparent",
                         border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit",
                         transition: "background 0.15s",
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: isOpen ? PURPLE : "#DDD", transition: "background 0.2s" }} />
-                        <span style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>{w.week}</span>
-                        <span style={{ fontSize: 12, color: "#BBB", fontStyle: "italic" }}>{w.weekEn}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{w.week}</span>
+                        <span style={{ fontSize: 12, color: textLight, fontStyle: "italic" }}>{w.weekEn}</span>
                       </div>
-                      <span style={{ fontSize: 12, color: "#BBB" }}>{isOpen ? "−" : "+"} {w.days.length} maalin</span>
+                      <span style={{ fontSize: 12, color: textLight }}>{isOpen ? "−" : "+"} {w.days.length} maalin</span>
                     </button>
 
                     {isOpen && (
-                      <div style={{ margin: "0 24px 12px 40px", borderRadius: 6, overflow: "hidden", border: "1px solid #EEEEEE" }}>
+                      <div style={{ margin: "0 24px 12px 40px", borderRadius: 6, overflow: "hidden", border: `1px solid ${border}` }}>
                         <div style={{
                           display: "grid", gridTemplateColumns: "80px 1fr 1fr",
-                          background: "#F5F5F5", padding: "8px 14px",
-                          borderBottom: "1px solid #EEEEEE",
+                          background: bgTable, padding: "8px 14px",
+                          borderBottom: `1px solid ${border}`,
                         }}>
                           {["Maalinta", "Topic", "Waxaad Dhisaysaa"].map((h, hi) => (
-                            <span key={hi} style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#AAA", textTransform: "uppercase" }}>
+                            <span key={hi} style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: textLight, textTransform: "uppercase" }}>
                               {h}
                             </span>
                           ))}
@@ -313,14 +323,14 @@ function Timesheet() {
                           <div key={di} style={{
                             display: "grid", gridTemplateColumns: "80px 1fr 1fr",
                             padding: "10px 14px",
-                            background: d.project ? "#FDFBFF" : "#FFFFFF",
-                            borderBottom: di < w.days.length - 1 ? "1px solid #F5F5F5" : "none",
+                            background: d.project ? bgProject : bgMonth,
+                            borderBottom: di < w.days.length - 1 ? `1px solid ${borderLight}` : "none",
                             alignItems: "start",
                           }}>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: d.project ? PURPLE : "#555" }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: d.project ? PURPLE : textMuted }}>
                               {d.day}
                             </span>
-                            <span style={{ fontSize: 13, color: "#222", lineHeight: 1.5, paddingRight: 12 }}>
+                            <span style={{ fontSize: 13, color: textPrimary, lineHeight: 1.5, paddingRight: 12 }}>
                               {d.topic}
                               {d.project && (
                                 <span style={{
@@ -332,7 +342,7 @@ function Timesheet() {
                                 </span>
                               )}
                             </span>
-                            <span style={{ fontSize: 12, color: "#888", lineHeight: 1.5, fontStyle: "italic" }}>
+                            <span style={{ fontSize: 12, color: textLight, lineHeight: 1.5, fontStyle: "italic" }}>
                               {d.build}
                             </span>
                           </div>
@@ -356,17 +366,15 @@ export function CurriculumSection() {
   const { resolvedTheme } = useTheme();
   const isDark = mounted ? resolvedTheme === "dark" : true;
 
-  return (
-    <div style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", background: isDark ? "#09090b" : "#fff", color: isDark ? "#fafafa" : "#0A0A0A" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::selection { background: #EDE9FE; }
-        .outcome-card:hover { border-color: #7C3AED !important; }
-        .month-card:hover .month-num { color: #7C3AED !important; }
-        .cta-btn:hover { background: #6D28D9 !important; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,58,237,0.25) !important; }
-      `}</style>
+  const bg = isDark ? "#09090b" : "#fff";
+  const text = isDark ? "#fafafa" : "#0A0A0A";
+  const textMuted = isDark ? "#a1a1aa" : "#555";
+  const textLight = isDark ? "#71717a" : "#999";
+  const border = isDark ? "#27272a" : "#EBEBEB";
+  const bgSection = isDark ? "#18181b" : "#FAFAFA";
 
+  return (
+    <section style={{ background: bg, color: text }}>
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "120px 32px 80px" }}>
         <FadeIn>
           <div style={{
@@ -405,17 +413,17 @@ export function CurriculumSection() {
             fontStyle: "italic",
             letterSpacing: "-0.02em",
             marginBottom: 32,
-            color: isDark ? "#a1a1aa" : "#444",
+            color: textMuted,
           }}>
             Dhis wax aad leedahay.
           </h1>
         </FadeIn>
 
         <FadeIn delay={0.2}>
-          <p style={{ fontSize: 18, lineHeight: 1.7, color: isDark ? "#a1a1aa" : "#555", maxWidth: 580, marginBottom: 8 }}>
-            Garaad waa barnaamij 3-bilood ah oo lagugu bara MERN stack — <strong style={{ color: isDark ? "#fff" : "#0A0A0A" }}>af Soomaali</strong> — laga bilaabo eber ilaa aad u diyaar tahay suuqa shaqada.
+          <p style={{ fontSize: 18, lineHeight: 1.7, color: textMuted, maxWidth: 580, marginBottom: 8 }}>
+            Garaad waa barnaamij 3-bilood ah oo lagugu bara MERN stack — <strong style={{ color: text }}>af Soomaali</strong> — laga bilaabo eber ilaa aad u diyaar tahay suuqa shaqada.
           </p>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: isDark ? "#71717a" : "#999", maxWidth: 560 }}>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: textLight, maxWidth: 560 }}>
             A 3-month program teaching MERN stack in Somali — from zero to job-ready.
           </p>
         </FadeIn>
@@ -424,8 +432,8 @@ export function CurriculumSection() {
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "0 32px 100px" }}>
         <FadeIn>
           <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 48 }}>
-            <div style={{ width: 32, height: 1, background: isDark ? "#fff" : "#0A0A0A" }} />
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: isDark ? "#fff" : "#0A0A0A" }}>
+            <div style={{ width: 32, height: 1, background: text }} />
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: text }}>
               Marka aad dhammayso — waxaad yeelan doontaa
             </p>
           </div>
@@ -434,15 +442,13 @@ export function CurriculumSection() {
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {outcomes.map((o, i) => (
             <FadeIn key={i} delay={i * 0.08}>
-              <div className="outcome-card" style={{
+              <div style={{
                 display: "grid",
                 gridTemplateColumns: "64px 1fr",
                 gap: 24,
                 padding: "28px 0",
-                borderBottom: "1px solid #EBEBEB",
-                borderTop: i === 0 ? "1px solid #EBEBEB" : "none",
-                transition: "border-color 0.2s",
-                cursor: "default",
+                borderBottom: `1px solid ${border}`,
+                borderTop: i === 0 ? `1px solid ${border}` : "none",
               }}>
                 <span style={{
                   fontSize: 13,
@@ -454,10 +460,10 @@ export function CurriculumSection() {
                   {o.num}
                 </span>
                 <div>
-                  <p style={{ fontSize: 17, lineHeight: 1.65, color: isDark ? "#fafafa" : "#0A0A0A", marginBottom: 6, fontWeight: 400 }}>
+                  <p style={{ fontSize: 17, lineHeight: 1.65, color: text, marginBottom: 6, fontWeight: 400 }}>
                     {o.so}
                   </p>
-                  <p style={{ fontSize: 14, lineHeight: 1.6, color: isDark ? "#a1a1aa" : "#999", fontStyle: "italic" }}>
+                  <p style={{ fontSize: 14, lineHeight: 1.6, color: textMuted, fontStyle: "italic" }}>
                     {o.en}
                   </p>
                 </div>
@@ -467,16 +473,16 @@ export function CurriculumSection() {
         </div>
       </section>
 
-      <section style={{ background: isDark ? "#18181b" : "#FAFAFA", borderTop: "1px solid #27272a", borderBottom: "1px solid #27272a" }}>
+      <section style={{ background: bgSection, borderTop: `1px solid ${border}`, borderBottom: `1px solid ${border}` }}>
         <div style={{ maxWidth: 760, margin: "0 auto", padding: "80px 32px" }}>
           <FadeIn>
             <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
-              <div style={{ width: 32, height: 1, background: isDark ? "#fff" : "#0A0A0A" }} />
+              <div style={{ width: 32, height: 1, background: text }} />
               <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
                 Maxaad baranaysaa — todobaad kasta?
               </p>
             </div>
-            <p style={{ fontSize: 13, color: isDark ? "#a1a1aa" : "#999", marginBottom: 56, paddingLeft: 48, fontStyle: "italic" }}>
+            <p style={{ fontSize: 13, color: textMuted, marginBottom: 56, paddingLeft: 48, fontStyle: "italic" }}>
               What you learn — every week
             </p>
           </FadeIn>
@@ -484,27 +490,26 @@ export function CurriculumSection() {
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
             {months.map((m, i) => (
               <FadeIn key={i} delay={i * 0.1}>
-                <div className="month-card" style={{
+                <div style={{
                   display: "grid",
                   gridTemplateColumns: "64px 1fr",
                   gap: 24,
                   padding: "36px 0",
-                  borderBottom: i < 2 ? "1px solid #27272a" : "none",
+                  borderBottom: i < 2 ? `1px solid ${border}` : "none",
                 }}>
-                  <div className="month-num" style={{
+                  <div style={{
                     fontSize: 36,
                     fontFamily: "'DM Serif Display', serif",
                     fontWeight: 400,
                     color: isDark ? "#3f3f46" : "#DCDCDC",
                     lineHeight: 1,
-                    transition: "color 0.2s",
                     paddingTop: 4,
                   }}>
                     {m.num}
                   </div>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: isDark ? "#a1a1aa" : "#999", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      <span style={{ fontSize: 11, color: textMuted, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                         {m.label}
                       </span>
                       <span style={{ width: 3, height: 3, borderRadius: "50%", background: isDark ? "#52525b" : "#CCC" }} />
@@ -520,13 +525,13 @@ export function CurriculumSection() {
                         {m.title}
                       </span>
                     </div>
-                    <p style={{ fontSize: 12, color: isDark ? "#71717a" : "#BBBBBB", letterSpacing: "0.06em", marginBottom: 12, fontWeight: 500 }}>
+                    <p style={{ fontSize: 12, color: textLight, letterSpacing: "0.06em", marginBottom: 12, fontWeight: 500 }}>
                       {m.stack}
                     </p>
-                    <p style={{ fontSize: 16, lineHeight: 1.65, color: isDark ? "#fafafa" : "#0A0A0A", marginBottom: 4 }}>
+                    <p style={{ fontSize: 16, lineHeight: 1.65, color: text, marginBottom: 4 }}>
                       {m.so}
                     </p>
-                    <p style={{ fontSize: 13, color: isDark ? "#a1a1aa" : "#999", fontStyle: "italic" }}>
+                    <p style={{ fontSize: 13, color: textMuted, fontStyle: "italic" }}>
                       {m.en}
                     </p>
                   </div>
@@ -540,24 +545,24 @@ export function CurriculumSection() {
       <section style={{ maxWidth: 900, margin: "0 auto", padding: "80px 32px" }}>
         <FadeIn>
           <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
-            <div style={{ width: 32, height: 1, background: isDark ? "#fff" : "#0A0A0A" }} />
+            <div style={{ width: 32, height: 1, background: text }} />
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
               Jadwalka Maalinlaha — 60 Maalin · 12 Todobaad
             </p>
           </div>
-          <p style={{ fontSize: 13, color: isDark ? "#a1a1aa" : "#999", marginBottom: 48, paddingLeft: 48, fontStyle: "italic" }}>
+          <p style={{ fontSize: 13, color: textMuted, marginBottom: 48, paddingLeft: 48, fontStyle: "italic" }}>
             Day-by-day schedule — click a month, then a week to see every lesson
           </p>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <Timesheet />
+          <Timesheet isDark={isDark} />
         </FadeIn>
       </section>
 
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "96px 32px" }}>
         <FadeIn>
           <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 40 }}>
-            <div style={{ width: 32, height: 1, background: isDark ? "#fff" : "#0A0A0A" }} />
+            <div style={{ width: 32, height: 1, background: text }} />
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
               Run ahaan — this is hard work
             </p>
@@ -571,7 +576,7 @@ export function CurriculumSection() {
             lineHeight: 1.35,
             fontWeight: 400,
             letterSpacing: "-0.01em",
-            color: isDark ? "#fafafa" : "#0A0A0A",
+            color: text,
             marginBottom: 28,
             maxWidth: 620,
           }}>
@@ -580,19 +585,16 @@ export function CurriculumSection() {
         </FadeIn>
 
         <FadeIn delay={0.15}>
-          <p style={{ fontSize: 16, lineHeight: 1.75, color: isDark ? "#a1a1aa" : "#555", marginBottom: 16, maxWidth: 560 }}>
-            3-da bilood waxay u baahan tahay <strong style={{ color: isDark ? "#fff" : "#0A0A0A" }}>2–3 saacadood maalin kasta.</strong> Haddaad taas gashid — dhamaadka waxaad haysataa xirfado, portfolio, iyo khibrad aadan ka helin meel kale.
+          <p style={{ fontSize: 16, lineHeight: 1.75, color: textMuted, marginBottom: 16, maxWidth: 560 }}>
+            3-da bilood waxay u baahan tahay <strong style={{ color: text }}>2–3 saacadood maalin kasta.</strong> Haddaad taas gashid — dhamaadka waxaad haysataa xirfado, portfolio, iyo khibrad aadan ka helin meel kale.
           </p>
-          <p style={{ fontSize: 14, lineHeight: 1.7, color: isDark ? "#71717a" : "#AAA", fontStyle: "italic", maxWidth: 520 }}>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: textLight, fontStyle: "italic", maxWidth: 520 }}>
             3 months requires 2–3 hours per day. If you put that in — by the end you have skills, a portfolio, and experience you won&apos;t find anywhere else.
           </p>
         </FadeIn>
       </section>
 
-      <section style={{
-        borderTop: "1px solid #27272a",
-        background: isDark ? "#18181b" : "#FAFAFA",
-      }}>
+      <section style={{ borderTop: `1px solid ${border}`, background: bgSection }}>
         <div style={{ maxWidth: 760, margin: "0 auto", padding: "80px 32px", textAlign: "center" }}>
           <FadeIn>
             <p style={{
@@ -604,11 +606,13 @@ export function CurriculumSection() {
             }}>
               Bilow Hadda
             </p>
-            <p style={{ fontSize: 15, color: isDark ? "#71717a" : "#888", marginBottom: 36 }}>
+            <p style={{ fontSize: 15, color: textLight, marginBottom: 36 }}>
               Kaliya 10 arday cohort kasta — seats way xaddidan yihiin.
             </p>
-            <Link href="/welcome" className="cta-btn" style={{
-              display: "inline-block",
+            <Link href="/welcome" style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
               background: PURPLE,
               color: "#fff",
               border: "none",
@@ -622,11 +626,12 @@ export function CurriculumSection() {
               boxShadow: "0 4px 14px rgba(124,58,237,0.2)",
               textDecoration: "none",
             }}>
-              Ku biir Challenge-ka →
+              Ku biir Challenge-ka
+              <ArrowRight size={16} />
             </Link>
             <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20 }}>
               {["7-bari dammaanad lacag celin ah", "Lacagta waa la soo celin karaa", "Kaliya 10 arday cohort kasta"].map((t, i) => (
-                <span key={i} style={{ fontSize: 12, color: isDark ? "#52525b" : "#AAA", display: "flex", alignItems: "center", gap: 5 }}>
+                <span key={i} style={{ fontSize: 12, color: textLight, display: "flex", alignItems: "center", gap: 5 }}>
                   <span style={{ color: PURPLE }}>✓</span> {t}
                 </span>
               ))}
@@ -634,6 +639,6 @@ export function CurriculumSection() {
           </FadeIn>
         </div>
       </section>
-    </div>
+    </section>
   );
 }
