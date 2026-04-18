@@ -358,8 +358,47 @@ export function CurriculumSection() {
   const bgSection = isDark ? "#18181b" : "#FAFAFA";
 
   return (
-    <section id="curriculum" style={{ background: bg, color: text }}>
-      <section style={{ maxWidth: 760, margin: "0 auto", padding: "120px 32px 80px" }}>
+    <section id="curriculum" style={{ background: bg, color: text, position: "relative", overflow: "hidden" }}>
+      {/* Code pattern background */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        opacity: isDark ? 0.03 : 0.04,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 12h40M10 24h40M10 36h40M10 48h40' stroke='%237C3AED' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
+        backgroundSize: "60px 60px",
+      }} />
+      <div style={{
+        position: "absolute",
+        top: "10%",
+        right: "5%",
+        fontSize: 120,
+        opacity: isDark ? 0.02 : 0.04,
+        fontFamily: "monospace",
+        color: PURPLE,
+        userSelect: "none",
+      }}>{`{ }`}</div>
+      <div style={{
+        position: "absolute",
+        bottom: "15%",
+        left: "3%",
+        fontSize: 80,
+        opacity: isDark ? 0.02 : 0.04,
+        fontFamily: "monospace",
+        color: PURPLE,
+        userSelect: "none",
+      }}>&lt;/&gt;</div>
+      <div style={{
+        position: "absolute",
+        top: "30%",
+        left: "8%",
+        fontSize: 50,
+        opacity: isDark ? 0.02 : 0.04,
+        fontFamily: "monospace",
+        color: PURPLE,
+        userSelect: "none",
+      }}>#</div>
+
+      <section style={{ position: "relative", maxWidth: 760, margin: "0 auto", padding: "160px 32px 100px" }}>
         <FadeIn>
           <div style={{
             display: "inline-block",
@@ -373,39 +412,27 @@ export function CurriculumSection() {
             borderRadius: 4,
             marginBottom: 32,
           }}>
-            Garaad Challenge — 3 Bilood
+            Noqo Developer — 3 Bilood
           </div>
         </FadeIn>
 
         <FadeIn delay={0.1}>
           <h1 style={{
             fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(40px, 6vw, 68px)",
-            lineHeight: 1.1,
+            fontSize: "clamp(44px, 7vw, 72px)",
+            lineHeight: 1.05,
             fontWeight: 400,
             letterSpacing: "-0.02em",
-            marginBottom: 12,
+            marginBottom: 16,
           }}>
-            Ku baro code-ka.<br />
+            Ku baro code.<br />
             <span style={{ color: PURPLE }}>Hel shaqo.</span>
-          </h1>
-          <h1 style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(40px, 6vw, 68px)",
-            lineHeight: 1.1,
-            fontWeight: 400,
-            fontStyle: "italic",
-            letterSpacing: "-0.02em",
-            marginBottom: 32,
-            color: textMuted,
-          }}>
-            Dhis wax aad leedahay.
           </h1>
         </FadeIn>
 
         <FadeIn delay={0.2}>
-          <p style={{ fontSize: 18, lineHeight: 1.7, color: textMuted, maxWidth: 580, marginBottom: 8 }}>
-            Garaad waa barnaamij 3-bilood ah oo lagugu barayo MERN stack — oo af Soomaali ah — laga bilaabo eber ilaa aad u diyaar garowdo suuqa shaqada.
+          <p style={{ fontSize: 20, lineHeight: 1.6, color: textMuted, maxWidth: 560 }}>
+            Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI — af Soomaali. Ka bilaabo eber ilaa aad shaqo hesho.
           </p>
         </FadeIn>
       </section>
