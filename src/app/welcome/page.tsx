@@ -1046,15 +1046,15 @@ function WelcomeOnboardingPage() {
             }
           }}
           className={cn(
-            "flex min-h-[88px] cursor-pointer items-start gap-3 overflow-hidden rounded-2xl border-2 px-4 py-3.5 text-left transition-all duration-200 ease-in-out outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40",
+            "flex min-h-[72px] cursor-pointer items-start gap-2 overflow-hidden rounded-xl border-2 px-3 py-2.5 text-left transition-all duration-200 ease-in-out outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40",
             isSelected
               ? "border-violet-500/80 bg-violet-500/10 shadow-md shadow-violet-500/10 ring-1 ring-violet-500/15 dark:border-violet-400/70 dark:bg-violet-500/15"
               : "border-border bg-card/50 hover:border-violet-400/45 hover:bg-muted/40 dark:bg-slate-900/50",
             option.disabled && "pointer-events-none opacity-50"
           )}
         >
-          <div className="flex min-w-0 flex-1 items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-500/12 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
+          <div className="flex min-w-0 flex-1 items-start gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-500/12 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300">
               {option.icon}
             </div>
             <div className="min-w-0 flex-1 pt-0.5">
@@ -1184,13 +1184,13 @@ function WelcomeOnboardingPage() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
           aria-hidden
         />
-        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-10 sm:py-14">
-          <header className="mb-8 flex flex-col items-center gap-5 sm:mb-10">
+        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-6 sm:py-8">
+          <header className="mb-4 flex flex-col items-center gap-3 sm:mb-6">
             <Link href="/" className="rounded-2xl">
-              <Logo priority loading="eager" className="h-11 sm:h-12" />
+              <Logo priority loading="eager" className="h-10 sm:h-11" />
             </Link>
           </header>
-          <main className="flex flex-1 flex-col justify-center pb-8">
+          <main className="flex flex-1 flex-col justify-center pb-6">
             <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
               <CardContent className="space-y-6 p-6 text-center">
                 <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400">
@@ -1287,7 +1287,7 @@ function WelcomeOnboardingPage() {
 
           <main className="flex flex-1 flex-col justify-center pb-8">
             <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
-              <CardContent className="space-y-4 p-4 text-center sm:space-y-5 sm:p-6 md:text-left">
+              <CardContent className="space-y-4 p-4 text-center sm:space-y-4 sm:p-5 md:text-left">
                 <div className="mx-auto flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 md:mx-0">
                   <Sparkles className="size-5" aria-hidden />
                 </div>
