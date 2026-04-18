@@ -416,7 +416,7 @@ export function CurriculumSection() {
             borderRadius: 4,
             marginBottom: 32,
           }}>
-            Noqo Software Dev & AI — 3 Bilood
+            Noqo Software Dev & AI
           </div>
         </FadeIn>
 

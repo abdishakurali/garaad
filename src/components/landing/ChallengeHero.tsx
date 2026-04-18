@@ -149,7 +149,7 @@ export function ChallengeHero() {
           <span className="text-violet-500 dark:text-violet-400">
             Software Dev
           </span>{" "}
-          & AI — 3 Bilood gudahood
+          & AI
         </h1>
 
         {/* Subtext */}
