@@ -35,164 +35,157 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 const outcomes = [
   {
     num: "01",
-    so: "Shan mashruuc oo dhab ah oo GitHub-kaaga ku jira — mid kasta oo aad u samaystay oo aad sharrixi kartaa interview-ka.",
-    en: "Five real projects on your GitHub — each one you built yourself and can explain in an interview.",
+    text: "Shan mashruuc oo dhab ah oo ku jira GitHub-kaaga — mid kasta adigaa dhisay, interview-kana si kalsooni leh ugu sharrixi kara.",
   },
   {
     num: "02",
-    so: "App full-stack ah oo deployed — frontend, backend, database, iyo login system — URL dhab ah oo aad tusi kartid.",
-    en: "A deployed full stack app — frontend, backend, database, and login system — with a real URL you can show anyone.",
+    text: "App Full-stack ah oo deployed ah — frontend, backend, database, iyo login system — leh URL dhab ah oo aad cid kasta tusi kartid.",
   },
   {
     num: "03",
-    so: "SaaS product aad la tegi kartid macaamiisha ama isticmaalayaasha — oo leh AI integration iyo Stripe payments.",
-    en: "A SaaS product you can take to customers or users — with AI integration and Stripe payments.",
+    text: "SaaS product aad macaamiisha ama isticmaalayaasha u geyn kartid — oo leh AI integration iyo Stripe payments.",
   },
   {
     num: "04",
-    so: "CV, LinkedIn, iyo portfolio diyaar u ah codsiga shaqada — oo leh xirfadaha suuqa shaqadu u baahan yahay.",
-    en: "A CV, LinkedIn, and portfolio ready for job applications — with the skills the market actually needs.",
+    text: "CV, LinkedIn, iyo Portfolio u diyaarsan codsiga shaqada — oo leh xirfadaha dhabta ah ee suuqa shaqadu u baahan yahay.",
   },
 ];
 
 const timesheet = [
   {
     month: "Bishii 1aad — Aasaaska",
-    monthEn: "Month 1 — Foundations",
-    stack: "HTML · CSS · JavaScript · React",
+    stack: "HTML, CSS, JavaScript, React",
     weeks: [
       {
-        week: "Toddobaadka 1", weekEn: "Week 1",
+        week: "Toddobaadka 1aad",
         days: [
-          { day: "Isniin", topic: "Welcome & Setup — VS Code, Git, GitHub", build: "Dev environment ready, first commit" },
-          { day: "Talaado", topic: "HTML Foundations — tags, structure, semantic HTML", build: "Personal profile page" },
-          { day: "Arbaco", topic: "CSS Foundations — box model, flexbox, colors", build: "Style your profile page" },
-          { day: "Khamiis", topic: "CSS Layouts — Grid, responsive, media queries", build: "Responsive 2-column layout" },
-          { day: "Jimce", topic: "Project — Personal Portfolio Page", build: "Complete portfolio pushed to GitHub", project: true },
+          { day: "Isniin", topic: "Soo dhawayn & Setup — VS Code, Git, GitHub", build: "Dev environment-ka oo diyaar ah, commit-kii ugu horreeyay" },
+          { day: "Talaado", topic: "HTML Foundations — tags, structure, semantic HTML", build: "Bogga profile-ka qofka" },
+          { day: "Arbaco", topic: "CSS Foundations — box model, flexbox, colors", build: "Qurxinta bogga profile-kaaga" },
+          { day: "Khamiis", topic: "CSS Layouts — Grid, responsive, media queries", build: "Layout responsive ah oo 2-column leh" },
+          { day: "Jimce", topic: "Project — Personal Portfolio Page", build: "Portfolio dhammaystiran oo lagu push-gareeyay GitHub", project: true },
         ]
       },
       {
-        week: "Toddobaadka 2", weekEn: "Week 2",
+        week: "Toddobaadka 2aad",
         days: [
-          { day: "Isniin", topic: "JavaScript Basics — variables, types, functions", build: "Simple calculator in the browser" },
-          { day: "Talaado", topic: "JavaScript Logic — conditions, loops, arrays", build: "To-do list logic" },
-          { day: "Arbaco", topic: "DOM Manipulation — select, change, events", build: "Interactive to-do list" },
-          { day: "Khamiis", topic: "Async JavaScript — fetch, promises, async/await", build: "Fetch data from a public API" },
-          { day: "Jimce", topic: "Project — JavaScript Weather App", build: "Weather app using a real API", project: true },
+          { day: "Isniin", topic: "JavaScript Basics — variables, types, functions", build: "Calculator fudud oo browser-ka ku dhex shaqaynaya" },
+          { day: "Talaado", topic: "JavaScript Logic — conditions, loops, arrays", build: "Logic-ada To-do list-ka" },
+          { day: "Arbaco", topic: "DOM Manipulation — select, change, events", build: "To-do list interactive ah" },
+          { day: "Khamiis", topic: "Async JavaScript — fetch, promises, async/await", build: "Data laga soo jiidayo API dadweynaha u furan" },
+          { day: "Jimce", topic: "Project — JavaScript Weather App", build: "App-ka cimilada oo isticmaalaya API dhab ah", project: true },
         ]
       },
       {
-        week: "Toddobaadka 3", weekEn: "Week 3",
+        week: "Toddobaadka 3aad",
         days: [
-          { day: "Isniin", topic: "React Intro — why React, components, JSX", build: "First React component" },
-          { day: "Talaado", topic: "Props & State — useState hook", build: "Counter and dynamic card component" },
-          { day: "Arbaco", topic: "React Lists & Events — map, onClick, forms", build: "Dynamic list with add/remove" },
-          { day: "Khamiis", topic: "useEffect & API calls in React", build: "Fetch and display API data in React" },
-          { day: "Jimce", topic: "React Router — multiple pages, navigation", build: "Multi-page React app with Navbar" },
+          { day: "Isniin", topic: "React Intro — sababta React, components, JSX", build: "Component-igii ugu horreeyay ee React" },
+          { day: "Talaado", topic: "Props & State — useState hook", build: "Counter iyo dynamic card component" },
+          { day: "Arbaco", topic: "React Lists & Events — map, onClick, forms", build: "List isbedbedalaya oo wax lagu dari karo lana tirtiri karo" },
+          { day: "Khamiis", topic: "useEffect & API calls in React", build: "Soo jiidashada iyo soo bandhigista data-da API ee React" },
+          { day: "Jimce", topic: "React Router — bogag badan iyo navigation", build: "React app bogag badan leh oo Navbar wata", project: true },
         ]
       },
       {
-        week: "Toddobaadka 4 — Build Week", weekEn: "Week 4 — Build Week",
+        week: "Toddobaadka 4aad — Toddobaadka Dhismaha",
         days: [
-          { day: "Isniin", topic: "Global State — useContext", build: "Theme toggle using Context" },
-          { day: "Talaado", topic: "Build Day 1 — Idea, planning, GitHub setup", build: "Project idea defined, repo created", project: true },
-          { day: "Arbaco", topic: "Build Day 2 — Core UI components", build: "Navbar, pages, props working", project: true },
-          { day: "Khamiis", topic: "Build Day 3 — State, API, polish", build: "Data fetching, global state, responsive", project: true },
-          { day: "Jimce", topic: "Demo Day — Present your frontend project", build: "Live demo, GitHub published", project: true },
+          { day: "Isniin", topic: "Global State — useContext", build: "Isbeddelka muuqaalka (Theme toggle) iyadoo la isticmaalayo Context" },
+          { day: "Talaado", topic: "Build Day 1 — fikradda, qorshaynta, GitHub setup", build: "Qeexidda mashruuca iyo samaynta Repo", project: true },
+          { day: "Arbaco", topic: "Build Day 2 — Core UI components", build: "Navbar, bogagga, iyo props-ka oo shaqaynaya", project: true },
+          { day: "Khamiis", topic: "Build Day 3 — State, API, polish", build: "Data fetching, global state, iyo responsive-ka", project: true },
+          { day: "Jimce", topic: "Demo Day — soo bandhig mashruucaaga Frontend-ka", build: "Live demo iyo GitHub published ah", project: true },
         ]
       },
     ]
   },
   {
     month: "Bishii 2aad — Full-Stack",
-    monthEn: "Month 2 — Full-Stack",
-    stack: "Node.js · Express · MongoDB · Auth",
+    stack: "Node.js, Express, MongoDB, Auth",
     weeks: [
       {
-        week: "Toddobaadka 5", weekEn: "Week 5",
+        week: "Toddobaadka 5aad",
         days: [
-          { day: "Isniin", topic: "Node.js Intro — what is a server, how Node works", build: "First Node.js script" },
-          { day: "Talaado", topic: "Express Basics — routes, requests, responses", build: "Express server with 3 routes" },
+          { day: "Isniin", topic: "Node.js Intro — waa maxay server, sideese Node u shaqeeyaa", build: "Script-igii ugu horreeyay ee Node.js" },
+          { day: "Talaado", topic: "Express Basics — routes, requests, responses", build: "Express server leh 3 route" },
           { day: "Arbaco", topic: "REST API Design — GET, POST, PUT, DELETE", build: "Full CRUD API" },
-          { day: "Khamiis", topic: "Middleware — validation, error handling", build: "Middleware added to Express API" },
-          { day: "Jimce", topic: "Project — REST API for a real use case", build: "Working API pushed to GitHub", project: true },
+          { day: "Khamiis", topic: "Middleware — validation, error handling", build: "Middleware lagu daray Express API" },
+          { day: "Jimce", topic: "Project — REST API loogu talagalay isticmaal dhab ah", build: "API shaqaynaya oo lagu push-gareeyay GitHub", project: true },
         ]
       },
       {
-        week: "Toddobaadka 6", weekEn: "Week 6",
+        week: "Toddobaadka 6aad",
         days: [
-          { day: "Isniin", topic: "MongoDB Intro — databases, collections, documents", build: "MongoDB connected to Node app" },
-          { day: "Talaado", topic: "Mongoose — schemas, models, validation", build: "User model with Mongoose" },
-          { day: "Arbaco", topic: "CRUD with MongoDB — save, find, update, delete", build: "API reads/writes to real database" },
-          { day: "Khamiis", topic: "Connect Frontend to Backend", build: "React app displays data from your own API" },
-          { day: "Jimce", topic: "Project — Full Stack App (no auth yet)", build: "Frontend + backend + database connected", project: true },
+          { day: "Isniin", topic: "MongoDB Intro — databases, collections, documents", build: "MongoDB lagu xiray Node app" },
+          { day: "Talaado", topic: "Mongoose — schemas, models, validation", build: "User model lagu dhisay Mongoose" },
+          { day: "Arbaco", topic: "CRUD leh MongoDB — save, find, update, delete", build: "API wax ka akhrinaya waxna ku qoraya database dhab ah" },
+          { day: "Khamiis", topic: "Ku xiridda Frontend-ka iyo Backend-ka", build: "React app soo bandhigaya data ka timid API-gaaga" },
+          { day: "Jimce", topic: "Project — Full Stack App (iyadoon weli auth la gaarin)", build: "Isku xirka Frontend + Backend + Database", project: true },
         ]
       },
       {
-        week: "Toddobaadka 7 — Authentication", weekEn: "Week 7 — Authentication",
+        week: "Toddobaadka 7aad — Authentication",
         days: [
-          { day: "Isniin", topic: "Auth Part 1 — register, hash passwords (bcrypt)", build: "User registration endpoint" },
-          { day: "Talaado", topic: "Auth Part 2 — login, JWT tokens", build: "Login endpoint returning JWT" },
-          { day: "Arbaco", topic: "Protected Routes — verify JWT middleware", build: "Routes only accessible when logged in" },
-          { day: "Khamiis", topic: "Auth in React — store token, login/logout UI", build: "Login form connected to backend" },
-          { day: "Jimce", topic: "Project — Add Auth to full stack app", build: "App has working register and login", project: true },
+          { day: "Isniin", topic: "Auth Part 1 — diiwaangelinta, hash passwords (bcrypt)", build: "User registration endpoint" },
+          { day: "Talaado", topic: "Auth Part 2 — login, JWT tokens", build: "Login endpoint soo celinaya JWT" },
+          { day: "Arbaco", topic: "Protected Routes — verify JWT middleware", build: "Routes la geli karo oo keliya marka la soo login gareeyo" },
+          { day: "Khamiis", topic: "Auth in React — keydinta token-ka, login/logout UI", build: "Form-ka login-ka oo ku xiran backend-ka" },
+          { day: "Jimce", topic: "Project — ku darista Auth-ka Full Stack app-kaaga", build: "App leh register iyo login shaqaynaya", project: true },
         ]
       },
       {
-        week: "Toddobaadka 8 — Deploy", weekEn: "Week 8 — Deploy",
+        week: "Toddobaadka 8aad — Deploy",
         days: [
-          { day: "Isniin", topic: "Polish & Debug — code review, error handling", build: "App is stable, no major bugs" },
-          { day: "Talaado", topic: "Deploy Backend — Railway / Render", build: "Backend live on the internet" },
-          { day: "Arbaco", topic: "Deploy Frontend — Vercel, environment variables", build: "Frontend live on the internet" },
-          { day: "Khamiis", topic: "Final polish, README, demo prep", build: "App fully deployed and documented", project: true },
-          { day: "Jimce", topic: "Demo Day — Present your full stack app", build: "Live demo, deployed URL shared", project: true },
+          { day: "Isniin", topic: "Polish & Debug — code review, error handling", build: "App-ka oo deggan oo aan lahayn bug-yo waaweyn" },
+          { day: "Talaado", topic: "Deploy Backend — Railway / Render", build: "Backend-ka oo live ka ah internet-ka" },
+          { day: "Arbaco", topic: "Deploy Frontend — Vercel, environment variables", build: "Frontend-ka oo live ka ah internet-ka" },
+          { day: "Khamiis", topic: "Final polish, README, demo prep", build: "App-ka oo si buuxda u deployed ah oo documented ah" },
+          { day: "Jimce", topic: "Demo Day — soo bandhig Full Stack app-kaaga", build: "Live demo iyo URL la wadaagay", project: true },
         ]
       },
     ]
   },
   {
     month: "Bishii 3aad — SaaS & AI",
-    monthEn: "Month 3 — SaaS & AI",
-    stack: "Next.js · AI Integration · Stripe · Deploy",
+    stack: "Next.js, AI, Stripe, Deploy",
     weeks: [
       {
-        week: "Toddobaadka 9", weekEn: "Week 9",
+        week: "Toddobaadka 9aad",
         days: [
-          { day: "Isniin", topic: "Next.js Intro — pages, routing, why Next.js", build: "First Next.js app running" },
-          { day: "Talaado", topic: "Next.js Data Fetching — SSR, SSG, API routes", build: "Page that fetches data server-side" },
-          { day: "Arbaco", topic: "SaaS Planning — idea, audience, revenue model", build: "SaaS idea defined and documented" },
-          { day: "Khamiis", topic: "SaaS Architecture — structure, database, auth plan", build: "Project structure created on GitHub" },
-          { day: "Jimce", topic: "Project — SaaS MVP skeleton", build: "Next.js app with routing and layout", project: true },
+          { day: "Isniin", topic: "Next.js Intro — pages, routing, sababta Next.js", build: "App-kii ugu horreeyay ee Next.js" },
+          { day: "Talaado", topic: "Next.js Data Fetching — SSR, SSG, API routes", build: "Bog soo jiidaya data-da server-side ahaan" },
+          { day: "Arbaco", topic: "SaaS Planning — fikradda, dadka lala tiigsanayo, qaabka dakhliga", build: "Qeexidda iyo qoraalka fikradda SaaS-ka" },
+          { day: "Khamiis", topic: "SaaS Architecture — qaab dhismeedka, database, auth plan", build: "Structure-ka mashruuca oo GitHub laga sameeyay" },
+          { day: "Jimce", topic: "Project — SaaS MVP skeleton", build: "Next.js app leh routing iyo layout", project: true },
         ]
       },
       {
-        week: "Toddobaadka 10", weekEn: "Week 10",
+        week: "Toddobaadka 10aad",
         days: [
-          { day: "Isniin", topic: "AI Integration — Claude / OpenAI API basics", build: "First AI-powered feature working" },
-          { day: "Talaado", topic: "AI in your SaaS — integrate into your product", build: "AI feature inside your own app" },
-          { day: "Arbaco", topic: "Payments — Stripe setup, checkout, subscriptions", build: "Stripe checkout working" },
-          { day: "Khamiis", topic: "User Dashboard — show user data, account page", build: "Dashboard for logged-in users" },
-          { day: "Jimce", topic: "Project — Core SaaS features complete", build: "Auth + AI + payments working", project: true },
+          { day: "Isniin", topic: "AI Integration — Claude / OpenAI API basics", build: "Feature-kii ugu horreeyay ee AI ku shaqeeya" },
+          { day: "Talaado", topic: "AI in your SaaS — ku dar feature AI ah product-gaaga", build: "AI feature ku dhex jira app-kaaga" },
+          { day: "Arbaco", topic: "Payments — Stripe setup, checkout, subscriptions", build: "Stripe checkout oo shaqaynaya" },
+          { day: "Khamiis", topic: "User Dashboard — muujinta data-da isticmaalaha, account page", build: "Dashboard loogu talagalay users-ka login-ka ah" },
+          { day: "Jimce", topic: "Project — Core SaaS features complete", build: "Auth + AI + Payments oo wada shaqaynaya", project: true },
         ]
       },
       {
-        week: "Toddobaadka 11", weekEn: "Week 11",
+        week: "Toddobaadka 11aad",
         days: [
-          { day: "Isniin", topic: "Polish — UI/UX, mobile responsive", build: "App looks professional on all screens" },
-          { day: "Talaado", topic: "Performance & Security — env variables, rate limiting", build: "App is secure and production-ready" },
-          { day: "Arbaco", topic: "Deploy SaaS — Vercel + production database", build: "SaaS live on real domain" },
-          { day: "Khamiis", topic: "Get First Users — share, get feedback, iterate", build: "At least 1 real person uses your app" },
-          { day: "Jimce", topic: "Project — SaaS fully deployed with real users", build: "Real URL, real users, documented", project: true },
+          { day: "Isniin", topic: "Polish — UI/UX, mobile responsive", build: "App-ka oo u muuqda mid professional ah shaashad kasta" },
+          { day: "Talaado", topic: "Performance & Security — env variables, rate limiting", build: "App-ka oo ammaan ah oo production-ready ah" },
+          { day: "Arbaco", topic: "Deploy SaaS — Vercel + production database", build: "SaaS live ka ah domain dhab ah" },
+          { day: "Khamiis", topic: "Helitaanka isticmaalayaashii ugu horreeyay", build: "Ugu yaraan hal qof oo dhab ah oo isticmaalaya app-kaaga" },
+          { day: "Jimce", topic: "Project — SaaS fully deployed leh isticmaalayaal dhab ah", build: "URL dhab ah, users dhab ah, iyo documentation", project: true },
         ]
       },
       {
-        week: "Toddobaadka 12 — Qalin-jabinta", weekEn: "Week 12 — Graduation",
+        week: "Toddobaadka 12aad — Qalin-jabinta",
         days: [
-          { day: "Isniin", topic: "Portfolio & GitHub — README, pinned repos", build: "GitHub profile ready to show employers" },
-          { day: "Talaado", topic: "Job Prep — CV, LinkedIn, how to apply", build: "CV and LinkedIn updated" },
-          { day: "Arbaco", topic: "Freelance Prep — find clients, proposals, pricing", build: "First freelance profile or proposal" },
-          { day: "Khamiis", topic: "Final Demo Prep — rehearse, slides, README", build: "Demo polished and rehearsed", project: true },
-          { day: "Jimce", topic: "QALIN-JABINTA — Final Demo & Certificate", build: "Present SaaS + portfolio to audience", project: true },
+          { day: "Isniin", topic: "Portfolio & GitHub — README, pinned repos", build: "GitHub profile u diyaar ah loo shaqeeyayaasha" },
+          { day: "Talaado", topic: "Job Prep — CV, LinkedIn, qaabka codsiga shaqada", build: "CV iyo LinkedIn oo la cusboonaysiiyay" },
+          { day: "Arbaco", topic: "Freelance Prep — helista macaamiisha, proposals, pricing", build: "Freelance profile ama proposal-kii ugu horreeyay" },
+          { day: "Khamiis", topic: "Final Demo Prep — celcelis, slides, README", build: "Demo la sifeeyay oo la tijaabiyay" },
+          { day: "Jimce", topic: "QALIN-JABINTA — Final Demo & Shahaado", build: "Soo bandhigista SaaS + Portfolio", project: true },
         ]
       },
     ]
@@ -202,27 +195,18 @@ const timesheet = [
 const months = [
   {
     num: "01",
-    label: "Bishii 1aad",
-    title: "Aasaaska",
-    stack: "HTML · CSS · JavaScript · React",
-    so: "Aasaaska. Ku dhammaanaysaa mashruuc frontend ah oo aad dhistay.",
-    en: "Foundations. You finish with a frontend project you built yourself.",
+    title: "Aasaaska (Foundations)",
+    text: "Waxaad ku dhammaystiri doontaa mashruuc Frontend ah oo aad adigu dhistay.",
   },
   {
     num: "02",
-    label: "Bishii 2aad",
     title: "Full-Stack",
-    stack: "Node.js · Express · MongoDB · Auth",
-    so: "Full stack. Ku dhammaanaysaa app aad deployed garayso.",
-    en: "Full stack. You finish with a deployed app.",
+    text: "Waxaad ku dhammaystiri doontaa App dhab ah oo aad deployed garaysay.",
   },
   {
     num: "03",
-    label: "Bishii 3aad",
     title: "SaaS & AI",
-    stack: "Next.js · AI Integration · Stripe · Deploy",
-    so: "SaaS. Ku dhammaanaysaa wax soo saar dhab ah oo leh isticmaalayaal.",
-    en: "SaaS. You finish with a real product with real users.",
+    text: "Waxaad ku dhammaystiri doontaa wax-soo-saar dhab ah oo leh isticmaalayaal (users).",
   },
 ];
 
@@ -248,6 +232,7 @@ function Timesheet({ isDark }: { isDark: boolean }) {
   const borderLight = isDark ? "#27272a" : "#F0F0F0";
   const bgTable = isDark ? "#18181b" : "#F5F5F5";
   const bgProject = isDark ? "#1e1e24" : "#FDFBFF";
+  const purpleText = PURPLE;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -265,9 +250,9 @@ function Timesheet({ isDark }: { isDark: boolean }) {
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <span style={{
                 fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
-                color: PURPLE, background: PURPLE_LIGHT, padding: "3px 10px", borderRadius: 3,
+                color: purpleText, background: PURPLE_LIGHT, padding: "3px 10px", borderRadius: 3,
               }}>
-                {m.monthEn.split("—")[0].trim()}
+                Bishii {m.month.split("—")[0].replace("Bishii ", "")}
               </span>
               <div>
                 <span style={{ fontSize: 15, fontWeight: 600, color: textPrimary }}>{m.month}</span>
@@ -301,7 +286,6 @@ function Timesheet({ isDark }: { isDark: boolean }) {
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: isOpen ? PURPLE : "#DDD", transition: "background 0.2s" }} />
                         <span style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{w.week}</span>
-                        <span style={{ fontSize: 12, color: textLight, fontStyle: "italic" }}>{w.weekEn}</span>
                       </div>
                       <span style={{ fontSize: 12, color: textLight }}>{isOpen ? "−" : "+"} {w.days.length} maalin</span>
                     </button>
@@ -421,10 +405,7 @@ export function CurriculumSection() {
 
         <FadeIn delay={0.2}>
           <p style={{ fontSize: 18, lineHeight: 1.7, color: textMuted, maxWidth: 580, marginBottom: 8 }}>
-            Garaad waa barnaamij 3-bilood ah oo lagugu bara MERN stack — <strong style={{ color: text }}>af Soomaali</strong> — laga bilaabo eber ilaa aad u diyaar tahay suuqa shaqada.
-          </p>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: textLight, maxWidth: 560 }}>
-            A 3-month program teaching MERN stack in Somali — from zero to job-ready.
+            Garaad waa barnaamij 3-bilood ah oo lagugu barayo MERN stack — oo af Soomaali ah — laga bilaabo eber ilaa aad u diyaar garowdo suuqa shaqada.
           </p>
         </FadeIn>
       </section>
@@ -459,14 +440,9 @@ export function CurriculumSection() {
                 }}>
                   {o.num}
                 </span>
-                <div>
-                  <p style={{ fontSize: 17, lineHeight: 1.65, color: text, marginBottom: 6, fontWeight: 400 }}>
-                    {o.so}
-                  </p>
-                  <p style={{ fontSize: 14, lineHeight: 1.6, color: textMuted, fontStyle: "italic" }}>
-                    {o.en}
-                  </p>
-                </div>
+                <p style={{ fontSize: 17, lineHeight: 1.65, color: text, fontWeight: 400 }}>
+                  {o.text}
+                </p>
               </div>
             </FadeIn>
           ))}
@@ -479,12 +455,9 @@ export function CurriculumSection() {
             <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
               <div style={{ width: 32, height: 1, background: text }} />
               <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
-                Maxaad baranaysaa — todobaad kasta?
+                Maxaad baranaysaa — toddobaad kasta?
               </p>
             </div>
-            <p style={{ fontSize: 13, color: textMuted, marginBottom: 56, paddingLeft: 48, fontStyle: "italic" }}>
-              What you learn — every week
-            </p>
           </FadeIn>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -509,10 +482,6 @@ export function CurriculumSection() {
                   </div>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: textMuted, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                        {m.label}
-                      </span>
-                      <span style={{ width: 3, height: 3, borderRadius: "50%", background: isDark ? "#52525b" : "#CCC" }} />
                       <span style={{
                         fontSize: 11,
                         fontWeight: 600,
@@ -525,14 +494,8 @@ export function CurriculumSection() {
                         {m.title}
                       </span>
                     </div>
-                    <p style={{ fontSize: 12, color: textLight, letterSpacing: "0.06em", marginBottom: 12, fontWeight: 500 }}>
-                      {m.stack}
-                    </p>
-                    <p style={{ fontSize: 16, lineHeight: 1.65, color: text, marginBottom: 4 }}>
-                      {m.so}
-                    </p>
-                    <p style={{ fontSize: 13, color: textMuted, fontStyle: "italic" }}>
-                      {m.en}
+                    <p style={{ fontSize: 16, lineHeight: 1.65, color: text }}>
+                      {m.text}
                     </p>
                   </div>
                 </div>
@@ -547,11 +510,11 @@ export function CurriculumSection() {
           <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
             <div style={{ width: 32, height: 1, background: text }} />
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
-              Jadwalka Maalinlaha — 60 Maalin · 12 Todobaad
+              Jadwalka Maalinlaha — 60 Maalin · 12 Toddobaad
             </p>
           </div>
           <p style={{ fontSize: 13, color: textMuted, marginBottom: 48, paddingLeft: 48, fontStyle: "italic" }}>
-            Day-by-day schedule — click a month, then a week to see every lesson
+            Jadwalka maalinlaha — fdho month kasta, fdho week kasta si aad u aragto dhammaan casharada
           </p>
         </FadeIn>
         <FadeIn delay={0.1}>
@@ -564,7 +527,7 @@ export function CurriculumSection() {
           <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 40 }}>
             <div style={{ width: 32, height: 1, background: text }} />
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
-              Run ahaan — this is hard work
+              Run ahaan — shaqadani waa mid adag
             </p>
           </div>
         </FadeIn>
@@ -580,16 +543,13 @@ export function CurriculumSection() {
             marginBottom: 28,
             maxWidth: 620,
           }}>
-            Ma aha koorso aad daawanayso. Maalin kasta waxaad dhisaysaa wax. Todobaad kasta waxaad push garayso GitHub.
+            Ma aha koorso aad iska daawanayso. Maalin kasta waxaad dhisaysaa wax dhab ah. Toddobaad kasta waxaad code-ka push u garaysaa GitHub.
           </p>
         </FadeIn>
 
         <FadeIn delay={0.15}>
           <p style={{ fontSize: 16, lineHeight: 1.75, color: textMuted, marginBottom: 16, maxWidth: 560 }}>
-            3-da bilood waxay u baahan tahay <strong style={{ color: text }}>2–3 saacadood maalin kasta.</strong> Haddaad taas gashid — dhamaadka waxaad haysataa xirfado, portfolio, iyo khibrad aadan ka helin meel kale.
-          </p>
-          <p style={{ fontSize: 14, lineHeight: 1.7, color: textLight, fontStyle: "italic", maxWidth: 520 }}>
-            3 months requires 2–3 hours per day. If you put that in — by the end you have skills, a portfolio, and experience you won&apos;t find anywhere else.
+            3-da bilood waxay u baahan tahay <strong style={{ color: text }}>2–3 saacadood maalin kasta.</strong> Haddaad dadaalkaas geliso — dhamaadka waxaad haysataa xirfado, portfolio, iyo khibrad aadan meel kale ka helayn.
           </p>
         </FadeIn>
       </section>
@@ -607,7 +567,7 @@ export function CurriculumSection() {
               Bilow Hadda
             </p>
             <p style={{ fontSize: 15, color: textLight, marginBottom: 36 }}>
-              Kaliya 10 arday cohort kasta — seats way xaddidan yihiin.
+              Kaliya 10 arday cohort kasta — boosasku waa xaddidan yihiin.
             </p>
             <Link href="/welcome" style={{
               display: "inline-flex",
