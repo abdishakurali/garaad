@@ -195,12 +195,12 @@ const timesheet = [
 const months = [
   {
     num: "01",
-    title: "Aasaaska (Foundations)",
+    title: "Aasaaska",
     text: "Waxaad ku dhammaystiri doontaa mashruuc Frontend ah oo aad adigu dhistay.",
   },
   {
     num: "02",
-    title: "Full-Stack",
+    title: "Full-Stack ah",
     text: "Waxaad ku dhammaystiri doontaa App dhab ah oo aad deployed garaysay.",
   },
   {
@@ -297,7 +297,7 @@ function Timesheet({ isDark }: { isDark: boolean }) {
                           background: bgTable, padding: "8px 14px",
                           borderBottom: `1px solid ${border}`,
                         }}>
-                          {["Maalinta", "Topic", "Waxaad Dhisaysaa"].map((h, hi) => (
+                          {["Maalinta", "Mawduunka", "Waxaad Samaynaysaa"].map((h, hi) => (
                             <span key={hi} style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: textLight, textTransform: "uppercase" }}>
                               {h}
                             </span>
