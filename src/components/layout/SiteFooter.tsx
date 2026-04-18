@@ -3,6 +3,7 @@ import Link from "next/link";
 const footerLinks = [
   { href: "/courses", label: "Koorsooyinka" },
   { href: "/blog", label: "Blog" },
+  { href: "/careers", label: "Careers" },
   { href: "/feedback", label: "Aragtida ardayda" },
   { href: "/about", label: "Ku saabsan" },
   { href: "/privacy", label: "Arrimaha Khaaska ah" },
