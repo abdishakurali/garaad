@@ -24,7 +24,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Loader2, RotateCcw, Sparkles, X, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Check, Loader2, RotateCcw, Sparkles, X, AlertTriangle, Mail } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
 import { progressService } from "@/services/progress";
@@ -318,6 +318,7 @@ function WelcomeOnboardingPage() {
   const isMobile = useIsMobile();
   const exitCapturedRef = useRef(false);
   const answersRef = useRef(answers);
+  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null]);
   answersRef.current = answers;
 
   const { data: challengeData, loading: challengeLoading } =
@@ -1181,20 +1182,20 @@ function WelcomeOnboardingPage() {
   // Email verification required
   if (phase === "verify_email") {
     const verifyEmail = userData.email || AuthService.getInstance().getCurrentUser()?.email || "";
+    const otpDigits = verifyCode.padEnd(6, "").slice(0, 6).split("");
 
-    const handleVerifyCode = async () => {
-      if (!verifyCode.trim()) return;
+    const submitCode = async (code: string) => {
+      if (code.trim().length < 6) return;
       setActualError("");
       setIsLoading(true);
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/accounts/verify-email/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: verifyEmail, code: verifyCode.trim() }),
+          body: JSON.stringify({ email: verifyEmail, code: code.trim() }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed");
-        // Refresh user data then go to challenge
         await AuthService.getInstance().fetchAndUpdateUserData();
         const updated = AuthService.getInstance().getCurrentUser();
         if (updated) setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
@@ -1202,9 +1203,50 @@ function WelcomeOnboardingPage() {
         setPhase("challenge");
       } catch (e) {
         setActualError(e instanceof Error ? e.message : "Waxbaa khaldamay. Mar kale isku day.");
+        setVerifyCode("");
+        otpInputRefs.current[0]?.focus();
       } finally {
         setIsLoading(false);
       }
+    };
+
+    const handleOtpChange = (index: number, value: string) => {
+      const digit = value.replace(/\D/g, "").slice(-1);
+      const next = otpDigits.map((d, i) => (i === index ? digit : d)).join("").slice(0, 6);
+      setVerifyCode(next);
+      if (digit && index < 5) {
+        otpInputRefs.current[index + 1]?.focus();
+      }
+      if (next.replace(/ /g, "").length === 6 && !next.includes(" ")) {
+        void submitCode(next);
+      }
+    };
+
+    const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Backspace") {
+        if (otpDigits[index]) {
+          const next = otpDigits.map((d, i) => (i === index ? "" : d)).join("");
+          setVerifyCode(next);
+        } else if (index > 0) {
+          otpInputRefs.current[index - 1]?.focus();
+          const next = otpDigits.map((d, i) => (i === index - 1 ? "" : d)).join("");
+          setVerifyCode(next);
+        }
+      } else if (e.key === "ArrowLeft" && index > 0) {
+        otpInputRefs.current[index - 1]?.focus();
+      } else if (e.key === "ArrowRight" && index < 5) {
+        otpInputRefs.current[index + 1]?.focus();
+      }
+    };
+
+    const handleOtpPaste = (e: React.ClipboardEvent) => {
+      e.preventDefault();
+      const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+      if (!pasted) return;
+      setVerifyCode(pasted.padEnd(6, "").slice(0, 6));
+      const focusIdx = Math.min(pasted.length, 5);
+      otpInputRefs.current[focusIdx]?.focus();
+      if (pasted.length === 6) void submitCode(pasted);
     };
 
     const handleResend = async () => {
@@ -1217,6 +1259,8 @@ function WelcomeOnboardingPage() {
           body: JSON.stringify({ email: verifyEmail }),
         });
         if (!res.ok) throw new Error("Failed");
+        setVerifyCode("");
+        otpInputRefs.current[0]?.focus();
       } catch {
         setActualError("Waxbaa khaldamay. Mar kale isku day.");
       } finally {
@@ -1230,65 +1274,73 @@ function WelcomeOnboardingPage() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
           aria-hidden
         />
-        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-6 sm:py-8">
-          <header className="mb-4 flex flex-col items-center gap-3 sm:mb-6">
-            <Link href="/" className="rounded-2xl">
-              <Logo priority loading="eager" className="h-10 sm:h-11" />
-            </Link>
-          </header>
-          <main className="flex flex-1 flex-col justify-center pb-6">
-            <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
-              <CardContent className="space-y-5 p-6 text-center">
-                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">
-                  <Check className="size-7" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold">Xaqiiji Email-kaaga</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Koodhka 6-lambareed waxaa loo diray:
-                  </p>
-                  <p className="mt-1 font-mono text-sm font-semibold text-violet-600 dark:text-violet-400">
-                    {verifyEmail}
-                  </p>
-                </div>
-                <div className="space-y-2 text-left">
-                  <Label htmlFor="verifyCode" className="text-sm font-semibold text-foreground">
-                    Geli koodhka xaqiijinta
-                  </Label>
-                  <Input
-                    id="verifyCode"
-                    value={verifyCode}
-                    onChange={(e) => setVerifyCode(e.target.value)}
-                    placeholder="123456"
-                    maxLength={6}
-                    disabled={isLoading}
-                    onKeyDown={(e) => { if (e.key === "Enter") void handleVerifyCode(); }}
-                    className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-center text-2xl tracking-[0.4em] transition-shadow focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
-                  />
-                </div>
-                <Button
-                  onClick={() => void handleVerifyCode()}
-                  disabled={isLoading || verifyCode.trim().length < 4}
-                  className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-purple-500 disabled:opacity-60"
-                >
-                  {isLoading ? <Loader2 className="size-5 animate-spin" /> : "Xaqiiji →"}
-                </Button>
-                {actualError && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{actualError}</AlertDescription>
-                  </Alert>
+        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-sm flex-col items-center justify-center px-5 py-8">
+          <Link href="/" className="mb-8">
+            <Logo priority loading="eager" className="h-8" />
+          </Link>
+
+          {/* Mail icon */}
+          <div className="mb-6 flex size-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/30">
+            <Mail className="size-10 text-white" strokeWidth={1.5} />
+          </div>
+
+          <h2 className="mb-2 text-center text-2xl font-bold tracking-tight text-foreground">
+            Xaqiiji Email-kaaga
+          </h2>
+          <p className="mb-1 text-center text-sm text-muted-foreground">
+            Koodhka 6-lambareed waxaa loo diray:
+          </p>
+          <p className="mb-8 text-center text-sm font-semibold text-violet-600 dark:text-violet-400">
+            {verifyEmail}
+          </p>
+
+          {/* OTP boxes */}
+          <div className="mb-6 flex gap-2.5" onPaste={handleOtpPaste}>
+            {otpDigits.map((digit, i) => (
+              <input
+                key={i}
+                ref={(el) => { otpInputRefs.current[i] = el; }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit === " " ? "" : digit}
+                disabled={isLoading}
+                onChange={(e) => handleOtpChange(i, e.target.value)}
+                onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                onFocus={(e) => e.target.select()}
+                className={cn(
+                  "h-14 w-11 rounded-xl border-2 bg-card text-center text-xl font-bold text-foreground shadow-sm outline-none transition-all dark:bg-slate-900",
+                  digit && digit !== " "
+                    ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
+                    : "border-border focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
                 )}
-                <button
-                  type="button"
-                  onClick={() => void handleResend()}
-                  disabled={isLoading}
-                  className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
-                >
-                  Koodhka ma heshay? <span className="font-semibold text-violet-600 dark:text-violet-400">Dir mar kale</span>
-                </button>
-              </CardContent>
-            </Card>
-          </main>
+              />
+            ))}
+          </div>
+
+          {actualError && (
+            <Alert variant="destructive" className="mb-4 rounded-xl">
+              <AlertDescription>{actualError}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button
+            onClick={() => void submitCode(verifyCode)}
+            disabled={isLoading || verifyCode.replace(/\s/g, "").length < 6}
+            className="mb-4 h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-purple-500 disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="size-5 animate-spin" /> : "Xaqiiji & Sii wad →"}
+          </Button>
+
+          <button
+            type="button"
+            onClick={() => void handleResend()}
+            disabled={isLoading}
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+          >
+            Koodhka ma heshay?{" "}
+            <span className="font-semibold text-violet-600 dark:text-violet-400">Dir mar kale</span>
+          </button>
         </div>
       </div>
     );
