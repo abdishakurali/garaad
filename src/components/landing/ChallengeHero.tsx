@@ -186,7 +186,7 @@ export function ChallengeHero() {
             href="/welcome"
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
           >
-            Ku biir Challenge-ka
+            Hel la talin bilash ah
             <ArrowRight className="h-4 w-4" />
           </Link>
           <button
