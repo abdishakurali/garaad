@@ -440,7 +440,7 @@ function WelcomePage() {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-sm flex-col px-4 py-8 sm:py-12">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-lg flex-col px-4 py-8 sm:py-12">
         <header className="mb-8 flex flex-col items-center gap-4">
           <Link
             href="/"
@@ -458,13 +458,28 @@ function WelcomePage() {
         </header>
 
         <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
-          <CardContent className="p-5 sm:p-6">
-            <h2 className="mb-1 text-xl font-bold tracking-tight text-foreground">
+          <CardContent className="p-6 sm:p-8">
+            <h2 className="mb-1 text-2xl font-bold tracking-tight text-foreground">
               Sameyso Account
             </h2>
-            <p className="mb-5 text-sm text-muted-foreground">
+            <p className="mb-6 text-sm text-muted-foreground">
               Bilow safarkaaga maanta.
             </p>
+
+            {/* Google sign-in — always at the top */}
+            <GoogleSignInButton
+              disabled={isLoading}
+              onCredential={(c) => void handleGoogleCredential(c)}
+            />
+
+            {/* Divider */}
+            <div className="relative my-5 text-center text-xs font-medium text-muted-foreground">
+              <span className="relative z-10 bg-card px-3">ama isticmaal email</span>
+              <span
+                className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
+                aria-hidden
+              />
+            </div>
 
             {actualError && (
               <Alert
@@ -544,24 +559,6 @@ function WelcomePage() {
                   className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
                 />
               </div>
-
-              {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
-                <div className="space-y-3">
-                  <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
-                    <span className="relative z-10 bg-card px-3">
-                      ama sii wad Google
-                    </span>
-                    <span
-                      className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
-                      aria-hidden
-                    />
-                  </div>
-                  <GoogleSignInButton
-                    disabled={isLoading}
-                    onCredential={(c) => void handleGoogleCredential(c)}
-                  />
-                </div>
-              ) : null}
 
               <div className="space-y-1.5">
                 <Label
