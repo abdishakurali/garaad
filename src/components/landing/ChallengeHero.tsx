@@ -145,21 +145,21 @@ export function ChallengeHero() {
 
         {/* Headline */}
         <h1 className="mx-auto max-w-3xl text-balance text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-          Baro{" "}
+          Noqo{" "}
           <span className="text-violet-500 dark:text-violet-400">
-            Software Dev
+            Software Developer
           </span>{" "}
-          & AI
+          & AI Expert
         </h1>
 
         {/* Subtext */}
         <p className={`mx-auto mt-4 max-w-xl text-balance text-center text-base leading-relaxed sm:mt-6 sm:text-lg ${
           isDark ? "text-zinc-400" : "text-slate-600"
         }`}>
-          Mentor Somali ah ayaa{" "}
-          <span className={`font-semibold ${isDark ? "text-zinc-200" : "text-slate-800"}`}>tallaabo-tallaabo</span>{" "}
-          kuu hagi doona. Dhis mashruucyo dhab ah, baro xirfadaha suuqu rabo, horey u soco —{" "}
-          <span className={`font-semibold ${isDark ? "text-zinc-200" : "text-slate-800"}`}>30 daqiiqo</span> maalintii.
+          Mentor Soomaali ah ayaa{" "}
+          <span className={`font-semibold ${isDark ? "text-zinc-200" : "text-slate-800"}`}>tillaabo-tillaabo</span>{" "}
+          kuu hagi doona. Dhis mashaariic dhab ah, kuna biir suuqa shaqada —{" "}
+          <span className={`font-semibold ${isDark ? "text-zinc-200" : "text-slate-800"}`}>kaliya 30 daqiiqo</span> maalintii.
         </p>
 
         {/* Social proof */}

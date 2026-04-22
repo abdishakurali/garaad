@@ -20,7 +20,7 @@ export const ProfileDropdown: React.FC = () => {
   const handleLogout = () => {
     logout();
     setOpen(false);
-    router.push("/courses");
+    router.push("/");
   };
 
   const handleLinkClick = () => {

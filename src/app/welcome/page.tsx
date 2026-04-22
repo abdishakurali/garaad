@@ -27,8 +27,6 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Check, Loader2, RotateCcw, Sparkles, X, AlertTriangle, Mail } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
-import { progressService } from "@/services/progress";
-import { getResumeLessonPath } from "@/lib/onboarding-resume";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
@@ -91,11 +89,8 @@ function normalizeAnswersGoals(
   return {};
 }
 
-function stepsForAnswers(a: Answers): StepKind[] {
-  const s: StepKind[] = ["goal", "experience"];
-  if (a.experience === "tried_before") s.push("barrier");
-  s.push("time", "track", "project", "personal");
-  return s;
+function stepsForAnswers(_a: Answers): StepKind[] {
+  return ["personal"];
 }
 
 function learningGoalToMinutes(id: string): number {
@@ -456,22 +451,8 @@ function WelcomeOnboardingPage() {
   useEffect(() => {
     const auth = AuthService.getInstance();
     if (!auth.isAuthenticated()) return;
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const list = await progressService.getUserProgress();
-        if (cancelled || !list?.length) return;
-        setResumeRedirecting(true);
-        router.replace(getResumeLessonPath(list));
-      } catch {
-        /* stay */
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    setResumeRedirecting(true);
+    router.replace("/courses");
   }, [router]);
 
   useEffect(() => {
@@ -772,17 +753,16 @@ function WelcomeOnboardingPage() {
   const handleGoogleCredential = useCallback(
     async (credential: string) => {
       setActualError("");
-      if (!onboardingCompleteEnough(answers)) {
-        setActualError(
-          "Fadlan buuxi dhammaan su'aalaha ka hor intaadan Google isticmaalin."
-        );
-        return;
-      }
       setIsLoading(true);
       setAuthStoreError(null);
       try {
         const authService = AuthService.getInstance();
-        const onboarding_data = buildOnboardingPayload(answers);
+        const answersWithDefaults: Answers = {
+          goals: ["get_hired"], goal: "get_hired", experience: "first_time",
+          learning_goal: "15_min", topic: "fullstack", project_idea: "portfolio",
+          ...answers,
+        };
+        const onboarding_data = buildOnboardingPayload(answersWithDefaults);
         const result = await authService.signInWithGoogle({
           credential,
           onboarding_data,
@@ -796,26 +776,14 @@ function WelcomeOnboardingPage() {
           });
         }
 
-        let finalDest =
-          (postAuthRedirect && postAuthRedirect.startsWith("/")
-            ? postAuthRedirect
-            : null) ||
-          (result?.redirect_url && result.redirect_url.startsWith("/")
-            ? result.redirect_url
-            : null);
-
-        const topic = String(answers.topic ?? "").trim();
-        const deeplink = await AuthService.getInstance().getOnboardingFirstLesson(topic);
-        if (!finalDest) {
-          finalDest = deeplink.path || "/courses";
-        }
+        const finalDest =
+          (postAuthRedirect && postAuthRedirect.startsWith("/") ? postAuthRedirect : null) ||
+          (result?.redirect_url && result.redirect_url.startsWith("/") ? result.redirect_url : null) ||
+          "/courses";
 
         setPostSignupDest(finalDest);
 
-        posthog?.capture("onboarding_completed", {
-          destination_lesson_id: deeplink.lesson_id ?? undefined,
-          source: "google_gis",
-        });
+        posthog?.capture("onboarding_completed", { source: "google_gis" });
 
         clearWelcomeStorage();
         setPhase("challenge");
@@ -845,11 +813,6 @@ function WelcomeOnboardingPage() {
     const v = validatePersonal();
     if (v) {
       setActualError(v);
-      return;
-    }
-
-    if (!onboardingCompleteEnough(answers)) {
-      setActualError("Fadlan buuxi dhammaan su'aalaha");
       return;
     }
 
@@ -903,7 +866,12 @@ function WelcomeOnboardingPage() {
         }
       }
 
-      const onboarding_data = buildOnboardingPayload(answers);
+      const answersWithDefaults: Answers = {
+        goals: ["get_hired"], goal: "get_hired", experience: "first_time",
+        learning_goal: "15_min", topic: "fullstack", project_idea: "portfolio",
+        ...answers,
+      };
+      const onboarding_data = buildOnboardingPayload(answersWithDefaults);
 
       const signUpData: SignUpData = {
         email: userData.email.trim(),
@@ -925,28 +893,13 @@ function WelcomeOnboardingPage() {
       }
 
       if (result) {
-        let finalDest =
-          (postAuthRedirect && postAuthRedirect.startsWith("/")
-            ? postAuthRedirect
-            : null) ||
-          (result.redirect_url && result.redirect_url.startsWith("/")
-            ? result.redirect_url
-            : null);
-
-        const topic = String(answers.topic ?? "").trim();
-        const deeplink = await AuthService.getInstance().getOnboardingFirstLesson(
-          topic
-        );
-        if (!finalDest) {
-          finalDest = deeplink.path || "/courses";
-        }
+        const finalDest =
+          (postAuthRedirect && postAuthRedirect.startsWith("/") ? postAuthRedirect : null) ||
+          (result.redirect_url && result.redirect_url.startsWith("/") ? result.redirect_url : null) ||
+          "/courses";
 
         setPostSignupDest(finalDest);
-
-        posthog?.capture("onboarding_completed", {
-          destination_lesson_id: deeplink.lesson_id ?? undefined,
-        });
-
+        posthog?.capture("onboarding_completed");
         clearWelcomeStorage();
         setPhase("verify_email");
       }
@@ -1406,7 +1359,7 @@ function WelcomeOnboardingPage() {
 
                 <div className="rounded-xl border border-violet-200/50 bg-violet-50/40 p-3 dark:border-violet-500/20 dark:bg-violet-500/10 sm:rounded-2xl sm:p-4">
                   <h3 className="text-sm font-semibold text-foreground sm:text-base">
-                    Tallaabadaada xigta: Dooro sida aad rabto inaad ku bilaubto
+                    bibaawdo
                   </h3>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                     Waxaad leedahay laba waddo: in mentor uu tallaabo-tallaabo kuu haggo, ama inaad koorsooyinka ku bilaubto lacag la&apos;aan.
