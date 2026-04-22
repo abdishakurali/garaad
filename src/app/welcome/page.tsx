@@ -363,7 +363,7 @@ function WelcomeOnboardingPage() {
             setAnswers({ ...a, ...normalizeAnswersGoals(a) });
           }
           if (typeof parsed.stepIndex === "number") setStepIndex(parsed.stepIndex);
-          if (parsed.phase === "challenge") setPhase("challenge");
+          // challenge phase removed — always start from wizard
           if (parsed.userData) setUserData((u) => ({ ...u, ...parsed.userData }));
         } catch (e) {
           console.error("welcome v2 parse", e);
@@ -786,7 +786,7 @@ function WelcomeOnboardingPage() {
         posthog?.capture("onboarding_completed", { source: "google_gis" });
 
         clearWelcomeStorage();
-        setPhase("challenge");
+        router.replace(finalDest);
       } catch (error: unknown) {
         const errMsg = error instanceof Error ? error.message : "";
         if (error instanceof Error) {
@@ -1153,7 +1153,7 @@ function WelcomeOnboardingPage() {
         const updated = AuthService.getInstance().getCurrentUser();
         if (updated) setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
         setVerifySuccess(true);
-        setPhase("challenge");
+        router.replace(postSignupDest);
       } catch (e) {
         setActualError(e instanceof Error ? e.message : "Waxbaa khaldamay. Mar kale isku day.");
         setVerifyCode("");
