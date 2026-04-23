@@ -99,6 +99,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  // --- 3a. Email verification gate (non-admin protected routes) ---
+  // Authenticated users whose email is not yet verified must complete verification.
+  if (!pathname.startsWith("/admin") && userCookie?.value) {
+    try {
+      const user = JSON.parse(decodeURIComponent(userCookie.value)) as {
+        is_email_verified?: boolean;
+        email?: string;
+      };
+      if (user.is_email_verified === false) {
+        const verifyUrl = new URL("/verify-email", request.url);
+        if (user.email) verifyUrl.searchParams.set("email", user.email);
+        return NextResponse.redirect(verifyUrl, 307);
+      }
+    } catch {
+      // Corrupt cookie — let the page handle it
+    }
+  }
+
   // --- 3b. Onboarding gate: /dashboard requires has_completed_onboarding === true ---
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   if (isDashboard && userCookie?.value) {
