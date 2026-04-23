@@ -174,7 +174,7 @@ export function ChallengeHero() {
   }
 
   return (
-    <section className={`relative min-h-screen overflow-hidden transition-colors duration-300 ${
+    <section className={`relative overflow-hidden transition-colors duration-300 ${
       isDark
         ? "bg-zinc-950 text-zinc-100"
         : "bg-slate-50 text-slate-900"
@@ -195,7 +195,7 @@ export function ChallengeHero() {
         )}
       </div>
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 md:py-24 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-14 md:pt-28 md:pb-16 lg:px-8">
 
         {/* Headline */}
         <h1 className="mx-auto max-w-3xl text-balance text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
@@ -235,7 +235,7 @@ export function ChallengeHero() {
         </div>
 
         {/* CTA */}
-        <div className="mx-auto mt-7 flex flex-col items-center gap-3 sm:mt-9 sm:flex-row sm:justify-center sm:gap-4">
+        <div className="mx-auto mt-5 flex flex-col items-center gap-3 sm:mt-6 sm:flex-row sm:justify-center sm:gap-4">
           <Link
             href="/welcome"
             onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_primary" })}
@@ -255,7 +255,7 @@ export function ChallengeHero() {
         </div>
 
         {/* Video */}
-        <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5">
+        <div className="mx-auto mt-6 w-full max-w-2xl sm:mt-8">
           <VimeoHeroPlayer />
         </div>
 
