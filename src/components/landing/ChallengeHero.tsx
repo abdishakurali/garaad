@@ -217,19 +217,17 @@ export function ChallengeHero() {
         </div>
 
         {/* Video */}
-        <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5">
-          <Link href="/welcome" onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_video" })} className="group relative block overflow-hidden rounded-xl border bg-black border-white/10">
-            <div className="relative w-full" style={{ padding: "56.25% 0 0 0" }}>
-              <iframe
-                src="https://player.vimeo.com/video/1152611300?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&controls=1&background=0"
-                frameBorder="0"
-                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                title="Garaad Challenge"
-                loading="lazy"
-              />
-            </div>
-          </Link>
+        <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5 overflow-hidden rounded-xl border border-white/10 bg-black">
+          <div style={{ padding: "56.29% 0 0 0", position: "relative" }}>
+            <iframe
+              src="https://player.vimeo.com/video/1186028450?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1"
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+              title="garaad"
+            />
+          </div>
         </div>
 
         {/* Soft note */}
