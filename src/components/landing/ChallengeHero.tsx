@@ -8,6 +8,63 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
 
+// ─── Vimeo player: no controls bar, custom play/pause, unmuted autoplay ───────
+function VimeoHeroPlayer() {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [paused, setPaused] = useState(false);
+
+  const send = (method: string, value?: unknown) =>
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ method, ...(value !== undefined && { value }) }),
+      "https://player.vimeo.com"
+    );
+
+  // Attempt to unmute once the iframe is ready
+  useEffect(() => {
+    const timer = setTimeout(() => send("setVolume", 1), 800);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggle = () => {
+    send(paused ? "play" : "pause");
+    setPaused((p) => !p);
+  };
+
+  return (
+    <div
+      className="relative overflow-hidden rounded-xl border border-white/10 bg-black cursor-pointer select-none"
+      onClick={toggle}
+      role="button"
+      aria-label={paused ? "Play video" : "Pause video"}
+    >
+      <div style={{ padding: "56.29% 0 0 0", position: "relative" }}>
+        <iframe
+          ref={iframeRef}
+          src="https://player.vimeo.com/video/1186028450?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=0&controls=0"
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+          title="garaad"
+        />
+        {/* Centered play button — visible only when paused */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 pointer-events-none ${
+            paused ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
+            <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7 ml-1">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Animated code-rain canvas ────────────────────────────────────────────────
 function CodeRainCanvas({ isDark }: { isDark: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -217,17 +274,8 @@ export function ChallengeHero() {
         </div>
 
         {/* Video */}
-        <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5 overflow-hidden rounded-xl border border-white/10 bg-black">
-          <div style={{ padding: "56.29% 0 0 0", position: "relative" }}>
-            <iframe
-              src="https://player.vimeo.com/video/1186028450?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1"
-              frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-              title="garaad"
-            />
-          </div>
+        <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5">
+          <VimeoHeroPlayer />
         </div>
 
         {/* Soft note */}
