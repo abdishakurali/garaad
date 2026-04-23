@@ -270,9 +270,9 @@ export function ChallengeHero() {
           isDark ? "text-zinc-400" : "text-slate-500"
         }`}>
           {[
-            "Mentor Soomaali ah — 1:1 hanuannaan",
-            "React, Next.js, Node.js & AI — mashaariic dhab ah",
-            "Kaliya 30 daqiiqo maalintii",
+            "mento khaas ah, tech casri ah & AI",
+            "mashaariic dhab ah",
+            "hel la talin bilash ah",
           ].map((text) => (
             <li key={text} className="flex items-center gap-2">
               <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
