@@ -2,6 +2,7 @@
 
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
 import { CurriculumSection } from "@/components/landing/CurriculumSection";
+import { FAQSection } from "@/components/landing/FAQSection";
 import { OurStorySection } from "@/components/landing/OurStorySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { useEffect } from "react";
@@ -29,6 +30,7 @@ export function HomeContent() {
                 <ChallengeHero />
                 <CurriculumSection />
                 <TestimonialsSection />
+                <FAQSection />
                 <OurStorySection
                     className="py-12 md:py-16"
                     innerClassName="px-3 sm:px-4 md:px-6 lg:px-8"
