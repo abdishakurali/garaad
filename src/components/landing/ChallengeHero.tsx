@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Users, Trophy, Clock } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
@@ -143,12 +143,6 @@ const AVATARS = [
   { initials: "M",  bg: "bg-cyan-600/90" },
 ];
 
-const STATS = [
-  { icon: Users,  label: "97+ arday",  sub: "hadda wax baranaya" },
-  { icon: Trophy, label: "Mentor 1:1", sub: "hanuunin toos ah" },
-  { icon: Clock,  label: "30 daqiiqo", sub: "maalintii waa ku filan tahay" },
-];
-
 // ─── Component ────────────────────────────────────────────────────────────────
 export function ChallengeHero() {
   const [mounted, setMounted] = useState(false);
@@ -260,32 +254,11 @@ export function ChallengeHero() {
           </button>
         </div>
 
-        {/* Stat chips */}
-        <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-2 sm:mt-10 sm:gap-3">
-          {STATS.map(({ icon: Icon, label, sub }) => (
-            <div key={label} className={`flex flex-col items-center rounded-xl border px-2 py-3 text-center sm:px-3 ${
-              isDark ? "border-white/8 bg-white/5" : "border-slate-200 bg-white shadow-sm"
-            }`}>
-              <Icon className={`mb-1 h-4 w-4 sm:h-5 sm:w-5 ${isDark ? "text-violet-400" : "text-violet-600"}`} />
-              <span className={`text-xs font-bold sm:text-sm ${isDark ? "text-zinc-200" : "text-slate-800"}`}>{label}</span>
-              <span className={`mt-0.5 text-[10px] sm:text-xs ${isDark ? "text-zinc-500" : "text-slate-500"}`}>{sub}</span>
-            </div>
-          ))}
-        </div>
-
         {/* Video */}
         <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5">
           <VimeoHeroPlayer />
         </div>
 
-        {/* Soft note */}
-        <p className={`mt-6 text-center text-xs sm:mt-7 sm:text-sm ${isDark ? "text-zinc-600" : "text-slate-400"}`}>
-          Haddii aad rabto inaad marka hore tijaabiso —{" "}
-          <Link href="/welcome" onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_softnote" })} className="font-medium text-violet-500 underline-offset-4 hover:underline">
-            koorsooyinka ku billow lacag la&apos;aan
-          </Link>
-          . Laakiin xasuuso: koorsooyinka kaligood kuma filna khibrad dhammaystiran.
-        </p>
       </div>
     </section>
   );
