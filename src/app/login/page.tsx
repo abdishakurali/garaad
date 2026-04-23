@@ -294,21 +294,19 @@ function LoginPageContent() {
                                 </Alert>
                             )}
 
-                            {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
-                                <div className="space-y-4">
-                                    <GoogleSignInButton
-                                        disabled={isLoading}
-                                        onCredential={(c) => void handleGoogleCredential(c)}
+                            <div className="space-y-4">
+                                <GoogleSignInButton
+                                    disabled={isLoading}
+                                    onCredential={(c) => void handleGoogleCredential(c)}
+                                />
+                                <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
+                                    <span className="relative z-10 bg-card px-3">ama sii wad email</span>
+                                    <span
+                                        className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
+                                        aria-hidden
                                     />
-                                    <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
-                                        <span className="relative z-10 bg-card px-3">ama sii wad email</span>
-                                        <span
-                                            className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
-                                            aria-hidden
-                                        />
-                                    </div>
                                 </div>
-                            ) : null}
+                            </div>
 
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 <div className="space-y-2">

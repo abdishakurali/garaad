@@ -145,11 +145,11 @@ export function ChallengeHero() {
 
         {/* Headline */}
         <h1 className="mx-auto max-w-3xl text-balance text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-          Noqo{" "}
+          Baro{" "}
           <span className="text-violet-500 dark:text-violet-400">
             Software Developer
           </span>{" "}
-          & AI Expert
+          & AI
         </h1>
 
         {/* Subtext */}

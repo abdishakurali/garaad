@@ -416,7 +416,7 @@ export function CurriculumSection() {
             borderRadius: 4,
             marginBottom: 32,
           }}>
-            Noqo Software Dev & AI
+            Baro Software Developer & AI
           </div>
         </FadeIn>
 
