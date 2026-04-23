@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { API_BASE_URL } from "@/lib/constants";
 import type React from "react";
+import { usePostHog } from "posthog-js/react";
 
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -32,6 +33,7 @@ export default function VerifyEmailPage() {
   const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [email, setEmail] = useState("");
+  const posthog = usePostHog();
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -317,6 +319,7 @@ export default function VerifyEmailPage() {
       try {
         const updatedUserData = await authService.fetchAndUpdateUserData(data.access || data.token);
 
+        posthog?.capture("email_verified", { email });
         if (updatedUserData) {
           // Premium → /courses; non-premium also → /courses (free lesson 1 + community)
           router.push(postVerifyTarget);
@@ -333,6 +336,7 @@ export default function VerifyEmailPage() {
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";
 
+      posthog?.capture("email_verification_failed", { error: errorMessage.slice(0, 120), email });
       setError(errorMessage);
 
     } finally {
@@ -341,6 +345,7 @@ export default function VerifyEmailPage() {
   };
 
   const handleResendCode = async () => {
+    posthog?.capture("email_verification_resend_clicked", { email });
     setError(null);
 
     if (!email) {

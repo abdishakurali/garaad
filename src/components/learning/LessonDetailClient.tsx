@@ -907,6 +907,16 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
         setIsCorrect(isCorrect);
         setShowFeedback(true);
 
+        if (posthog.__loaded && currentLesson?.id && currentProblem?.id) {
+            posthog.capture("quiz_answered", {
+                lesson_id: currentLesson.id,
+                course_id: currentLesson.course,
+                problem_id: currentProblem.id,
+                question_type: currentProblem.question_type,
+                correct: isCorrect,
+            });
+        }
+
         if (!isCorrect && currentProblem.question_type !== "short_input") {
             // For single choice: disable the wrong option so it can't be selected again; keep it visually selected
             if (!Array.isArray(selectedOption)) {

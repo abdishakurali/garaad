@@ -1,6 +1,7 @@
 "use client";
 
 import  { useState, useEffect, useMemo, Suspense } from "react";
+import { usePostHog } from "posthog-js/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ function SubscribedSuccessBanner() {
 }
 
 export default function DashboardPage() {
+  const posthog = usePostHog();
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [practiceSets, setPracticeSets] = useState<PracticeSetType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -112,7 +114,8 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, []);
+    posthog?.capture("dashboard_viewed");
+  }, [posthog]);
 
   if (isLoading) {
     return (
@@ -135,7 +138,13 @@ export default function DashboardPage() {
           <div className="text-slate-700 dark:text-slate-200 mb-4">
             {continueData.course_title} &rarr; {continueData.lesson_title}
           </div>
-          <Link href={continueData.continue_url}>
+          <Link
+            href={continueData.continue_url}
+            onClick={() => posthog?.capture("continue_learning_clicked", {
+              lesson_title: continueData.lesson_title,
+              course_title: continueData.course_title,
+            })}
+          >
             <Button className="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold">
               Sii wad &rarr;
             </Button>

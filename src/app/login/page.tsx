@@ -110,6 +110,7 @@ function LoginPageContent() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        posthog?.capture("login_attempted", { method: "email" });
         setIsLoading(true);
 
         try {
@@ -122,6 +123,7 @@ function LoginPageContent() {
                 });
             }
 
+            posthog?.capture("login_succeeded", { method: "email" });
             try {
                 sessionStorage.removeItem("post_login_redirect");
             } catch {
@@ -133,6 +135,10 @@ function LoginPageContent() {
                 router.push("/courses");
             }
         } catch (err) {
+            posthog?.capture("login_failed", {
+                method: "email",
+                error: err instanceof Error ? err.message.slice(0, 120) : "unknown",
+            });
             setError(err instanceof Error ? err.message : "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
         } finally {
             setIsLoading(false);
@@ -150,6 +156,7 @@ function LoginPageContent() {
                     is_premium: result.user.is_premium ?? false,
                 });
             }
+            posthog?.capture("login_succeeded", { method: "google" });
             try {
                 sessionStorage.removeItem("post_login_redirect");
             } catch {
@@ -161,6 +168,10 @@ function LoginPageContent() {
                 router.push("/courses");
             }
         } catch (err) {
+            posthog?.capture("login_failed", {
+                method: "google",
+                error: err instanceof Error ? err.message.slice(0, 120) : "unknown",
+            });
             setError(
                 err instanceof Error ? err.message : "Google login ma guulaysan. Fadlan mar kale isku day."
             );

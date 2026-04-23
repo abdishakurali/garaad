@@ -140,6 +140,7 @@ function WelcomePage() {
       setActualError(v);
       return;
     }
+    posthog?.capture("signup_submitted", { method: "email" });
     setIsLoading(true);
     setAuthStoreError(null);
     try {
@@ -174,11 +175,13 @@ function WelcomePage() {
         errMsg.toLowerCase().includes("already") ||
         errMsg.includes("already exists");
       if (emailTaken) {
+        posthog?.capture("signup_failed", { reason: "email_taken" });
         setActualError(
           "Email-kan account ayaa horay loogu sameeyay. Ma doonaysaa inaad gasho (sign in)?"
         );
         return;
       }
+      posthog?.capture("signup_failed", { reason: errMsg.slice(0, 120) });
       setActualError(
         error instanceof Error
           ? error.message
@@ -268,8 +271,12 @@ function WelcomePage() {
         const updated = AuthService.getInstance().getCurrentUser();
         if (updated)
           setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
+        posthog?.capture("email_verified");
         router.replace(postSignupDest);
       } catch (e) {
+        posthog?.capture("email_verification_failed", {
+          error: e instanceof Error ? e.message : "unknown",
+        });
         setActualError(
           e instanceof Error ? e.message : "Waxbaa khaldamay. Mar kale isku day."
         );
@@ -325,6 +332,7 @@ function WelcomePage() {
     };
 
     const handleResend = async () => {
+      posthog?.capture("email_verification_resend_clicked");
       setActualError("");
       setIsLoading(true);
       try {

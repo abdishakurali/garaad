@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePostHog } from "posthog-js/react";
 import Link from "next/link";
 import { useCommunityStore } from "@/store/useCommunityStore";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -27,6 +28,7 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp
 export function InlinePostInput({ categoryId }: InlinePostInputProps) {
     const { userProfile, addPost: addOptimisticPost, updatePost } = useCommunityStore();
     const authUser = useAuthStore((s) => s.user);
+    const posthog = usePostHog();
 
     const [content, setContent] = useState("");
     const [images, setImages] = useState<File[]>([]);
@@ -160,6 +162,12 @@ export function InlinePostInput({ categoryId }: InlinePostInputProps) {
             if (response && (response.id || response.data?.id)) {
                 const serverPost = response.data ?? response;
                 updatePost({ ...serverPost, request_id: requestId });
+                posthog?.capture("community_post_created", {
+                    category_id: categoryId,
+                    has_images: imagesToSend.length > 0,
+                    has_video: !!videoUrlToSend,
+                    is_public: isPublic,
+                });
             }
         } catch (error) {
             console.error("Failed to create post:", error);

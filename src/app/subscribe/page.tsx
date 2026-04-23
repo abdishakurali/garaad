@@ -348,7 +348,7 @@ function SubscribePageInner() {
                   ) : null}
                 </div>
 
-            
+
 
                 <ul className="space-y-3.5 mb-8 flex-1">
                   {plan.features.map((feature, i) => (
@@ -384,7 +384,10 @@ function SubscribePageInner() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setSelectedPlan(plan.key)}
+                    onClick={() => {
+                      setSelectedPlan(plan.key);
+                      posthog?.capture("plan_cta_clicked", { plan: plan.key });
+                    }}
                     className={cn(
                       "w-full py-4 rounded-xl font-bold text-base transition-all",
                       plan.key === "challenge"
