@@ -27,6 +27,7 @@ import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { identifyUser } from "@/providers/PostHogProvider";
 
 const WELCOME_STORAGE_KEY = "welcome_onboarding_v2";
 const SIGNUP_DEFAULT_AGE = 18;
@@ -107,6 +108,13 @@ function WelcomePage() {
     if (authStoreError) setAuthStoreError(null);
   }, [authStoreError, setAuthStoreError]);
 
+  // Track phase transitions so we can see signup_form_viewed vs verify_email_viewed
+  useEffect(() => {
+    posthog?.capture(
+      phase === "signup" ? "welcome_signup_form_viewed" : "welcome_verify_email_viewed"
+    );
+  }, [phase, posthog]);
+
   useEffect(() => {
     if (!isLoading) {
       setLoadingPhase(0);
@@ -155,8 +163,10 @@ function WelcomePage() {
         ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
       };
       const result = await AuthService.getInstance().signUp(signUpData);
-      if (result?.user)
+      if (result?.user) {
         setAuthStoreUser({ ...result.user, is_premium: result.user.is_premium || false });
+        identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
+      }
       if (result) {
         const finalDest =
           (postAuthRedirect?.startsWith("/") ? postAuthRedirect : null) ||
@@ -206,11 +216,13 @@ function WelcomePage() {
             ? { promo_code: userData.promoCode.trim() }
             : {}),
         });
-        if (result?.user)
+        if (result?.user) {
           setAuthStoreUser({
             ...result.user,
             is_premium: result.user.is_premium || false,
           });
+          identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
+        }
         const finalDest =
           (postAuthRedirect?.startsWith("/") ? postAuthRedirect : null) ||
           (result?.redirect_url?.startsWith("/") ? result.redirect_url : null) ||

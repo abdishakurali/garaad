@@ -6,6 +6,7 @@ import { ArrowRight, Users, Trophy, Clock } from "lucide-react";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
+import { usePostHog } from "posthog-js/react";
 
 // ─── Animated code-rain canvas ────────────────────────────────────────────────
 function CodeRainCanvas({ isDark }: { isDark: boolean }) {
@@ -104,6 +105,8 @@ export function ChallengeHero() {
   const { data, loading } = useChallengeStatus();
   void loading;
 
+  const posthog = usePostHog();
+
   const scrollToCurriculum = () => {
     document.getElementById("curriculum")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -184,6 +187,7 @@ export function ChallengeHero() {
         <div className="mx-auto mt-7 flex flex-col items-center gap-3 sm:mt-9 sm:flex-row sm:justify-center sm:gap-4">
           <Link
             href="/welcome"
+            onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_primary" })}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-7 py-3.5 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-500/25 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
           >
             Hel la talin bilash ah
@@ -214,7 +218,7 @@ export function ChallengeHero() {
 
         {/* Video */}
         <div className="mx-auto mt-4 w-full max-w-2xl sm:mt-5">
-          <Link href="/welcome" className="group relative block overflow-hidden rounded-xl border bg-black border-white/10">
+          <Link href="/welcome" onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_video" })} className="group relative block overflow-hidden rounded-xl border bg-black border-white/10">
             <div className="relative w-full" style={{ padding: "56.25% 0 0 0" }}>
               <iframe
                 src="https://player.vimeo.com/video/1152611300?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&controls=1&background=0"
@@ -231,7 +235,7 @@ export function ChallengeHero() {
         {/* Soft note */}
         <p className={`mt-6 text-center text-xs sm:mt-7 sm:text-sm ${isDark ? "text-zinc-600" : "text-slate-400"}`}>
           Haddii aad rabto inaad marka hore tijaabiso —{" "}
-          <Link href="/welcome" className="font-medium text-violet-500 underline-offset-4 hover:underline">
+          <Link href="/welcome" onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_softnote" })} className="font-medium text-violet-500 underline-offset-4 hover:underline">
             koorsooyinka ku billow lacag la&apos;aan
           </Link>
           . Laakiin xasuuso: koorsooyinka kaligood kuma filna khibrad dhammaystiran.

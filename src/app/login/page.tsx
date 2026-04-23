@@ -14,6 +14,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { ArrowLeft, BookOpen, Loader2, LogIn, Sparkles } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect, parseLessonIdFromRedirectPath } from "@/lib/auth-redirect";
+import { identifyUser } from "@/providers/PostHogProvider";
 import { fetchLessonWallPreview } from "@/lib/lesson-wall-preview";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
@@ -121,6 +122,7 @@ function LoginPageContent() {
                     ...result.user,
                     is_premium: result.user.is_premium ?? false,
                 });
+                identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
             }
 
             posthog?.capture("login_succeeded", { method: "email" });
@@ -155,6 +157,7 @@ function LoginPageContent() {
                     ...result.user,
                     is_premium: result.user.is_premium ?? false,
                 });
+                identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
             }
             posthog?.capture("login_succeeded", { method: "google" });
             try {
