@@ -56,14 +56,15 @@ export function Header() {
 
   const navLinks = useMemo(() => {
     const links = [
+      { name: "Mentorship", href: "/mentorship", badge: "bilaash" },
       { name: "Webinars", href: "/webinars" },
       { name: "Blog", href: "/blog" },
     ];
 
     if (mounted && user) {
-      links.splice(1, 0, { name: "Bulshada", href: "/community" });
+      links.splice(2, 0, { name: "Bulshada", href: "/community" });
     } else if (!mounted) {
-      links.splice(1, 0, { name: "Bulshada", href: "/communitypreview" });
+      links.splice(2, 0, { name: "Bulshada", href: "/communitypreview" });
     }
 
     return links;
