@@ -34,22 +34,36 @@ interface CTASectionProps {
 }
 
 function CTASection({ title, description, ctaText, ctaHref, imageSrc, isFirst }: CTASectionProps) {
+    // Use background image style
+    const bgStyle = imageSrc ? {
+        backgroundImage: `url(${imageSrc})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+    } : {};
+
     return (
         <section className={`py-8 md:py-10 ${isFirst ? '' : 'border-t border-border/60'} bg-slate-50 dark:bg-zinc-900`}>
             <div className="max-w-5xl mx-auto px-4">
                 <Link 
                     href={ctaHref}
-                    className="flex flex-col md:flex-row items-center gap-5 p-4 md:p-5 rounded-xl bg-white dark:bg-zinc-800 shadow-sm hover:shadow-md transition-all"
+                    className="flex flex-col md:flex-row items-center gap-5 p-4 md:p-5 rounded-xl bg-white dark:bg-zinc-800 shadow-sm hover:shadow-md transition-all overflow-hidden relative"
                 >
-                    <div className="w-full md:w-44 lg:w-48 shrink-0">
-                        <img 
-                            src={imageSrc} 
-                            alt={title}
-                            className="w-full h-full object-cover rounded-lg"
-                            style={{ aspectRatio: '1/1' }}
+                    {/* Background image */}
+                    {imageSrc && (
+                        <div 
+                            className="absolute inset-0 opacity-20 pointer-events-none"
+                            style={bgStyle}
+                        />
+                    )}
+                    
+                    <div className="w-full md:w-44 lg:w-48 shrink-0 relative z-10">
+                        <div 
+                            className="w-full h-32 md:h-40 rounded-lg bg-zinc-200"
+                            style={bgStyle}
                         />
                     </div>
-                    <div className="flex-1 text-center md:text-left">
+                    
+                    <div className="flex-1 text-center md:text-left relative z-10">
                         <h2 className="text-lg md:text-xl font-bold text-foreground mb-1">{title}</h2>
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{description}</p>
                         <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm">
@@ -66,18 +80,19 @@ function CTASection({ title, description, ctaText, ctaHref, imageSrc, isFirst }:
 export async function CommunityCTAServer() {
     const webinar = await fetchLatestWebinar();
     
-    const title = webinar?.title || "Ku Biir Kooxda";
+    const title = webinar?.title || "Freelancing Soomaaliya";
     const description = webinar?.description 
-        ? webinar.description.slice(0, 100) + (webinar.description.length > 100 ? "..." : "")
-        : "Hel marin aad kula xiriirto dad hammi leh, u koraan, isuna caawinno.";
+        ? webinar.description.slice(0, 120) + (webinar.description.length > 120 ? "..." : "")
+        : "Dhammaanteen waan garawsannahay caqabadaha ka jira dalkeenna marka ay timaaddo ka qayb-qaadashada suuqa caalamka.";
     const imageSrc = webinar?.banner_image || "/images/community.png";
+    const linkHref = webinar?.slug ? `/webinars/${webinar.slug}` : "/community";
     
     return (
         <CTASection
             title={title}
             description={description}
-            ctaText="Ku Biir"
-            ctaHref="/community"
+            ctaText="Is-diiwaangeli"
+            ctaHref={linkHref}
             imageSrc={imageSrc}
             isFirst={true}
         />
