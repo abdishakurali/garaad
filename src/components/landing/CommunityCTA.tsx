@@ -63,7 +63,7 @@ function CTASection({ title, description, ctaText, ctaHref, imageSrc, isFirst }:
     );
 }
 
-export default async function CommunityCTA() {
+export async function CommunityCTAServer() {
     const webinar = await fetchLatestWebinar();
     
     const title = webinar?.title || "Ku Biir Kooxda";
