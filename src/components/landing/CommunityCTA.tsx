@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 
 function CTASection({ 
@@ -21,13 +19,8 @@ function CTASection({
     ctaHref: string;
     reverse?: boolean;
 }) {
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-    const { resolvedTheme } = useTheme();
-    const isDark = mounted ? resolvedTheme === "dark" : true;
-
     return (
-        <section className={`py-10 md:py-12 ${isDark ? 'bg-zinc-900' : 'bg-slate-50'}`}>
+        <section className="py-10 md:py-12 bg-slate-50 dark:bg-zinc-900">
             <div className="max-w-6xl mx-auto px-4 md:px-6">
                 <div className={`flex flex-col md:flex-row items-center gap-6 md:gap-10 ${reverse ? 'md:flex-row-reverse' : ''}`}>
                     <div className="flex-1 w-full">
@@ -47,6 +40,7 @@ function CTASection({
                             alt={title} 
                             fill 
                             className="object-cover"
+                            priority={false}
                         />
                     </div>
                 </div>
