@@ -15,21 +15,28 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     const { token, clearTokens } = useAdminAuthStore();
     const router = useRouter();
     const pathname = usePathname();
     const [isChecking, setIsChecking] = useState(true);
 
+    // Wait for hydration
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     /* eslint-disable react-hooks/set-state-in-effect -- auth redirect flow */
     // Auth check
     useEffect(() => {
+        if (!mounted) return;
         if (!token && pathname !== "/admin/login") {
             router.replace("/admin/login");
         } else {
             setIsChecking(false);
         }
-    }, [token, pathname, router]);
+    }, [token, pathname, router, mounted]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
     // Handle screen size changes
