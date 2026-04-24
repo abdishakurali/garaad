@@ -150,16 +150,16 @@ function WebinarCard({
         {/* Banner thumbnail */}
         <div
           className={`shrink-0 overflow-hidden rounded-xl bg-violet-100 dark:bg-violet-950/40 ${
-            featured ? "h-32 w-full sm:h-28 sm:w-44" : "h-24 w-full sm:h-20 sm:w-32"
+            featured ? "h-40 w-full sm:h-32 sm:w-56" : "h-28 w-full sm:h-24 sm:w-40"
           }`}
         >
           {webinar.banner_image ? (
             <Image
               src={webinar.banner_image}
               alt={webinar.title}
-              width={176}
-              height={112}
-              className="h-full w-full object-cover"
+              width={224}
+              height={144}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full items-center justify-center">

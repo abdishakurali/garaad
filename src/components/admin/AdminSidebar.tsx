@@ -14,6 +14,7 @@ const NAV_ITEMS = [
     { key: "koorsooyinka", label: "Koorsooyinka", icon: "◎", path: "/admin/koorsooyinka" },
     { key: "casharada", label: "Casharada", icon: "≡", path: "/admin/casharada" },
     { key: "blog", label: "Blog", icon: "▤", path: "/admin/blog" },
+    { key: "webinars", label: "Webinars", icon: "◎", path: "/admin/webinars" },
     { key: "marketing", label: "Marketing", icon: "◈", path: "/admin/marketing" },
 ];
 
