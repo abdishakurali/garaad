@@ -27,12 +27,12 @@ function CTASection({
     const isDark = mounted ? resolvedTheme === "dark" : true;
 
     return (
-        <section className={`py-10 md:py-12 border-t border-border/60 ${reverse ? 'bg-zinc-50 dark:bg-zinc-900/30' : ''}`}>
+        <section className={`py-10 md:py-12 ${isDark ? 'bg-zinc-900' : 'bg-slate-50'}`}>
             <div className="max-w-6xl mx-auto px-4 md:px-6">
                 <div className={`flex flex-col md:flex-row items-center gap-6 md:gap-10 ${reverse ? 'md:flex-row-reverse' : ''}`}>
                     <div className="flex-1 w-full">
-                        <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">{title}</h2>
-                        <p className="text-sm md:text-base text-muted-foreground mb-4">{description}</p>
+                        <h2 className="text-2xl md:text-3xl font-bold text-violet-600 dark:text-violet-400 mb-2 pb-2 border-b-2 border-violet-500 inline-block">{title}</h2>
+                        <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-300 mb-5">{description}</p>
                         <Link
                             href={ctaHref}
                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors"
