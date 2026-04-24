@@ -27,17 +27,8 @@ function MentorshipHero() {
             color: text,
             position: "relative",
             overflow: "hidden",
-            padding: "120px 32px 80px",
+            padding: "80px 32px 60px",
         }}>
-            {/* Background patterns */}
-            <div style={{
-                position: "absolute",
-                inset: 0,
-                opacity: isDark ? 0.03 : 0.04,
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 12h40M10 24h40M10 36h40M10 48h40' stroke='%237C3AED' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
-                backgroundSize: "60px 60px",
-            }} />
-
             <div style={{
                 position: "relative",
                 maxWidth: 760,
@@ -54,9 +45,9 @@ function MentorshipHero() {
                     background: isDark ? "#1e1e24" : "#F5F0FF",
                     padding: "6px 14px",
                     borderRadius: 4,
-                    marginBottom: 32,
+                    marginBottom: 24,
                 }}>
-                    Garaad Challenge
+                    Baro Software Developer & AI
                 </div>
 
                 <h1 style={{
@@ -65,21 +56,20 @@ function MentorshipHero() {
                     lineHeight: 1.05,
                     fontWeight: 400,
                     letterSpacing: "-0.02em",
-                    marginBottom: 24,
+                    marginBottom: 20,
                 }}>
                     Baro code.<br />
                     <span style={{ color: PURPLE }}>Hel shaqo.</span>
                 </h1>
 
                 <p style={{
-                    fontSize: 20,
+                    fontSize: 18,
                     lineHeight: 1.6,
                     color: textMuted,
-                    maxWidth: 560,
-                    margin: "0 auto 40px"
+                    maxWidth: 480,
+                    margin: "0 auto 32px"
                 }}>
-                    Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI.
-                    Ka bilaabo eber ilaa aad shaqo hesho.
+                    Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI — af Soomaali. Ka bilaabo eber ilaa aad shaqo hesho.
                 </p>
 
                 <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
@@ -90,8 +80,8 @@ function MentorshipHero() {
                         background: PURPLE,
                         color: "#fff",
                         border: "none",
-                        padding: "16px 40px",
-                        fontSize: 15,
+                        padding: "14px 32px",
+                        fontSize: 14,
                         fontWeight: 600,
                         borderRadius: 6,
                         cursor: "pointer",
@@ -110,8 +100,8 @@ function MentorshipHero() {
                         background: "transparent",
                         color: text,
                         border: `1px solid ${isDark ? "#3f3f46" : "#E8E8E8"}`,
-                        padding: "16px 40px",
-                        fontSize: 15,
+                        padding: "14px 32px",
+                        fontSize: 14,
                         fontWeight: 500,
                         borderRadius: 6,
                         cursor: "pointer",

@@ -402,45 +402,6 @@ export function CurriculumSection() {
         userSelect: "none",
       }}>#</div>
 
-      <section style={{ position: "relative", maxWidth: 760, margin: "0 auto", padding: "160px 32px 100px" }}>
-        <FadeIn>
-          <div style={{
-            display: "inline-block",
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: PURPLE,
-            background: PURPLE_LIGHT,
-            padding: "6px 14px",
-            borderRadius: 4,
-            marginBottom: 32,
-          }}>
-            Baro Software Developer & AI
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.1}>
-          <h1 style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(44px, 7vw, 72px)",
-            lineHeight: 1.05,
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-            marginBottom: 16,
-          }}>
-            Baro code.<br />
-            <span style={{ color: PURPLE }}>Hel shaqo.</span>
-          </h1>
-        </FadeIn>
-
-        <FadeIn delay={0.2}>
-          <p style={{ fontSize: 20, lineHeight: 1.6, color: textMuted, maxWidth: 560 }}>
-            Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI — af Soomaali. Ka bilaabo eber ilaa aad shaqo hesho.
-          </p>
-        </FadeIn>
-      </section>
-
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "0 32px 100px" }}>
         <FadeIn>
           <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 48 }}>
