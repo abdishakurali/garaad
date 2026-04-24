@@ -1,10 +1,7 @@
 "use client";
 
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
-import { CurriculumSection } from "@/components/landing/CurriculumSection";
 import { FAQSection } from "@/components/landing/FAQSection";
-import { OurStorySection } from "@/components/landing/OurStorySection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePostHog } from 'posthog-js/react';
@@ -28,13 +25,7 @@ export function HomeContent() {
         <main className="min-h-screen bg-background text-foreground">
             <>
                 <ChallengeHero />
-                <CurriculumSection />
-                <TestimonialsSection />
                 <FAQSection />
-                <OurStorySection
-                    className="py-12 md:py-16"
-                    innerClassName="px-3 sm:px-4 md:px-6 lg:px-8"
-                />
             </>
         </main>
     );
