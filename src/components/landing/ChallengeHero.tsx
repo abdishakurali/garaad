@@ -307,14 +307,14 @@ export function ChallengeHero() {
             Hel la talin bilash ah
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <button
-            onClick={scrollToCurriculum}
-            className={`text-sm font-medium underline-offset-4 transition-colors hover:underline ${
-              isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"
-            }`}
-          >
-            Arag manhajka ↓
-          </button>
+<Link
+              href="/mentorship"
+              className={`text-sm font-medium underline-offset-4 transition-colors hover:underline ${
+                isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              Arag manhajka ↓
+            </Link>
         </div>
 
         {/* Video */}
