@@ -1,6 +1,7 @@
 "use client";
 
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
+import { CommunityCTA } from "@/components/landing/CommunityCTA";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -25,6 +26,7 @@ export function HomeContent() {
         <main className="min-h-screen bg-background text-foreground">
             <>
                 <ChallengeHero />
+                <CommunityCTA />
                 <FAQSection />
             </>
         </main>
