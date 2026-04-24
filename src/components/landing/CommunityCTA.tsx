@@ -43,18 +43,23 @@ function CTASection({ title, description, ctaText, ctaHref, imageSrc, isFirst }:
                     className="flex flex-col md:flex-row items-center gap-5 p-4 md:p-5 rounded-xl bg-white dark:bg-zinc-800 shadow-sm hover:shadow-md transition-all"
                 >
                     <div className="w-full md:w-44 lg:w-48 shrink-0 relative aspect-video md:aspect-square rounded-lg overflow-hidden bg-zinc-100">
-                        {imageSrc && (
+                        {imageSrc ? (
                             <Image 
                                 src={imageSrc} 
                                 alt={title}
                                 fill
                                 className="object-cover"
+                                unoptimized
                             />
+                        ) : (
+                            <div className="flex items-center justify-center h-full bg-zinc-200">
+                                <span className="text-zinc-400 text-xs">No image</span>
+                            </div>
                         )}
                     </div>
                     <div className="flex-1 text-center md:text-left">
                         <h2 className="text-lg md:text-xl font-bold text-foreground mb-1">{title}</h2>
-                        <p className="text-sm text-muted-foreground mb-3">{description}</p>
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{description}</p>
                         <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm">
                             {ctaText}
                             <ArrowRight className="w-4 h-4" />
