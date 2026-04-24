@@ -14,25 +14,25 @@ export function CommunityCTA() {
 
     const bg = isDark ? "#0A0A0F" : "#FFFFFF";
     const text = isDark ? "#FAFAFA" : "#0A0A0A";
-    const textMuted = isDark ? "#A1A1AA" : "#52525B";
+    const textMuted = isDark ? "#71717A" : "#A1A1AA";
 
     return (
         <section style={{ background: bg, color: text }} className="py-12 md:py-16">
             <div className="mx-auto max-w-5xl px-4">
-                <div className="grid gap-8 md:grid-cols-2 md:items-center">
+                <div className="grid gap-6 md:grid-cols-2 md:items-center">
                     {/* Text */}
                     <div>
-                        <h2 className="text-2xl md:text-3xl font-bold mb-3">
+                        <h2 className="text-xl md:text-2xl font-semibold mb-2">
                             Ku Biir Kooxda Guuleystayaasha
                         </h2>
-                        <p className="text-base mb-6" style={{ color: textMuted }}>
-                            Hel marin aad kula xiriirto dad hammi leh oo adiga kula mid ah. Aan si wadajir ah u guuleysanno, u koraan, isuna caawinno.
+                        <p className="text-sm mb-5" style={{ color: textMuted }}>
+                            Hel marin aad kula xiriirto dad hammi leh, u koraan, isuna caawinno.
                         </p>
                         <Link
                             href="/community"
-                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-violet-600 text-white text-sm hover:bg-violet-500"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-violet-600 text-white text-sm hover:bg-violet-500"
                         >
-                            Ku Biir Kooxda
+                            Ku Biir
                             <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
