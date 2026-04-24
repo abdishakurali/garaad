@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -18,28 +17,36 @@ function CTASection({ title, description, ctaText, imageSrc, ctaHref }: {
     const { resolvedTheme } = useTheme();
     const isDark = mounted ? resolvedTheme === "dark" : true;
 
-    const bg = isDark ? "#0A0A0F" : "#FFFFFF";
-    const text = isDark ? "#FAFAFA" : "#0A0A0A";
+    const bg = isDark ? "#18181B" : "#F4F4F5";
+    const text = isDark ? "#FAFAFA" : "#18181B";
     const textMuted = isDark ? "#A1A1AA" : "#52525B";
 
     return (
-        <section style={{ background: bg, color: text }} className="py-12 md:py-14">
-            <div className="mx-auto max-w-5xl px-4">
-                <div className="grid gap-6 md:grid-cols-2 md:items-center">
-                    <div>
-                        <h2 className="text-lg md:text-xl font-semibold mb-2">{title}</h2>
-                        <p className="text-sm mb-4" style={{ color: textMuted }}>{description}</p>
-                        <Link
-                            href={ctaHref}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-violet-600 text-white text-sm hover:bg-violet-500"
-                        >
-                            {ctaText}
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
-                    </div>
-                    <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                        <Image src={imageSrc} alt={title} fill className="object-cover" />
-                    </div>
+        <section 
+            className="py-8 md:py-10 rounded-2xl mx-4 my-6 md:m-6"
+            style={{ background: bg, maxWidth: 1100, margin: '0 auto' }}
+        >
+            <div className="grid gap-5 md:grid-cols-2 md:items-center md:gap-8 max-w-5xl mx-auto px-3">
+                <div className="order-2 md:order-1">
+                    <h2 className="text-lg md:text-xl font-bold mb-1.5" style={{ color: text }}>
+                        {title}
+                    </h2>
+                    <p className="text-sm mb-4" style={{ color: textMuted }}>{description}</p>
+                    <Link
+                        href={ctaHref}
+                        className="inline-block px-4 py-2 rounded-lg font-semibold bg-violet-600 text-white text-sm hover:bg-violet-500 transition-colors"
+                    >
+                        {ctaText}
+                    </Link>
+                </div>
+                <div className="order-1 md:order-2 relative aspect-[3/2] md:aspect-square rounded-xl overflow-hidden">
+                    <Image 
+                        src={imageSrc} 
+                        alt={title} 
+                        fill 
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                    />
                 </div>
             </div>
         </section>
