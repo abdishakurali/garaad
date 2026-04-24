@@ -160,7 +160,7 @@ function firstNameFromFullName(fullName: string): string {
   return part || "saaxiib";
 }
 
-export function WebinarPageClient() {
+export function WebinarPageClient({ recapVideoId }: { recapVideoId?: string } = {}) {
   const { toast } = useToast();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -785,6 +785,37 @@ export function WebinarPageClient() {
           </Accordion>
         </div>
       </section>
+
+      {/* Recap video — shown only for past webinars */}
+      {recapVideoId && (
+        <section className="border-t border-border px-4 py-20 md:py-28 dark:border-zinc-800/80">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-10 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-primary">
+                Dib u eegista kulanka
+              </p>
+              <h2 className="mt-3 font-serif text-2xl font-medium text-foreground md:text-3xl">
+                Rikoodi-ka webinarka
+              </h2>
+              <p className="mt-3 text-sm text-muted-foreground md:text-base">
+                Haddaadan ka qayb galin karin — halkan ka daawo kulanki oo dhan.
+              </p>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-border shadow-xl dark:border-zinc-800/90">
+              <div style={{ position: "relative", paddingTop: "56.25%" }}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${recapVideoId}`}
+                  title="Webinar recap"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                  className="border-0"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
