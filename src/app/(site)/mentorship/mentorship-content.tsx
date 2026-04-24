@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { CurriculumSection } from "@/components/landing/CurriculumSection";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { OurStorySection } from "@/components/landing/OurStorySection";
 import { WhatsAppFloat } from "@/components/landing/WhatsAppFloat";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -75,7 +78,7 @@ function MentorshipHero() {
                     maxWidth: 560,
                     margin: "0 auto 40px"
                 }}>
-                    Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI — af Soomaali.
+                    Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI.
                     Ka bilaabo eber ilaa aad shaqo hesho.
                 </p>
 
@@ -128,6 +131,12 @@ export function MentorshipContent() {
     return (
         <main className="min-h-screen bg-background text-foreground">
             <MentorshipHero />
+            <CurriculumSection />
+            <TestimonialsSection />
+            <OurStorySection 
+                className="py-12 md:py-16" 
+                innerClassName="px-3 sm:px-4 md:px-6 lg:px-8" 
+            />
             <WhatsAppFloat />
         </main>
     );
