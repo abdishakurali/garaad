@@ -4,49 +4,51 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { ArrowRight } from "lucide-react";
 
-function CTASection({ title, description, ctaText, imageSrc, ctaHref }: {
+function CTASection({ 
+    title, 
+    description, 
+    ctaText, 
+    imageSrc, 
+    ctaHref,
+    reverse = false 
+}: {
     title: string;
     description: string;
     ctaText: string;
     imageSrc: string;
     ctaHref: string;
+    reverse?: boolean;
 }) {
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
     const { resolvedTheme } = useTheme();
     const isDark = mounted ? resolvedTheme === "dark" : true;
 
-    const bg = isDark ? "#18181B" : "#F4F4F5";
-    const text = isDark ? "#FAFAFA" : "#18181B";
-    const textMuted = isDark ? "#A1A1AA" : "#52525B";
-
     return (
-        <section 
-            className="py-8 md:py-10 rounded-2xl mx-4 my-6 md:m-6"
-            style={{ background: bg, maxWidth: 1100, margin: '0 auto' }}
-        >
-            <div className="grid gap-5 md:grid-cols-2 md:items-center md:gap-8 max-w-5xl mx-auto px-3">
-                <div className="order-2 md:order-1">
-                    <h2 className="text-lg md:text-xl font-bold mb-1.5" style={{ color: text }}>
-                        {title}
-                    </h2>
-                    <p className="text-sm mb-4" style={{ color: textMuted }}>{description}</p>
-                    <Link
-                        href={ctaHref}
-                        className="inline-block px-4 py-2 rounded-lg font-semibold bg-violet-600 text-white text-sm hover:bg-violet-500 transition-colors"
-                    >
-                        {ctaText}
-                    </Link>
-                </div>
-                <div className="order-1 md:order-2 relative aspect-[3/2] md:aspect-square rounded-xl overflow-hidden">
-                    <Image 
-                        src={imageSrc} 
-                        alt={title} 
-                        fill 
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                    />
+        <section className={`py-10 md:py-12 border-t border-border/60 ${reverse ? 'bg-zinc-50 dark:bg-zinc-900/30' : ''}`}>
+            <div className="max-w-6xl mx-auto px-4 md:px-6">
+                <div className={`flex flex-col md:flex-row items-center gap-6 md:gap-10 ${reverse ? 'md:flex-row-reverse' : ''}`}>
+                    <div className="flex-1 w-full">
+                        <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">{title}</h2>
+                        <p className="text-sm md:text-base text-muted-foreground mb-4">{description}</p>
+                        <Link
+                            href={ctaHref}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors"
+                        >
+                            {ctaText}
+                            <ArrowRight className="w-4 h-4" />
+                        </Link>
+                    </div>
+                    <div className="flex-1 w-full relative aspect-video md:aspect-[4/3] rounded-xl overflow-hidden">
+                        <Image 
+                            src={imageSrc} 
+                            alt={title} 
+                            fill 
+                            className="object-cover"
+                        />
+                    </div>
                 </div>
             </div>
         </section>
@@ -68,6 +70,7 @@ export function CommunityCTA() {
 export function MentorshipCTA() {
     return (
         <CTASection
+            reverse
             title="Baro Code, Hel Shaqo"
             description="Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI."
             ctaText="Bilow"
