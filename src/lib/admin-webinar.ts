@@ -46,7 +46,13 @@ export const webinarAdminApi = {
     },
 
     update: async (slug: string, data: FormData): Promise<WebinarData> => {
-        const res = await axios.patch(`${API_URL}/webinars/${slug}/`, data, { headers: getAuthHeader() });
+        const config = {
+            headers: {
+                ...getAuthHeader(),
+                "Content-Type": "multipart/form-data",
+            },
+        };
+        const res = await axios.put(`${API_URL}/webinars/${slug}/`, data, config);
         return res.data;
     },
 
