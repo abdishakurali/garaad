@@ -88,12 +88,14 @@ export async function middleware(request: NextRequest) {
   const refreshTokenCookie = request.cookies.get("refreshToken");
 
   const isAuthenticated = !!userCookie?.value || !!tokenCookie?.value || !!refreshTokenCookie?.value;
+  
+  // Skip middleware auth for admin routes - frontend (AdminLayout) handles auth via localStorage
+  const isAdminRoute = pathname.startsWith("/admin") && !pathname.includes("/login");
 
-  if (!isAuthenticated) {
-    const redirectUrl = pathname.startsWith("/admin") ? "/admin/login" : "/login";
+  if (!isAuthenticated && !isAdminRoute) {
+    const redirectUrl = "/login";
     const url = new URL(redirectUrl, request.url);
     url.searchParams.set("reason", "unauthenticated");
-    // Preserve intended destination (path + query) so login can send user back (e.g. /subscribe?plan=challenge)
     const returnPath = `${pathname}${request.nextUrl.search}`;
     url.searchParams.set("redirect", returnPath);
     return NextResponse.redirect(url, 308);
