@@ -226,10 +226,10 @@ export function ChallengeHero() {
         )}
       </div>
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-14 md:pt-28 md:pb-16 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 pt-10 pb-12 sm:px-6 sm:pt-24 sm:pb-14 md:pt-28 md:pb-16 lg:px-8">
 
-        {/* Badges row */}
-        <div className="flex flex-wrap justify-center gap-2 mb-2">
+        {/* Badges row — hidden on mobile so CTA stays above fold */}
+        <div className="hidden sm:flex flex-wrap justify-center gap-2 mb-2">
           {/* Live badge */}
           <span className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${
             isDark
@@ -260,10 +260,22 @@ export function ChallengeHero() {
         </div>
 
         {/* Headline */}
-        <h1 className="mx-auto mt-7 max-w-3xl text-center font-black leading-[1.08] tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="mx-auto mt-4 sm:mt-7 max-w-3xl text-center font-black leading-[1.08] tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
           Noqo{" "}
           <span className="text-violet-500 dark:text-violet-400">Full-Stack Developer</span>
         </h1>
+
+        {/* Mobile-only primary CTA — above fold on 375px */}
+        <div className="mt-6 flex sm:hidden justify-center">
+          <Link
+            href="/welcome"
+            onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_mobile_top" })}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-8 py-3.5 text-base font-bold text-white min-h-[44px] transition-all hover:bg-violet-500 active:scale-[0.98]"
+          >
+            Bilow Hadda
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
         {/* Benefits — block on mobile (guaranteed left-alignment), flex row on desktop */}
         <ul className={`mx-auto mt-7 sm:mt-8 w-full px-8 sm:px-0 sm:w-auto sm:flex sm:flex-wrap sm:justify-center sm:items-center sm:gap-x-5 space-y-2.5 sm:space-y-0 text-sm sm:text-base ${

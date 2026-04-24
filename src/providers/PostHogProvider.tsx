@@ -30,16 +30,20 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 export function identifyUser(user: { id: string | number; email: string; name?: string }) {
     if (typeof window === 'undefined') return;
     if (!posthog.__loaded) return;
-    
+
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    const isAdmin = adminEmail ? user.email === adminEmail : false;
+
     posthog.identify(String(user.id), {
         email: user.email,
         name: user.name,
+        ...(isAdmin && { is_admin: true }),
     });
 }
 
 export function resetUser() {
     if (typeof window === 'undefined') return;
     if (!posthog.__loaded) return;
-    
+
     posthog.reset();
 }

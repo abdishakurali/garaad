@@ -110,9 +110,11 @@ function WelcomePage() {
 
   // Track phase transitions so we can see signup_form_viewed vs verify_email_viewed
   useEffect(() => {
+    const stepNumber = phase === "signup" ? 1 : 2;
     posthog?.capture(
       phase === "signup" ? "welcome_signup_form_viewed" : "welcome_verify_email_viewed"
     );
+    posthog?.capture("welcome_step_viewed", { step: stepNumber, step_name: phase });
   }, [phase, posthog]);
 
   useEffect(() => {
