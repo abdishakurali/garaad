@@ -4,9 +4,9 @@ import Image from "next/image";
 import { CalendarDays, Clock, Users, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Webinars — Garaad",
+  title: "Webinars — Free Freelancing Soomaaliya",
   description:
-    "Webinars bilaash ah oo loogu talagalay bulshada Soomaaliyeed. Is-diiwaangeli webinarkii soo socda ama daawo kuwa hore.",
+    "Webinars bilaash ah ee Free Freelancing Soomaaliya. Sida aan u sameeyay, caqabadaha, iyo xallinta. Is-diiwaangeli webinar-yada soo socda.",
 };
 
 export const revalidate = 60;
@@ -69,7 +69,7 @@ export default async function WebinarsPage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Hero */}
-      <section className="relative border-b border-border/60 bg-gradient-to-b from-violet-500/[0.06] to-background px-4 py-20 text-center dark:from-violet-950/30">
+      <section className="relative border-b border-border/60 bg-gradient-to-b from-violet-500/[0.06] to-background px-4 py-16 text-center dark:from-violet-950/30">
         <div
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(139,92,246,0.18),transparent)]"
           aria-hidden
@@ -78,13 +78,12 @@ export default async function WebinarsPage() {
           <span className="mb-4 inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-violet-600 dark:text-violet-400">
             Webinars bilaash ah
           </span>
-          <h1 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">
-            Aqoon. Xirfad. Xal.
+          <h1 className="mt-4 text-3xl md:text-4xl font-black tracking-tight">
+            Free Freelancing Soomaaliya
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground md:text-lg">
-            Garaad waxay qabtaa webinars bilaash ah oo loogu talagalay
-            bulshada Soomaaliyeed — si aan u xalino caqabadaha software,
-            freelancing, iyo lacag-bixinta.
+            Sida aan u sameeyay, Caqabadaha, iyo Xallinta. Baro sidii aad 
+            ushuquuji karto freelance technology-ga Soomaaliya.
           </p>
         </div>
       </section>
