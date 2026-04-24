@@ -1,24 +1,40 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-function CTASection({ 
-    title, 
-    description, 
-    ctaText, 
-    ctaHref,
-    imageSrc,
-    isFirst = false 
-}: {
+interface Webinar {
+    id: number;
+    title: string;
+    slug: string;
+    description: string;
+    banner_image: string | null;
+    is_past: boolean;
+}
+
+async function fetchLatestWebinar(): Promise<Webinar | null> {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/webinars/`, { 
+            next: { revalidate: 60 } 
+        });
+        if (!res.ok) return null;
+        const webinars: Webinar[] = await res.json();
+        const active = webinars.find((w) => !w.is_past);
+        return active || null;
+    } catch {
+        return null;
+    }
+}
+
+interface CTASectionProps {
     title: string;
     description: string;
     ctaText: string;
     ctaHref: string;
     imageSrc: string;
     isFirst?: boolean;
-}) {
+}
+
+function CTASection({ title, description, ctaText, ctaHref, imageSrc, isFirst }: CTASectionProps) {
     return (
         <section className={`py-8 md:py-10 ${isFirst ? '' : 'border-t border-border/60'} bg-slate-50 dark:bg-zinc-900`}>
             <div className="max-w-5xl mx-auto px-4">
@@ -27,12 +43,14 @@ function CTASection({
                     className="flex flex-col md:flex-row items-center gap-5 p-4 md:p-5 rounded-xl bg-white dark:bg-zinc-800 shadow-sm hover:shadow-md transition-all"
                 >
                     <div className="w-full md:w-44 lg:w-48 shrink-0 relative aspect-video md:aspect-square rounded-lg overflow-hidden bg-zinc-100">
-                        <Image 
-                            src={imageSrc} 
-                            alt={title}
-                            fill
-                            className="object-cover"
-                        />
+                        {imageSrc && (
+                            <Image 
+                                src={imageSrc} 
+                                alt={title}
+                                fill
+                                className="object-cover"
+                            />
+                        )}
                     </div>
                     <div className="flex-1 text-center md:text-left">
                         <h2 className="text-lg md:text-xl font-bold text-foreground mb-1">{title}</h2>
@@ -48,14 +66,22 @@ function CTASection({
     );
 }
 
-export function CommunityCTA() {
+export default async function CommunityCTA() {
+    const webinar = await fetchLatestWebinar();
+    
+    const title = webinar?.title || "Ku Biir Kooxda";
+    const description = webinar?.description 
+        ? webinar.description.slice(0, 100) + (webinar.description.length > 100 ? "..." : "")
+        : "Hel marin aad kula xiriirto dad hammi leh, u koraan, isuna caawinno.";
+    const imageSrc = webinar?.banner_image || "/images/community.png";
+    
     return (
         <CTASection
-            title="Ku Biir Kooxda"
-            description="Hel marin aad kula xiriirto dad hammi leh, u koraan, isuna caawinno."
+            title={title}
+            description={description}
             ctaText="Ku Biir"
             ctaHref="/community"
-            imageSrc="/images/community.png"
+            imageSrc={imageSrc}
             isFirst={true}
         />
     );
@@ -69,6 +95,7 @@ export function MentorshipCTA() {
             ctaText="Bilow"
             ctaHref="/mentorship"
             imageSrc="/images/mentorship.png"
+            isFirst={false}
         />
     );
 }
