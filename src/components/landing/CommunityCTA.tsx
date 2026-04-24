@@ -66,8 +66,8 @@ export function CommunityCTA() {
 export function MentorshipCTA() {
     return (
         <CTASection
-            title="Baro Code, Hel Shaqo"
-            description="Barnaamij 3-bilood ah oo lagugu barayo Software Dev & AI."
+            title="Mentorship Gaar ah: Ka Gudub Caqabadaha"
+            description="Ma rabtaa inaad xawaarahaaga koodh qorista labanlaabto? Mentorship-kayagu wuxuu ku siinayaa fursad aad si toos ah iila shaqayso."
             ctaText="Bilow"
             ctaHref="/mentorship"
             imageSrc="/images/mentorship.png"
