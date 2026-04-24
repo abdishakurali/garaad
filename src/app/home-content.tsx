@@ -1,7 +1,7 @@
 "use client";
 
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
-import { CommunityCTA } from "@/components/landing/CommunityCTA";
+import { CommunityCTA, MentorshipCTA } from "@/components/landing/CommunityCTA";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -27,6 +27,7 @@ export function HomeContent() {
             <>
                 <ChallengeHero />
                 <CommunityCTA />
+                <MentorshipCTA />
                 <FAQSection />
             </>
         </main>
