@@ -103,19 +103,31 @@ export async function middleware(request: NextRequest) {
 
   // --- 3a. Email verification gate (non-admin protected routes) ---
   // Authenticated users whose email is not yet verified must complete verification.
+  // Only apply this to routes that require it: dashboard, profile, settings, orders, etc.
+  // Community and courses are accessible without email verification.
   if (!pathname.startsWith("/admin") && userCookie?.value) {
-    try {
-      const user = JSON.parse(decodeURIComponent(userCookie.value)) as {
-        is_email_verified?: boolean;
-        email?: string;
-      };
-      if (user.is_email_verified === false) {
-        const verifyUrl = new URL("/verify-email", request.url);
-        if (user.email) verifyUrl.searchParams.set("email", user.email);
-        return NextResponse.redirect(verifyUrl, 307);
+    const requiresVerification = (
+      pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/profile") ||
+      pathname.startsWith("/settings") ||
+      pathname.startsWith("/orders") ||
+      pathname.startsWith("/launchpad/submit") ||
+      pathname.startsWith("/launchpad/edit")
+    );
+    if (requiresVerification) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userCookie.value)) as {
+          is_email_verified?: boolean;
+          email?: string;
+        };
+        if (user.is_email_verified === false) {
+          const verifyUrl = new URL("/verify-email", request.url);
+          if (user.email) verifyUrl.searchParams.set("email", user.email);
+          return NextResponse.redirect(verifyUrl, 307);
+        }
+      } catch {
+        // Corrupt cookie — let the page handle it
       }
-    } catch {
-      // Corrupt cookie — let the page handle it
     }
   }
 
