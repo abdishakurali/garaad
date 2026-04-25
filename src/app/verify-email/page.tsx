@@ -245,26 +245,18 @@ export default function VerifyEmailPage() {
           localStorage.removeItem('user');
         }
 
-        // Fetch user data and redirect based on premium status
+        // Fetch user data and redirect
         try {
           const { default: AuthService } = await import('@/services/auth');
           const authService = AuthService.getInstance();
-          const accessToken = authService.getToken() || '';
-          const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
-
-          if (updatedUserData) {
-            router.push(postVerifyTarget);
-          } else {
-            authService.updateEmailVerificationStatus(true);
-            router.push(postVerifyTarget);
-          }
-        } catch (userError) {
-          console.error("Error fetching user data:", userError);
-          const { default: AuthService } = await import('@/services/auth');
-          const authService = AuthService.getInstance();
-          authService.updateEmailVerificationStatus(true);
-          router.push(postVerifyTarget);
+          const token = authService.getToken();
+          await authService.fetchAndUpdateUserData(token || undefined);
+        } catch (e) {
+          console.error("Failed to fetch user:", e);
         }
+        
+        console.log("Redirecting to /post-verification-choice");
+        window.location.href = postVerifyTarget;
         return;
       }
 
@@ -286,11 +278,18 @@ export default function VerifyEmailPage() {
       // Update email verification status
       const { default: AuthService } = await import('@/services/auth');
       const authService = AuthService.getInstance();
-      const token = authService.getToken();
-      await authService.fetchAndUpdateUserData(token || undefined);
+      try {
+        const token = authService.getToken();
+        await authService.fetchAndUpdateUserData(token || undefined);
+      } catch (e) {
+        console.error("Failed to fetch user data:", e);
+      }
 
       posthog?.capture("email_verified", { email });
-      router.push(postVerifyTarget);
+      
+      // Always redirect to post-verification-choice
+      console.log("Redirecting to /post-verification-choice");
+      window.location.href = postVerifyTarget;
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";
