@@ -407,19 +407,6 @@ class AuthService {
     });
   }
 
-  /** Authenticated: first lesson path for the signed-up user's enrolled track. */
-  public async getFirstLessonRedirect(): Promise<string | null> {
-    try {
-      const res = await api.get<{ redirect_url: string }>(
-        "/api/auth/first-lesson-redirect/"
-      );
-      const url = res?.redirect_url?.trim();
-      return url && url.startsWith("/") ? url : null;
-    } catch {
-      return null;
-    }
-  }
-
   /** Update learning path (goal, track, level, time) from settings. Uses PATCH for partial update. */
   public async updateOnboarding(data: Partial<OnboardingData>): Promise<OnboardingData & { has_completed_onboarding?: boolean }> {
     return api.patch("/api/auth/complete-onboarding/", data);
