@@ -54,15 +54,6 @@ export default function VerifyEmailPage() {
         if (!cancelled) setPostVerifyTarget(r);
         return;
       }
-      const { default: AuthService } = await import("@/services/auth");
-      const auth = AuthService.getInstance();
-      if (auth.isAuthenticated()) {
-        const path = await auth.getFirstLessonRedirect();
-        if (path && isAllowedRedirect(path)) {
-          if (!cancelled) setPostVerifyTarget(path);
-          return;
-        }
-      }
       if (!cancelled) setPostVerifyTarget("/post-verification-choice");
     };
     resolveTarget();
