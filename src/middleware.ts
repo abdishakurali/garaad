@@ -119,21 +119,21 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- 3b. Onboarding gate: /dashboard requires has_completed_onboarding === true ---
+// --- 3b. Email verification gate: /dashboard requires is_email_verified === true ---
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   if (isDashboard && userCookie?.value) {
       try {
         const decoded = decodeURIComponent(userCookie.value);
-        const user = JSON.parse(decoded) as { has_completed_onboarding?: boolean };
-        if (user.has_completed_onboarding === false) {
-          const welcomeUrl = new URL("/welcome", request.url);
-          welcomeUrl.searchParams.set("redirect", pathname);
-          return NextResponse.redirect(welcomeUrl, 308);
+        const user = JSON.parse(decoded) as { is_email_verified?: boolean };
+        if (user.is_email_verified === false) {
+          const verifyUrl = new URL("/verify-email", request.url);
+          verifyUrl.searchParams.set("redirect", pathname);
+          return NextResponse.redirect(verifyUrl, 308);
         }
       } catch {
         // Cookie parse error: allow through; dashboard or API can re-check
       }
-  }
+    }
 
   // --- 4. Premium Access Check ---
   // Lesson paths: do NOT gate by premium here. Backend may still enforce access;

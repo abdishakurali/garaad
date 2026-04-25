@@ -37,7 +37,7 @@ export default function VerifyEmailPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [postVerifyTarget, setPostVerifyTarget] = useState("/courses");
+  const [postVerifyTarget, setPostVerifyTarget] = useState("/post-verification-choice");
 
   useEffect(() => {
     let cancelled = false;
@@ -62,7 +62,7 @@ export default function VerifyEmailPage() {
           return;
         }
       }
-      if (!cancelled) setPostVerifyTarget("/courses");
+      if (!cancelled) setPostVerifyTarget("/post-verification-choice");
     };
     resolveTarget();
     return () => {
