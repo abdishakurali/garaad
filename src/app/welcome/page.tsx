@@ -177,6 +177,16 @@ function WelcomePage() {
         setPostSignupDest(finalDest);
         posthog?.capture("onboarding_completed");
         clearWelcomeStorage();
+
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: userData.email.trim() }),
+          }
+        );
+
         setPhase("verify_email");
       }
     } catch (error: unknown) {
