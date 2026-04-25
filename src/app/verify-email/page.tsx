@@ -39,6 +39,9 @@ export default function VerifyEmailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const postVerifyTarget = "/post-verification-choice";
+  
+  // Hardcoded redirect to post-verification-choice - DO NOT CHANGE
+  const REDIRECT_AFTER_VERIFY = "/post-verification-choice";
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -124,21 +127,21 @@ export default function VerifyEmailPage() {
               if (updatedUserData) {
                 // Check if user is premium
                 if (updatedUserData.is_premium) {
-                  router.push(postVerifyTarget);
+                  window.location.href = REDIRECT_AFTER_VERIFY;
                 } else {
                   // Free users can access lesson 1 + community; send them to courses
-                  router.push(postVerifyTarget);
+                  window.location.href = REDIRECT_AFTER_VERIFY;
                 }
               } else {
                 authService.updateEmailVerificationStatus(true);
-                router.push(postVerifyTarget);
+                window.location.href = REDIRECT_AFTER_VERIFY;
               }
             } catch (userError) {
               console.error("Error fetching user data:", userError);
               const { default: AuthService } = await import('@/services/auth');
               const authService = AuthService.getInstance();
               authService.updateEmailVerificationStatus(true);
-              router.push(postVerifyTarget);
+              window.location.href = REDIRECT_AFTER_VERIFY;
             }
             return;
           }
@@ -350,17 +353,17 @@ export default function VerifyEmailPage() {
             const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
             if (updatedUserData) {
-              router.push(postVerifyTarget);
+              window.location.href = REDIRECT_AFTER_VERIFY;
             } else {
               authService.updateEmailVerificationStatus(true);
-              router.push(postVerifyTarget);
+              window.location.href = REDIRECT_AFTER_VERIFY;
             }
           } catch (userError) {
             console.error("Error fetching user data:", userError);
             const { default: AuthService } = await import('@/services/auth');
             const authService = AuthService.getInstance();
             authService.updateEmailVerificationStatus(true);
-            router.push(postVerifyTarget);
+            window.location.href = REDIRECT_AFTER_VERIFY;
           }
           return;
         }
