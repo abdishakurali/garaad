@@ -21,15 +21,6 @@ function VimeoHeroPlayer() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [stats, setStats] = useState<LandingStats | null>(null);
-
-  // Fetch stats from API
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/landing-stats/`)
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(() => {});
-  }, []);
 
   const send = (method: string, value?: unknown) =>
     iframeRef.current?.contentWindow?.postMessage(
@@ -193,6 +184,15 @@ const AVATARS = [
 export function ChallengeHero() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const [stats, setStats] = useState<LandingStats | null>(null);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/landing-stats/`)
+      .then((res) => res.json())
+      .then((data) => setStats(data))
+      .catch(() => {});
+  }, []);
 
   const { resolvedTheme } = useTheme();
   const isDark = mounted ? resolvedTheme === "dark" : true;
