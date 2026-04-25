@@ -90,6 +90,7 @@ function WelcomePage() {
   ]);
 
   const posthog = usePostHog();
+  const emailSentRef = useRef(false);
   const {
     error: authStoreError,
     setError: setAuthStoreError,
@@ -177,6 +178,12 @@ function WelcomePage() {
         setPostSignupDest(finalDest);
         posthog?.capture("onboarding_completed");
         clearWelcomeStorage();
+
+        if (emailSentRef.current) {
+          setPhase("verify_email");
+          return;
+        }
+        emailSentRef.current = true;
 
         await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
@@ -481,11 +488,11 @@ function WelcomePage() {
             <Logo priority loading="eager" className="h-10" />
           </Link>
           <Link
-            href="/courses"
+            href="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="size-4 shrink-0" aria-hidden />
-            Ku laabo koorsooyinka
+            Dib u laabo 
           </Link>
         </header>
 
