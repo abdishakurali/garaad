@@ -34,6 +34,7 @@ export default function VerifyEmailPage() {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [email, setEmail] = useState("");
   const posthog = usePostHog();
+  const emailSentRef = useRef(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,7 +112,8 @@ export default function VerifyEmailPage() {
   // Auto-send verification email when page loads and email is available
   useEffect(() => {
     const sendInitialVerificationEmail = async () => {
-      if (!email) return;
+      if (!email || emailSentRef.current) return;
+      emailSentRef.current = true;
 
       try {
         console.log("Sending initial verification email to:", email);
