@@ -265,18 +265,6 @@ export function ChallengeHero() {
           <span className="text-violet-500 dark:text-violet-400">Full-Stack Developer</span>
         </h1>
 
-        {/* Mobile-only primary CTA — above fold on 375px */}
-        <div className="mt-6 flex sm:hidden justify-center">
-          <Link
-            href="/welcome"
-            onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_mobile_top" })}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-8 py-3.5 text-base font-bold text-white min-h-[44px] transition-all hover:bg-violet-500 active:scale-[0.98]"
-          >
-            Bilow Hadda
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
         {/* Benefits — block on mobile (guaranteed left-alignment), flex row on desktop */}
         <ul className={`mx-auto mt-7 sm:mt-8 w-full px-8 sm:px-0 sm:w-auto sm:flex sm:flex-wrap sm:justify-center sm:items-center sm:gap-x-5 space-y-2.5 sm:space-y-0 text-sm sm:text-base ${
           isDark ? "text-zinc-400" : "text-slate-500"
