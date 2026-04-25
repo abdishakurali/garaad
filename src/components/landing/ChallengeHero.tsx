@@ -188,7 +188,7 @@ export function ChallengeHero() {
   const [stats, setStats] = useState<LandingStats | null>(null);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/landing-stats/`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/public/landing-stats/`)
       .then((res) => res.json())
       .then((data) => setStats(data))
       .catch(() => {});
