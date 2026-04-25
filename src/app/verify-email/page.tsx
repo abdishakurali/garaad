@@ -38,29 +38,7 @@ export default function VerifyEmailPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [postVerifyTarget, setPostVerifyTarget] = useState("/post-verification-choice");
-
-  useEffect(() => {
-    let cancelled = false;
-    const resolveTarget = async () => {
-      if (typeof window === "undefined") return;
-      const fromSession = sessionStorage.getItem("post_signup_redirect");
-      if (fromSession && isAllowedRedirect(fromSession)) {
-        if (!cancelled) setPostVerifyTarget(fromSession);
-        return;
-      }
-      const r = searchParams.get("redirect");
-      if (r && isAllowedRedirect(r)) {
-        if (!cancelled) setPostVerifyTarget(r);
-        return;
-      }
-      if (!cancelled) setPostVerifyTarget("/post-verification-choice");
-    };
-    resolveTarget();
-    return () => {
-      cancelled = true;
-    };
-  }, [searchParams]);
+  const postVerifyTarget = "/post-verification-choice";
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -292,7 +270,7 @@ export default function VerifyEmailPage() {
 
       if (!response.ok) throw new Error(data.error || "Verification failed");
 
-      // Success state - update user's email verification status and check premium status
+      // Success state - update user's email verification status
       console.log("Emailkaaga waa la xaqiijiyay!");
 
       // Clear localStorage data after successful verification
@@ -305,27 +283,14 @@ export default function VerifyEmailPage() {
         localStorage.removeItem('user');
       }
 
-      // Import AuthService and update user data
+      // Update email verification status
       const { default: AuthService } = await import('@/services/auth');
       const authService = AuthService.getInstance();
+      const token = authService.getToken();
+      await authService.fetchAndUpdateUserData(token || undefined);
 
-      // Fetch and update user data from backend
-      try {
-        const updatedUserData = await authService.fetchAndUpdateUserData(data.access || data.token);
-
-        posthog?.capture("email_verified", { email });
-        if (updatedUserData) {
-          // Premium → /courses; non-premium also → /courses (free lesson 1 + community)
-          router.push(postVerifyTarget);
-        } else {
-          authService.updateEmailVerificationStatus(true);
-          router.push(postVerifyTarget);
-        }
-      } catch (userError) {
-        console.error("Error fetching user data:", userError);
-        authService.updateEmailVerificationStatus(true);
-        router.push(postVerifyTarget);
-      }
+      posthog?.capture("email_verified", { email });
+      router.push(postVerifyTarget);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";
