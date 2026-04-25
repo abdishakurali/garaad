@@ -67,7 +67,7 @@ export function CommunityCTA() {
         ? webinar.description.slice(0, 120) + (webinar.description.length > 120 ? "..." : "")
         : "Dhammaanteen waan garawsannahay caqabadaha ka jira dalkeenna marka ay timaaddo ka qayb-qaadashada suuqa caalamka.";
     const imageSrc = webinar?.banner_image || "/images/community.png";
-    const linkHref = webinar?.slug ? `/webinars/${webinar.slug}` : "/community";
+    const linkHref = webinar?.slug ? `/welcome?utm_source=webinar_cta` : "/welcome";
     
     return (
         <CTASection

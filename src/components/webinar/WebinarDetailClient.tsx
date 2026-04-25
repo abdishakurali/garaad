@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Briefcase,
   CalendarDays,
@@ -103,6 +104,7 @@ function firstNameFromFullName(fullName: string) {
 }
 
 export function WebinarDetailClient({ webinar }: { webinar: WebinarData }) {
+  const router = useRouter();
   const { toast } = useToast();
   const times = formatTimes(webinar.date_utc);
 
@@ -148,6 +150,10 @@ export function WebinarDetailClient({ webinar }: { webinar: WebinarData }) {
       const raw: unknown = await res.json().catch(() => null);
       if (res.ok && isRecord(raw) && raw.message === "Registered" && typeof raw.name === "string") {
         setSuccessName(raw.name);
+        // Redirect to /welcome after successful registration
+        setTimeout(() => {
+          router.push("/welcome?utm_source=webinar_register");
+        }, 1500);
         return;
       }
       const errMsg = parseApiError(raw);
