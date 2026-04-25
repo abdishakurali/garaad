@@ -136,12 +136,12 @@ function SubscribePageInner() {
     const u = auth.getCurrentUser();
     if (EXPLORER_IS_FREE) {
       if (u?.is_premium && u?.subscription_type === "challenge") {
-        router.replace("/dashboard");
+        router.replace("/courses");
       }
       return;
     }
     if (auth.isPremium()) {
-      router.replace("/dashboard");
+      router.replace("/courses");
     }
   }, [router]);
 
@@ -175,7 +175,7 @@ function SubscribePageInner() {
   }, [pathname]);
 
   const handlePaymentSuccess = (planKey: SubscribePlanKey) => {
-    router.push(`/dashboard?subscribed=${planKey}`);
+    router.push(`/courses?subscribed=${planKey}`);
   };
 
   return (
