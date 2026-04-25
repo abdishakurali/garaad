@@ -133,6 +133,8 @@ function LoginPageContent() {
             }
             if (redirectTo) {
                 router.push(redirectTo);
+            } else if (result.user?.is_email_verified) {
+                router.push("/post-verification-choice");
             } else {
                 router.push("/courses");
             }
@@ -167,6 +169,8 @@ function LoginPageContent() {
             }
             if (redirectTo) {
                 router.push(redirectTo);
+            } else if (result.user?.is_email_verified) {
+                router.push("/post-verification-choice");
             } else {
                 router.push("/courses");
             }

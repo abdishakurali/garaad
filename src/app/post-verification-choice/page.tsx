@@ -33,10 +33,8 @@ export default function PostVerificationChoicePage() {
     });
 
     if (selectedChoice === "courses") {
-      router.push("/courses");
+      router.push("/subscribe");
     } else {
-      // For assessment, we'll redirect to a booking/mentorship page
-      // This could be /mentorship or a dedicated booking page
       router.push("/mentorship");
     }
   };
