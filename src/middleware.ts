@@ -15,7 +15,7 @@ import type { NextRequest } from "next/server";
  *
  * PROTECTED (auth required; unauthenticated → /login or /admin/login with redirect param):
  *   /admin, /admin/* (except /admin/login),
- *   /dashboard, /profile, /settings, /orders, /orders/[id],
+ *   /post-verification-choice, /profile, /settings, /orders, /orders/[id],
  *   /launchpad/submit, /launchpad/submit-project, /launchpad/edit, /launchpad/edit/[id],
  *   /community, /community/* (not community-preview),
  *   /courses/.../lessons/[lessonId]
@@ -26,14 +26,13 @@ import type { NextRequest } from "next/server";
 
 const protectedRoots = [
   "/admin",
-  "/dashboard",
   "/profile",
   "/settings",
   "/orders",
   "/launchpad/submit",
   "/launchpad/submit-project",
   "/launchpad/edit",
-  "/subscribe",
+  "/post-verification-choice",
 ];
 
 const premiumRoots: string[] = [];

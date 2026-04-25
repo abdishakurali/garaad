@@ -215,11 +215,11 @@ function LoginPageContent() {
                         <Logo priority loading="eager" className="h-11 sm:h-12" />
                     </Link>
                     <Link
-                        href="/courses"
+                        href="/"
                         className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-4 shrink-0" aria-hidden />
-                        Ku laabo koorsooyinka
+                        Dib u laabo
                     </Link>
                 </header>
 

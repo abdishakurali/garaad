@@ -38,7 +38,7 @@ export default function AdminHomePage() {
                 </Link>
 
                 <Link
-                    href="/admin/dashboard"
+                    href="/admin/post-verification-choice"
                     className="group bg-blue-600 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-blue-500"
                 >
                     <div className="flex items-center gap-3.5 mb-3">

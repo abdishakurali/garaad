@@ -136,12 +136,12 @@ function SubscribePageInner() {
     const u = auth.getCurrentUser();
     if (EXPLORER_IS_FREE) {
       if (u?.is_premium && u?.subscription_type === "challenge") {
-        router.replace("/courses");
+        router.replace("/post-verification-choice");
       }
       return;
     }
     if (auth.isPremium()) {
-      router.replace("/courses");
+      router.replace("/post-verification-choice");
     }
   }, [router]);
 
@@ -175,7 +175,7 @@ function SubscribePageInner() {
   }, [pathname]);
 
   const handlePaymentSuccess = (planKey: SubscribePlanKey) => {
-    router.push(`/courses?subscribed=${planKey}`);
+    router.push(`/post-verification-choice?subscribed=${planKey}`);
   };
 
   return (
@@ -376,7 +376,7 @@ function SubscribePageInner() {
 
                 {explorerFree ? (
                   <Link
-                    href={explorerCtaUser ? "/dashboard" : "/signup"}
+                    href={explorerCtaUser ? "/post-verification-choice" : "/signup"}
                     className="w-full py-4 rounded-xl font-bold text-base transition-all text-center block border-2 border-primary text-primary bg-transparent hover:bg-primary/10"
                   >
                     {explorerCtaUser ? t.explorer_free_cta_logged_in : t.explorer_free_cta_signup}

@@ -36,7 +36,7 @@ export interface User {
   profile?: Profile;
   createdAt?: string;
   updatedAt?: string;
-  /** When false, user must complete /welcome before accessing /dashboard */
+  /** When false, user must complete /welcome before accessing /post-verification-choice */
   has_completed_onboarding?: boolean;
   /** E.164 WhatsApp number from profile */
   whatsapp_number?: string;
