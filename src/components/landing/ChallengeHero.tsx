@@ -269,7 +269,7 @@ export function ChallengeHero() {
               ))}
             </div>
             <span className={`text-xs font-medium whitespace-nowrap ${isDark ? "text-zinc-400" : "text-slate-500"}`}>
-              <span className={`font-bold ${isDark ? "text-violet-400" : "text-violet-600"}`}>{stats?.students_count || 0}+</span> developer oo baranaya
+              <span className={`font-bold ${isDark ? "text-violet-400" : "text-violet-600"}`}>{stats?.students_count || 0}+</span> aya kuso biiray
             </span>
           </div>
         </div>
