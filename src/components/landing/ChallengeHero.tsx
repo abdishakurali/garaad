@@ -8,6 +8,12 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
 
+interface LandingStats {
+    students_count: number;
+    courses_count: number;
+    learners_this_month: number;
+}
+
 // ─── Vimeo player ─────────────────────────────────────────────────────────────
 // Browsers block unmuted autoplay. Strategy: autoplay muted, show a centered
 // play button overlay. Clicking it unmutes + hides the overlay permanently.
@@ -15,6 +21,15 @@ function VimeoHeroPlayer() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [stats, setStats] = useState<LandingStats | null>(null);
+
+  // Fetch stats from API
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/landing-stats/`)
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(() => {});
+  }, []);
 
   const send = (method: string, value?: unknown) =>
     iframeRef.current?.contentWindow?.postMessage(
@@ -254,7 +269,7 @@ export function ChallengeHero() {
               ))}
             </div>
             <span className={`text-xs font-medium whitespace-nowrap ${isDark ? "text-zinc-400" : "text-slate-500"}`}>
-              <span className={`font-bold ${isDark ? "text-violet-400" : "text-violet-600"}`}>97+</span> developer oo baranaya
+              <span className={`font-bold ${isDark ? "text-violet-400" : "text-violet-600"}`}>{stats?.students_count || 0}+</span> developer oo baranaya
             </span>
           </div>
         </div>
