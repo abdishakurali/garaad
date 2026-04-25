@@ -111,9 +111,10 @@ export default function VerifyEmailPage() {
 
   // Auto-send verification email when page loads and email is available
   useEffect(() => {
+    if (!email || emailSentRef.current) return;
+    emailSentRef.current = true;
+
     const sendInitialVerificationEmail = async () => {
-      if (!email || emailSentRef.current) return;
-      emailSentRef.current = true;
 
       try {
         console.log("Sending initial verification email to:", email);
