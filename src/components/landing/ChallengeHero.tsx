@@ -197,7 +197,7 @@ export function ChallengeHero() {
   if (!mounted) {
     return (
       <section className="relative min-h-screen overflow-hidden bg-background">
-        <div className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 md:py-24 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 pt-24 pb-16 sm:px-6 sm:py-20 md:py-24 lg:px-8">
           <div className="h-[420px] animate-pulse rounded-2xl bg-muted" />
         </div>
       </section>
