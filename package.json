@@ -46,7 +46,7 @@
     "clsx": "^2.1.1",
     "diagramatics": "^1.8.7",
     "framer-motion": "^12.31.0",
-    "html2canvas-pro": "^1.5.11",
+    "html2canvas-pro": "^2.0.2",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "katex": "^0.16.33",
