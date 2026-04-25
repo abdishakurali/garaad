@@ -16,7 +16,7 @@ import Logo from "@/components/ui/Logo";
 export default function PostVerificationChoicePage() {
   const [waitlist, setWaitlist] = useState(false);
   const posthog = usePostHog();
-  const [postSignupDest, setPostSignupDest] = useState("/subscribe");
+  const [postSignupDest, setPostSignupDest] = useState("/courses");
 
   useEffect(() => {
     posthog?.capture("post_verification_choice_page_viewed");
@@ -26,16 +26,10 @@ export default function PostVerificationChoicePage() {
       const user = auth.getCurrentUser();
       if (user?.email) {
         try {
-          const res = await fetch(`${API_BASE_URL}/api/auth/me/`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
-            },
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.is_premium) {
-              setPostSignupDest("/courses");
-            }
+          const token = auth.getToken();
+          const res = await auth.fetchAndUpdateUserData(token || undefined);
+          if (res?.is_premium) {
+            setPostSignupDest("/courses");
           }
         } catch {
           // Use default

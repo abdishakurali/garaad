@@ -140,7 +140,7 @@ export default function VerifyEmailPage() {
               const { default: AuthService } = await import('@/services/auth');
               const authService = AuthService.getInstance();
 
-              const accessToken = localStorage.getItem('accessToken') || '';
+              const accessToken = authService.getToken() || '';
               const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
               if (updatedUserData) {
@@ -271,7 +271,7 @@ export default function VerifyEmailPage() {
         try {
           const { default: AuthService } = await import('@/services/auth');
           const authService = AuthService.getInstance();
-          const accessToken = localStorage.getItem('accessToken') || '';
+          const accessToken = authService.getToken() || '';
           const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
           if (updatedUserData) {
@@ -382,7 +382,7 @@ export default function VerifyEmailPage() {
             const { default: AuthService } = await import('@/services/auth');
             const authService = AuthService.getInstance();
 
-            const accessToken = localStorage.getItem('accessToken') || '';
+            const accessToken = authService.getToken() || '';
             const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
 
             if (updatedUserData) {
