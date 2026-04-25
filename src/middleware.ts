@@ -64,13 +64,15 @@ export async function middleware(request: NextRequest) {
   // Specific check for /community (excluding -preview)
   const isProtectedCommunity = pathname === "/community" || (pathname.startsWith("/community/") && !pathname.startsWith("/community-preview"));
 
-  // Paths that should ALWAYS be public (login, welcome, verify-email — do not block with onboarding check)
+  // Paths that should ALWAYS be public (login, welcome, verify-email, post-verification-choice — do not block with onboarding check)
   const isAuthPage =
     pathname === "/admin/login" ||
     pathname === "/welcome" ||
     pathname === "/login" ||
     pathname === "/signup" ||
-    pathname === "/verify-email";
+    pathname === "/verify-email" ||
+    pathname === "/post-verification-choice" ||
+    pathname.startsWith("/post-verification-choice/");
 
   if (isAuthPage) {
     return NextResponse.next();
