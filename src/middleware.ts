@@ -102,50 +102,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- 3a. Email verification gate (non-admin protected routes) ---
-  // Authenticated users whose email is not yet verified must complete verification.
-  // Only apply this to routes that require it: dashboard, profile, settings, orders, etc.
-  // Community and courses are accessible without email verification.
-  if (!pathname.startsWith("/admin") && userCookie?.value) {
-    const requiresVerification = (
-      pathname.startsWith("/dashboard") ||
-      pathname.startsWith("/profile") ||
-      pathname.startsWith("/settings") ||
-      pathname.startsWith("/orders") ||
-      pathname.startsWith("/launchpad/submit") ||
-      pathname.startsWith("/launchpad/edit")
-    );
-    if (requiresVerification) {
-      try {
-        const user = JSON.parse(decodeURIComponent(userCookie.value)) as {
-          is_email_verified?: boolean;
-          email?: string;
-        };
-        if (user.is_email_verified === false) {
-          const verifyUrl = new URL("/verify-email", request.url);
-          if (user.email) verifyUrl.searchParams.set("email", user.email);
-          return NextResponse.redirect(verifyUrl, 307);
-        }
-      } catch {
-        // Corrupt cookie — let the page handle it
-      }
-    }
-  }
-
-// --- 3b. Email verification gate: /dashboard requires is_email_verified === true ---
-  const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
-  if (isDashboard && userCookie?.value) {
-      try {
-        const decoded = decodeURIComponent(userCookie.value);
-        const user = JSON.parse(decoded) as { is_email_verified?: boolean };
-        if (user.is_email_verified === false) {
-          const verifyUrl = new URL("/verify-email", request.url);
-          verifyUrl.searchParams.set("redirect", pathname);
-          return NextResponse.redirect(verifyUrl, 308);
-        }
-      } catch {
-        // Cookie parse error: allow through; dashboard or API can re-check
-      }
-    }
+  // Removed: email verification is handled inline in pages, not via redirect.
+  // Pages like community, courses show their own prompts when email is not verified.
 
   // --- 4. Premium Access Check ---
   // Lesson paths: do NOT gate by premium here. Backend may still enforce access;
