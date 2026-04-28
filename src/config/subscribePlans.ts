@@ -25,8 +25,10 @@ export const PLANS = {
     key: "challenge" as const,
     name: t.challenge_name,
     tagline: t.challenge_tagline,
-    priceDisplay: "$149",
-    per: t.challenge_per_one_time,
+    priceDisplay: "$49",
+    priceTotal: "$147 total",
+    per: "/bilood",
+    installmentNote: "3 bilood · $49 bishiiba",
     highlight: true,
     badge: t.challenge_badge,
     features: [

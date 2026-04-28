@@ -16,7 +16,7 @@ const reviewImages = [
         outcome: "Isbeddel dhab ah",
         outcomeLine:
             "Laga soo bilaabo eber ilaa khabiir layout-ka & Tailwind CSS: hadda wuxuu ku dhow yahay inuu helo shaqooyin dhab ah.",
-        nowTag: "khabiir Tailwind CSS ah",
+        nowTag: "Khabiir Tailwind CSS ah",
         featured: false,
     },
     {
@@ -64,7 +64,7 @@ export function TestimonialsSection() {
 
     return (
         <section className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 md:px-6 bg-background overflow-hidden border-t border-border/50">
-            <div className="max-w-7xl mx-auto w-full min-w-0">
+            <div className="max-w-5xl mx-auto w-full min-w-0">
                 <Reveal>
                     <div className="text-center mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto px-1">
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight text-balance">
@@ -86,14 +86,14 @@ export function TestimonialsSection() {
                                     className="flex min-w-0 flex-col gap-3 sm:gap-4"
                                     style={{ animationDelay: `${index * 150}ms` }}
                                 >
-                                    <div
-                                        className={cn(
-                                            "relative w-full overflow-hidden rounded-2xl border border-border/50 bg-muted/10 shadow-lg sm:rounded-3xl sm:border-border/60 group transition-all duration-300 hover:border-primary/35",
-                                            img.featured
-                                                ? "aspect-[4/3] min-h-[180px] sm:aspect-[4/5] sm:min-h-0"
-                                                : "aspect-square sm:aspect-[4/5] max-h-[min(72vh,520px)] sm:max-h-none"
-                                        )}
-                                    >
+                                     <div
+                                         className={cn(
+                                             "relative w-full overflow-hidden rounded-2xl border border-border/50 bg-muted/10 shadow-lg sm:rounded-3xl sm:border-border/60 group transition-all duration-300 hover:border-primary/35 mx-auto",
+                                             img.featured
+                                                 ? "aspect-[4/3] min-h-[180px] sm:aspect-[4/5] sm:min-h-0"
+                                                 : "aspect-square sm:aspect-[4/5] max-h-[min(72vh,520px)] sm:max-h-none"
+                                         )}
+                                     >
                                         <Image
                                             src={img.src}
                                             alt={img.alt}

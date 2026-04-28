@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
             ? metaPlan
             : null;
         const path = subscribed
-          ? `/post-verification-choice?subscribed=${subscribed}`
+          ? `/payment-success?subscription_type=${subscribed}`
           : "/courses?success=payment_completed";
         return NextResponse.redirect(new URL(path, request.url));
       } else {

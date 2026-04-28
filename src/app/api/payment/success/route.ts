@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { API_BASE_URL } from "@/lib/constants";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/payment-success", request.url));
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -89,23 +93,18 @@ export async function POST(request: Request) {
           subscriptionType === "lifetime" ? null : endDate.toISOString(),
       };
 
-      // Create response with updated user data
-      const response = NextResponse.json({
-        success: true,
-        data: {
-          user: updatedUser,
-        },
-      });
+       // Create response that redirects to payment-success page
+       const response = NextResponse.redirect(new URL("/payment-success", request.url));
 
-      // Set the updated user cookie
-      response.cookies.set("user", JSON.stringify(updatedUser), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-      });
+       // Set the updated user cookie
+       response.cookies.set("user", JSON.stringify(updatedUser), {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === "production",
+         sameSite: "strict",
+         maxAge: 7 * 24 * 60 * 60, // 7 days
+       });
 
-      return response;
+       return response;
     } catch (error) {
       console.error("Error updating premium status:", error);
       return NextResponse.json(

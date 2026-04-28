@@ -1,51 +1,24 @@
 export const pricingTranslations = {
   // Page header
-  pricing_title: "Challenge-ka — hal go'aan, 3 bilood",
-  pricing_subtitle: "Qiimo cad. Hal mar bixi. 3 bilood oo buuxda.",
-
-  plan_label_explorer: "Halkaan ka bilow",
-  plan_label_challenge: "Halkan ayuu horumarka ka yimaadaa",
-  subscribe_below_cards_note:
-    "Bilaash ku bilow marka hore — haddii aad diyaar u tahay Challenge-ka, waa kuu furan yahay goor kasta.",
-
-  // Bilaash (free tier; was Explorer)
-  explorer_name: "Bilaash — Weligeed",
-  explorer_popular_badge: "",
-  explorer_tagline: "Ku baro xawaarahaaga — Ingiriis looma baahna.",
-  explorer_per_month: "/bishii",
-  /** Shown under monthly price on plan card (yearly option). */
-  explorer_yearly_hint: "",
-  explorer_cta: "Bilow Bilaash",
-  explorer_free_price_display: "$0",
-  explorer_free_per: "Bilaash",
-  explorer_free_cta_signup: "Bilow Bilaash",
-  explorer_free_cta_logged_in: "Tag dashboard-ka",
-  explorer_feature_1: "Dhammaan 54-ta cashar ee la daabacay",
-  explorer_feature_2:
-    "6 koorso oo isugu jira tech, xisaab, iyo Baro Sida AI Loogu Shaqaysto",
-  explorer_feature_3: "Dabagalka horumarka casharrada",
-  explorer_feature_4: "Helitaanka bulshada",
-  explorer_feature_5: "Ku baro xawaarahaaga",
-
-  // Challenge card
-  challenge_name: "Challenge",
-  challenge_badge: "⭐ Lagu taliyay",
+  pricing_title: "Macmiilkaaga 1aad — 30 maalmood gudahood",
+  pricing_subtitle: "Lacagtaada ugu horreysa $500 kasbasho. Taageero maalinkasta.",
+  challenge_badge: "⭐ HIMMAALKA",
   challenge_tagline:
-    "3 bilood: ka bilow eber ilaa shaqo tech ama startup-kaaga",
+    "Macmiilkaaga 1aad hel — 30 maalmood gudahood",
   challenge_per_one_time: " hal mar",
   challenge_cta: "Challenge-ka hadda gal",
   /** Short label for narrow buttons (lesson UI, hero). */
   challenge_cta_compact: "Ku biir Challenge-ka",
   challenge_cta_waitlist: "Gali Liiska Sugitaanka Hadda",
-  challenge_feature_1: "Wax kasta oo ku jira Bilaash",
+  challenge_feature_1: "Macmiilkaaga 1aad hel — xitaa haddii aadan horey ugu shaqeyn",
   challenge_feature_2:
-    "Su'aalo jawaab toos ah — maalin kasta (wicitaan toddobaadle)",
+    "Lacagtaada ugu horreysa $500 kasbasho (Upwork/Fiverr)",
   challenge_feature_3:
-    "Koodhkaaga la eeg si aan khalad loo shaqo qaadin (dib-u-eegis)",
-  challenge_feature_4: "Shahaado aad LinkedIn ku dhejin karto (MERN)",
-  challenge_feature_5: "Saaxiibo tech ah oo adiga kaa horumarsan (koox 10 qof)",
+    "Qof kuu jawaabaya su'aalahaaga maalinkasta (WhatsApp + mentor)",
+  challenge_feature_4: "Profile-kaaga Upwork/Fiverr si xirfad leh loo habeeyey",
+  challenge_feature_5: "Saaxiibo freelancing ah oo adiga kaa horumarsan (koox 10 qof)",
   challenge_feature_6:
-    "Qof kuu jawaabaya marka aad xanaaqdid (WhatsApp + mentor)",
+    "Wicitaan toddobaadle — natiijooyinkaaga la eego",
   /** Live cohort capacity (from /api/challenge/status). */
   challenge_spots_remaining: "{n} boos oo hadhay kooxdan",
   challenge_waitlist_only:
@@ -121,5 +94,5 @@ export const pricingTranslations = {
   compare_challenge_price: "$149 hal mar",
 
   subscribe_social_month:
-    "Ku biir {n}+ Developer oo hadda baranaya — waxaad ku jirtaa kooxda",
+    "Ku biir {n}+ oo horumariyiin ah oo hadda baranaya — adiguna waxaad ku jirtaa",
 } as const;

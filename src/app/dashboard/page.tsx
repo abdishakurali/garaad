@@ -12,8 +12,11 @@ import { Sparkles } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import AuthService from "@/services/auth";
 import Logo from "@/components/ui/Logo";
+import OnboardingChecklist from "@/components/OnboardingChecklist";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function PostVerificationChoicePage() {
+  const { user } = useAuth();
   const [waitlist, setWaitlist] = useState(false);
   const posthog = usePostHog();
   const [postSignupDest, setPostSignupDest] = useState("/courses");
@@ -76,6 +79,11 @@ export default function PostVerificationChoicePage() {
         </header>
 
         <main className="flex flex-1 flex-col justify-center pb-8">
+          {!user?.is_premium && (
+            <div className="mb-8 flex justify-center">
+              <OnboardingChecklist />
+            </div>
+          )}
           <Card className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-xl shadow-violet-500/[0.07] ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/75 dark:shadow-black/40 dark:ring-white/10">
             <CardContent className="space-y-4 p-4 text-center sm:space-y-5 sm:p-6 md:text-left">
               <div className="mx-auto flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 md:mx-0">

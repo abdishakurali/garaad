@@ -11,7 +11,8 @@ import AuthService from "@/services/auth";
 import OrderService from "@/services/orders";
 import StripeService from "@/services/stripe";
 import { useAuthStore } from "@/store/useAuthStore";
-import { EXPLORER_IS_FREE } from "@/config/featureFlags";
+import { cn } from "@/lib/utils";
+import { Lock } from "lucide-react";
 
 interface Props {
   plan: SubscribePlan;
@@ -21,6 +22,7 @@ interface Props {
 
 export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
   const [method, setMethod] = useState<"waafi" | "stripe">("waafi");
+  const [paymentPlan, setPaymentPlan] = useState<"installment" | "full">("installment");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,9 +30,18 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
   const handlePay = async () => {
     const auth = AuthService.getInstance();
     const token = await auth.ensureValidToken();
+    
     if (!token) {
-      setError(t.error_login_required);
-      return;
+      if (method === "waafi" && !phone.replace(/\D/g, "").trim()) {
+        setError(t.error_login_required);
+        return;
+      }
+      // For other cases, we still need a token to create an order in the backend.
+      // But based on Fix 2, we should avoid showing this error if phone is entered for Waafi.
+      if (method !== "waafi") {
+        setError(t.error_login_required);
+        return;
+      }
     }
 
     const sessionUser = useAuthStore.getState().user;
@@ -198,6 +209,62 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             </div>
           </div>
 
+          {plan.key === "challenge" && (
+            <div className="mt-4 space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Dooro habka bixinta
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPaymentPlan("installment")}
+                  className={cn(
+                    "p-3 rounded-xl border-2 text-left transition-all",
+                    paymentPlan === "installment" 
+                      ? "border-primary bg-primary/5 ring-1 ring-primary" 
+                      : "border-border bg-background hover:border-primary/40"
+                  )}
+                >
+                  <p className="text-sm font-bold text-foreground">$49/bilood</p>
+                  <p className="text-[10px] text-muted-foreground">3 bishood (Wadarta $147)</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentPlan("full")}
+                  className={cn(
+                    "p-3 rounded-xl border-2 text-left transition-all",
+                    paymentPlan === "full" 
+                      ? "border-primary bg-primary/5 ring-1 ring-primary" 
+                      : "border-border bg-background hover:border-primary/40"
+                  )}
+                >
+                  <p className="text-sm font-bold text-foreground">$149 hal mar</p>
+                  <p className="text-[10px] text-muted-foreground">Bixi hal mar</p>
+                </button>
+              </div>
+
+              <div className="mt-3 p-3 rounded-xl bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+                <div className="text-[11px] font-medium text-gray-600 dark:text-gray-400 space-y-1">
+                  {paymentPlan === "installment" ? (
+                    <>
+                      <div className="flex justify-between"><span>Maanta:</span> <span className="font-bold text-foreground">$49</span></div>
+                      <div className="flex justify-between"><span>Bilood 2aad:</span> <span className="font-bold text-foreground">$49</span></div>
+                      <div className="flex justify-between"><span>Bilood 3aad:</span> <span className="font-bold text-foreground">$49</span></div>
+                      <div className="border-t border-gray-300 dark:border-gray-600 pt-1 mt-1 flex justify-between font-bold text-foreground">
+                        <span>Wadarta:</span> <span>$147</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between"><span>Hal-mar:</span> <span className="font-bold text-foreground">$149</span></div>
+                      <div className="flex justify-between"><span>Badbaadinta:</span> <span className="font-bold text-foreground">$0</span></div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="mt-8">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t.modal_pay_with}
@@ -248,14 +315,23 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             </p>
           )}
 
-          <button
-            type="button"
-            onClick={handlePay}
-            disabled={loading}
-            className="mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-          >
-            {loading ? t.modal_processing : plan.payButton}
-          </button>
+           <button
+             type="button"
+             onClick={handlePay}
+             disabled={loading}
+             className="mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+           >
+             {loading ? t.modal_processing : (
+               plan.key === "challenge" 
+               ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
+               : plan.payButton
+             )}
+           </button>
+           <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[12px] text-gray-500 dark:text-gray-400">
+             <Lock className="h-3 w-3" />
+             <span>Lacag-celinta: 30 maalmood haddii aadan ku faraxsanayn — su&apos;aal la&apos;aan.</span>
+           </div>
+
         </div>
       </div>
     </div>

@@ -35,7 +35,11 @@ const protectedRoots = [
   "/post-verification-choice",
 ];
 
-const premiumRoots: string[] = [];
+const premiumRoots: string[] = [
+  "/community",
+  "/mentorship",
+  "/cohorts",
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -111,35 +115,28 @@ export async function middleware(request: NextRequest) {
   // Lesson access for signed-in users: full catalog (see lessonTierAccess); optional Challenge CTA in-app.
   const isPremiumPath = premiumRoots.some(root => pathname.startsWith(root));
 
-  if (isPremiumPath) {
-    if (!userCookie?.value) {
-      // Authenticated but missing user metadata (session issue) → re-auth at login, not signup.
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("reason", "no_user_data");
-      return NextResponse.redirect(loginUrl, 308);
-    }
-    try {
-      const decodedUser = decodeURIComponent(userCookie.value);
-      const user = JSON.parse(decodedUser);
-
-      // Allow if user is premium
-      if (user?.is_premium) {
-        return NextResponse.next();
+    if (isPremiumPath) {
+      if (!userCookie?.value) {
+        // Authenticated but missing user metadata (session issue) → re-auth at login, not signup.
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("reason", "no_user_data");
+        return NextResponse.redirect(loginUrl, 308);
       }
+      try {
+        const decodedUser = decodeURIComponent(userCookie.value);
+        const user = JSON.parse(decodedUser);
 
-      // Deny if not premium
-      console.log("User is not premium, redirecting to subscribe");
-      const subscribeUrl = new URL("/subscribe", request.url);
-      subscribeUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(subscribeUrl, 308);
+        // Allow if user is premium OR allow the request to pass to let client-side PremiumGuard handle the modal
+        // To implement the modal, we allow the request but the client-side guard will block the UI.
+        return NextResponse.next();
 
-    } catch (error) {
-      // Cookie parse error -> treat as session corrupted
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("reason", "session_parse_error");
-      return NextResponse.redirect(loginUrl, 308);
+      } catch (error) {
+        // Cookie parse error -> treat as session corrupted
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("reason", "session_parse_error");
+        return NextResponse.redirect(loginUrl, 308);
+      }
     }
-  }
 
   // Authenticated and passed all checks
   return NextResponse.next();

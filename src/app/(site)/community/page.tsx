@@ -37,6 +37,8 @@ import { NotificationEnablePrompt } from '@/components/community/NotificationEna
 import { pricingTranslations as pt } from '@/config/translations/pricing';
 import { useChallengeStatus } from '@/hooks/useChallengeStatus';
 
+import { PremiumGuard } from '@/components/auth/PremiumGuard';
+
 export default function CommunityPage() {
     const {
         posts,
@@ -281,23 +283,6 @@ export default function CommunityPage() {
 
     if (!isAuthenticated) return null;
 
-    /** Challenge-only space: mock community chrome + centered lock */
-    if (!hasCommunityAccess) {
-        return (
-            <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-7xl flex-col px-4 py-6 sm:px-6 sm:py-10">
-                <CommunityPrivatePreview
-                    title="Bulshadu waa gaar ah"
-                    description="Goobtan waxaa isticmaali kara ardayda Challenge-ka oo keliya. Hoos waxaad aragtaa qaabka bulshadu u egtahay — furitaanka wuxuu u baahan yahay Challenge."
-                    primary={{
-                        href: challengeGateLoading ? "/challenge" : challengeJoinHref,
-                        label: challengeGateLoading ? "Challenge" : `${pt.challenge_cta_compact} →`,
-                    }}
-                    footnote="Heerka Bilaash: sii wad /courses — waxbarashada aasaasiga ah waa furan."
-                />
-            </div>
-        );
-    }
-
     if (loading.categories || loading.profile) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-white dark:bg-[#1E1F22]">
@@ -409,22 +394,25 @@ export default function CommunityPage() {
     );
 
     return (
-        <div className="mx-auto h-[calc(100dvh-3.5rem)] w-full max-w-7xl min-h-0 overflow-hidden bg-background px-2 pt-2 sm:px-4 sm:pt-3 md:h-[calc(100dvh-4rem)]">
-        <div className="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-gray-100 bg-background dark:border-white/5">
-            <div className="flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden">
-            <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
-                <div className="h-20 ml-0 pl-0 px-8 flex items-center justify-center">
-                    <div className="relative w-32 h-12 pl-0 px-8  overflow-hidden flex-shrink-0">
-                        <Image
-                            src="/logo.png"
-                            alt="Garaad"
-                            fill
-                            sizes="128px"
-                            className="object-contain"
-                        />
-                    </div>
-                </div>
-                {categoryList}
+        <PremiumGuard>
+            <div className="mx-auto h-[calc(100dvh-3.5rem)] w-full max-w-7xl min-h-0 overflow-hidden bg-background px-2 pt-2 sm:px-4 sm:pt-3 md:h-[calc(100dvh-4rem)]">
+                <div className="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-gray-100 bg-background dark:border-white/5">
+                    <div className="flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden">
+                        <div className="hidden lg:flex w-80 border-r border-gray-100 dark:border-white/5 flex-col bg-white dark:bg-black">
+                            <div className="h-20 ml-0 pl-0 px-8 flex items-center justify-center">
+                                <div className="relative w-32 h-12 pl-0 px-8  overflow-hidden flex-shrink-0">
+                                    <Image
+                                        src="/logo.png"
+                                        alt="Garaad"
+                                        fill
+                                        sizes="128px"
+                                        className="object-contain"
+                                    />
+                                </div>
+                            </div>
+                            {categoryList}
+                        </div>
+
             </div>
 
             {/* Main: Post List */}
@@ -539,6 +527,6 @@ export default function CommunityPage() {
                 </DialogContent>
             </Dialog>
         </div>
-        </div>
+        </PremiumGuard>
     );
 }

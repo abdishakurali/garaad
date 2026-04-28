@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { MentorshipContent } from "./mentorship-content";
+import { PremiumGuard } from "@/components/auth/PremiumGuard";
 
 const SITE_URL = "https://garaad.org";
 
@@ -28,5 +29,9 @@ export const metadata: Metadata = {
 };
 
 export default function MentorshipPage() {
-  return <MentorshipContent />;
+  return (
+    <PremiumGuard>
+      <MentorshipContent />
+    </PremiumGuard>
+  );
 }
