@@ -157,131 +157,116 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="payment-modal-title"
     >
-      <div className="relative w-full max-w-[440px] rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-primary/10">
+      <div className="relative w-full max-w-[400px] overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl">
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground z-10"
           aria-label="Close"
         >
-          <span className="text-lg leading-none" aria-hidden>
-            ✕
-          </span>
+          <span className="text-lg leading-none">✕</span>
         </button>
 
-        <div className="px-6 pb-6 pt-12 sm:px-8 sm:pb-8 sm:pt-14">
-          <h2
-            id="payment-modal-title"
-            className="pr-10 text-xl font-bold tracking-tight text-foreground"
-          >
-            {t.modal_title}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {plan.name} · {plan.priceDisplay}
-            {plan.per}
-          </p>
+        <div className="px-6 pb-6 pt-8 sm:px-8 sm:pb-8">
+          <div className="text-center mb-6">
+            <h2
+              id="payment-modal-title"
+              className="text-xl font-bold tracking-tight text-foreground"
+            >
+              {t.modal_title}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {plan.name} · {plan.priceDisplay}{plan.per}
+            </p>
+          </div>
 
-          <div className="mt-6 rounded-xl border border-border bg-muted/40 p-4 dark:bg-muted/25">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {t.modal_plan_label}
-                </p>
-                <p className="mt-0.5 text-base font-semibold text-foreground">
-                  {plan.name}
-                </p>
-              </div>
-              <div className="sm:text-right">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {t.modal_price_label}
-                </p>
-                <p className="mt-0.5 text-base font-semibold text-primary">
-                  {plan.priceDisplay}
-                  <span className="text-sm font-normal text-muted-foreground">
-                    {plan.per}
-                  </span>
-                </p>
-              </div>
-            </div>
+          <div className="mb-6 rounded-xl border border-border bg-muted/30 p-3 text-center">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
+              {t.modal_plan_label}
+            </p>
+            <p className="text-lg font-bold text-foreground">
+              {plan.name} <span className="text-primary ml-1">{plan.priceDisplay}{plan.per}</span>
+            </p>
           </div>
 
           {plan.key === "challenge" && (
-            <div className="mt-4 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="mb-6 space-y-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-center">
                 Dooro habka bixinta
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setPaymentPlan("installment")}
                   className={cn(
-                    "p-3 rounded-xl border-2 text-left transition-all",
+                    "p-2 rounded-lg border text-center transition-all",
                     paymentPlan === "installment" 
-                      ? "border-primary bg-primary/5 ring-1 ring-primary" 
+                      ? "border-primary bg-primary/10 ring-1 ring-primary" 
                       : "border-border bg-background hover:border-primary/40"
                   )}
                 >
-                  <p className="text-sm font-bold text-foreground">$49/bilood</p>
-                  <p className="text-[10px] text-muted-foreground">3 bishood (Wadarta $147)</p>
+                  <p className="text-xs font-bold text-foreground">$49/bilood</p>
+                  <p className="text-[10px] text-muted-foreground">3 bishood</p>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentPlan("full")}
                   className={cn(
-                    "p-3 rounded-xl border-2 text-left transition-all",
+                    "p-2 rounded-lg border text-center transition-all",
                     paymentPlan === "full" 
-                      ? "border-primary bg-primary/5 ring-1 ring-primary" 
+                      ? "border-primary bg-primary/10 ring-1 ring-primary" 
                       : "border-border bg-background hover:border-primary/40"
                   )}
                 >
-                  <p className="text-sm font-bold text-foreground">$149 hal mar</p>
+                  <p className="text-xs font-bold text-foreground">$149 hal mar</p>
                   <p className="text-[10px] text-muted-foreground">Bixi hal mar</p>
                 </button>
               </div>
 
-              <div className="mt-3 p-3 rounded-xl bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
-                <div className="text-[11px] font-medium text-gray-600 dark:text-gray-400 space-y-1">
-                  {paymentPlan === "installment" ? (
-                    <>
-                      <div className="flex justify-between"><span>Maanta:</span> <span className="font-bold text-foreground">$49</span></div>
-                      <div className="flex justify-between"><span>Bilood 2aad:</span> <span className="font-bold text-foreground">$49</span></div>
-                      <div className="flex justify-between"><span>Bilood 3aad:</span> <span className="font-bold text-foreground">$49</span></div>
-                      <div className="border-t border-gray-300 dark:border-gray-600 pt-1 mt-1 flex justify-between font-bold text-foreground">
-                        <span>Wadarta:</span> <span>$147</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex justify-between"><span>Hal-mar:</span> <span className="font-bold text-foreground">$149</span></div>
-                      <div className="flex justify-between"><span>Badbaadinta:</span> <span className="font-bold text-foreground">$0</span></div>
-                    </>
-                  )}
-                </div>
+              <div className="px-3 py-2 rounded-lg bg-muted/50 border border-border text-[11px] text-muted-foreground space-y-1">
+                {paymentPlan === "installment" ? (
+                  <>
+                    <div className="flex justify-between"><span>Maanta:</span> <span className="font-bold text-foreground">$49</span></div>
+                    <div className="flex justify-between"><span>Wadarta (3 bilood):</span> <span className="font-bold text-foreground">$147</span></div>
+                  </>
+                ) : (
+                  <div className="flex justify-between"><span>Hal-mar:</span> <span className="font-bold text-foreground">$149</span></div>
+                )}
               </div>
             </div>
           )}
 
-          <div className="mt-8">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="mb-6">
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-center">
               {t.modal_pay_with}
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex p-1 bg-muted rounded-xl gap-1">
               <button
                 type="button"
                 onClick={() => setMethod("waafi")}
-                className={methodBtn(method === "waafi")}
+                className={cn(
+                  "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                  method === "waafi" 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
               >
                 {t.modal_waafi_label}
               </button>
               <button
                 type="button"
                 onClick={() => setMethod("stripe")}
-                className={methodBtn(method === "stripe")}
+                className={cn(
+                  "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                  method === "stripe" 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
               >
                 {t.modal_card_label}
               </button>
@@ -289,27 +274,21 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
           </div>
 
           {method === "waafi" && (
-            <div className="mt-6 space-y-2">
-              <label
-                htmlFor="waafi-phone"
-                className="text-sm font-medium text-foreground"
-              >
-                {t.modal_phone_label}
-              </label>
+            <div className="mb-6">
               <input
                 id="waafi-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder={t.modal_phone_placeholder}
-                className="mt-1.5 h-11 w-full rounded-xl border border-input bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground transition-shadow focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground transition-shadow focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
               />
             </div>
           )}
 
           {error && (
             <p
-              className="mt-5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive text-center"
               role="alert"
             >
               {error}
@@ -317,22 +296,21 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
           )}
 
            <button
-             type="button"
-             onClick={handlePay}
-             disabled={loading}
-             className="mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-           >
-             {loading ? t.modal_processing : (
-               plan.key === "challenge" 
-               ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
-               : plan.payButton
-             )}
-           </button>
-           <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[12px] text-gray-500 dark:text-gray-400">
-             <Lock className="h-3 w-3" />
-             <span>Lacag-celinta: 30 maalmood haddii aadan ku faraxsanayn — su&apos;aal la&apos;aan.</span>
-           </div>
-
+              type="button"
+              onClick={handlePay}
+              disabled={loading}
+              className="flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 disabled:opacity-50"
+            >
+              {loading ? t.modal_processing : (
+                plan.key === "challenge" 
+                ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
+                : plan.payButton
+              )}
+            </button>
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] text-muted-foreground">
+              <Lock className="h-3 w-3" />
+              <span>Lacag-celinta: 30 maalmood haddii aadan ku faraxsanayn.</span>
+            </div>
         </div>
       </div>
     </div>

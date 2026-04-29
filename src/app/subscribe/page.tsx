@@ -165,21 +165,22 @@ function SubscribePageInner() {
     setAuthError("");
     try {
       const authService = AuthService.getInstance();
-      if (authMode === "signup") {
-        await authService.signUp({
-          email: authForm.email,
-          password: authForm.password,
-          name: "User",
-          age: 25,
-          onboarding_data: {
-            goal: "career",
-            topic: "ai",
-            math_level: "beginner",
-            minutes_per_day: 30,
-            preferred_study_time: "morning",
-          },
-        });
-      } else {
+          if (authMode === "signup") {
+            await authService.signUp({
+              email: authForm.email,
+              password: authForm.password,
+              username: authForm.email.split("@")[0],
+              name: "User",
+              age: 25,
+              onboarding_data: {
+                goal: "career",
+                topic: "ai",
+                math_level: "beginner",
+                minutes_per_day: 30,
+                preferred_study_time: "morning",
+              },
+            });
+          } else {
         await authService.signIn({
           email: authForm.email,
           password: authForm.password,
