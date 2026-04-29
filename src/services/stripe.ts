@@ -31,7 +31,8 @@ class StripeService {
     priceId: string,
     mode: "subscription" | "payment",
     orderId?: string,
-    billingPlan?: "explorer" | "challenge"
+    billingPlan?: "explorer" | "challenge",
+    planType?: "installment" | "full"
   ) {
     try {
       const authService = AuthService.getInstance();
@@ -64,6 +65,7 @@ class StripeService {
           priceId: priceId || "",
           mode,
           billingPlan,
+          planType,
           email: userEmail,
           userId,
           orderId,

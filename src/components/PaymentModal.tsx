@@ -128,7 +128,8 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
         usePriceId ? envPriceId : "",
         "subscription",
         orderId,
-        planKey
+        planKey,
+        paymentPlan
       );
     } catch (e) {
       const err = e as Error & { status?: number };

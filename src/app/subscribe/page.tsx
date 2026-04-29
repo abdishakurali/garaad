@@ -166,13 +166,24 @@ function SubscribePageInner() {
     try {
       const authService = AuthService.getInstance();
       if (authMode === "signup") {
-        await authService.signup({
+        await authService.signUp({
           email: authForm.email,
           password: authForm.password,
-          first_name: "User", // Default as prompt says email + password only
+          name: "User",
+          age: 25,
+          onboarding_data: {
+            goal: "career",
+            topic: "ai",
+            math_level: "beginner",
+            minutes_per_day: 30,
+            preferred_study_time: "morning",
+          },
         });
       } else {
-        await authService.login(authForm.email, authForm.password);
+        await authService.signIn({
+          email: authForm.email,
+          password: authForm.password,
+        });
       }
       
       setIsAuthModalOpen(false);

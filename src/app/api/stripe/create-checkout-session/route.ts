@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
       priceId: bodyPriceId,
       mode: bodyMode,
       billingPlan,
+      planType,
       successUrl,
       cancelUrl,
       countryCode,
@@ -263,6 +264,7 @@ export async function POST(request: NextRequest) {
           (billing as string) ||
           (plan as string) ||
           (bodyPriceId ? "direct" : ""),
+        planType: String(planType || "installment"),
         userId: String(userId || "unknown"),
         user_id: String(userId || "unknown"),
         order_id: orderId != null ? String(orderId) : "",
