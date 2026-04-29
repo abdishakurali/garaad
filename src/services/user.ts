@@ -17,25 +17,43 @@ class UserService {
     return UserService.instance;
   }
 
-  async updatePremiumStatus(update: UserPremiumUpdate): Promise<boolean> {
+  async updatePremiumStatus(update: UserPremiumUpdate & { planType?: 'installment' | 'full' }): Promise<boolean> {
     try {
-      console.log("Updating user premium status:", update);
+      console.log("Updating user premium status via internal API:", update);
 
-      console.log(
-        `✅ Using simulated database update for user ${update.userId}`
+      const internalUrl = process.env.DJANGO_INTERNAL_URL || "https://api.garaad.org";
+      const internalSecret = process.env.INTERNAL_API_SECRET;
+
+      if (!internalSecret) {
+        console.error("INTERNAL_API_SECRET is not configured in environment variables");
+        return false;
+      }
+
+      const response = await fetch(
+        `${internalUrl.replace(/\/$/, "")}/api/accounts/set-premium/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Internal-Secret": internalSecret,
+          },
+          body: JSON.stringify({
+            user_id: update.userId,
+            is_premium: update.isPremium,
+            subscription_type: "challenge",
+            plan_type: update.planType,
+          }),
+        }
       );
 
-      // NOTE: In production, integrate with your actual database here.
-      // e.g., await db.users.update({ where: { id: update.userId }, data: { isPremium: update.isPremium } });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Internal API error (${response.status}): ${errorText}`);
+        return false;
+      }
 
-      console.log(
-        `✅ User ${update.userId} premium status updated to: ${update.isPremium}`
-      );
-      console.log(`📝 Subscription ID: ${update.subscriptionId}`);
-
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
+      const data = await response.json();
+      console.log(`✅ User ${update.userId} premium status updated successfully:`, data);
       return true;
     } catch (error) {
       console.error("❌ Error updating premium status:", error);
