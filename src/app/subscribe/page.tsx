@@ -123,10 +123,9 @@ function SubscribePageInner() {
     };
   }, [pathname]);
 
-  // Countdown to webinar offer expiry (48 hours from now for demo)
+  // Countdown to webinar offer expiry
   useEffect(() => {
-    const expiry = new Date();
-    expiry.setHours(expiry.getHours() + 48);
+    const expiry = new Date("2026-04-01T00:00:00Z"); // Set to a past date to show "Ended" state
 
     const update = () => {
       const now = new Date();
@@ -214,13 +213,20 @@ function SubscribePageInner() {
         </div>
       </header>
 
-      {/* Urgency banner */}
-      <div className="max-w-2xl mx-auto mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-center">
-        <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
-          ⏰ Qiimaha webinar-ka wuxuu dhacayaa: <span className="tabular-nums">{countdown}</span>
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">$49/bilood halkii $149 hal mar</p>
-      </div>
+       {/* Urgency banner */}
+       <div className="max-w-2xl mx-auto mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-center">
+         <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+           {countdown === "Dhamaatay" 
+             ? "⏰ Webinar-ka 'Freelancing in Somalia' waa dhamaaday" 
+             : `⏰ Qiimaha webinar-ka wuxuu dhacayaa: ${countdown}`}
+         </p>
+         <p className="text-xs text-muted-foreground mt-1">
+           {countdown === "Dhamaatay" 
+             ? "Laakiin wali waad ku biiri kartaa barnaamijka" 
+             : "$49/bilood halkii $149 hal mar"}
+         </p>
+       </div>
+
 
       <div className="px-4 py-12 sm:py-16">
         <div className="text-center mb-8 sm:mb-10">
