@@ -144,7 +144,7 @@ const nextConfig = {
 
   trailingSlash: false,
   generateBuildId: async () => {
-    return "garaad-v1";
+    return `garaad-${Date.now()}`;
   },
 
   // Reduce full page reloads in dev when navigating between pages (memory pressure / buffer)
