@@ -172,7 +172,7 @@ function WebinarCard({
             {webinar.is_past ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                 <CheckCircle2 className="h-3 w-3" />
-                Waa dhamaatay
+                Webinars hore
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
