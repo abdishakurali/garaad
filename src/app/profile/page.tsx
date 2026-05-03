@@ -379,7 +379,7 @@ export default function ProfilePage() {
               {/* Public Profile Link */}
               <div className="pt-2">
                 <a
-                  href={`/${user.username}`}
+                  href={`/${user.username || ''}`}
                   className="flex items-center justify-between p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
                 >
                   <div className="flex items-center gap-3">
