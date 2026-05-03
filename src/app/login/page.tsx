@@ -149,7 +149,6 @@ function LoginPageContent() {
 };
 
     return (
-
         <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
             <div
                 className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
@@ -332,7 +331,9 @@ function LoginPageContent() {
                                         </>
                                     )}
                                 </Button>
-                            </form>
+                                 </form>
+                             </div>
+
 
                             <div className="rounded-2xl border border-violet-500/25 bg-violet-500/[0.06] p-4 text-center">
                                 <p className="text-sm font-semibold text-foreground">Akoon ma haystid?</p>
