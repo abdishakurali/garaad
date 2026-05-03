@@ -96,7 +96,6 @@ function WelcomePage() {
     name: "",
     email: "",
     password: "",
-    promoCode: "",
   });
   const [actualError, setActualError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -202,7 +201,6 @@ function WelcomePage() {
           name: userData.name.trim(),
           username: userData.email.trim(),
           referrer: referrer,
-          ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
         };
         const result = await AuthService.getInstance().signUp(signUpData);
 
@@ -557,42 +555,25 @@ function WelcomePage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="password"
-                  className="text-sm font-semibold text-foreground"
-                >
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={userData.password}
-                  onChange={(e) =>
-                    setUserData((u) => ({ ...u, password: e.target.value }))
-                  }
-                  disabled={isLoading}
-                  className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
-                />
-              </div>
+               <div className="space-y-1.5">
+                 <Label
+                   htmlFor="password"
+                   className="text-sm font-semibold text-foreground"
+                 >
+                   Password
+                 </Label>
+                 <Input
+                   id="password"
+                   type="password"
+                   value={userData.password}
+                   onChange={(e) =>
+                     setUserData((u) => ({ ...u, password: e.target.value }))
+                   }
+                   disabled={isLoading}
+                   className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow placeholder:text-muted-foreground/70 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
+                 />
+               </div>
 
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="promoCode"
-                  className="text-sm font-medium text-muted-foreground"
-                >
-                  Koodka Dalacsiinta (Ikhtiyaari)
-                </Label>
-                <Input
-                  id="promoCode"
-                  value={userData.promoCode}
-                  onChange={(e) =>
-                    setUserData((u) => ({ ...u, promoCode: e.target.value }))
-                  }
-                  disabled={isLoading}
-                  className="h-12 rounded-xl border-border/80 bg-muted/40 px-4 text-base transition-shadow focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 dark:bg-slate-800/60"
-                />
-              </div>
 
               <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-4">
                 <input
