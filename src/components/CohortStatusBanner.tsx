@@ -39,16 +39,7 @@ export function CohortStatusBanner() {
   }
 
   if (spots_remaining > 2) {
-    return (
-      <div className="max-w-4xl mx-auto w-full mb-6 px-4">
-        <div className="flex items-center justify-center gap-3 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-          <CheckCircle2 className="h-5 w-5 shrink-0" />
-          <span className="text-sm font-bold text-center">
-            {spots_remaining} boosas ayaa hadhay — cohort-ka ku biir hadda
-          </span>
-        </div>
-      </div>
-    );
+    return null; // Hidden - don't show spots remaining
   }
 
   return null;

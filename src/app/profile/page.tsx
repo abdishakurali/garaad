@@ -126,9 +126,16 @@ export default function ProfilePage() {
       const authService = AuthService.getInstance();
       const whatsapp = buildWhatsapp(formData.whatsapp_dial, formData.whatsapp_local);
       
+      // Derive username from first_name (lowercase, no spaces)
+      const derivedUsername = (formData.first_name || "")
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/[^a-z0-9]/g, "");
+      
       await authService.updateProfile({
         first_name: formData.first_name,
         last_name: formData.last_name,
+        username: derivedUsername || undefined,
         bio: formData.bio,
         location: formData.location,
         whatsapp_number: whatsapp || undefined,

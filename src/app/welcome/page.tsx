@@ -195,11 +195,15 @@ function WelcomePage() {
       try {
         const onboarding_data = buildOnboardingPayload();
         const referrer = localStorage.getItem('garaad_signup_referrer');
+        const nameParts = userData.name.trim().split(" ");
+        const firstName = nameParts[0] || "";
+        const derivedUsername = firstName.toLowerCase().replace(/[^a-z0-9]/g, "") || userData.email.trim();
+        
         const signUpData: SignUpData = {
           email: userData.email.trim(),
           password: userData.password.trim(),
           name: userData.name.trim(),
-          username: userData.email.trim(),
+          username: derivedUsername,
           referrer: referrer,
         };
         const result = await AuthService.getInstance().signUp(signUpData);

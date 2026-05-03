@@ -462,13 +462,7 @@ export default function CommunityPage() {
 
                         {user && !user.is_premium && (
                             <div className="border-b border-violet-500/20 bg-violet-50/80 px-4 py-2 text-xs text-violet-900 dark:bg-violet-950/30 dark:text-violet-100 lg:px-8">
-                                Community-ga bilaash ayaad ku bilaabi kartaa. Mentorship-ka waxaa lagu taliyay haddii aad rabto hagid 1:1 iyo cohort gaar ah.{" "}
-                                <Link
-                                    href={challengeJoinHref}
-                                    className="font-bold underline-offset-2 hover:underline"
-                                >
-                                    Eeg mentorship-ka
-                                </Link>
+                                Community-ga bilaash ayaad ku bilaabi kartaa.
                             </div>
                         )}
 
