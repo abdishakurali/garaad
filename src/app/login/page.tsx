@@ -16,7 +16,6 @@ import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect, parseLessonIdFromRedirectPath } from "@/lib/auth-redirect";
 import { identifyUser } from "@/providers/PostHogProvider";
 import { fetchLessonWallPreview } from "@/lib/lesson-wall-preview";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 function LoginPageContent() {
     const router = useRouter();
@@ -144,50 +143,13 @@ function LoginPageContent() {
                 error: err instanceof Error ? err.message.slice(0, 120) : "unknown",
             });
             setError(err instanceof Error ? err.message : "Wax khalad ah ayaa dhacay. Fadlan mar kale isku day.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleGoogleCredential = async (credential: string) => {
-        setError("");
-        setIsLoading(true);
-        try {
-            const result = await AuthService.getInstance().signInWithGoogle({ credential });
-            if (result?.user) {
-                setAuthStoreUser({
-                    ...result.user,
-                    is_premium: result.user.is_premium ?? false,
-                });
-                identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
-            }
-            posthog?.capture("login_succeeded", { method: "google" });
-            try {
-                sessionStorage.removeItem("post_login_redirect");
-            } catch {
-                /* ignore */
-            }
-            if (redirectTo) {
-                router.push(redirectTo);
-            } else if (result.user?.is_email_verified) {
-                router.push("/post-verification-choice");
-            } else {
-                router.push("/courses");
-            }
-        } catch (err) {
-            posthog?.capture("login_failed", {
-                method: "google",
-                error: err instanceof Error ? err.message.slice(0, 120) : "unknown",
-            });
-            setError(
-                err instanceof Error ? err.message : "Google login ma guulaysan. Fadlan mar kale isku day."
-            );
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    } finally {
+        setIsLoading(false);
+    }
+};
 
     return (
+
         <div className="relative min-h-screen overflow-x-hidden bg-slate-50 text-foreground dark:bg-slate-950">
             <div
                 className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.35),transparent)]"
@@ -312,21 +274,9 @@ function LoginPageContent() {
                                 </Alert>
                             )}
 
-                            <div className="space-y-4">
-                                <GoogleSignInButton
-                                    disabled={isLoading}
-                                    onCredential={(c) => void handleGoogleCredential(c)}
-                                />
-                                <div className="relative py-1 text-center text-xs font-medium text-muted-foreground">
-                                    <span className="relative z-10 bg-card px-3">ama sii wad email</span>
-                                    <span
-                                        className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
-                                        aria-hidden
-                                    />
-                                </div>
-                            </div>
+                             <div className="space-y-4">
+                                 <form onSubmit={handleSubmit} className="space-y-5">
 
-                            <form onSubmit={handleSubmit} className="space-y-5">
                                 <div className="space-y-2">
                                     <Label
                                         htmlFor="email"

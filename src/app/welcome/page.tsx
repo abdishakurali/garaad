@@ -27,7 +27,6 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { identifyUser } from "@/providers/PostHogProvider";
 
 const WELCOME_STORAGE_KEY = "welcome_onboarding_v2";
@@ -264,59 +263,6 @@ function WelcomePage() {
     }
   };
 
-  const handleGoogleCredential = useCallback(
-    async (credential: string) => {
-      setActualError("");
-      setIsLoading(true);
-      setAuthStoreError(null);
-      try {
-        const onboarding_data = buildOnboardingPayload();
-        const referrer = localStorage.getItem('garaad_signup_referrer');
-        const result = await AuthService.getInstance().signInWithGoogle({
-          credential,
-          onboarding_data,
-          referrer: referrer,
-          ...(userData.promoCode.trim()
-            ? { promo_code: userData.promoCode.trim() }
-            : {}),
-        });
-        if (result?.user) {
-          setAuthStoreUser({
-            ...result.user,
-            is_premium: result.user.is_premium || false,
-          });
-          identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
-        }
-        const finalDest = resolvePostSignupDestination(result?.redirect_url);
-        clearWelcomeStorage();
-        rememberPostSignupDestination(finalDest);
-        posthog?.capture("onboarding_completed", { source: "google_gis" });
-        
-        const googleReferrer = localStorage.getItem('garaad_signup_referrer');
-        const googleFinalDest = googleReferrer === 'mentorship' ? '/subscribe' : "/post-verification-choice";
-        
-        localStorage.removeItem('garaad_signup_referrer');
-        router.replace(googleFinalDest);
-      } catch (error: unknown) {
-        setActualError(
-          error instanceof Error
-            ? error.message || "Google ma guulaysan. Fadlan isku day email/password."
-            : "Waxbaa khaldamay. Fadlan mar kale isku day."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [
-      userData.promoCode,
-      resolvePostSignupDestination,
-      posthog,
-      setAuthStoreUser,
-      router,
-      setAuthStoreError,
-    ]
-  );
-
   // ── Loading / redirect spinner ────────────────────────────────────────────
   if (redirecting) {
     return (
@@ -548,26 +494,12 @@ function WelcomePage() {
             <h2 className="mb-1 text-2xl font-bold tracking-tight text-foreground">
               Sameyso Account
             </h2>
-            <p className="mb-6 text-sm text-muted-foreground">
-              Bilow safarkaaga maanta.
-            </p>
+             <p className="mb-6 text-sm text-muted-foreground">
+               Bilow safarkaaga maanta.
+             </p>
+ 
+             {actualError && (
 
-            {/* Google sign-in — always at the top */}
-            <GoogleSignInButton
-              disabled={isLoading}
-              onCredential={(c) => void handleGoogleCredential(c)}
-            />
-
-            {/* Divider */}
-            <div className="relative my-5 text-center text-xs font-medium text-muted-foreground">
-              <span className="relative z-10 bg-card px-3">ama isticmaal email</span>
-              <span
-                className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border"
-                aria-hidden
-              />
-            </div>
-
-            {actualError && (
               <Alert
                 variant="destructive"
                 className="mb-5 rounded-2xl border-red-200/80 bg-red-50/90 dark:border-red-900/50 dark:bg-red-950/40"
