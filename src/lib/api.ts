@@ -101,8 +101,17 @@ class ApiClient {
         }
 
         const token = this.getCookie('accessToken');
+        console.log("API Request - Token exists:", !!token, "Path:", path);
         if (token && !headers.has('Authorization')) {
             headers.set('Authorization', `Bearer ${token}`);
+        }
+
+        // Debug logging for FormData
+        if (body instanceof FormData) {
+            console.log("FormData content:");
+            for (const [key, value] of body.entries()) {
+                console.log("  ", key, ":", value instanceof File ? value.name : value);
+            }
         }
 
         const config: RequestInit = {
@@ -146,11 +155,14 @@ class ApiClient {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
+                console.log("API Error response:", response.status, errorData);
                 const error = new Error(errorData.message || errorData.detail || 'API Request failed');
                 (error as any).status = response.status;
                 (error as any).data = errorData;
                 throw error;
             }
+
+            console.log("API Success response:", response.status);
 
             // Handle empty response
             if (response.status === 204) return {} as T;
