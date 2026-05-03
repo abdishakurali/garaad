@@ -115,12 +115,14 @@ class AuthService {
   private applySessionFromApiAuthPayload(response: ApiAuthPayload): void {
     const access =
       response.tokens?.access ??
-      (typeof response.access === "string" ? response.access : undefined);
+      (typeof response.access === "string" ? response.access : undefined) ??
+      (typeof response.accessToken === "string" ? response.accessToken : undefined);
     const refresh =
       response.tokens?.refresh ??
-      (typeof response.refresh === "string" ? response.refresh : undefined);
-    if (access && refresh) {
-      this.setTokens(access, refresh);
+      (typeof response.refresh === "string" ? response.refresh : undefined) ??
+      (typeof response.refreshToken === "string" ? response.refreshToken : undefined);
+    if (access) {
+      this.setTokens(access, refresh || "");
     }
     if (response.user) {
       this.setCurrentUser(response.user);

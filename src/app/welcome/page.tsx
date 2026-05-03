@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
+import { api } from "@/lib/api";
 import type { SignUpData } from "@/services/auth";
 import { validateEmail } from "@/lib/email-validation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -341,30 +342,24 @@ function WelcomePage() {
       if (code.trim().length < 6) return;
       setActualError("");
       setIsLoading(true);
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-email/`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: verifyEmail, code: code.trim() }),
-          }
-        );
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed");
-        await AuthService.getInstance().fetchAndUpdateUserData();
-        const updated = AuthService.getInstance().getCurrentUser();
-        if (updated)
-          setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
-        posthog?.capture("email_verified");
-        
-        const referrer = localStorage.getItem('garaad_signup_referrer');
-        const finalDest = referrer === 'mentorship' ? '/subscribe' : postSignupDest;
-        
-        localStorage.removeItem('garaad_signup_referrer');
-        rememberPostSignupDestination(finalDest);
-        router.replace("/post-verification-choice");
-      } catch (e) {
+        try {
+          await api.post("/api/auth/verify-email/", {
+            email: verifyEmail,
+            code: code.trim(),
+          });
+          await AuthService.getInstance().fetchAndUpdateUserData();
+          const updated = AuthService.getInstance().getCurrentUser();
+          if (updated)
+            setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
+          posthog?.capture("email_verified");
+          
+          const referrer = localStorage.getItem('garaad_signup_referrer');
+          const finalDest = referrer === 'mentorship' ? '/subscribe' : postSignupDest;
+          
+          localStorage.removeItem('garaad_signup_referrer');
+          rememberPostSignupDestination(finalDest);
+          router.replace("/post-verification-choice");
+        } catch (e) {
         posthog?.capture("email_verification_failed", {
           error: e instanceof Error ? e.message : "unknown",
         });
