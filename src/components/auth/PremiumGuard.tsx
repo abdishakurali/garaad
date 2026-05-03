@@ -19,7 +19,7 @@ export function PremiumGuard({ children }: PremiumGuardProps) {
 
   useEffect(() => {
     // Only show modal if user is not premium and not loading
-    if (user && !user.is_premium) {
+    if (user && !user.is_premium && pathname !== "/mentorship") {
       // Logic to check view count in localStorage
       const viewCountKey = `premium_guard_views_${pathname}`;
       const views = parseInt(localStorage.getItem(viewCountKey) || "0", 10);
