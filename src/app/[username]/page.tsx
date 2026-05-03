@@ -76,7 +76,7 @@ export default function PublicProfilePage() {
     );
   }
 
-  const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.username;
+  const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.username || "User";
   const memberSince = profile.created_at ? new Date(profile.created_at).toLocaleDateString("so-SO", { 
     year: "numeric", 
     month: "long" 
@@ -105,7 +105,7 @@ export default function PublicProfilePage() {
                 ) : (
                   <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-white dark:border-gray-700 shadow-xl">
                     <span className="text-4xl font-bold text-gray-500 dark:text-gray-400">
-                      {profile.first_name?.[0] || profile.username[0]}
+                      {(profile.first_name?.[0] || profile.username?.[0] || "U").toUpperCase()}
                     </span>
                   </div>
                 )}
