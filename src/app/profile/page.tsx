@@ -29,8 +29,8 @@ import {
   Users,
 
 
-
   MessageCircle,
+  MapPin,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { getMediaUrl } from "@/lib/utils";
@@ -152,6 +152,7 @@ export default function ProfilePage() {
           username: basic.username,
           email: basic.email,
           bio: (basic as any).bio,
+          location: (basic as any).location || "",
           age: (basic as any).age,
         });
         const wa = splitWhatsappE164((basic as ExtendedUser).whatsapp_number);
@@ -420,7 +421,18 @@ export default function ProfilePage() {
                       )}
                     </div>
                   </div>
+                  {(user as ExtendedUser).location && (
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 mt-3">
+                      <MapPin className="h-4 w-4 mr-3 text-gray-400" />
+                      <span>{(user as ExtendedUser).location}</span>
+                    </div>
+                  )}
                 </div>
+                {(user as ExtendedUser).bio && (
+                  <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 italic">{(user as ExtendedUser).bio}</p>
+                  </div>
+                )}
 
                 {/* Community Stats */}
                 {dashboardProfile?.community_profile && (
@@ -660,6 +672,17 @@ export default function ProfilePage() {
                         onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
                         className="w-full flex min-h-[100px] rounded-lg border border-input bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="Wax nooga sheeg naftaada..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="text-sm font-medium text-gray-700 dark:text-gray-200">Goobta (Location)</Label>
+                      <Input
+                        id="location"
+                        name="location"
+                        value={editForm.location || ""}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                        className="rounded-lg bg-gray-50 dark:bg-gray-800"
+                        placeholder="Mogadishu, Somalia"
                       />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
