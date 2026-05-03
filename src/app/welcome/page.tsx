@@ -201,8 +201,6 @@ function WelcomePage() {
           password: userData.password.trim(),
           name: userData.name.trim(),
           username: userData.email.trim(),
-          age: SIGNUP_DEFAULT_AGE,
-          onboarding_data,
           referrer: referrer,
           ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
         };

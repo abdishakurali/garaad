@@ -10,23 +10,8 @@ export interface SignUpData {
   password: string;
   name: string;
   username?: string;
-  age: number;
   promo_code?: string;
   referrer?: string | null;
-  onboarding_data: {
-    goal: string;
-    topic: string;
-    math_level: string;
-    minutes_per_day: number;
-    preferred_study_time: string;
-    learning_approach?: string;
-    learning_goal?: string;
-    project_idea?: string;
-    project_description?: string | null;
-    experience?: string;
-    barrier?: string | null;
-    wizard_progress?: Record<string, unknown>;
-  };
   location?: string;
   country_flag?: string;
 }
