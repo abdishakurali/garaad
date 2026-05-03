@@ -271,6 +271,7 @@ export async function POST(request: NextRequest) {
         countryCode: String(countryCode ?? ""),
         userEmail: finalEmail,
       },
+      client_reference_id: userId || undefined,
       billing_address_collection: "required",
       customer_email: finalEmail,
     };

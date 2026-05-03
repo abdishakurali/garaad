@@ -50,6 +50,53 @@ export async function POST(request: NextRequest) {
     const userService = UserService.getInstance();
 
     switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as any;
+
+        if (session.payment_status !== "paid") {
+          console.log("checkout.session.completed: not yet paid, skipping", session.id);
+          break;
+        }
+
+        let userId: string | null = null;
+
+        if (session.customer) {
+          userId = await getUserIdFromStripe(session.customer as string);
+        }
+
+        if (!userId && session.client_reference_id) {
+          userId = session.client_reference_id;
+        }
+
+        if (!userId) {
+          const email = session.customer_details?.email;
+          console.error(
+            "checkout.session.completed: could not resolve userId",
+            { sessionId: session.id, email }
+          );
+          break;
+        }
+
+        const amountTotal = session.amount_total ?? 0;
+        const planType: "installment" | "full" =
+          (session.metadata?.planType as "installment" | "full") ??
+          (amountTotal >= 14900 ? "full" : "installment");
+
+        await userService.updatePremiumStatus({
+          userId,
+          isPremium: true,
+          planType,
+        });
+
+        console.log("checkout.session.completed: access granted", {
+          userId,
+          sessionId: session.id,
+          amountTotal,
+          planType,
+        });
+
+        break;
+      }
       case "customer.subscription.created":
         const subCreated = event.data.object as Stripe.Subscription;
         const userIdCreated = await getUserIdFromStripe(subCreated.customer as string);
@@ -122,6 +169,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error("Webhook error:", error);
-    return NextResponse.json({ error: "Webhook error" }, { status: 400 });
+    const isSignatureError =
+      error instanceof Error && error.message.includes("signature");
+    return NextResponse.json(
+      { error: "Webhook error" },
+      { status: isSignatureError ? 400 : 200 }
+    );
   }
 }

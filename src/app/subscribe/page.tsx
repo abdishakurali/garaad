@@ -231,16 +231,7 @@ function SubscribePageInner() {
        </div>
 
 
-      <div className="px-4 py-12 sm:py-16">
-        <div className="text-center mb-8 sm:mb-10">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary via-violet-600 to-primary bg-clip-text text-transparent">
-            {t.pricing_title}
-          </h1>
-          <p className="text-muted-foreground text-base max-w-lg mx-auto leading-relaxed">
-            {t.pricing_subtitle}
-          </p>
-        </div>
-
+       <div className="px-4 py-12 sm:py-16">
          <div className="text-center mb-8 sm:mb-10">
            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary via-violet-600 to-primary bg-clip-text text-transparent">
              {t.pricing_title}
@@ -257,6 +248,7 @@ function SubscribePageInner() {
              {t.pricing_subtitle}
            </p>
          </div>
+
 
 
         {mounted && challengeStatus?.is_waitlist_only ? (
