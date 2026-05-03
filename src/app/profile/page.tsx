@@ -180,7 +180,8 @@ export default function ProfilePage() {
     );
   }
 
-  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.username;
+  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.username || "User";
+  const avatarInitial = (user.first_name?.[0] || user.username?.[0] || "U").toUpperCase();
 
   return (
     <>
@@ -296,7 +297,7 @@ export default function ProfilePage() {
                 <label className="text-sm font-medium text-gray-600">Email</label>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <Mail className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-900">{user.email}</span>
+                  <span className="text-gray-900">{user.email || "—"}</span>
                 </div>
               </div>
 
