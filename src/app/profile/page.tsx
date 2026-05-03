@@ -25,9 +25,9 @@ import { getMediaUrl } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface ExtendedUser extends User {
-  first_name: string;
-  last_name: string;
-  username: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
   bio?: string;
   whatsapp_number?: string;
   location?: string;
@@ -55,17 +55,21 @@ export default function ProfilePage() {
       try {
         const authService = AuthService.getInstance();
         const profile = await authService.getBasicProfile();
+        if (!profile) {
+          setIsLoading(false);
+          return;
+        }
         const extProfile = profile as ExtendedUser;
         setUser(extProfile);
         
-        const wa = splitWhatsapp(extProfile.whatsapp_number);
+        const wa = splitWhatsapp(extProfile?.whatsapp_number);
         setFormData({
-          first_name: extProfile.first_name || "",
-          last_name: extProfile.last_name || "",
-          bio: extProfile.bio || "",
-          location: extProfile.location || "",
-          whatsapp_dial: wa.dial,
-          whatsapp_local: wa.local,
+          first_name: extProfile?.first_name || "",
+          last_name: extProfile?.last_name || "",
+          bio: extProfile?.bio || "",
+          location: extProfile?.location || "",
+          whatsapp_dial: wa?.dial || DEFAULT_WHATSAPP_DIAL,
+          whatsapp_local: wa?.local || "",
         });
       } catch (err) {
         console.error("Failed to load profile:", err);

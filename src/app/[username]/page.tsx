@@ -12,14 +12,14 @@ import Link from "next/link";
 interface PublicProfile {
   id: number;
   username: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  bio: string;
-  location: string;
-  profile_picture: string;
-  is_premium: boolean;
-  created_at: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  bio?: string;
+  location?: string;
+  profile_picture?: string;
+  is_premium?: boolean;
+  created_at?: string;
 }
 
 export default function PublicProfilePage() {
@@ -150,7 +150,7 @@ export default function PublicProfilePage() {
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
               <Mail className="h-5 w-5 text-gray-400" />
-              <span>{profile.email}</span>
+              <span>{profile.email || "—"}</span>
             </div>
             {profile.location && (
               <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
