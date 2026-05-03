@@ -340,7 +340,7 @@ class AuthService {
   }
 
   public async getBasicProfile(): Promise<User> {
-    return api.get("/api/auth/profile/");
+    return api.get("/api/auth/user-profile/");
   }
 
   public async updateProfile(data: Partial<User>): Promise<User> {
