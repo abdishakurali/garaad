@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
   if (!sessionId) {
     return NextResponse.redirect(
-      new URL("/subscribe?error=no_session", request.url)
+      new URL("/subscribe?error=no_session", request.url),
     );
   }
 
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     if (!session) {
       return NextResponse.redirect(
-        new URL("/subscribe?error=invalid_session", request.url)
+        new URL("/subscribe?error=invalid_session", request.url),
       );
     }
 
@@ -39,14 +39,14 @@ export async function GET(request: NextRequest) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ session_id: sessionId }),
-          }
+          },
         );
         if (!syncRes.ok) {
           const body = await syncRes.text();
           console.error(
             "stripe complete-checkout failed",
             syncRes.status,
-            body
+            body,
           );
         }
       } catch (e) {
@@ -70,29 +70,29 @@ export async function GET(request: NextRequest) {
         console.log("User premium status updated successfully");
         const metaPlan = session.metadata?.plan;
         const subscribed =
-          metaPlan === "challenge" || metaPlan === "explorer"
-            ? metaPlan
-            : null;
-        const path = subscribed
-          ? `/payment-success?subscription_type=${subscribed}`
-          : "/courses?success=payment_completed";
+          metaPlan === "challenge" || metaPlan === "explorer" ? metaPlan : null;
+        const path = `/courses?success=payment_completed${
+          subscribed
+            ? `&subscription_type=${encodeURIComponent(subscribed)}`
+            : ""
+        }&checkout_completed=stripe`;
         return NextResponse.redirect(new URL(path, request.url));
       } else {
         console.error("Failed to update user premium status");
         return NextResponse.redirect(
-          new URL("/subscribe?error=update_failed", request.url)
+          new URL("/subscribe?error=update_failed", request.url),
         );
       }
     } else {
       // Payment was not successful
       return NextResponse.redirect(
-        new URL("/subscribe?error=payment_failed", request.url)
+        new URL("/subscribe?error=payment_failed", request.url),
       );
     }
   } catch (error) {
     console.error("Error processing success:", error);
     return NextResponse.redirect(
-      new URL("/subscribe?error=processing_error", request.url)
+      new URL("/subscribe?error=processing_error", request.url),
     );
   }
 }

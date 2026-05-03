@@ -53,7 +53,9 @@ export async function POST(request: Request) {
       }
 
       // Get access token from cookie
-      const accessToken = cookieStore.get("access_token")?.value;
+      const accessToken =
+        cookieStore.get("accessToken")?.value ||
+        cookieStore.get("access_token")?.value;
       if (!accessToken) {
         throw new Error("No access token found");
       }

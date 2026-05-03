@@ -5,15 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Briefcase,
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  Code2,
-  GraduationCap,
-  Store,
-  Users,
-} from "lucide-react";
+   Briefcase,
+   CalendarDays,
+   CheckCircle2,
+   Clock,
+   Code2,
+   GraduationCap,
+   Store,
+   Users,
+   Loader2,
+ } from "lucide-react";
+
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -117,6 +119,8 @@ export function WebinarDetailClient({ webinar }: { webinar: WebinarData }) {
   const [clientErrors, setClientErrors] = useState<{ fullName?: string; country?: string; role?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [successName, setSuccessName] = useState<string | null>(null);
+  const [hasAttended, setHasAttended] = useState(false);
+  const [attendingLoading, setAttendingLoading] = useState(false);
 
   const scrollToRegister = useCallback(() => {
     document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
@@ -186,6 +190,26 @@ export function WebinarDetailClient({ webinar }: { webinar: WebinarData }) {
       toast({ title: "Waa la koobiyey", description: "Qoraalka waxaa lagu koobiyey dib udhaca." });
     } catch {
       toast({ variant: "destructive", title: "Lama koobi karin", description: `Gacanta ku qor: garaad.org/webinars/${webinar.slug}` });
+    }
+  };
+
+  const handleAttend = async () => {
+    setAttendingLoading(true);
+    try {
+      const res = await fetch(`/api/webinars/${webinar.id}/attend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        setHasAttended(true);
+        toast({ title: "Waad ku mahadsantahay", description: "Xضورkaaga waa la diiwaangeliyay." });
+      } else {
+        toast({ variant: "destructive", title: "Khalad", description: "Ma awoodin inaan diiwaangeliye xضورkaaga." });
+      }
+    } catch {
+      toast({ variant: "destructive", title: "Cillad", description: "Isku day mar kale." });
+    } finally {
+      setAttendingLoading(false);
     }
   };
 
@@ -281,14 +305,22 @@ export function WebinarDetailClient({ webinar }: { webinar: WebinarData }) {
           </div>
 
           {!webinar.is_past && (
-            <button
-              type="button"
-              onClick={scrollToRegister}
-              className="group mx-auto mb-4 block rounded-sm bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"
-            >
-              Is-diiwaangeli lacag la&apos;aan
-              <span className="ms-2 inline-block transition group-hover:translate-x-0.5" aria-hidden>→</span>
-            </button>
+            <div className="mx-auto mb-4 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/subscribe?plan=challenge&ref=webinar_freelancing"
+                className="group rounded-sm bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"
+              >
+                Join the Next Cohort
+                <span className="ms-2 inline-block transition group-hover:translate-x-0.5" aria-hidden>→</span>
+              </Link>
+              <button
+                type="button"
+                onClick={scrollToRegister}
+                className="rounded-sm border border-border bg-background px-8 py-4 text-sm font-semibold uppercase tracking-widest text-foreground transition hover:bg-muted"
+              >
+                Is-diiwaangeli lacag la&apos;aan
+              </button>
+            </div>
           )}
         </div>
       </section>
@@ -352,12 +384,29 @@ export function WebinarDetailClient({ webinar }: { webinar: WebinarData }) {
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                 Raadi webinar soo socda oo furan.
               </p>
-              <Link
-                href="/webinars"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-              >
-                Arag dhammaan webinars-ka
-              </Link>
+               <Link
+                 href="/webinars"
+                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+               >
+                 Arag dhammaan webinars-ka
+               </Link>
+               <div className="mt-8 pt-8 border-t border-border flex justify-center">
+                 <button
+                   type="button"
+                   onClick={handleAttend}
+                   disabled={hasAttended || attendingLoading}
+                   className={cn(
+                     "flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all",
+                     hasAttended 
+                       ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 cursor-default" 
+                       : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                   )}
+                 >
+                   {attendingLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : hasAttended ? <CheckCircle2 className="h-4 w-4" /> : null}
+                   {hasAttended ? "Xضورkaaga waa la diiwaangeliyay" : "Webinar-ka waan ka qaybgalay"}
+                 </button>
+               </div>
+
             </div>
           ) : successName ? (
             <div className="rounded-2xl border border-primary/20 bg-card p-8 text-center shadow-lg md:p-10">
@@ -368,22 +417,39 @@ export function WebinarDetailClient({ webinar }: { webinar: WebinarData }) {
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground dark:text-zinc-400">
                 Hubi sanduuqa soo gelitaanka (inbox) iyo spam-ka. Waxaad heli doontaa email leh faahfaahinta kulanka.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <button
-                  type="button"
-                  onClick={downloadIcs}
-                  className="cursor-pointer rounded-xl border border-border bg-muted px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/80 dark:border-zinc-700 dark:bg-zinc-900/80"
-                >
-                  Ku dar jadwalka (calendar)
-                </button>
-                <button
-                  type="button"
-                  onClick={shareCopy}
-                  className="cursor-pointer rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90"
-                >
-                  La wadaag saaxiib
-                </button>
-              </div>
+               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                 <button
+                   type="button"
+                   onClick={downloadIcs}
+                   className="cursor-pointer rounded-xl border border-border bg-muted px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/80 dark:border-zinc-700 dark:bg-zinc-900/80"
+                 >
+                   Ku dar jadwalka (calendar)
+                 </button>
+                 <button
+                   type="button"
+                   onClick={shareCopy}
+                   className="cursor-pointer rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90"
+                 >
+                   La wadaag saaxiib
+                 </button>
+               </div>
+               <div className="mt-8 pt-8 border-t border-border flex justify-center">
+                 <button
+                   type="button"
+                   onClick={handleAttend}
+                   disabled={hasAttended || attendingLoading}
+                   className={cn(
+                     "flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all",
+                     hasAttended 
+                       ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 cursor-default" 
+                       : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                   )}
+                 >
+                   {attendingLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : hasAttended ? <CheckCircle2 className="h-4 w-4" /> : null}
+                   {hasAttended ? "Xضورkaaga waa la diiwaangeliyay" : "Webinar-ka waan ka qaybgalay"}
+                 </button>
+               </div>
+
             </div>
           ) : (
             <>

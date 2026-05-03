@@ -45,6 +45,15 @@ export default function NewBlogPostPage() {
         });
     }, []);
 
+    const normalizeSeoAudit = (audit: Partial<SeoAudit> | null | undefined): SeoAudit => ({
+        score: typeof audit?.score === "number" ? audit.score : 0,
+        recommendations: Array.isArray(audit?.recommendations) ? audit.recommendations : [],
+        internal_link_suggestions: Array.isArray(audit?.internal_link_suggestions)
+            ? audit.internal_link_suggestions
+            : [],
+        headline_suggestions: Array.isArray(audit?.headline_suggestions) ? audit.headline_suggestions : [],
+    });
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) setFileFrom(file);
@@ -71,12 +80,12 @@ export default function NewBlogPostPage() {
     }, [setFileFrom]);
 
     const runSeoAudit = async () => {
-        const audit = await blogAdminApi.seoAudit({
+        const audit = normalizeSeoAudit(await blogAdminApi.seoAudit({
             title,
             body,
             meta_description: metaDescription,
             tags,
-        });
+        }));
         setSeoAudit(audit);
         return audit;
     };
@@ -131,7 +140,7 @@ export default function NewBlogPostPage() {
                         onClick={() => handleSubmit(false)}
                         disabled={loading}
                     >
-                        {loading && !title ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Kaydi Qabyo ahaan
                     </Button>
                     <Button
@@ -250,7 +259,9 @@ export default function NewBlogPostPage() {
                         <div className="mt-3">
                             <p className="text-xs font-semibold text-slate-700">Suggested internal links</p>
                             <p className="text-xs text-slate-600">
-                                {seoAudit.internal_link_suggestions.join(" , ")}
+                                {seoAudit.internal_link_suggestions.length > 0
+                                    ? seoAudit.internal_link_suggestions.join(" , ")
+                                    : "No suggestions yet"}
                             </p>
                         </div>
                         <div className="mt-3">

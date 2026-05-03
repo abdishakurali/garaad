@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Volume2 } from "lucide-react";
-import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
@@ -54,6 +53,7 @@ function VimeoHeroPlayer() {
         <iframe
           ref={iframeRef}
           src="https://player.vimeo.com/video/1186028450?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=0&muted=0&controls=0"
+          loading="lazy"
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
           referrerPolicy="strict-origin-when-cross-origin"
@@ -182,9 +182,6 @@ const AVATARS = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export function ChallengeHero() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   const [stats, setStats] = useState<LandingStats | null>(null);
 
   useEffect(() => {
@@ -195,29 +192,15 @@ export function ChallengeHero() {
   }, []);
 
   const { resolvedTheme } = useTheme();
-  const isDark = mounted ? resolvedTheme === "dark" : true;
+  const isDark = resolvedTheme !== "light";
 
   const { user } = useAuthStore();
   void user;
-  const { data, loading } = useChallengeStatus();
-  void loading;
-
   const posthog = usePostHog();
 
   const scrollToCurriculum = () => {
     document.getElementById("curriculum")?.scrollIntoView({ behavior: "smooth" });
   };
-
-  // ── Skeleton ──────────────────────────────────────────────────────────────
-  if (!mounted) {
-    return (
-      <section className="relative min-h-screen overflow-hidden bg-background">
-        <div className="relative z-10 mx-auto max-w-5xl px-4 pt-24 pb-16 sm:px-6 sm:py-20 md:py-24 lg:px-8">
-          <div className="h-[420px] animate-pulse rounded-2xl bg-muted" />
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className={`relative overflow-hidden transition-colors duration-300 ${

@@ -13,6 +13,8 @@ import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { useAuthStore } from "@/store/useAuthStore";
 import Logo from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { CohortStatusBanner } from "@/components/CohortStatusBanner";
+import { WaitlistForm } from "@/components/WaitlistForm";
 import { API_BASE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import AuthService from "@/services/auth";
@@ -212,6 +214,7 @@ function SubscribePageInner() {
           <ThemeToggle />
         </div>
       </header>
+      <CohortStatusBanner />
 
        {/* Urgency banner */}
        <div className="max-w-2xl mx-auto mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-center">
@@ -414,13 +417,20 @@ function SubscribePageInner() {
          </div>
 
 
-         {selectedPlan && (
-           <PaymentModal
-             plan={PLANS[selectedPlan]}
-             onClose={() => setSelectedPlan(null)}
-             onSuccess={() => handlePaymentSuccess(selectedPlan)}
-           />
-         )}
+          {selectedPlan && (
+            challengeStatus?.is_waitlist_only ? (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <WaitlistForm />
+              </div>
+            ) : (
+              <PaymentModal
+                plan={PLANS[selectedPlan]}
+                onClose={() => setSelectedPlan(null)}
+                onSuccess={() => handlePaymentSuccess(selectedPlan)}
+              />
+            )
+          )}
+
 
          <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
            <DialogContent className="sm:max-w-md rounded-2xl">

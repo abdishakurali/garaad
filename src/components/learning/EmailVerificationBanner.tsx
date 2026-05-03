@@ -6,7 +6,6 @@ import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/useAuthStore";
 import AuthService from "@/services/auth";
-import { API_BASE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const SESSION_DISMISS_KEY = "garaad_email_verify_banner_dismissed";
@@ -39,11 +38,7 @@ export function EmailVerificationBanner() {
   const handleResend = async () => {
     setSending(true);
     try {
-      await fetch(`${API_BASE_URL}/api/auth/resend-verification/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      await AuthService.getInstance().resendVerification(email);
     } finally {
       setSending(false);
     }

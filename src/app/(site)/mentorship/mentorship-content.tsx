@@ -6,6 +6,7 @@ import { CurriculumSection } from "@/components/landing/CurriculumSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { OurStorySection } from "@/components/landing/OurStorySection";
 import { WhatsAppFloat } from "@/components/landing/WhatsAppFloat";
+import { CohortStatusBanner } from "@/components/CohortStatusBanner";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 
@@ -73,23 +74,26 @@ function MentorshipHero() {
                 </p>
 
                 <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-                    <Link href="/welcome" style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                        background: PURPLE,
-                        color: "#fff",
-                        border: "none",
-                        padding: "14px 32px",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        borderRadius: 6,
-                        cursor: "pointer",
-                        letterSpacing: "0.02em",
-                        transition: "all 0.2s",
-                        boxShadow: "0 4px 14px rgba(124,58,237,0.2)",
-                        textDecoration: "none",
-                    }}>
+                    <Link href="/welcome" 
+                        onClick={() => localStorage.setItem('garaad_signup_referrer', 'mentorship')}
+                        style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 8,
+                            background: PURPLE,
+                            color: "#fff",
+                            border: "none",
+                            padding: "14px 32px",
+                            fontSize: 14,
+                            fontWeight: 600,
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            letterSpacing: "0.02em",
+                            transition: "all 0.2s",
+                            boxShadow: "0 4px 14px rgba(124,58,237,0.2)",
+                            textDecoration: "none",
+                        }}
+                    >
                         Ku biir Challenge-ka
                         <ArrowRight size={16} />
                     </Link>
@@ -120,6 +124,7 @@ function MentorshipHero() {
 export function MentorshipContent() {
     return (
         <main className="min-h-screen bg-background text-foreground">
+            <CohortStatusBanner />
             <MentorshipHero />
             <CurriculumSection />
             <TestimonialsSection />

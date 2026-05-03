@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { API_BASE_URL } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,9 +16,16 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function PostVerificationChoicePage() {
   const { user } = useAuth();
-  const [waitlist, setWaitlist] = useState(false);
   const posthog = usePostHog();
-  const [postSignupDest, setPostSignupDest] = useState("/courses");
+  const [postSignupDest, setPostSignupDest] = useState(() => {
+    if (typeof window === "undefined") return "/courses";
+    try {
+      const storedDest = sessionStorage.getItem("post_signup_redirect");
+      return storedDest?.startsWith("/") ? storedDest : "/courses";
+    } catch {
+      return "/courses";
+    }
+  });
 
   useEffect(() => {
     posthog?.capture("post_verification_choice_page_viewed");
@@ -89,18 +95,13 @@ export default function PostVerificationChoicePage() {
               <div className="mx-auto flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 md:mx-0">
                 <Sparkles className="size-5" aria-hidden />
               </div>
-              {waitlist && (
-                <p className="text-sm text-muted-foreground">
-                  Cohort-ka hadda waa buuxaa — markii kan xiga uu furmo adiga ayaa noqon doona qofka ugu horreeya ee lala soo xiriiro.
-                </p>
-              )}
 
               <div className="rounded-xl border border-violet-200/50 bg-violet-50/40 p-3 dark:border-violet-500/20 dark:bg-violet-500/10 sm:rounded-2xl sm:p-4">
                 <h3 className="text-sm font-semibold text-foreground sm:text-base">
-                  Tallaabadaada xigta: Dooro sida aad rabto inaad ku bilaubto
+                  Email-ka waa la xaqiijiyay. Dooro sida aad rabto inaad ku bilaubto
                 </h3>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                  Waxaad leedahay laba waddo: in mentor uu tallaabo-tallaabo kuu haggo, ama inaad koorsooyinka ku bilaubto lacag la&apos;aan.
+                  Koorsooyinku waa bilaash inaad bilowdo. Mentorship-ka waa waddada lagu taliyay haddii aad rabto hagid iyo xawaare.
                 </p>
               </div>
 
@@ -113,7 +114,7 @@ export default function PostVerificationChoicePage() {
                     1) Qabso Ballan — Mentor 1:1
                   </h4>
                   <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                    Ha kuu hanuuniyo mentor qorshaha kugu habboon — si bilaash ah.
+                    Waddada lagu taliyay: mentor ayaa kuu diyaarinaya qorshaha kugu habboon.
                   </p>
                   <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300 sm:text-xs">
                     Maxaad helaysaa
@@ -139,10 +140,10 @@ export default function PostVerificationChoicePage() {
 
                 <div className="rounded-xl border border-border bg-background/80 p-3 sm:rounded-2xl sm:p-4">
                   <h4 className="text-sm font-semibold text-foreground">
-                    2) Bilow Koorsooyin Bilaash ah
+                    2) Bilow Koorsooyinka Bilaashka ah
                   </h4>
                   <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                    Way fiican tahay haddii aad rabto inaad hadda bilowdo adigoon sugin.
+                    Haddii aad rabto inaad hadda gasho, koorsooyinka iyo community-ga bilaash ayaad ku bilaabi kartaa.
                   </p>
                   <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200 sm:text-xs">
                     Maxaad helaysaa

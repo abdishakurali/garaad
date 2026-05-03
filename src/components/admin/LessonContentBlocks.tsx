@@ -210,7 +210,7 @@ const ProblemContent = ({
                         <div className="text-sm text-gray-500 mb-1 font-medium" dangerouslySetInnerHTML={{ __html: problemContent.which }} />
                     )}
                     <div className="text-gray-900 font-semibold" dangerouslySetInnerHTML={{ __html: problemContent.question_text }} />
-                    <p className="mt-1 text-xs text-blue-600 font-bold uppercase tracking-wider">Su'aal ({problemContent.question_type})</p>
+                    <p className="mt-1 text-xs text-blue-600 font-bold uppercase tracking-wider">Su&apos;aal ({problemContent.question_type})</p>
                 </div>
                 {problemContent.img && (
                     <div className="md:w-48 md:h-32 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm">
@@ -343,7 +343,9 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                     ? rawData
                     : (rawData && Array.isArray(rawData.results) ? rawData.results : []);
 
-                const sortedBlocks = blocksData.sort((a: ContentBlock, b: ContentBlock) => a.order - b.order);
+                const sortedBlocks = [...blocksData].sort(
+                    (a: ContentBlock, b: ContentBlock) => (a.order ?? 0) - (b.order ?? 0)
+                );
                 setBlocks(sortedBlocks);
             } catch (err) {
                 const message = getApiErrorMessage(err, 'Qeybaha casharkan lama soo saari karin');
@@ -502,7 +504,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
             }
 
             const res = await api.post('lms/lesson-content-blocks/', blockData);
-            setBlocks([...blocks, res.data]);
+            setBlocks((current) => [...current, res.data]);
             if (closeOnSuccess) {
                 setShowAddBlock(false);
                 setEditingContent(DEFAULT_CONTENT);
@@ -674,7 +676,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
 
         try {
             const res = await api.patch(`lms/lesson-content-blocks/${editingBlock.id}/`, blockData);
-            setBlocks(blocks.map(b => b.id === editingBlock.id ? res.data : b));
+            setBlocks((current) => current.map(b => b.id === editingBlock.id ? res.data : b));
             setShowEditBlock(false);
             setEditingBlock(null);
             setEditingContent(DEFAULT_CONTENT);
@@ -698,7 +700,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
         if (!deletingBlock) return;
         try {
             await api.delete(`lms/lesson-content-blocks/${deletingBlock.id}/`);
-            setBlocks(blocks.filter(b => b.id !== deletingBlock.id));
+            setBlocks((current) => current.filter(b => b.id !== deletingBlock.id));
             setShowDeleteBlock(false);
             setDeletingBlock(null);
             if (onUpdate) onUpdate();
@@ -779,7 +781,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
         }
     };
 
-    const filteredBlocks = blocks;
+    const filteredBlocks = Array.isArray(blocks) ? blocks : [];
 
     if (loading) {
         return (
@@ -1010,7 +1012,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                             >
                                 <option value="qoraal">Qoraal</option>
                                 <option value="video">Muuqaal</option>
-                                <option value="problem">Su'aal</option>
+                                <option value="problem">Su&apos;aal</option>
                                 <option value="list">Liis (List)</option>
                                 <option value="table">Jadwal (Table)</option>
                                 <option value="table-grid">Jadwal Grid</option>
@@ -1117,7 +1119,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
                             <div className="space-y-6">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">Nooca Su'aasha</label>
+                                        <label className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">Nooca Su&apos;aasha</label>
                                         <select
                                             value={content.question_type || 'multiple_choice'}
                                             onChange={e => {
@@ -1149,7 +1151,7 @@ export default function LessonContentBlocks({ lessonId, onUpdate }: LessonConten
 
                                 <div className="space-y-4">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">Su'aasha *</label>
+                                        <label className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">Su&apos;aasha *</label>
                                         <RichTextEditor
                                             content={content.question_text || ''}
                                             onChange={val => setContent({ ...content, question_text: val })}

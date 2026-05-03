@@ -1,6 +1,7 @@
 "use client";
 
-import  { useEffect, useState,  useMemo } from 'react';
+import  { useCallback, useEffect, useState,  useMemo } from 'react';
+import Link from 'next/link';
 import { useCommunityStore } from '@/store/useCommunityStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import communityService from '@/services/community';
@@ -32,12 +33,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';import { useAuthReady } from '@/hooks/useAuthReady';
 import AuthenticatedAvatar from '@/components/ui/authenticated-avatar';
 import PushNotificationSettings from '@/components/PushNotificationSettings';
-import { CommunityPrivatePreview } from '@/components/community/CommunityPrivatePreview';
 import { NotificationEnablePrompt } from '@/components/community/NotificationEnablePrompt';
-import { pricingTranslations as pt } from '@/config/translations/pricing';
-import { useChallengeStatus } from '@/hooks/useChallengeStatus';
-
-import { PremiumGuard } from '@/components/auth/PremiumGuard';
 
 export default function CommunityPage() {
     const {
@@ -64,11 +60,9 @@ export default function CommunityPage() {
 
     const { user, isAuthenticated, hydrate: hydrateAuthFromCookies } = useAuthStore();
     const authReady = useAuthReady();
-    /** Full community (post, WS, clear UI) is Challenge-only; others see a blurred preview + CTA. */
+    /** Community is part of the free loop. Paid Challenge/Mentorship stays a separate upgrade. */
     const hasCommunityAccess = useMemo(() => {
-        if (!user) return false;
-        if (user.is_staff || user.is_superuser) return true;
-        return (user.subscription_type ?? "").toLowerCase() === "challenge";
+        return Boolean(user);
     }, [user]);
     const [loading, setLoading] = useState({ categories: false, posts: false, profile: false });
     const [errors, setErrors] = useState({ posts: null });
@@ -79,9 +73,7 @@ export default function CommunityPage() {
     const [pendingScrollPostId, setPendingScrollPostId] = useState<string | null>(null);
     const [pendingScrollReplyId, setPendingScrollReplyId] = useState<string | null>(null);
     const [isPushSettingsOpen, setIsPushSettingsOpen] = useState(false);
-    const { data: challengeGate, loading: challengeGateLoading } = useChallengeStatus();
-    const challengeJoinHref =
-        challengeGate?.is_waitlist_only ? '/subscribe?plan=challenge' : '/challenge';
+    const challengeJoinHref = '/subscribe?plan=challenge&ref=community';
 
     // Logic for handling notification click
     const handleNotificationClick = async (notification: any) => {
@@ -171,6 +163,19 @@ export default function CommunityPage() {
         checkAuth();
     }, [isAuthenticated]);
 
+    const fetchPostsForCategory = useCallback(async (categoryId: string) => {
+        try {
+            setLoading(prev => ({ ...prev, posts: true }));
+            const postsData = await communityService.post.getPosts(categoryId) as any;
+            setPosts(postsData.results || postsData);
+        } catch (err: any) {
+            console.error("Failed to fetch posts:", err);
+            setErrors(prev => ({ ...prev, posts: err.message }));
+        } finally {
+            setLoading(prev => ({ ...prev, posts: false }));
+        }
+    }, [setPosts]);
+
     // Initialize data (fetch once) once we know the user is logged in (cookie + store).
     useEffect(() => {
         if (!isAuthenticated || !hasCommunityAccess) return;
@@ -220,7 +225,13 @@ export default function CommunityPage() {
         };
 
         initData();
-    }, [isAuthenticated, hasCommunityAccess]);
+    }, [
+        isAuthenticated,
+        hasCommunityAccess,
+        setNotifications,
+        setUnreadCount,
+        setUserProfile,
+    ]);
 
     // Select first category by default when categories load
     useEffect(() => {
@@ -231,22 +242,15 @@ export default function CommunityPage() {
             // Fetch posts for first category
             fetchPostsForCategory(firstCategory.id);
         }
-    }, [allCategories, selectedCategory, hasCommunityAccess]);
+    }, [
+        allCategories,
+        selectedCategory,
+        hasCommunityAccess,
+        setSelectedCategory,
+        fetchPostsForCategory,
+    ]);
 
-    const fetchPostsForCategory = async (categoryId: string) => {
-        try {
-            setLoading(prev => ({ ...prev, posts: true }));
-            const postsData = await communityService.post.getPosts(categoryId) as any;
-            setPosts(postsData.results || postsData);
-        } catch (err: any) {
-            console.error("Failed to fetch posts:", err);
-            setErrors(prev => ({ ...prev, posts: err.message }));
-        } finally {
-            setLoading(prev => ({ ...prev, posts: false }));
-        }
-    };
-
-    // Manage WebSocket connection for active category (Challenge / staff only)
+    // Manage WebSocket connection for active category.
     useEffect(() => {
         if (!isAuthenticated || !hasCommunityAccess) return;
 
@@ -268,7 +272,7 @@ export default function CommunityPage() {
     useEffect(() => {
         if (!hasCommunityAccess || !selectedCategory) return;
         fetchPostsForCategory(selectedCategory.id);
-    }, [selectedCategory, hasCommunityAccess]);
+    }, [selectedCategory, hasCommunityAccess, fetchPostsForCategory]);
 
     if (!authReady) {
         return (
@@ -394,7 +398,6 @@ export default function CommunityPage() {
     );
 
     return (
-        <PremiumGuard>
             <div className="mx-auto h-[calc(100dvh-3.5rem)] w-full max-w-7xl min-h-0 overflow-hidden bg-background px-2 pt-2 sm:px-4 sm:pt-3 md:h-[calc(100dvh-4rem)]">
                 <div className="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-gray-100 bg-background dark:border-white/5">
                     <div className="flex flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden">
@@ -468,6 +471,18 @@ export default function CommunityPage() {
                             {actionIcons}
                         </div>
 
+                        {user && !user.is_premium && (
+                            <div className="border-b border-violet-500/20 bg-violet-50/80 px-4 py-2 text-xs text-violet-900 dark:bg-violet-950/30 dark:text-violet-100 lg:px-8">
+                                Community-ga bilaash ayaad ku bilaabi kartaa. Mentorship-ka waxaa lagu taliyay haddii aad rabto hagid 1:1 iyo cohort gaar ah.{" "}
+                                <Link
+                                    href={challengeJoinHref}
+                                    className="font-bold underline-offset-2 hover:underline"
+                                >
+                                    Eeg mentorship-ka
+                                </Link>
+                            </div>
+                        )}
+
                         {/* Posts */}
                         <div className="flex-1 flex flex-col overflow-hidden">
                             <NotificationEnablePrompt />
@@ -527,6 +542,5 @@ export default function CommunityPage() {
                 </DialogContent>
             </Dialog>
         </div>
-        </PremiumGuard>
     );
 }

@@ -1,15 +1,116 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { WaafiWebhookData } from "@/types/order";
 import { API_BASE_URL } from "@/lib/constants";
 
 const API_URL = API_BASE_URL;
 
-// Helper function to validate webhook signature (if needed)
-function validateWebhookSignature(payload: string, signature: string): boolean {
-  // TODO: Implement actual signature validation if required by Waafi
-  // For now, we'll just log the webhook data
-  console.log("Webhook signature:", signature);
-  return true;
+type NormalizedWaafiTransfer = {
+  amount: string;
+  charges?: string;
+  transferId: string;
+  transferCode?: string;
+  transactionDate?: string;
+  transferStatus: string;
+  currencySymbol?: string;
+  referenceId: string;
+  currencyCode?: string;
+  description?: string;
+};
+
+function logWebhook(
+  level: "info" | "warn" | "error",
+  message: string,
+  context: Record<string, unknown> = {}
+) {
+  const payload = {
+    provider: "waafi",
+    endpoint: "/api/payment/webhook/waafi",
+    message,
+    timestamp: new Date().toISOString(),
+    ...context,
+  };
+  if (level === "error") console.error(payload);
+  else if (level === "warn") console.warn(payload);
+  else console.log(payload);
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+function validateWebhookSignature(payload: string, signature: string | null): boolean {
+  const secret = process.env.WAAFI_WEBHOOK_SECRET;
+  if (!secret) {
+    logWebhook("warn", "WAAFI_WEBHOOK_SECRET not configured; signature verification skipped");
+    return true;
+  }
+  if (!signature) return false;
+
+  const provided = signature.replace(/^sha256=/i, "").trim();
+  const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  return timingSafeEqual(provided, expected);
+}
+
+function pickString(...values: unknown[]): string {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number") return String(value);
+  }
+  return "";
+}
+
+function normalizeWaafiPayload(webhookData: Record<string, any>): {
+  customerNumber: string;
+  customerName: string;
+  partnerUID: string;
+  transferInfo: NormalizedWaafiTransfer;
+} {
+  const transferInfo = webhookData.transferInfo ?? webhookData.transfer_info ?? webhookData.params ?? {};
+  const status = pickString(
+    transferInfo.transferStatus,
+    transferInfo.transfer_status,
+    transferInfo.status,
+    webhookData.status,
+    webhookData.state
+  );
+  const transferId = pickString(
+    transferInfo.transferId,
+    transferInfo.transfer_id,
+    transferInfo.transactionId,
+    transferInfo.transaction_id,
+    webhookData.transactionId,
+    webhookData.transaction_id
+  );
+  const referenceId = pickString(
+    transferInfo.referenceId,
+    transferInfo.reference_id,
+    transferInfo.invoiceId,
+    transferInfo.invoice_id,
+    webhookData.referenceId,
+    webhookData.reference_id,
+    webhookData.order_number
+  );
+
+  return {
+    customerNumber: pickString(webhookData.customerNumber, webhookData.customer_number),
+    customerName: pickString(webhookData.customerName, webhookData.customer_name),
+    partnerUID: pickString(webhookData.partnerUID, webhookData.partner_uid, webhookData.merchantUid),
+    transferInfo: {
+      amount: pickString(transferInfo.amount, webhookData.amount),
+      charges: pickString(transferInfo.charges, webhookData.charges),
+      transferId,
+      transferCode: pickString(transferInfo.transferCode, transferInfo.transfer_code),
+      transactionDate: pickString(transferInfo.transactionDate, transferInfo.transaction_date),
+      transferStatus: status,
+      currencySymbol: pickString(transferInfo.currencySymbol, transferInfo.currency_symbol),
+      referenceId,
+      currencyCode: pickString(transferInfo.currencyCode, transferInfo.currency_code, webhookData.currency),
+      description: pickString(transferInfo.description, webhookData.description),
+    },
+  };
 }
 
 // Helper function to extract user info from reference ID
@@ -44,28 +145,29 @@ function getSubscriptionTypeFromAmount(amount: number): string {
 
 // POST /api/payment/webhook/waafi/ - Waafi webhook endpoint
 export async function POST(request: NextRequest) {
+  let body = "";
   try {
-    // Get the webhook signature if present
-    const signature = request.headers.get("x-waafi-signature");
+    const signature =
+      request.headers.get("x-waafi-signature") ??
+      request.headers.get("x-waafipay-signature") ??
+      request.headers.get("x-signature");
 
-    // Parse the webhook data
-    const body = await request.text();
-    const webhookData: WaafiWebhookData = JSON.parse(body);
+    body = await request.text();
+    const rawWebhookData = JSON.parse(body) as Record<string, any>;
+    const webhookData = normalizeWaafiPayload(rawWebhookData) as WaafiWebhookData;
 
     // Log webhook data for debugging
-    console.log("Waafi webhook received:", {
+    logWebhook("info", "webhook received", {
       customerNumber: webhookData.customerNumber,
       customerName: webhookData.customerName,
       transferId: webhookData.transferInfo.transferId,
       amount: webhookData.transferInfo.amount,
       status: webhookData.transferInfo.transferStatus,
       referenceId: webhookData.transferInfo.referenceId,
-      timestamp: new Date().toISOString(),
     });
 
-    // Validate webhook signature if needed
-    if (signature && !validateWebhookSignature(body, signature)) {
-      console.error("Invalid webhook signature");
+    if (!validateWebhookSignature(body, signature)) {
+      logWebhook("warn", "invalid webhook signature", { hasSignature: Boolean(signature) });
       return NextResponse.json(
         { success: false, error: "Invalid signature" },
         { status: 401 }
@@ -74,8 +176,21 @@ export async function POST(request: NextRequest) {
 
     // Extract transfer information
     const { transferInfo } = webhookData;
-    const isSuccessful = transferInfo.transferStatus === "3"; // 3 = completed
-    const isFailed = ["4", "5"].includes(transferInfo.transferStatus); // 4/5 = failed
+    if (!transferInfo.transferId || !transferInfo.referenceId || !transferInfo.transferStatus) {
+      logWebhook("warn", "missing required webhook fields", {
+        transferId: transferInfo.transferId || null,
+        referenceId: transferInfo.referenceId || null,
+        transferStatus: transferInfo.transferStatus || null,
+      });
+      return NextResponse.json(
+        { success: false, error: "Missing required webhook fields" },
+        { status: 400 }
+      );
+    }
+
+    const normalizedStatus = transferInfo.transferStatus.toUpperCase();
+    const isSuccessful = ["3", "2001", "SUCCESS", "SUCCESSFUL", "COMPLETED", "APPROVED"].includes(normalizedStatus);
+    const isFailed = ["4", "5", "FAILED", "DECLINED", "CANCELLED", "CANCELED", "ERROR"].includes(normalizedStatus);
 
     // Extract user info from reference ID
     const { userId, orderNumber } = extractUserInfoFromReference(
@@ -128,24 +243,34 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("Backend webhook processing failed:", errorData);
+      const errorText = await response.text().catch(() => "");
+      let errorData: unknown = errorText;
+      try {
+        errorData = errorText ? JSON.parse(errorText) : {};
+      } catch {
+        /* keep raw text */
+      }
+      logWebhook(response.status >= 500 ? "error" : "warn", "backend webhook processing failed", {
+        status: response.status,
+        response: errorData,
+        transactionId: transferInfo.transferId,
+        referenceId: transferInfo.referenceId,
+      });
 
-      // Still return success to Waafi to prevent retries
       return NextResponse.json(
         {
-          success: true,
+          success: false,
           message: "Webhook received but processing failed",
           details: errorData,
         },
-        { status: 200 }
+        { status: response.status >= 500 ? 502 : 400 }
       );
     }
 
     const responseData = await response.json();
 
     // Log successful processing
-    console.log("Webhook processed successfully:", {
+    logWebhook("info", "webhook processed successfully", {
       orderId: responseData.order_id,
       userId: responseData.user_id,
       status: responseData.status,
@@ -165,17 +290,18 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Waafi webhook error:", error);
+    logWebhook("error", "webhook handler error", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      bodyLength: body.length,
+    });
 
-    // Log the error but still return success to prevent Waafi retries
-    // In production, you might want to have a separate error handling system
     return NextResponse.json(
       {
-        success: true,
-        message: "Webhook received",
+        success: false,
+        message: "Webhook processing failed",
         error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }

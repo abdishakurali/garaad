@@ -17,6 +17,12 @@ interface Course {
     title: string;
 }
 
+function unwrapApiData<T>(value: unknown): T | null {
+    if (!value || typeof value !== "object") return null;
+    const record = value as { data?: unknown };
+    return (record.data && typeof record.data === "object" ? record.data : value) as T;
+}
+
 export default function LessonSectionsPage() {
     const params = useParams();
     const router = useRouter();
@@ -37,11 +43,15 @@ export default function LessonSectionsPage() {
         try {
             setLoading(true);
             const lessonRes = await api.get(`lms/lessons/${lessonId}/`);
-            setLesson(lessonRes.data);
+            const lessonData = unwrapApiData<Lesson>(lessonRes.data);
+            if (!lessonData?.id) {
+                throw new Error("Casharka lama helin.");
+            }
+            setLesson(lessonData);
 
-            if (lessonRes.data.course) {
-                const courseRes = await api.get(`lms/courses/${lessonRes.data.course}/`);
-                setCourse(courseRes.data);
+            if (lessonData.course) {
+                const courseRes = await api.get(`lms/courses/${lessonData.course}/`);
+                setCourse(unwrapApiData<Course>(courseRes.data));
             }
         } catch (err: unknown) {
             const apiError = err as ApiError;

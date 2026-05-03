@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePostHog } from "posthog-js/react";
 import { pricingTranslations as t } from "@/config/translations/pricing";
 import {
   type SubscribePlan,
@@ -11,8 +12,10 @@ import AuthService from "@/services/auth";
 import OrderService from "@/services/orders";
 import StripeService from "@/services/stripe";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
+import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 
 interface Props {
   plan: SubscribePlan;
@@ -21,16 +24,21 @@ interface Props {
 }
 
 export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
+  const posthog = usePostHog();
   const [method, setMethod] = useState<"waafi" | "stripe">("waafi");
   const [paymentPlan, setPaymentPlan] = useState<"installment" | "full">("installment");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { data: challengeStatus } = useChallengeStatus();
+  const isWaitlistOnly = challengeStatus?.is_waitlist_only;
+
   const handlePay = async () => {
+    if (isWaitlistOnly) return;
     const auth = AuthService.getInstance();
     const token = await auth.ensureValidToken();
-    
+
     if (!token) {
       if (method === "waafi" && !phone.replace(/\D/g, "").trim()) {
         setError(t.error_login_required);
@@ -71,6 +79,12 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     setLoading(true);
     setError("");
 
+    posthog?.capture("checkout_started", {
+      payment_method: method,
+      plan: plan.key,
+      payment_plan: paymentPlan,
+    });
+
     try {
       const orderService = OrderService.getInstance();
       const planKey = plan.key;
@@ -87,6 +101,11 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             : {}),
         });
         if (result.payment_success) {
+          posthog?.capture("checkout_completed", {
+            payment_method: "waafi",
+            plan: plan.key,
+            payment_plan: paymentPlan,
+          });
           onSuccess();
           return;
         }
@@ -149,10 +168,9 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
   };
 
   const methodBtn = (active: boolean) =>
-    `flex-1 min-h-[3rem] px-3 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
-      active
-        ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25"
-        : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-muted/50"
+    `flex-1 min-h-[3rem] px-3 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${active
+      ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25"
+      : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-muted/50"
     }`;
 
   return (
@@ -205,8 +223,8 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
                   onClick={() => setPaymentPlan("installment")}
                   className={cn(
                     "p-2 rounded-lg border text-center transition-all",
-                    paymentPlan === "installment" 
-                      ? "border-primary bg-primary/10 ring-1 ring-primary" 
+                    paymentPlan === "installment"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary"
                       : "border-border bg-background hover:border-primary/40"
                   )}
                 >
@@ -218,8 +236,8 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
                   onClick={() => setPaymentPlan("full")}
                   className={cn(
                     "p-2 rounded-lg border text-center transition-all",
-                    paymentPlan === "full" 
-                      ? "border-primary bg-primary/10 ring-1 ring-primary" 
+                    paymentPlan === "full"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary"
                       : "border-border bg-background hover:border-primary/40"
                   )}
                 >
@@ -251,8 +269,8 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
                 onClick={() => setMethod("waafi")}
                 className={cn(
                   "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
-                  method === "waafi" 
-                    ? "bg-background text-foreground shadow-sm" 
+                  method === "waafi"
+                    ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -263,8 +281,8 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
                 onClick={() => setMethod("stripe")}
                 className={cn(
                   "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
-                  method === "stripe" 
-                    ? "bg-background text-foreground shadow-sm" 
+                  method === "stripe"
+                    ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -295,22 +313,30 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             </p>
           )}
 
-           <button
-              type="button"
-              onClick={handlePay}
-              disabled={loading}
-              className="flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 disabled:opacity-50"
-            >
-              {loading ? t.modal_processing : (
-                plan.key === "challenge" 
-                ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
-                : plan.payButton
-              )}
-            </button>
-            <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] text-muted-foreground">
-              <Lock className="h-3 w-3" />
-              <span>Lacag-celinta: 30 maalmood haddii aadan ku faraxsanayn.</span>
-            </div>
+          <button
+            type="button"
+            onClick={handlePay}
+            disabled={loading || isWaitlistOnly}
+            className={cn(
+              "flex h-11 w-full items-center justify-center rounded-lg text-sm font-bold transition-all shadow-lg",
+              isWaitlistOnly
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            )}
+          >
+            {loading ? t.modal_processing : (
+              isWaitlistOnly
+                ? "Cohort-ka waa buuxsamay"
+                : plan.key === "challenge"
+                  ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
+                  : plan.payButton
+            )}
+          </button>
+
+          <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] text-muted-foreground">
+            <Lock className="h-3 w-3" />
+            <span>Lacag-celinta: 30 maalmood haddii aadan ku faraxsanayn.</span>
+          </div>
         </div>
       </div>
     </div>

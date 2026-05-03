@@ -12,6 +12,7 @@ export interface SignUpData {
   username?: string;
   age: number;
   promo_code?: string;
+  referrer?: string | null;
   onboarding_data: {
     goal: string;
     topic: string;
@@ -66,6 +67,7 @@ interface GoogleAuthPayload {
   credential: string;
   onboarding_data?: SignUpData["onboarding_data"];
   promo_code?: string;
+  referrer?: string | null;
 }
 
 interface SignInData {
@@ -248,6 +250,12 @@ class AuthService {
 
   public async forgotPassword(email: string): Promise<any> {
     return api.post("/api/auth/forgot-password/", { email });
+  }
+
+  public async resendVerification(email?: string): Promise<{ success?: boolean; message?: string }> {
+    const targetEmail = email || this.user?.email;
+    if (!targetEmail) throw new Error("Email is required");
+    return api.post("/api/auth/resend-verification/", { email: targetEmail });
   }
 
   public logout(): void {

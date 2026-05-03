@@ -64,6 +64,25 @@ function clearWelcomeStorage() {
   ].forEach((k) => localStorage.removeItem(k));
 }
 
+function isEmailTakenError(message: string) {
+  const lower = message.toLowerCase();
+  return (
+    message.includes("Email-kan waa la isticmaalay") ||
+    message.includes("email:") ||
+    lower.includes("already") ||
+    lower.includes("already exists")
+  );
+}
+
+function rememberPostSignupDestination(destination: string) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem("post_signup_redirect", destination);
+  } catch {
+    /* ignore private mode/quota */
+  }
+}
+
 function WelcomePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -143,6 +162,26 @@ function WelcomePage() {
     return null;
   };
 
+  const resolvePostSignupDestination = useCallback(
+    (redirectUrl?: string | null) =>
+      (postAuthRedirect?.startsWith("/") ? postAuthRedirect : null) ||
+      (redirectUrl?.startsWith("/") ? redirectUrl : null) ||
+      "/courses",
+    [postAuthRedirect]
+  );
+
+  const moveToVerification = async (emailAddress: string, destination: string) => {
+    setPostSignupDest(destination);
+    rememberPostSignupDestination(destination);
+    clearWelcomeStorage();
+    if (!emailSentRef.current) {
+      emailSentRef.current = true;
+      await AuthService.getInstance().resendVerification(emailAddress);
+    }
+    setVerifyCode("");
+    setPhase("verify_email");
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setActualError("");
@@ -154,60 +193,63 @@ function WelcomePage() {
     posthog?.capture("signup_submitted", { method: "email" });
     setIsLoading(true);
     setAuthStoreError(null);
-    try {
-      const onboarding_data = buildOnboardingPayload();
-      const signUpData: SignUpData = {
-        email: userData.email.trim(),
-        password: userData.password.trim(),
-        name: userData.name.trim(),
-        username: userData.email.trim(),
-        age: SIGNUP_DEFAULT_AGE,
-        onboarding_data,
-        ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
-      };
-      const result = await AuthService.getInstance().signUp(signUpData);
+      try {
+        const onboarding_data = buildOnboardingPayload();
+        const referrer = localStorage.getItem('garaad_signup_referrer');
+        const signUpData: SignUpData = {
+          email: userData.email.trim(),
+          password: userData.password.trim(),
+          name: userData.name.trim(),
+          username: userData.email.trim(),
+          age: SIGNUP_DEFAULT_AGE,
+          onboarding_data,
+          referrer: referrer,
+          ...(userData.promoCode ? { promo_code: userData.promoCode.trim() } : {}),
+        };
+        const result = await AuthService.getInstance().signUp(signUpData);
+
       if (result?.user) {
         setAuthStoreUser({ ...result.user, is_premium: result.user.is_premium || false });
         identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
       }
       if (result) {
-        const finalDest =
-          (postAuthRedirect?.startsWith("/") ? postAuthRedirect : null) ||
-          (result.redirect_url?.startsWith("/") ? result.redirect_url : null) ||
-          "/courses";
+        const finalDest = resolvePostSignupDestination(result.redirect_url);
         setPostSignupDest(finalDest);
+        rememberPostSignupDestination(finalDest);
         posthog?.capture("onboarding_completed");
-        clearWelcomeStorage();
-
-        if (emailSentRef.current) {
-          setPhase("verify_email");
-          return;
-        }
-        emailSentRef.current = true;
-
-        await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: userData.email.trim() }),
-          }
-        );
-
-        setPhase("verify_email");
+        await moveToVerification(userData.email.trim(), finalDest);
       }
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : "";
-      const emailTaken =
-        errMsg.includes("Email-kan waa la isticmaalay") ||
-        errMsg.includes("email:") ||
-        errMsg.toLowerCase().includes("already") ||
-        errMsg.includes("already exists");
-      if (emailTaken) {
-        posthog?.capture("signup_failed", { reason: "email_taken" });
-        setActualError(
-          "Email-kan account ayaa horay loogu sameeyay. Ma doonaysaa inaad gasho (sign in)?"
-        );
+      if (isEmailTakenError(errMsg)) {
+        posthog?.capture("signup_existing_user_detected");
+        try {
+          const result = await AuthService.getInstance().signIn({
+            email: userData.email.trim(),
+            password: userData.password,
+          });
+          if (result?.user) {
+            setAuthStoreUser({
+              ...result.user,
+              is_premium: result.user.is_premium || false,
+            });
+            identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
+          }
+          const finalDest = resolvePostSignupDestination(null);
+          rememberPostSignupDestination(finalDest);
+          posthog?.capture("signup_existing_user_signed_in");
+          if (result?.user?.is_email_verified === false) {
+            await moveToVerification(userData.email.trim(), finalDest);
+          } else {
+            clearWelcomeStorage();
+            router.replace("/post-verification-choice");
+          }
+        } catch {
+          posthog?.capture("signup_failed", { reason: "email_taken_signin_failed" });
+          setActualError(
+            "Email-kan account ayaa horay loogu sameeyay. Fadlan password-ka saxda ah ku gal ama isticmaal bogga Soo gal."
+          );
+        }
         return;
       }
       posthog?.capture("signup_failed", { reason: errMsg.slice(0, 120) });
@@ -228,9 +270,11 @@ function WelcomePage() {
       setAuthStoreError(null);
       try {
         const onboarding_data = buildOnboardingPayload();
+        const referrer = localStorage.getItem('garaad_signup_referrer');
         const result = await AuthService.getInstance().signInWithGoogle({
           credential,
           onboarding_data,
+          referrer: referrer,
           ...(userData.promoCode.trim()
             ? { promo_code: userData.promoCode.trim() }
             : {}),
@@ -242,13 +286,16 @@ function WelcomePage() {
           });
           identifyUser({ id: result.user.id, email: result.user.email, name: result.user.name });
         }
-        const finalDest =
-          (postAuthRedirect?.startsWith("/") ? postAuthRedirect : null) ||
-          (result?.redirect_url?.startsWith("/") ? result.redirect_url : null) ||
-          "/courses";
+        const finalDest = resolvePostSignupDestination(result?.redirect_url);
         clearWelcomeStorage();
+        rememberPostSignupDestination(finalDest);
         posthog?.capture("onboarding_completed", { source: "google_gis" });
-        router.replace(finalDest);
+        
+        const googleReferrer = localStorage.getItem('garaad_signup_referrer');
+        const googleFinalDest = googleReferrer === 'mentorship' ? '/subscribe' : "/post-verification-choice";
+        
+        localStorage.removeItem('garaad_signup_referrer');
+        router.replace(googleFinalDest);
       } catch (error: unknown) {
         setActualError(
           error instanceof Error
@@ -259,7 +306,14 @@ function WelcomePage() {
         setIsLoading(false);
       }
     },
-    [userData.promoCode, postAuthRedirect, posthog, setAuthStoreUser, router, setAuthStoreError]
+    [
+      userData.promoCode,
+      resolvePostSignupDestination,
+      posthog,
+      setAuthStoreUser,
+      router,
+      setAuthStoreError,
+    ]
   );
 
   // ── Loading / redirect spinner ────────────────────────────────────────────
@@ -303,7 +357,13 @@ function WelcomePage() {
         if (updated)
           setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
         posthog?.capture("email_verified");
-        router.replace(postSignupDest);
+        
+        const referrer = localStorage.getItem('garaad_signup_referrer');
+        const finalDest = referrer === 'mentorship' ? '/subscribe' : postSignupDest;
+        
+        localStorage.removeItem('garaad_signup_referrer');
+        rememberPostSignupDestination(finalDest);
+        router.replace("/post-verification-choice");
       } catch (e) {
         posthog?.capture("email_verification_failed", {
           error: e instanceof Error ? e.message : "unknown",
@@ -367,15 +427,7 @@ function WelcomePage() {
       setActualError("");
       setIsLoading(true);
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification/`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: verifyEmail }),
-          }
-        );
-        if (!res.ok) throw new Error("Failed");
+        await AuthService.getInstance().resendVerification(verifyEmail);
         setVerifyCode("");
         otpInputRefs.current[0]?.focus();
       } catch {

@@ -26,66 +26,66 @@ const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-category.svg";
 
 function safeImageSrc(src: string | null | undefined, fallback: string): string {
-  const resolved = getAbsoluteImageUrl(src, fallback);
-  const optimized = optimizeCloudinaryUrl(resolved);
-  return optimized || fallback;
+    const resolved = getAbsoluteImageUrl(src, fallback);
+    const optimized = optimizeCloudinaryUrl(resolved);
+    return optimized || fallback;
 }
 
 function safeCourseImageSrc(src: string | null | undefined, fallback: string): string {
-  const resolved = getCourseThumbnailUrl(src, fallback);
-  const optimized = optimizeCloudinaryUrl(resolved);
-  return optimized || fallback;
+    const resolved = getCourseThumbnailUrl(src, fallback);
+    const optimized = optimizeCloudinaryUrl(resolved);
+    return optimized || fallback;
 }
 
 const CategoryImage = ({ src, alt }: { src?: string; alt: string }) => {
-  const imageSrc = safeImageSrc(src, defaultCategoryImage);
-  return (
-    <div className="relative w-20 h-20 shrink-0">
-      <Image
-        src={imageSrc}
-        alt={alt}
-        fill
-        className="object-contain"
-        unoptimized
-        sizes="80px"
-      />
-    </div>
-  );
+    const imageSrc = safeImageSrc(src, defaultCategoryImage);
+    return (
+        <div className="relative w-20 h-20 shrink-0">
+            <Image
+                src={imageSrc}
+                alt={alt}
+                fill
+                className="object-contain"
+                unoptimized
+                sizes="80px"
+            />
+        </div>
+    );
 };
 
 const CourseImage = ({ src, alt, priority = false }: { src?: string; alt: string; priority?: boolean }) => {
-  const imageSrc = safeCourseImageSrc(src, defaultCourseImage);
-  const [displaySrc, setDisplaySrc] = useState(() => imageSrc);
-  const [errored, setErrored] = useState(false);
+    const imageSrc = safeCourseImageSrc(src, defaultCourseImage);
+    const [displaySrc, setDisplaySrc] = useState(() => imageSrc);
+    const [errored, setErrored] = useState(false);
 
-  /* eslint-disable react-hooks/set-state-in-effect -- sync with prop changes */
-  useEffect(() => {
-    setDisplaySrc(safeCourseImageSrc(src, defaultCourseImage));
-    setErrored(false);
-  }, [src]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+    /* eslint-disable react-hooks/set-state-in-effect -- sync with prop changes */
+    useEffect(() => {
+        setDisplaySrc(safeCourseImageSrc(src, defaultCourseImage));
+        setErrored(false);
+    }, [src]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
-  const handleError = () => {
-    setDisplaySrc(defaultCourseImage);
-    setErrored(true);
-  };
+    const handleError = () => {
+        setDisplaySrc(defaultCourseImage);
+        setErrored(true);
+    };
 
-  const finalSrc = errored ? defaultCourseImage : displaySrc;
+    const finalSrc = errored ? defaultCourseImage : displaySrc;
 
-  return (
-    <div className="relative w-full h-40 bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
-      <Image
-        src={finalSrc}
-        alt={alt}
-        fill
-        priority={priority}
-        className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-        unoptimized
-        onError={handleError}
-      />
-    </div>
-  );
+    return (
+        <div className="relative w-full h-40 bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
+            <Image
+                src={finalSrc}
+                alt={alt}
+                fill
+                priority={priority}
+                className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                unoptimized
+                onError={handleError}
+            />
+        </div>
+    );
 };
 
 export function CoursesListClient({ initialCategories = [] }: { initialCategories?: Category[] }) {
@@ -96,13 +96,21 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const { isAuthenticated } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
-    const [resolvedCategories, setResolvedCategories] = useState<Category[]>([]);
+    const [resolvedCategories, setResolvedCategories] = useState<Category[]>(() =>
+        Array.isArray(initialCategories) ? initialCategories : []
+    );
     const { href: firstFreeHref } = useFirstFreeLessonHref();
 
+    // Defer landing stats fetch with suspense disabled to prevent blocking LCP
     const { data: landingStats } = useSWR<{ students_count?: number }>(
         `${API_BASE_URL}/api/public/landing-stats/`,
         statsFetcher,
-        { revalidateOnFocus: false, dedupingInterval: 60 * 1000 }
+        { 
+            revalidateOnFocus: false, 
+            dedupingInterval: 60 * 1000,
+            suspense: false,
+            fallbackData: { students_count: 88 }
+        }
     );
     const totalLearners =
         typeof landingStats?.students_count === "number" && landingStats.students_count > 0
@@ -121,24 +129,33 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
     }, []);
     /* eslint-enable react-hooks/set-state-in-effect */
 
-    const isLoading = !hasMounted || isSWRLoading;
+    const hasInitialCategories = Array.isArray(initialCategories) && initialCategories.length > 0;
+    const isLoading = !hasInitialCategories && !resolvedCategories.length && isSWRLoading;
 
     /* eslint-disable react-hooks/set-state-in-effect -- URL-driven state */
     useEffect(() => {
         const success = searchParams.get("success");
         if (success === "payment_completed") {
             setShowSuccessMessage(true);
+            posthog?.capture("checkout_completed", {
+                source: "stripe_success_redirect",
+                page: "courses",
+            });
             const timer = setTimeout(() => {
                 setShowSuccessMessage(false);
             }, 5000);
             return () => clearTimeout(timer);
         }
-    }, [searchParams]);
+    }, [searchParams, posthog]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
-    const safeCategories = Array.isArray(categories) && categories.length > 0
-        ? categories
-        : (Array.isArray(initialCategories) ? initialCategories : []);
+    const safeCategories = useMemo(
+        () =>
+            Array.isArray(categories) && categories.length > 0
+                ? categories
+                : (Array.isArray(initialCategories) ? initialCategories : []),
+        [categories, initialCategories]
+    );
 
     useEffect(() => {
         let cancelled = false;
@@ -213,13 +230,7 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
             {/* Hero Section */}
             <div className="relative pt-20 pb-12 md:pt-40 md:pb-32 overflow-hidden">
                 {/* Simplified & Clean Background */}
-                <div className="absolute inset-0 z-0">
-                    <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-pulse-slow" />
-                    <div className="absolute -bottom-24 right-1/4 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] animate-float opacity-50" />
-                </div>
-
-                {/* Subtle Grid Overlay */}
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.01] dark:opacity-[0.03] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_100%)]" />
+                <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[length:3rem_3rem] [mask-image:radial-gradient(ellipse_at_center,black_35%,transparent_100%)]" />
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {showSuccessMessage && (
@@ -242,7 +253,7 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
                                 </span>
                             </div>
 
-                            <h1 className="text-[clamp(2.5rem,8vw,5rem)] md:text-[clamp(3.5rem,6vw,6rem)] font-black leading-[1.1] tracking-tight">
+                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.1] tracking-tight">
                                 Waddooyinka{" "}
                                 <span className="relative inline-block">
                                     <span className="absolute -inset-2 blur-2xl bg-primary/10 opacity-40" />
@@ -424,7 +435,7 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
 
                                                             <div className="mt-auto flex flex-col gap-5">
                                                                 {(course?.lesson_count && course.lesson_count > 0) ||
-                                                                (course?.estimatedHours && course.estimatedHours > 0) ? (
+                                                                    (course?.estimatedHours && course.estimatedHours > 0) ? (
                                                                     <div className="flex items-center gap-5 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300">
                                                                         {course?.lesson_count && course.lesson_count > 0 && (
                                                                             <span className="flex items-center gap-2">
@@ -466,8 +477,8 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
                                                                         {isComplete
                                                                             ? "Muraajacee koorsada"
                                                                             : hasStarted
-                                                                              ? "Sii wad koorsada"
-                                                                              : "Eeg koorsada"}
+                                                                                ? "Sii wad koorsada"
+                                                                                : "Eeg koorsada"}
                                                                         <ChevronRight className="h-4 w-4" />
                                                                     </Link>
                                                                 </div>
