@@ -317,11 +317,14 @@ class AuthService {
     formData.append("profile_picture", file);
 
     try {
+      console.log("Uploading profile picture, file:", file.name, file.size);
       const data = await api.post<{ user: User }>("/api/auth/upload-profile-picture/", formData);
+      console.log("Upload successful:", data);
       this.setCurrentUser(data.user);
       return data.user;
     } catch (error: any) {
-      throw new Error(error.data?.error || "Sawirka lama soo gelin karin");
+      console.error("Upload error:", error);
+      throw new Error(error.data?.error || error.message || "Sawirka lama soo gelin karin");
     }
   }
 

@@ -101,14 +101,20 @@ export default function ProfilePage() {
   const handleProfilePictureUpdate = async (file: File) => {
     setIsUploading(true);
     try {
+      console.log("Starting profile picture upload...", file.name, file.size);
       const authService = AuthService.getInstance();
+      const token = authService.getToken();
+      console.log("Has token:", !!token);
+      
       await authService.uploadProfilePicture(file);
+      
+      // Refresh user data after upload
       const updated = await authService.getBasicProfile();
       setUser(updated as ExtendedUser);
       toast.success("Sawirka profile-ka waa la cusboonaysiiyay!");
     } catch (err: any) {
       console.error("Upload failed:", err);
-      toast.error(err.message || "Sawirka profile-ka wuu ku guuldaraystay");
+      toast.error(err.message || "Sawirka profile-ka wuu ku guuldaraystay. Isku day mar kale.");
     } finally {
       setIsUploading(false);
     }
