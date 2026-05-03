@@ -268,7 +268,8 @@ export function ChallengeHero() {
           isDark ? "text-zinc-400" : "text-slate-500"
         }`}>
           {[
-            "mento khaas ah, tech casri ah & AI",
+            "mento khaas ah",
+            "tech casri ah & AI",
             "mashaariic dhab ah",
             "hel la talin bilash ah",
           ].map((text) => (

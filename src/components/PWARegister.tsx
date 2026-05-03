@@ -18,7 +18,7 @@ export default function PWARegister() {
       const key = "sw-runtime-reload-once";
       if (sessionStorage.getItem(key) === "1") return;
       sessionStorage.setItem(key, "1");
-      window.location.reload();
+      console.warn("ChunkLoadError detected, but reload is disabled to prevent refresh loops.");
     };
 
     const registerSW = () => {
