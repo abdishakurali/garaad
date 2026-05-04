@@ -3,7 +3,6 @@
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
 import { ThreePathsSection } from "@/components/landing/ThreePathsSection";
 import { WorkflowSection } from "@/components/landing/WorkflowSection";
-import { ProofSection } from "@/components/landing/ProofSection";
 import { CommunityCTA, MentorshipCTA } from "@/components/landing/CommunityCTA";
 import { CommunitySection } from "@/components/landing/CommunitySection";
 import { PricingSection } from "@/components/landing/PricingSection";
@@ -30,7 +29,6 @@ export function HomeContent() {
                 <ChallengeHero />
                 <ThreePathsSection />
                 <WorkflowSection />
-                <ProofSection />
                 <CommunityCTA />
                 <CommunitySection />
                 <MentorshipCTA />

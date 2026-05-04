@@ -56,6 +56,8 @@ export function Header() {
 
   const navLinks = useMemo(() => {
     const links = [
+      { name: "Mentorship", href: "/mentorship" },
+      { name: "Courses", href: "/courses" },
       { name: "Webinars", href: "/webinars" },
       { name: "Blog", href: "/blog" },
     ];

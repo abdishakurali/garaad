@@ -33,10 +33,10 @@ export function ProofSection() {
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-10">
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">
-            Caddaynta
+            150+ arday • 20+ wadan
           </p>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3">
-            Ardayda horay <span className="text-violet-600 dark:text-violet-400">u samaysay</span>
+            Ardayda <span className="text-violet-600 dark:text-violet-400">Guuleystay</span>
           </h2>
           <p className="text-slate-600 dark:text-zinc-400">
             Magacyo dhabta ah. Lacag dhabta ah. Wadan kasta.
@@ -96,6 +96,11 @@ export function ProofSection() {
                 <div className="text-xl font-bold text-violet-600 dark:text-violet-400 mb-1">$800 first job</div>
                 <div className="font-semibold text-slate-900 dark:text-white mb-1">🇬🇧 Fadumo H.</div>
                 <div className="text-sm text-slate-600 dark:text-zinc-400">Dhigtay website macmiil UK — 3 toddobaad</div>
+              </div>
+              <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-slate-200 dark:border-zinc-700">
+                <div className="text-xl font-bold text-violet-600 dark:text-violet-400 mb-1">€2,400/first</div>
+                <div className="font-semibold text-slate-900 dark:text-white mb-1">🇸🇪 Cali M.</div>
+                <div className="text-sm text-slate-600 dark:text-zinc-400">Freelance — macaamiil Yurub 2 bilood</div>
               </div>
             </>
           )}

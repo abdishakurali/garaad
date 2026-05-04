@@ -4,9 +4,8 @@ import Image from "next/image";
 import { CalendarDays, Clock, Users, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Webinars — Free Freelancing Soomaaliya",
-  description:
-    "Webinars bilaash ah ee Free Freelancing Soomaaliya. Sida aan u sameeyay, caqabadaha, iyo xallinta. Is-diiwaangeli webinar-yada soo socda.",
+  title: "Webinars — Garaad",
+  description: "Webinars bilaash ah. Baro technology, freelance, iyo wax barasho. Is-diiwaangeli webinar-yada soo socda.",
 };
 
 export const revalidate = 60;

@@ -14,6 +14,12 @@ interface LandingStats {
     learners_this_month: number;
 }
 
+interface LearnerUser {
+    id: number;
+    first_name: string;
+    profile_picture?: string;
+}
+
 // ─── Vimeo player ─────────────────────────────────────────────────────────────
 // Browsers block unmuted autoplay. Strategy: autoplay muted, show a centered
 // play button overlay. Clicking it unmutes + hides the overlay permanently.
@@ -176,7 +182,7 @@ function CodeRainCanvas({ isDark }: { isDark: boolean }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 export function ChallengeHero() {
   const [stats, setStats] = useState<LandingStats | null>(null);
-  const [socialUsers, setSocialUsers] = useState<{id: number; first_name: string; profile_picture: string | null}[]>([]);
+  const [socialUsers, setSocialUsers] = useState<LearnerUser[]>([]);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public/landing-stats/`)
@@ -224,48 +230,34 @@ export function ChallengeHero() {
         )}
       </div>
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 pt-10 pb-12 sm:px-6 sm:pt-24 sm:pb-14 md:pt-28 md:pb-16 lg:px-8">
-
-        {/* Tagline - New branding */}
-        <div className="hidden sm:flex flex-wrap justify-center gap-2 mb-4">
-          <span className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${
-            isDark
-              ? "border-violet-500/25 bg-violet-500/10 text-violet-400"
-              : "border-violet-200 bg-violet-50 text-violet-600"
-          }`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
-            AI-powered · Somali-language · Real income
-          </span>
-        </div>
+      <div className="relative z-10 mx-auto max-w-5xl px-4 pt-6 pb-8 sm:px-6 sm:pt-16 sm:pb-12 md:pt-20 md:pb-14 lg:px-8">
 
         {/* Headline - New branding */}
-        <h1 className="mx-auto mt-4 sm:mt-5 max-w-3xl text-center font-bold leading-[1.1] tracking-tight text-4xl sm:text-5xl md:text-5xl lg:text-6xl text-slate-900 dark:text-white">
+        <h1 className="mx-auto mt-2 sm:mt-4 max-w-3xl text-center font-bold leading-[1.1] tracking-tight text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-slate-900 dark:text-white">
           Isticmaal AI.<br />
           Samee lacag.<br />
           <span className="text-violet-600 dark:text-violet-400">Xor noqo maanta.</span>
         </h1>
 
         {/* Subtext */}
-        <p className={`mx-auto mt-4 max-w-lg text-center text-base sm:text-lg ${
-          isDark ? "text-zinc-400" : "text-slate-600"
-        }`}>
-          Garaad waa meel ay Soomaali ku bartaan sida loo isticmaalo AI si ay ugu noolaadaan nolosha ay rabaan — freelancer, builder, ama agency owner.
+        <p className={`mx-auto mt-3 sm:mt-4 max-w-lg text-center text-base text-slate-600 dark:text-zinc-400`}>
+          Sheekooyinka isbeddelka — laga soo bilaabo eber ilaa xirfad dhab ah ama ganacsi.
         </p>
 
         {/* CTA */}
-        <div className="mx-auto mt-8 flex flex-col items-center gap-3 sm:mt-8 sm:flex-row sm:justify-center sm:gap-3">
+        <div className="mx-auto mt-6 sm:mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
           <Link
             href="/welcome"
             onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_primary" })}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-violet-500 sm:w-auto sm:text-base"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-violet-500 sm:w-auto sm:py-3.5 sm:text-base"
           >
-            Bilow hadda — $49/bilood
+            Bilow hadda — $49/bish
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
-            href="/welcome"
+            href="/mentorship"
             onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_secondary" })}
-            className={`flex w-full items-center justify-center gap-2 rounded-lg border px-6 py-3.5 text-sm font-medium transition-all sm:w-auto sm:text-base ${
+            className={`flex w-full items-center justify-center gap-2 rounded-lg border px-6 py-3 text-sm font-medium transition-all sm:w-auto sm:py-3.5 sm:text-base ${
               isDark
                 ? "border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
                 : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -275,17 +267,39 @@ export function ChallengeHero() {
           </Link>
         </div>
 
-        {/* Trust indicators */}
-        <div className={`mx-auto mt-6 flex flex-wrap items-center justify-center gap-4 text-xs ${
-          isDark ? "text-zinc-500" : "text-slate-500"
+        {/* Trust indicators with profile images */}
+        <div className={`mx-auto mt-6 flex items-center justify-center gap-4 text-xs ${
+          isDark ? "text-zinc-400" : "text-slate-600"
         }`}>
-          <span><span className="font-semibold">{stats?.students_count || 150}+</span> ardayda</span>
-          <span className="w-1 h-1 rounded-full bg-slate-400" />
-          <span><span className="font-semibold">20+</span> wadan</span>
-          <span className="w-1 h-1 rounded-full bg-slate-400" />
-          <span>Lacag-celinta 30 maalmood</span>
-          <span className="w-1 h-1 rounded-full bg-slate-400" />
-          <span>Macalimiin tababaray</span>
+          <div className="flex items-center -space-x-2">
+            {socialUsers.slice(0, 5).map((user, i) => (
+              user.profile_picture ? (
+                <img
+                  key={user.id}
+                  src={getMediaUrl(user.profile_picture, "profile_pics")}
+                  alt={user.first_name}
+                  className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-900 object-cover ring-2 ring-transparent"
+                  style={{ zIndex: 5 - i }}
+                />
+              ) : (
+                <div
+                  key={user.id}
+                  className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-900 bg-violet-600 flex items-center justify-center text-white text-xs font-bold"
+                  style={{ zIndex: 5 - i }}
+                >
+                  {user.first_name?.[0]?.toUpperCase() || "?"}
+                </div>
+              )
+            ))}
+            {socialUsers.length > 0 && socialUsers.length < 5 && stats?.students_count && stats.students_count > socialUsers.length && (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-white dark:border-zinc-900 bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300 text-xs font-bold ring-2 ring-transparent">
+                +{stats.students_count - socialUsers.length}
+              </div>
+            )}
+          </div>
+          {stats?.students_count && stats.students_count > 0 && (
+            <span className="font-semibold">{stats.students_count} aya kuso biiray</span>
+          )}
         </div>
 
         {/* Video */}
