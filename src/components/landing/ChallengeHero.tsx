@@ -6,6 +6,7 @@ import { ArrowRight, Check, Volume2 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
+import { getMediaUrl } from "@/lib/utils";
 
 interface LandingStats {
     students_count: number;
@@ -172,22 +173,21 @@ function CodeRainCanvas({ isDark }: { isDark: boolean }) {
   );
 }
 
-// ─── Static data ──────────────────────────────────────────────────────────────
-const AVATARS = [
-  { initials: "AA", bg: "bg-emerald-600/90" },
-  { initials: "MA", bg: "bg-violet-600/90" },
-  { initials: "RR", bg: "bg-amber-600/90" },
-  { initials: "M",  bg: "bg-cyan-600/90" },
-];
-
 // ─── Component ────────────────────────────────────────────────────────────────
 export function ChallengeHero() {
   const [stats, setStats] = useState<LandingStats | null>(null);
+  const [socialUsers, setSocialUsers] = useState<{id: number; first_name: string; profile_picture: string | null}[]>([]);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public/landing-stats/`)
       .then((res) => res.json())
       .then((data) => setStats(data))
+      .catch(() => {});
+    
+    // Fetch social proof users (prioritizes those with profile pictures)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public/social-proof/`)
+      .then((res) => res.json())
+      .then((data) => setSocialUsers(data.slice(0, 5)))
       .catch(() => {});
   }, []);
 
@@ -238,18 +238,33 @@ export function ChallengeHero() {
             Cohort #2 hadda furan
           </span>
 
-          {/* Social proof */}
+          {/* Social proof - real users with profile pics prioritized */}
           <div className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 ${
             isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"
           }`}>
             <div className="flex items-center -space-x-2">
-              {AVATARS.map(({ initials, bg }) => (
-                <div key={initials} className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white ${bg} ${
-                  isDark ? "border-zinc-900" : "border-white"
-                }`} aria-hidden>
-                  {initials}
-                </div>
-              ))}
+              {socialUsers.length > 0 ? (
+                socialUsers.map((user, i) => (
+                  user.profile_picture ? (
+                    <img
+                      key={user.id}
+                      src={getMediaUrl(user.profile_picture, "profile_pics")}
+                      alt={user.first_name}
+                      className={`h-5 w-5 rounded-full border-2 object-cover ${isDark ? "border-zinc-900" : "border-white"}`}
+                    />
+                  ) : (
+                    <div key={user.id} className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-violet-600 ${isDark ? "border-zinc-900" : "border-white"}`}>
+                      {user.first_name?.[0]?.toUpperCase() || "?"}
+                    </div>
+                  )
+                ))
+              ) : (
+                <>
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-emerald-600 ${isDark ? "border-zinc-900" : "border-white"}`}>A</div>
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-violet-600 ${isDark ? "border-zinc-900" : "border-white"}`}>M</div>
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-amber-600 ${isDark ? "border-zinc-900" : "border-white"}`}>R</div>
+                </>
+              )}
             </div>
             <span className={`text-xs font-medium whitespace-nowrap ${isDark ? "text-zinc-400" : "text-slate-500"}`}>
               <span className={`font-bold ${isDark ? "text-violet-400" : "text-violet-600"}`}>{stats?.students_count || 0}+</span> aya kuso biiray
