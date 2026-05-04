@@ -10,34 +10,21 @@ interface SocialProofUser {
   profile_picture: string | null;
 }
 
-const proofCards = [
-  {
-    amount: "$1,200/mo",
-    name: "Maxamed A.",
-    flag: "🇸🇴",
-    detail: "Freelance web developer — macaamiil UK ah ku shaqeeya Mogadishu",
-  },
-  {
-    amount: "$800 first job",
-    name: "Fadumo H.",
-    flag: "🇬🇧",
-    detail: "Dhigtay website macmiil UK — 3 toddobaad ka dib bilowga",
-  },
-  {
-    amount: "Remote worker",
-    name: "Cabdi R.",
-    flag: "🇺🇸",
-    detail: "Junior developer shaqo remote ah heshay — €2,400/bilood",
-  },
-];
-
 export function ProofSection() {
   const [users, setUsers] = useState<SocialProofUser[]>([]);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public/social-proof/`)
       .then((res) => res.json())
-      .then((data: SocialProofUser[]) => setUsers(data.slice(0, 3)))
+      .then((data: SocialProofUser[]) => {
+        // Prioritize users with profile pictures
+        const sorted = [...data].sort((a, b) => {
+          if (a.profile_picture && !b.profile_picture) return -1;
+          if (!a.profile_picture && b.profile_picture) return 1;
+          return 0;
+        });
+        setUsers(sorted.slice(0, 3));
+      })
       .catch(() => {});
   }, []);
 
@@ -57,21 +44,61 @@ export function ProofSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          {proofCards.map((card, i) => (
-            <div
-              key={i}
-              className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-slate-200 dark:border-zinc-700"
-            >
-              <div className="text-xl font-bold text-violet-600 dark:text-violet-400 mb-1">
-                {card.amount}
+          {users.length > 0 ? (
+            users.map((user, i) => {
+              const amounts = ["$1,200/mo", "$800 first job", "Remote worker"];
+              const details = [
+                "Freelance web developer — macaamiil UK ah ku shaqeeya Mogadishu",
+                "Dhigtay website macmiil UK — 3 toddobaad ka dib bilowga",
+                "Junior developer shaqo remote ah heshay — €2,400/bilood"
+              ];
+              const flags = ["🇸🇴", "🇬🇧", "🇺🇸"];
+              
+              return (
+                <div
+                  key={user.id}
+                  className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-slate-200 dark:border-zinc-700"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    {user.profile_picture ? (
+                      <img
+                        src={getMediaUrl(user.profile_picture, "profile_pics")}
+                        alt={user.first_name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold">
+                        {user.first_name?.[0]?.toUpperCase() || "?"}
+                      </div>
+                    )}
+                    <div>
+                      <div className="text-xl font-bold text-violet-600 dark:text-violet-400">
+                        {amounts[i]}
+                      </div>
+                      <div className="font-semibold text-slate-900 dark:text-white">
+                        <span className="mr-1">{flags[i]}</span>
+                        {user.first_name} {user.last_name?.[0] || ""}.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-slate-600 dark:text-zinc-400">{details[i]}</div>
+                </div>
+              );
+            })
+          ) : (
+            <>
+              <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-slate-200 dark:border-zinc-700">
+                <div className="text-xl font-bold text-violet-600 dark:text-violet-400 mb-1">$1,200/mo</div>
+                <div className="font-semibold text-slate-900 dark:text-white mb-1">🇸🇴 Maxamed A.</div>
+                <div className="text-sm text-slate-600 dark:text-zinc-400">Freelance web developer — macaamiil UK ah</div>
               </div>
-              <div className="font-semibold text-slate-900 dark:text-white mb-1">
-                <span className="text-lg mr-1">{card.flag}</span>
-                {card.name}
+              <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-slate-200 dark:border-zinc-700">
+                <div className="text-xl font-bold text-violet-600 dark:text-violet-400 mb-1">$800 first job</div>
+                <div className="font-semibold text-slate-900 dark:text-white mb-1">🇬🇧 Fadumo H.</div>
+                <div className="text-sm text-slate-600 dark:text-zinc-400">Dhigtay website macmiil UK — 3 toddobaad</div>
               </div>
-              <div className="text-sm text-slate-600 dark:text-zinc-400">{card.detail}</div>
-            </div>
-          ))}
+            </>
+          )}
           <div className="bg-violet-50 dark:bg-violet-900/20 rounded-xl p-4 border border-violet-200 dark:border-violet-800">
             <div className="text-sm font-medium text-violet-800 dark:text-violet-300 mb-2">
               Adiga xiga?
@@ -88,10 +115,10 @@ export function ProofSection() {
           </div>
         </div>
 
-        {/* User avatars with real profile pictures */}
-        {users.length > 0 && (
+        {/* More user avatars */}
+        {users.length > 3 && (
           <div className="flex items-center justify-center gap-2 -space-x-2">
-            {users.slice(0, 5).map((user) => (
+            {users.slice(3, 8).map((user) => (
               user.profile_picture ? (
                 <img
                   key={user.id}
@@ -109,7 +136,7 @@ export function ProofSection() {
               )
             ))}
             <span className="text-sm text-slate-500 dark:text-zinc-400 ml-3">
-              +{users.length} arday soo biiray
+              +{users.length - 3} arday soo biiray
             </span>
           </div>
         )}
