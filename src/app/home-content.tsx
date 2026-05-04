@@ -1,14 +1,15 @@
 "use client";
 
 import { ChallengeHero } from "@/components/landing/ChallengeHero";
-import { CommunityCTA, MentorshipCTA } from "@/components/landing/CommunityCTA";
+import { ThreePathsSection } from "@/components/landing/ThreePathsSection";
+import { WorkflowSection } from "@/components/landing/WorkflowSection";
+import { ProofSection } from "@/components/landing/ProofSection";
+import { CommunitySection } from "@/components/landing/CommunitySection";
+import { PricingSection } from "@/components/landing/PricingSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePostHog } from 'posthog-js/react';
-
-const selectShowDashboard = (s: { _hasHydrated: boolean; isAuthenticated: boolean }) =>
-    s._hasHydrated && s.isAuthenticated;
 
 export function HomeContent() {
     const user = useAuthStore((s) => s.user);
@@ -26,8 +27,11 @@ export function HomeContent() {
         <main className="min-h-screen bg-background text-foreground">
             <>
                 <ChallengeHero />
-<CommunityCTA />
-<MentorshipCTA />
+                <ThreePathsSection />
+                <WorkflowSection />
+                <ProofSection />
+                <CommunitySection />
+                <PricingSection />
                 <FAQSection />
             </>
         </main>

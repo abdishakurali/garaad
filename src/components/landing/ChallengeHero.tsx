@@ -226,97 +226,66 @@ export function ChallengeHero() {
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 pt-10 pb-12 sm:px-6 sm:pt-24 sm:pb-14 md:pt-28 md:pb-16 lg:px-8">
 
-        {/* Badges row — hidden on mobile so CTA stays above fold */}
-        <div className="hidden sm:flex flex-wrap justify-center gap-2 mb-2">
-          {/* Live badge */}
+        {/* Tagline - New branding */}
+        <div className="hidden sm:flex flex-wrap justify-center gap-2 mb-4">
           <span className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${
             isDark
               ? "border-violet-500/25 bg-violet-500/10 text-violet-400"
               : "border-violet-200 bg-violet-50 text-violet-600"
           }`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Cohort #2 hadda furan
+            <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+            AI-powered · Somali-language · Real income
           </span>
-
-          {/* Social proof - real users with profile pics prioritized */}
-          <div className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 ${
-            isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"
-          }`}>
-            <div className="flex items-center -space-x-2">
-              {socialUsers.length > 0 ? (
-                socialUsers.map((user, i) => (
-                  user.profile_picture ? (
-                    <img
-                      key={user.id}
-                      src={getMediaUrl(user.profile_picture, "profile_pics")}
-                      alt={user.first_name}
-                      className={`h-5 w-5 rounded-full border-2 object-cover ${isDark ? "border-zinc-900" : "border-white"}`}
-                    />
-                  ) : (
-                    <div key={user.id} className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-violet-600 ${isDark ? "border-zinc-900" : "border-white"}`}>
-                      {user.first_name?.[0]?.toUpperCase() || "?"}
-                    </div>
-                  )
-                ))
-              ) : (
-                <>
-                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-emerald-600 ${isDark ? "border-zinc-900" : "border-white"}`}>A</div>
-                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-violet-600 ${isDark ? "border-zinc-900" : "border-white"}`}>M</div>
-                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[7px] font-bold text-white bg-amber-600 ${isDark ? "border-zinc-900" : "border-white"}`}>R</div>
-                </>
-              )}
-            </div>
-            <span className={`text-xs font-medium whitespace-nowrap ${isDark ? "text-zinc-400" : "text-slate-500"}`}>
-              <span className={`font-bold ${isDark ? "text-violet-400" : "text-violet-600"}`}>{stats?.students_count || 0}+</span> aya kuso biiray
-            </span>
-          </div>
         </div>
 
-        {/* Headline */}
-        <h1 className="mx-auto mt-4 sm:mt-7 max-w-3xl text-center font-black leading-[1.08] tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-          Noqo{" "}
-          <span className="text-violet-500 dark:text-violet-400">Full-Stack Developer</span>
+        {/* Headline - New branding */}
+        <h1 className="mx-auto mt-4 sm:mt-5 max-w-3xl text-center font-bold leading-[1.1] tracking-tight text-4xl sm:text-5xl md:text-5xl lg:text-6xl text-slate-900 dark:text-white">
+          Isticmaal AI.<br />
+          Samee lacag.<br />
+          <span className="text-violet-600 dark:text-violet-400">Xor noqo maanta.</span>
         </h1>
 
-        {/* Benefits — block on mobile (guaranteed left-alignment), flex row on desktop */}
-        <ul className={`mx-auto mt-7 sm:mt-8 w-full px-8 sm:px-0 sm:w-auto sm:flex sm:flex-wrap sm:justify-center sm:items-center sm:gap-x-5 space-y-2.5 sm:space-y-0 text-sm sm:text-base ${
-          isDark ? "text-zinc-400" : "text-slate-500"
+        {/* Subtext */}
+        <p className={`mx-auto mt-4 max-w-lg text-center text-base sm:text-lg ${
+          isDark ? "text-zinc-400" : "text-slate-600"
         }`}>
-          {[
-            "mento khaas ah",
-            "tech casri ah & AI",
-            "mashaariic dhab ah",
-            "hel la talin bilash ah",
-          ].map((text) => (
-            <li key={text} className="flex items-center gap-2">
-              <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                isDark ? "bg-violet-500/15 text-violet-400" : "bg-violet-100 text-violet-600"
-              }`}>
-                <Check className="h-3 w-3" strokeWidth={3} />
-              </span>
-              <span>{text}</span>
-            </li>
-          ))}
-        </ul>
+          Garaad waa meel ay Soomaali ku bartaan sida loo isticmaalo AI si ay ugu noolaadaan nolosha ay rabaan — freelancer, builder, ama agency owner.
+        </p>
 
         {/* CTA */}
-        <div className="mx-auto mt-8 flex flex-col items-center gap-3 sm:mt-9 sm:flex-row sm:justify-center sm:gap-4">
+        <div className="mx-auto mt-8 flex flex-col items-center gap-3 sm:mt-8 sm:flex-row sm:justify-center sm:gap-3">
           <Link
             href="/welcome"
             onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_primary" })}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-8 py-4 text-sm font-bold text-white transition-all hover:bg-violet-500 hover:shadow-2xl hover:shadow-violet-500/30 sm:w-auto sm:text-base"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-violet-500 sm:w-auto sm:text-base"
           >
-            Hel la talin bilash ah
+            Bilow hadda — $49/bilood
             <ArrowRight className="h-4 w-4" />
           </Link>
-<Link
-              href="/mentorship"
-              className={`text-sm font-medium underline-offset-4 transition-colors hover:underline ${
-                isDark ? "text-zinc-500 hover:text-zinc-300" : "text-slate-400 hover:text-slate-700"
-              }`}
-            >
-              Arag manhajka ↓
-            </Link>
+          <Link
+            href="/welcome"
+            onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_secondary" })}
+            className={`flex w-full items-center justify-center gap-2 rounded-lg border px-6 py-3.5 text-sm font-medium transition-all sm:w-auto sm:text-base ${
+              isDark
+                ? "border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
+                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            Arag sida ay u shaqeyso
+          </Link>
+        </div>
+
+        {/* Trust indicators */}
+        <div className={`mx-auto mt-6 flex flex-wrap items-center justify-center gap-4 text-xs ${
+          isDark ? "text-zinc-500" : "text-slate-500"
+        }`}>
+          <span><span className="font-semibold">{stats?.students_count || 150}+</span> ardayda</span>
+          <span className="w-1 h-1 rounded-full bg-slate-400" />
+          <span><span className="font-semibold">20+</span> wadan</span>
+          <span className="w-1 h-1 rounded-full bg-slate-400" />
+          <span>Lacag-celinta 30 maalmood</span>
+          <span className="w-1 h-1 rounded-full bg-slate-400" />
+          <span>Macalimiin tababaray</span>
         </div>
 
         {/* Video */}
