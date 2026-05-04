@@ -62,10 +62,7 @@ export function PricingSection() {
               <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
               <span>Weekly webinars + replay-ada</span>
             </div>
-            <div className="flex items-start gap-2 text-sm text-slate-600 dark:text-zinc-300">
-              <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-              <span>Kaarka Bangiga (Stripe) ama Waafi lacagta gacanta</span>
-            </div>
+            
           </div>
 
           <Link
