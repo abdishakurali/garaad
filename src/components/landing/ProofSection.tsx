@@ -122,24 +122,26 @@ export function ProofSection() {
 
         {/* More user avatars */}
         {users.length > 3 && (
-          <div className="flex items-center justify-center gap-2 -space-x-2">
-            {users.slice(3, 8).map((user) => (
-              user.profile_picture ? (
+          <div className="flex items-center justify-center gap-2 -space-x-1.5">
+            {users.slice(3, 8).map((user, i) => {
+              const colors = ["bg-violet-500", "bg-cyan-500", "bg-amber-500", "bg-emerald-500", "bg-rose-500"];
+              const color = colors[i % colors.length];
+              return user.profile_picture ? (
                 <img
                   key={user.id}
                   src={getMediaUrl(user.profile_picture, "profile_pics")}
                   alt={user.first_name}
-                  className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-800 object-cover"
+                  className="w-7 h-7 rounded-full border-2 border-white dark:border-zinc-800 object-cover"
                 />
               ) : (
                 <div
                   key={user.id}
-                  className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-800 bg-violet-600 flex items-center justify-center text-white text-xs font-bold"
+                  className={`w-7 h-7 rounded-full border-2 border-white dark:border-zinc-800 ${color} flex items-center justify-center text-white text-xs font-bold`}
                 >
                   {user.first_name?.[0]?.toUpperCase() || "?"}
                 </div>
-              )
-            ))}
+              );
+            })}
             <span className="text-sm text-slate-500 dark:text-zinc-400 ml-3">
               +{users.length - 3} arday soo biiray
             </span>

@@ -193,7 +193,15 @@ export function ChallengeHero() {
     // Fetch social proof users (prioritizes those with profile pictures)
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public/social-proof/`)
       .then((res) => res.json())
-      .then((data) => setSocialUsers(data.slice(0, 5)))
+      .then((data) => {
+        // Sort: users with profile pictures first
+        const sorted = [...data].sort((a, b) => {
+          if (a.profile_picture && !b.profile_picture) return -1;
+          if (!a.profile_picture && b.profile_picture) return 1;
+          return 0;
+        });
+        setSocialUsers(sorted.slice(0, 5));
+      })
       .catch(() => {});
   }, []);
 
@@ -268,31 +276,33 @@ export function ChallengeHero() {
         </div>
 
         {/* Trust indicators with profile images */}
-        <div className={`mx-auto mt-6 flex items-center justify-center gap-4 text-xs ${
+        <div className={`mx-auto mt-6 flex items-center justify-center gap-3 text-xs ${
           isDark ? "text-zinc-400" : "text-slate-600"
         }`}>
-          <div className="flex items-center -space-x-2">
-            {socialUsers.slice(0, 5).map((user, i) => (
-              user.profile_picture ? (
+          <div className="flex items-center -space-x-1.5">
+            {socialUsers.slice(0, 5).map((user, i) => {
+              const colors = ["bg-violet-500", "bg-cyan-500", "bg-amber-500", "bg-emerald-500", "bg-rose-500"];
+              const color = colors[i % colors.length];
+              return user.profile_picture ? (
                 <img
                   key={user.id}
                   src={getMediaUrl(user.profile_picture, "profile_pics")}
                   alt={user.first_name}
-                  className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-900 object-cover ring-2 ring-transparent"
+                  className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-900 object-cover ring-2 ring-transparent"
                   style={{ zIndex: 5 - i }}
                 />
               ) : (
                 <div
                   key={user.id}
-                  className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-900 bg-violet-600 flex items-center justify-center text-white text-xs font-bold"
+                  className={`w-8 h-8 rounded-full border-2 border-white dark:border-zinc-900 ${color} flex items-center justify-center text-white text-xs font-bold`}
                   style={{ zIndex: 5 - i }}
                 >
                   {user.first_name?.[0]?.toUpperCase() || "?"}
                 </div>
-              )
-            ))}
+              );
+            })}
             {socialUsers.length > 0 && socialUsers.length < 5 && stats?.students_count && stats.students_count > socialUsers.length && (
-              <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-white dark:border-zinc-900 bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300 text-xs font-bold ring-2 ring-transparent">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white dark:border-zinc-900 bg-slate-200 dark:bg-zinc-700 text-slate-600 dark:text-zinc-300 text-xs font-bold ring-2 ring-transparent">
                 +{stats.students_count - socialUsers.length}
               </div>
             )}
