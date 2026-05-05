@@ -357,7 +357,7 @@ export function HomeContent() {
             <div>
               <div className="space-y-4 text-muted-foreground text-base leading-relaxed mb-6">
                 <p>
-                  "Waxaan ahay Shakuur. Waa 22 jir. Waxaan iskuna baray code-ka, waxaan dhisay alaabo dhijitaal ah, waxaanan lacagtii ugu horreysay online ku sameeyay anigoo aan shahaado haysan, cid i hagta haysan, isla markaana aanan qofna ka aqoon dunida tignoolajiyada.
+                  "Waxaan ahay Shakuur. . Waxaan iskuna baray code-ka, waxaan dhisay alaabo dhijitaal ah, waxaanan lacagtii ugu horreysay online ku sameeyay anigoo aan shahaado haysan, cid i hagta haysan, isla markaana aanan qofna ka aqoon dunida tignoolajiyada.
                 </p>
                 <p>
                   Waxaan dhisay Garaad sababtoo ah marna kamaan helin wax sidan oo kale ah oo Af-Soomaali ku qoran. Hadda waxaan rabaa inaan dib u soo laabto oo aan ku tuso sida saxda ah ee aan u sameeyay.

@@ -20,6 +20,25 @@ interface LearnerUser {
     profile_picture?: string;
 }
 
+const testimonials = [
+    {
+        name: "Ilyas Omar",
+        byline: "3 bilood ka hor waxba ma aqoon — hadda waxaan ahay khabiir Tailwind CSS ah.",
+        nowTag: "Khabiir Tailwind CSS ah",
+    },
+    {
+        name: "Abdiladif Salah",
+        byline: "Laga soo bilaabo barasho ilaa dhisidda wax faa'iido leh",
+        nowTag: "Front-End Developer",
+    },
+    {
+        name: "Abdiaziz",
+        byline: "Garaad wuxuu i baray sida fikrad loogu beddelo shirkad (Sofaritech).",
+        nowTag: "Aasaasaha Sofaritech",
+    },
+];
+}
+
 // ─── Vimeo player ─────────────────────────────────────────────────────────────
 // Browsers block unmuted autoplay. Strategy: autoplay muted, show a centered
 // play button overlay. Clicking it unmutes + hides the overlay permanently.
@@ -315,6 +334,27 @@ export function ChallengeHero() {
         {/* Video */}
         <div className="mx-auto mt-6 w-full max-w-2xl sm:mt-8">
           <VimeoHeroPlayer />
+        </div>
+
+        {/* Testimonials */}
+        <div className="mx-auto mt-8 max-w-2xl">
+          <h3 className="mb-4 text-center text-lg font-bold text-slate-900 dark:text-white">
+            Sheekooyinka Guusha
+          </h3>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <div
+                key={i}
+                className="rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-4 text-center"
+              >
+                <p className="font-bold text-slate-900 dark:text-white">{t.name}</p>
+                <p className="mt-1 text-xs text-slate-600 dark:text-zinc-400">{t.byline}</p>
+                <p className="mt-2 text-xs font-semibold text-violet-600 dark:text-violet-400">
+                  Hadda {t.nowTag}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>
