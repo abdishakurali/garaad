@@ -4,23 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCategories, useEnrollments } from "@/hooks/useApi";
 import { Category, Course } from "@/types/lms";
-import { Card } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ChevronRight, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { usePostHog } from "posthog-js/react";
-import useSWR from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn, getAbsoluteImageUrl, getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { CoursesChallengeBanner } from "@/components/challenge/CoursesChallengeBanner";
-import { useFirstFreeLessonHref } from "@/hooks/useFirstFreeLessonHref";
-import { pricingTranslations as pt } from "@/config/translations/pricing";
 import { API_BASE_URL } from "@/lib/constants";
-
-const statsFetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
 const defaultCourseImage = "/images/placeholder-category.svg";
@@ -94,29 +87,12 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
     const posthog = usePostHog();
     const searchParams = useSearchParams();
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [activePath, setActivePath] = useState<"All" | "Freelancer" | "Worker" | "Builder">("All");
     const { isAuthenticated } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
     const [resolvedCategories, setResolvedCategories] = useState<Category[]>(() =>
         Array.isArray(initialCategories) ? initialCategories : []
     );
-    const { href: firstFreeHref } = useFirstFreeLessonHref();
-
-    // Defer landing stats fetch with suspense disabled to prevent blocking LCP
-    const { data: landingStats } = useSWR<{ students_count?: number }>(
-        `${API_BASE_URL}/api/public/landing-stats/`,
-        statsFetcher,
-        { 
-            revalidateOnFocus: false, 
-            dedupingInterval: 60 * 1000,
-            suspense: false,
-            fallbackData: { students_count: 88 }
-        }
-    );
-    const totalLearners =
-        typeof landingStats?.students_count === "number" && landingStats.students_count > 0
-            ? landingStats.students_count
-            : 88;
-
     const getCourseProgress = (courseId: number) => {
         if (!enrollments || !Array.isArray(enrollments)) return undefined;
         const e = enrollments.find((x: { course: number }) => x.course === courseId);
@@ -210,281 +186,206 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
 
     if (hasMounted && isError) {
         return (
-            <div className="min-h-screen bg-slate-50 dark:bg-black">
-                <div className="max-w-7xl mx-auto p-8">
-                    <Alert variant="destructive" className="rounded-3xl border-2">
-                        <AlertCircle className="h-5 w-5" />
-                        <AlertTitle className="font-black">Khalad ayaa dhacay</AlertTitle>
-                        <AlertDescription className="font-bold">
-                            Waan ka xunnahay, waxaa ku guuldareysatay soo dejinta koorsooyinka.
-                        </AlertDescription>
-                    </Alert>
+            <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8">
+                <div className="max-w-md text-center">
+                    <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
+                    <p className="font-semibold text-foreground mb-2">Could not load courses</p>
+                    <p className="text-sm text-muted-foreground">Please refresh the page and try again.</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
+        <div className="min-h-screen bg-background text-foreground">
 
-            {/* Hero Section */}
-            <div className="relative pt-20 pb-12 md:pt-40 md:pb-32 overflow-hidden">
-                {/* Simplified & Clean Background */}
-                <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[length:3rem_3rem] [mask-image:radial-gradient(ellipse_at_center,black_35%,transparent_100%)]" />
+            {/* Page Header */}
+            <section className="pt-28 pb-12 border-b border-border">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold mb-4">Your Plan</p>
+                    <h1 className="text-display-md sm:text-display-lg font-serif mb-4">
+                        Your 30-Day Plan
+                    </h1>
+                    <p className="text-muted-foreground text-lg mb-8">
+                        Pick your path. Follow the plan. Make your first money.
+                    </p>
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {showSuccessMessage && (
-                        <Alert className="mb-12 bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400 rounded-3xl backdrop-blur-md animate-fade-in-up max-w-2xl mx-auto md:mx-0">
-                            <CheckCircle2 className="h-5 w-5 text-green-500" />
-                            <AlertTitle className="font-black">Bixinta waa guuleysatay!</AlertTitle>
-                            <AlertDescription className="font-bold">
-                                Mahadsanid! Hadda waad geli kartaa dhammaan casharrada premium-ka ah.
-                            </AlertDescription>
-                        </Alert>
+                        <div className="mb-6 p-4 rounded-[10px] border border-border bg-card text-sm text-foreground">
+                            <span className="font-semibold text-gold">Payment confirmed.</span>{" "}
+                            You now have full access. Start with Lesson 1.
+                        </div>
                     )}
 
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20">
-                        {/* Left Content: Text */}
-                        <div className="flex-1 text-center md:text-left space-y-6 md:space-y-8 animate-fade-in-up">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
-                                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                                    Safar Aqooneed Hufan
-                                </span>
-                            </div>
-
-                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.1] tracking-tight">
-                                Waddooyinka{" "}
-                                <span className="relative inline-block">
-                                    <span className="absolute -inset-2 blur-2xl bg-primary/10 opacity-40" />
-                                    <span className="relative bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent">
-                                        Waxbarashada
-                                    </span>
-                                </span>
-                            </h1>
-
-                            <p className="text-lg sm:text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-2xl">
-                                Waddooyin isku xiga oo loo maro hanashada STEM-ka iyo Tiknoolajiyadda casriga ah—oo Af-Soomaali ah.
-                            </p>
-                        </div>
-
+                    {/* Path selector tabs */}
+                    <div className="flex gap-2 flex-wrap">
+                        {(["All", "Freelancer", "Worker", "Builder"] as const).map((path) => (
+                            <button
+                                key={path}
+                                type="button"
+                                onClick={() => setActivePath(path)}
+                                className={`px-4 py-2 rounded-[8px] text-sm font-semibold border transition-colors ${
+                                    activePath === path
+                                        ? "bg-gold text-black border-gold"
+                                        : "bg-transparent text-muted-foreground border-border hover:text-foreground hover:border-foreground/30"
+                                }`}
+                            >
+                                {path}
+                            </button>
+                        ))}
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+            <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-24">
                 <CoursesChallengeBanner />
-                <div className="space-y-32">
+                <div className="space-y-16 pt-10">
                     {(isLoading ? Array(3).fill(null) : visibleCategories).map(
                         (category: Category | null, idx) => {
                             const sortedCourses = isLoading
                                 ? Array(4).fill(null)
                                 : [...(category?.courses || [])].sort((a, b) => {
-                                    // Primary sort: sequence ascending
                                     const seqA = (a?.sequence !== undefined && a.sequence !== null) ? a.sequence : Number.MAX_SAFE_INTEGER;
                                     const seqB = (b?.sequence !== undefined && b.sequence !== null) ? b.sequence : Number.MAX_SAFE_INTEGER;
-
                                     if (seqA !== seqB) return seqA - seqB;
-
-                                    // Secondary sort: created_at ascending (oldest first)
                                     const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
                                     const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
                                     return dateA - dateB;
                                 });
 
                             return (
-                                <div key={category?.id ?? idx} className="animate-fade-in-up">
+                                <div key={category?.id ?? idx}>
                                     {/* Category Header */}
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 pb-8 border-b border-slate-200 dark:border-slate-800">
-                                        <div className="flex items-center gap-10 group/header w-full">
-                                            {isLoading ? (
-                                                <div className="flex items-center gap-10 w-full">
-                                                    <Skeleton className="w-24 h-24 rounded-[2.5rem]" />
-                                                    <div className="space-y-4 flex-1">
-                                                        <Skeleton className="w-64 h-12 rounded-2xl" />
-                                                        <Skeleton className="w-96 h-6 rounded-xl" />
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div className="relative p-5 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-md transition-all duration-500 group-hover/header:scale-110 group-hover/header:rotate-3 group-hover/header:shadow-primary/30">
-                                                        <CategoryImage src={category?.image} alt={category?.title || 'Category'} />
-                                                        <div className="absolute -inset-2 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-[3rem] opacity-0 group-hover/header:opacity-100 blur-xl transition-opacity duration-500" />
-                                                    </div>
-                                                    <div>
-                                                        <h2 className="text-3xl md:text-5xl font-black tracking-tighter mb-3 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent group-hover/header:translate-x-2 transition-transform duration-300">
-                                                            {category?.title}
-                                                        </h2>
-                                                        <p className="text-lg md:text-xl text-slate-500 dark:text-slate-500 font-medium tracking-wide max-w-xl group-hover/header:translate-x-3 transition-transform duration-500">
-                                                            {category?.description}
-                                                        </p>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-
+                                    <div className="mb-6 pb-4 border-b border-border">
+                                        {isLoading ? (
+                                            <div className="space-y-2">
+                                                <Skeleton className="w-48 h-5 rounded" />
+                                                <Skeleton className="w-72 h-4 rounded" />
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <h2 className="text-lg font-semibold text-foreground">{category?.title}</h2>
+                                                {category?.description && (
+                                                    <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
 
                                     {/* Courses Grid */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {sortedCourses.map(
                                             (course: Course | null, index: number) => {
                                                 const isLocked = !isLoading && !course?.is_published;
 
                                                 if (isLoading || isLocked) {
                                                     return (
-                                                        <Card
+                                                        <div
                                                             key={course?.id ?? index}
                                                             className={cn(
-                                                                "group relative h-full flex flex-col overflow-hidden bg-white dark:bg-slate-950 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800/50 shadow-sm transition-all duration-500",
-                                                                isLocked ? "opacity-80 pointer-events-none" : ""
+                                                                "rounded-[16px] border border-border bg-card flex flex-col overflow-hidden",
+                                                                isLocked ? "opacity-50" : ""
                                                             )}
                                                         >
                                                             {isLoading ? (
-                                                                <div className="space-y-6">
-                                                                    <Skeleton className="h-40 w-full rounded-[2.5rem]" />
-                                                                    <div className="p-6 space-y-4">
-                                                                        <Skeleton className="h-8 w-3/4 rounded-xl" />
-                                                                        <Skeleton className="h-16 w-full rounded-xl" />
-                                                                        <div className="flex justify-between items-center pt-4">
-                                                                            <Skeleton className="h-6 w-1/3 rounded-lg" />
-                                                                            <Skeleton className="w-10 h-10 rounded-2xl" />
-                                                                        </div>
-                                                                    </div>
+                                                                <div className="space-y-3 p-4">
+                                                                    <Skeleton className="h-32 w-full rounded-[10px]" />
+                                                                    <Skeleton className="h-5 w-3/4 rounded" />
+                                                                    <Skeleton className="h-4 w-full rounded" />
                                                                 </div>
                                                             ) : (
-                                                                <div className="p-0 flex-1 flex flex-col">
-                                                                    <div className="relative h-40 bg-slate-50 dark:bg-slate-950/50 overflow-hidden flex items-center justify-center rounded-t-[2.5rem] opacity-80 grayscale-[0.2]">
-                                                                        <CourseImage
-                                                                            src={course?.thumbnail}
-                                                                            alt={course?.title ?? ""}
-                                                                        />
-                                                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
-                                                                        <div className="absolute top-4 right-4 bg-slate-900/80 dark:bg-slate-50 text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl z-20 shadow-lg">
-                                                                            dhowaan
+                                                                <div className="flex flex-col flex-1">
+                                                                    <div className="relative h-32 bg-card/50 flex items-center justify-center overflow-hidden rounded-t-[16px]">
+                                                                        <CourseImage src={course?.thumbnail} alt={course?.title ?? ""} />
+                                                                        <div className="absolute top-3 right-3 bg-foreground/10 text-muted-foreground text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md">
+                                                                            Coming soon
                                                                         </div>
                                                                     </div>
-                                                                    <div className="p-6 flex-1 flex flex-col">
-                                                                        <h3 className="font-black text-xl mb-3 line-clamp-1 leading-tight text-slate-400 dark:text-slate-600">
-                                                                            {course?.title}
-                                                                        </h3>
-                                                                        {course?.description && (
-                                                                            <p className="text-sm text-slate-400 dark:text-slate-700 line-clamp-2 mb-4 font-medium">
-                                                                                {course.description}
-                                                                            </p>
-                                                                        )}
+                                                                    <div className="p-4">
+                                                                        <p className="font-semibold text-muted-foreground text-sm line-clamp-1">{course?.title}</p>
                                                                     </div>
                                                                 </div>
                                                             )}
-                                                        </Card>
+                                                        </div>
                                                     );
                                                 }
 
                                                 const courseProgress = getCourseProgress(course.id);
                                                 const hasStarted = courseProgress !== undefined && courseProgress > 0;
                                                 const isComplete = courseProgress === 100;
-
                                                 const courseHref = `/courses/${category?.id}/${course.slug}`;
+
                                                 return (
-                                                    <Card
+                                                    <div
                                                         key={course.id}
-                                                        className="group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border-2 border-slate-100 bg-white shadow-xl shadow-slate-200/50 transition-all duration-500 hover:-translate-y-2 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/10 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
+                                                        className="group rounded-[16px] border border-border bg-card flex flex-col overflow-hidden hover:border-gold/30 transition-colors"
                                                     >
-                                                        {isComplete && (
-                                                            <div className="absolute right-4 top-4 z-20 flex items-center gap-1 rounded-2xl bg-emerald-500/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white">
-                                                                <CheckCircle2 className="h-3.5 w-3.5" /> Dhameystirmay
-                                                            </div>
-                                                        )}
-
-                                                        <div className="absolute -inset-2 rounded-[3.5rem] bg-gradient-to-br from-primary/30 via-blue-500/30 to-purple-500/30 opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-100" />
-
-                                                        <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
-
                                                         <Link href={courseHref} className="relative block">
-                                                            <div className="relative flex h-40 items-center justify-center overflow-hidden rounded-t-[2.5rem] bg-slate-50 dark:bg-slate-950">
+                                                            <div className="relative h-32 bg-card flex items-center justify-center overflow-hidden rounded-t-[16px]">
                                                                 <CourseImage
                                                                     src={course?.thumbnail}
                                                                     alt={course?.title ?? ""}
                                                                     priority={idx === 0 && index < 3}
                                                                 />
-                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
+                                                                {isComplete && (
+                                                                    <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/70 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md text-foreground">
+                                                                        <CheckCircle2 className="h-3 w-3 text-gold" /> Done
+                                                                    </div>
+                                                                )}
                                                                 {course.is_new && !isComplete && (
-                                                                    <div className="absolute right-4 top-4 z-20 animate-pulse-slow rounded-2xl bg-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
-                                                                        CUSUB
+                                                                    <div className="absolute top-3 right-3 bg-gold text-black text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md">
+                                                                        New
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         </Link>
 
-                                                        <div className="relative flex flex-1 flex-col bg-white p-6 dark:bg-slate-900">
+                                                        <div className="flex flex-col flex-1 p-4">
                                                             <Link href={courseHref}>
-                                                                <h3 className="mb-2 line-clamp-1 text-xl font-black leading-tight transition-colors duration-300 group-hover:text-primary">
+                                                                <h3 className="font-semibold text-sm text-foreground mb-1 line-clamp-1 group-hover:text-gold transition-colors">
                                                                     {course?.title}
                                                                 </h3>
                                                             </Link>
-                                                            <p className="mb-3 text-[11px] font-bold uppercase tracking-wide text-primary sm:text-xs">
-                                                                Qayb ka mid ah {totalLearners}+ arday ayaa hadda baranaya Garaad
-                                                            </p>
 
                                                             {course?.description && (
-                                                                <p className="mb-6 line-clamp-2 text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                                                                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
                                                                     {course.description}
                                                                 </p>
                                                             )}
 
-                                                            <div className="mt-auto flex flex-col gap-5">
-                                                                {(course?.lesson_count && course.lesson_count > 0) ||
-                                                                    (course?.estimatedHours && course.estimatedHours > 0) ? (
-                                                                    <div className="flex items-center gap-5 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300">
-                                                                        {course?.lesson_count && course.lesson_count > 0 && (
-                                                                            <span className="flex items-center gap-2">
-                                                                                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                                                                                {course.lesson_count} CASHAR
-                                                                            </span>
+                                                            <div className="mt-auto pt-3 border-t border-border space-y-2">
+                                                                {((course?.lesson_count ?? 0) > 0 || (course?.estimatedHours ?? 0) > 0) && (
+                                                                    <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                                                        {(course?.lesson_count ?? 0) > 0 && (
+                                                                            <span>{course.lesson_count} lessons</span>
                                                                         )}
-                                                                        {course?.estimatedHours && course.estimatedHours > 0 && (
-                                                                            <span className="flex items-center gap-2">
-                                                                                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                                                                                {course.estimatedHours} SAAC
-                                                                            </span>
+                                                                        {(course?.estimatedHours ?? 0) > 0 && (
+                                                                            <span>{course.estimatedHours}h</span>
                                                                         )}
                                                                     </div>
-                                                                ) : (
-                                                                    <div className="h-4" />
                                                                 )}
 
                                                                 {hasStarted && (
                                                                     <div className="space-y-1">
-                                                                        <div className="h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                                                                        <div className="h-1 overflow-hidden rounded-full bg-border">
                                                                             <div
-                                                                                className="motion-safe:animate-in h-full rounded-full bg-purple-600 transition-[width] duration-600 ease-out"
+                                                                                className="h-full rounded-full bg-gold transition-[width] duration-500 ease-out"
                                                                                 style={{ width: `${courseProgress ?? 0}%` }}
                                                                             />
                                                                         </div>
-                                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                            {courseProgress}% dhameystirmay
-                                                                        </p>
+                                                                        <p className="text-[10px] text-muted-foreground">{courseProgress}% complete</p>
                                                                     </div>
                                                                 )}
 
-                                                                <div className="mt-1 flex flex-col gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
-
-                                                                    <Link
-                                                                        href={courseHref}
-                                                                        className="flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"
-                                                                    >
-                                                                        {isComplete
-                                                                            ? "Muraajacee koorsada"
-                                                                            : hasStarted
-                                                                                ? "Sii wad koorsada"
-                                                                                : "Eeg koorsada"}
-                                                                        <ChevronRight className="h-4 w-4" />
-                                                                    </Link>
-                                                                </div>
+                                                                <Link
+                                                                    href={courseHref}
+                                                                    className="flex items-center gap-1 text-[11px] font-semibold text-gold"
+                                                                >
+                                                                    {isComplete ? "Review" : hasStarted ? "Continue" : "Start"} →
+                                                                </Link>
                                                             </div>
                                                         </div>
-                                                    </Card>
+                                                    </div>
                                                 );
                                             }
                                         )}
@@ -496,21 +397,21 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
                 </div>
 
                 {!isLoading && visibleCategories.length === 0 && (
-                    <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-                        Koorsooyin lama helin hadda. Fadlan dib u cusboonaysii bogga ama mar kale isku day.
+                    <div className="mt-10 rounded-[16px] border border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground">
+                        No courses available yet. Check back soon.
                     </div>
                 )}
 
-                {isAuthenticated && (
-                    <div className="mt-20 mb-8 rounded-2xl border border-violet-500/25 bg-violet-950/20 px-5 py-4 text-center shadow-sm dark:bg-violet-950/30">
+                {!isAuthenticated && (
+                    <div className="mt-12 p-6 rounded-[16px] border border-gold/30 bg-card text-center">
+                        <p className="text-sm font-semibold text-foreground mb-1">Want the full 30-day plan?</p>
+                        <p className="text-sm text-muted-foreground mb-4">Join the Challenge to unlock personal access and the income guarantee.</p>
                         <Link
-                            href="/subscribe?plan=challenge"
-                            className="inline-block text-sm font-bold text-violet-600 hover:underline dark:text-violet-400"
-                            onClick={() =>
-                                posthog?.capture("challenge_cta_clicked", { source: "courses_page" })
-                            }
+                            href="/subscribe"
+                            className="btn-gold inline-flex"
+                            onClick={() => posthog?.capture("challenge_cta_clicked", { source: "courses_page" })}
                         >
-                            {pt.challenge_cta} — bulshada iyo taageerada →
+                            Join the Challenge →
                         </Link>
                     </div>
                 )}

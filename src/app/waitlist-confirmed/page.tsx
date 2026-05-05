@@ -2,9 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Users, Share2, MessageCircle } from "lucide-react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { CheckCircle2, Users, Share2 } from "lucide-react";
 
 export default function WaitlistConfirmedPage() {
   const searchParams = useSearchParams();
@@ -66,17 +64,9 @@ export default function WaitlistConfirmedPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link 
-            href="https://chat.whatsapp.com/your-community-link" 
-            target="_blank"
-            className="flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-600/20"
-          >
-            <MessageCircle className="h-5 w-5" />
-            Ku biir WhatsApp-ka
-          </Link>
-          <Button 
+          <Button
             onClick={handleShare}
-            variant="outline" 
+            variant="outline"
             className="flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold transition-all hover:bg-muted"
           >
             <Share2 className="h-5 w-5" />

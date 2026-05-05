@@ -11,7 +11,6 @@ import Logo from "./ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
 
-// Hydration-safe mounted check
 function useMounted() {
   return useSyncExternalStore(
     () => () => {},
@@ -20,6 +19,12 @@ function useMounted() {
   );
 }
 
+const NAV_LINKS = [
+  { name: "Courses", href: "/courses" },
+  { name: "Mentorship", href: "/mentorship" },
+  { name: "Blog", href: "/blog" },
+];
+
 export function Header() {
   const mounted = useMounted();
   const { user } = useAuthStore();
@@ -27,8 +32,6 @@ export function Header() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const isPremium = user ? AuthService.getInstance().isPremium() : false;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -39,37 +42,12 @@ export function Header() {
     }
   }, []);
 
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+  useEffect(() => { setIsMobileMenuOpen(false); }, [pathname]);
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [isMobileMenuOpen]);
-
-  const navLinks = useMemo(() => {
-    const links = [
-      { name: "Mentorship", href: "/mentorship" },
-      { name: "Courses", href: "/courses" },
-      { name: "Webinars", href: "/webinars" },
-      { name: "Blog", href: "/blog" },
-    ];
-
-    if (mounted && user) {
-      links.splice(2, 0, { name: "Bulshada", href: "/community" });
-    } else if (!mounted) {
-      links.splice(2, 0, { name: "Bulshada", href: "/communitypreview" });
-    }
-
-    return links;
-  }, [mounted, user]);
 
   const isLinkActive = useCallback(
     (href: string) => pathname === href || pathname.startsWith(`${href}/`),
@@ -80,7 +58,7 @@ export function Header() {
     AuthService.getInstance().logout();
     if (typeof window !== "undefined") {
       localStorage.clear();
-      router.push("/courses");
+      router.push("/");
     }
   };
 
@@ -90,128 +68,120 @@ export function Header() {
         className={clsx(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           isScrolled
-            ? "bg-white/95 dark:bg-[#0a0a0f]/95 backdrop-blur-md shadow-sm border-b border-black/5 dark:border-white/5"
-            : "bg-white/80 dark:bg-[#0a0a0f]/80"
+            ? "bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md shadow-sm border-b border-black/5 dark:border-white/5"
+            : "bg-white/80 dark:bg-[#0a0a0a]/80"
         )}
       >
         <div className="max-w-6xl mx-auto px-4 h-14 md:h-16 flex items-center justify-between gap-4">
-          {/* Logo */}
           <Link href="/" className="shrink-0">
             <Logo priority={true} loading="eager" />
           </Link>
 
-          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <div key={link.href} className="relative">
-                <Link
-                  href={link.href}
-                  className={clsx(
-                    "block px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
-                    isLinkActive(link.href)
-                      ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-600/10"
-                      : "text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-50 dark:hover:bg-white/5"
-                  )}
-                >
-                  {link.name}
-                </Link>
-                {link.badge && (
-                  <span className="absolute -top-1 -right-1 inline-flex items-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
-                    {link.badge}
-                  </span>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={clsx(
+                  "px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                  isLinkActive(link.href)
+                    ? "text-[#7c3aed] bg-[#7c3aed]/10"
+                    : "text-slate-600 dark:text-slate-300 hover:text-foreground hover:bg-slate-50 dark:hover:bg-white/5"
                 )}
-              </div>
+              >
+                {link.name}
+              </Link>
             ))}
           </nav>
 
-          {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-2">
             {mounted && user ? (
               <ProfileDropdown />
             ) : (
-              <Link
-                href="/login"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-colors"
-              >
-                <LogIn className="w-4 h-4" />
-                Soo gal
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  className="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-foreground transition-colors"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/subscribe"
+                  className="px-4 py-2 text-sm font-bold rounded-lg bg-[#7c3aed] text-white hover:bg-[#6d28d9] transition-colors"
+                >
+                  Join the Challenge →
+                </Link>
+              </>
             )}
             <ThemeToggle />
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+            className="md:hidden w-11 h-11 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
             aria-label="Open menu"
           >
-            <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+            <Menu className="w-5 h-5 text-foreground" />
           </button>
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-[100] md:hidden">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="absolute right-0 top-0 flex h-[100dvh] max-h-[100dvh] w-72 max-w-[85vw] flex-col bg-white dark:bg-[#0a0a0f] shadow-xl animate-in slide-in-from-right duration-200">
-            <div className="flex shrink-0 items-center justify-between border-b border-slate-100 p-4 dark:border-white/10">
-              <span className="font-semibold text-slate-800 dark:text-white">Menu</span>
+          <div className="absolute right-0 top-0 flex h-[100dvh] w-72 max-w-[85vw] flex-col bg-white dark:bg-[#0a0a0a] shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 p-4">
+              <Logo />
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10"
+                className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-muted"
               >
-                <X className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                <X className="w-5 h-5" />
               </button>
             </div>
-            <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 space-y-2">
-              {navLinks.map((link) => (
-                <div key={link.href} className="relative">
-                  <Link
-                    href={link.href}
-                    className={clsx(
-                      "block px-4 py-3 text-base font-medium rounded-lg transition-colors",
-                      isLinkActive(link.href)
-                        ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-600/10"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
-                    )}
-                  >
-                    {link.name}
-                  </Link>
-                  {link.badge && (
-                    <span className="absolute -top-1 -right-1 inline-flex items-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
-                      {link.badge}
-                    </span>
+
+            <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={clsx(
+                    "flex items-center min-h-[44px] px-4 py-2.5 text-base font-medium rounded-lg transition-colors",
+                    isLinkActive(link.href)
+                      ? "text-gold bg-gold/10"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
-                </div>
+                >
+                  {link.name}
+                </Link>
               ))}
             </nav>
-            <div className="shrink-0 border-t border-slate-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-white/10">
+
+            <div className="border-t border-slate-100 dark:border-white/10 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-3">
               {mounted && user ? (
-                <div className="space-y-2">
-                  <div className="px-4 py-2 text-sm text-slate-500 dark:text-slate-400">
+                <>
+                  <div className="px-2 py-1 text-sm text-slate-500 dark:text-slate-400 truncate">
                     {user.email}
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-full px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-600/10 text-left"
+                    className="w-full min-h-[44px] px-4 py-2.5 text-sm font-medium text-destructive rounded-lg hover:bg-destructive/10 text-left"
                   >
-                    Ka bax
+                    Log out
                   </button>
-                </div>
+                </>
               ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-3 text-base font-semibold rounded-lg bg-violet-600 text-white"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Soo gal
-                </Link>
+                <>
+                  <Link href="/login" className="btn-ghost w-full">
+                    Log in
+                  </Link>
+                  <Link href="/subscribe" className="btn-gold w-full">
+                    Join the Challenge →
+                  </Link>
+                </>
               )}
             </div>
           </div>

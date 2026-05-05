@@ -6,19 +6,8 @@ const SITE_URL = "https://garaad.org";
 export const metadata: Metadata = {
   title: "Garaad — Baro React, Next.js, Node.js & AI Af-Soomaaliga | #1 Coding Platform",
   description:
-    "Somaliya ugu weyn platform-ka coding-ka. Baro React, Next.js, Node.js, MongoDB & AI Af-Soomaaliga. 30 daqiiqe/day. Dhismee mashaariic real. Bilow bilaash.",
+    "Somaliya ugu weyn platform-ka coding-ka. Baro React, Next.js, Node.js, MongoDB & AI Af-Soomaaliga. 30 maalmood. Dhismee mashaariic real. Bilow bilaash.",
   keywords: [
-    // English keywords for global SEO
-    "learn React", "React tutorial", "React for beginners", "React 19",
-    "learn Next.js", "Next.js tutorial", "Next.js 14", "Next.js 15", "full-stack Next.js",
-    "learn Node.js", "Node.js tutorial", "Node.js backend", "Express.js tutorial",
-    "learn MongoDB", "MongoDB tutorial", "MERN stack", "MERN tutorial",
-    "learn JavaScript", "JavaScript tutorial", "JavaScript ES6", "modern JavaScript",
-    "learn TypeScript", "TypeScript tutorial", "React TypeScript",
-    "learn AI", "AI development", "ChatGPT integration", "machine learning basics",
-    "learn full-stack", "full-stack development", "web development course",
-    "learn web development", "coding for beginners", "coding bootcamp online",
-    "learn programming", "programming basics", "computer science",
     // Somali keywords for local SEO
     "baro React Somali", "baro Next.js Somali", "baro JavaScript Somali",
     "baro Node.js Somali", "baro MongoDB Somali", "baro full-stack Somali",
@@ -31,6 +20,17 @@ export const metadata: Metadata = {
     "full-stack developer Somalia", "frontend developer Somalia", "backend developer Somalia",
     "Af-Soomaali programming", "technology education Somalia",
     "learn to code in Somali", "Somali online courses", "Somali e-learning",
+    // English keywords for global SEO
+    "learn React", "React tutorial", "React for beginners", "React 19",
+    "learn Next.js", "Next.js tutorial", "Next.js 14", "Next.js 15", "full-stack Next.js",
+    "learn Node.js", "Node.js tutorial", "Node.js backend", "Express.js tutorial",
+    "learn MongoDB", "MongoDB tutorial", "MERN stack", "MERN tutorial",
+    "learn JavaScript", "JavaScript tutorial", "JavaScript ES6", "modern JavaScript",
+    "learn TypeScript", "TypeScript tutorial", "React TypeScript",
+    "learn AI", "AI development", "ChatGPT integration", "machine learning basics",
+    "learn full-stack", "full-stack development", "web development course",
+    "learn web development", "coding for beginners", "coding bootcamp online",
+    "learn programming", "programming basics", "computer science",
   ],
   alternates: { canonical: SITE_URL },
   openGraph: {
@@ -57,82 +57,82 @@ const landingJsonLd = {
   mainEntity: [
     {
       "@type": "Question",
-      name: "What is Garaad?",
+      name: "Maxuu Garaad yahay?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Garaad is Somalia's first full-stack coding platform. Learn React, Next.js, Node.js, MongoDB and AI — taught in Somali.",
+        text: "Garaad waa platform-kii ugu horreeyay ee full-stack development Af-Soomaali. Baro React, Next.js, Node.js, MongoDB iyo AI — waxbarashada oo dhan Af-Soomaali.",
       },
     },
     {
       "@type": "Question",
-      name: "Is Garaad free?",
+      name: "Muxuu Garaad bilaash u yahay?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes, Garaad offers free access to get started. Premium plans unlock all courses and mentorship.",
+        text: "Haa, Garaad wuxuu bixinayaa geliddii bilaashka ah ee bilowga. Qiyaasuhu waxay furanayaan dhammaan casharrada iyo tartanka.",
       },
     },
     {
       "@type": "Question",
-      name: "What tech stack does Garaad teach?",
+      name: "Waa maxay teknoolajiyada Garaad u baraa?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Garaad teaches React, Next.js, Node.js, MongoDB (MERN stack), and AI — the same stack used at top tech companies worldwide.",
+        text: "Garaad wuxuu baraa React, Next.js, Node.js, MongoDB (MERN stack), iyo AI — teknoolajiyada oo dhan ee loo isticmaalo shirkadaha tignoolajiyada ugu sarreeya dunida.",
       },
     },
     {
       "@type": "Question",
-      name: "Can I learn coding in Somali?",
+      name: "Ma code-ka ku baran karaa Af-Soomaali?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes. Garaad is the only platform where you can learn full-stack web development and AI entirely in the Somali language.",
+        text: "Haa. Garaad waa platform-ka kaliya ee aad ku baran kartid full-stack web development iyo AI oo dhan Af-Soomaali.",
       },
     },
     {
       "@type": "Question",
-      name: "Who is Garaad for?",
+      name: "Yaa Garaad loogu TALGALAY?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Garaad is for Somali speakers worldwide — beginners with no coding experience and developers who want to level up. Somalia, Ireland, UK, US diaspora all welcome.",
+        text: "Garaad waa kuwa Af-Soomaali ku hadla dunida oo dhan — horyaalka aan aqoon code-ka iyo horumariiyayaashii doonaya inay heystaan. Iyo, Sweden, UK, US diaspora oo dhan soo dhawayn.",
       },
     },
     {
       "@type": "Question",
-      name: "How long does it take to become a developer?",
+      name: "Waa intee le eg waqtiga loo baahanyahay inuu noqdo horumariye?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Garaad's Challenge program is a 3-month intensive program. With 30 minutes daily practice, you can build real projects and be job-ready.",
+        text: "Barnaamijka Tartanka Garaad wuxuu yahay barnaamijka 3 bilood ah ee intensiive. Adigoo 30 daqiiqo maalin kasta ka shaqeinaya, waxaad dhisay mashaariic real oo aad ready noqon karto shaqo.",
       },
     },
     {
       "@type": "Question",
-      name: "What is the Garaad Challenge?",
+      name: "Waa maxay Tartanka Garaad?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Garaad Challenge is a 3-month mentorship program with 1:1 mentor guidance, real project building, and cohort-based learning — the fastest way to become a professional developer.",
+        text: "Tartanka Garaad waa barnaamijka 3 bilood ah ee tartan ah oo la jaan qaaya-hagaha shakhsiga, dhismaha mashaariic, iyo waxbarashada kooxda ah — waa habka ugu dhaqsaha badan ee noqoshada professional developer.",
       },
     },
     {
       "@type": "Question",
-      name: "Do I need prior coding experience?",
+      name: "Ma u baahanahay inaan horey uga aqoon code-ka?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No prior experience required. Garaad is designed for complete beginners. You start from HTML, CSS, and JavaScript basics.",
+        text: "Aqoon hore ma loo baahna. Garaad wuxuu loogu talgalay horyaallada. Waxaad ka bilowdaa aasaasida HTML, CSS, iyo JavaScript.",
       },
     },
     {
       "@type": "Question",
-      name: "What languages are courses taught in?",
+      name: "Casharadaasha waa maxay luqadaha lagubarayaa?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "All courses are taught in Somali (Af-Soomaali), with English technical terms preserved. This makes learning accessible for Somali speakers worldwide.",
+        text: "Dhammaan casharadaasha waxay baranayaa Af-Soomaali, iyadoo la ilaalinayo erayada tignoolajiyada Ingiriisiga. Tani waxay samaynaysaa waxbarashada la heli karo Af-Soomaaligallba dunida oo dhan.",
       },
     },
     {
       "@type": "Question",
-      name: "Can I get a job after completing Garaad?",
+      name: "Ma heli karaa shaqo ka dib markaan dhameeyo Garaad?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes. Garaad provides portfolio projects, certifications, and job placement support. Our graduates have started careers at tech companies and as freelancers.",
+        text: "Haa. Garaad wuxuu bixinayaa mashaariic portfolio, shahaadado, iyo taageerada gelida shaqo. ardaydeena waxay bilaabeen kororsannadii shirkado tignoolajiyada iyo freelancers.",
       },
     },
   ],

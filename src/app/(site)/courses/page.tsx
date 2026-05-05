@@ -2,53 +2,26 @@ import { Metadata } from "next";
 import { CoursesListClient } from "./CoursesListClient";
 import { Category } from "@/types/lms";
 import { API_BASE_URL } from "@/lib/constants";
-import Link from "next/link";
 
 const COURSES_URL = "https://garaad.org/courses";
 
 export const metadata: Metadata = {
-  title: "Koorsooyinka — Baro React, Next.js, Node.js, MongoDB & AI | Garaad",
+  title: "Your 30-Day Plan — Garaad",
   description:
-    "Baro full-stack development-ka Af-Soomaaliga. Koorsooyinka React, Next.js, Node.js, MongoDB, AI iyo MERN stack. Bilow bilaash oo dhamee shahaado. Kan ugu weyn Somaliya.",
-  keywords: [
-    // English keywords for global search
-    "learn React", "React tutorial", "React course", "React for beginners",
-    "learn Next.js", "Next.js tutorial", "Next.js course", "Next.js 14",
-    "learn Node.js", "Node.js tutorial", "Node.js course", "Express.js",
-    "learn MongoDB", "MongoDB tutorial", "MongoDB course", "MERN stack",
-    "learn JavaScript", "JavaScript tutorial", "JavaScript course", "ES6",
-    "learn AI", "AI tutorial", "machine learning", "ChatGPT development",
-    "learn full-stack", "full-stack tutorial", "web development course",
-    "learn MERN", "MERN stack tutorial", "MERN stack course",
-    "learn TypeScript", "TypeScript tutorial", "React TypeScript",
-    "learn CSS", "learn Tailwind", "Tailwind CSS tutorial",
-    "learn Python", "Python tutorial", "AI with Python",
-    "coding bootcamp", "online coding course", "web development curriculum",
-    // Somali keywords for local search
-    "baro React Somali", "baro Next.js Somali", "baro JavaScript Somali",
-    "baro Node.js Somali", "baro MongoDB Somali", "baro full-stack Somali",
-    "baro AI Somali", "baro programming Somali", "baro coding Somali",
-    "koorso React bilaash", "koorso Next.js bilaash", "koorso programming Somali",
-    "baro web development Somali", "baro MERN stack Somali",
-    " Somali coding", "Somali programming", "Somali tech education",
-    "Garaad courses", "Koorsooyinka Garaad", "programming Somalia",
-    "web development Somalia", "software development Somalia",
-    "career in tech Somalia", "become developer Somalia",
-  ],
+    "Pick your path — Freelancer, Worker, or Builder. Follow the 30-day plan. Make your first money online, in Somali.",
   alternates: { canonical: COURSES_URL },
   openGraph: {
     type: "website",
     url: COURSES_URL,
-    title: "Koorsooyinka — Baro React, Next.js, AI & Full-Stack | Garaad",
-    description:
-      "Baro React, Next.js, Node.js, MongoDB & AI Af-Soomaaliga. Koorsooyinka ugu fiican Somaliya. Bilow bilaash.",
-    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad Courses" }],
+    title: "Your 30-Day Plan — Garaad",
+    description: "Pick your path. Follow the plan. Make your first money.",
+    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@garaadorg",
-    title: "Koorsooyinka — Baro React, Next.js & Full-Stack | Garaad",
-    description: "Baro full-stack development Af-Soomaaliga. Bilow bilaash.",
+    title: "Your 30-Day Plan — Garaad",
+    description: "Pick your path. Follow the plan. Make your first money.",
     images: ["https://garaad.org/images/og-main.jpg"],
   },
   robots: { index: true, follow: true },
@@ -99,28 +72,6 @@ export default async function CoursesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <CoursesListClient initialCategories={categories} />
-      <section className="mx-auto mt-8 max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="text-base font-semibold text-foreground">Read and apply</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Akhri blog-ga si aad u hesho sharaxaad dheeraad ah ka hor ama kadib casharrada.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/blog" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
-              Blog Home
-            </Link>
-            <Link href="/blog/tag/react" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
-              React Articles
-            </Link>
-            <Link href="/blog/tag/nextjs" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
-              Next.js Articles
-            </Link>
-            <Link href="/blog/tag/javascript" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
-              JavaScript Articles
-            </Link>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

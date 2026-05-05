@@ -18,45 +18,59 @@ class UserService {
   }
 
   async updatePremiumStatus(update: UserPremiumUpdate & { planType?: 'installment' | 'full' }): Promise<boolean> {
+    const internalUrl = (process.env.DJANGO_INTERNAL_URL || "https://api.garaad.org").replace(/\/$/, "");
+    const internalSecret = process.env.INTERNAL_API_SECRET;
+    const endpoint = `${internalUrl}/api/accounts/set-premium/`;
+
+    console.log("[updatePremiumStatus] called with:", {
+      userId: update.userId,
+      isPremium: update.isPremium,
+      planType: update.planType,
+    });
+    console.log("[updatePremiumStatus] env:", {
+      hasSecret: !!internalSecret,
+      djangoUrl: internalUrl,
+      endpoint,
+    });
+
+    if (!internalSecret) {
+      console.error("[updatePremiumStatus] INTERNAL_API_SECRET is not set — cannot grant premium");
+      return false;
+    }
+
     try {
-      console.log("Updating user premium status via internal API:", update);
+      const subscriptionType = "challenge";
 
-      const internalUrl = process.env.DJANGO_INTERNAL_URL || "https://api.garaad.org";
-      const internalSecret = process.env.INTERNAL_API_SECRET;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Internal-Secret": internalSecret,
+        },
+        body: JSON.stringify({
+          user_id: update.userId,
+          is_premium: update.isPremium,
+          subscription_type: subscriptionType,
+          plan_type: update.planType,
+        }),
+      });
 
-      if (!internalSecret) {
-        console.error("INTERNAL_API_SECRET is not configured in environment variables");
-        return false;
-      }
-
-      const response = await fetch(
-        `${internalUrl.replace(/\/$/, "")}/api/accounts/set-premium/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Internal-Secret": internalSecret,
-          },
-          body: JSON.stringify({
-            user_id: update.userId,
-            is_premium: update.isPremium,
-            subscription_type: "challenge",
-            plan_type: update.planType,
-          }),
-        }
-      );
+      const responseText = await response.text();
+      console.log("[updatePremiumStatus] response:", {
+        status: response.status,
+        ok: response.ok,
+        body: responseText,
+      });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Internal API error (${response.status}): ${errorText}`);
+        console.error(`[updatePremiumStatus] Django returned ${response.status}: ${responseText}`);
         return false;
       }
 
-      const data = await response.json();
-      console.log(`✅ User ${update.userId} premium status updated successfully:`, data);
+      console.log(`[updatePremiumStatus] ✅ User ${update.userId} premium granted`);
       return true;
     } catch (error) {
-      console.error("❌ Error updating premium status:", error);
+      console.error("[updatePremiumStatus] fetch threw:", error instanceof Error ? error.message : error);
       return false;
     }
   }

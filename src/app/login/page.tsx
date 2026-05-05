@@ -130,13 +130,7 @@ function LoginPageContent() {
             } catch {
                 /* ignore */
             }
-            if (redirectTo) {
-                router.push(redirectTo);
-            } else if (result.user?.is_email_verified) {
-                router.push("/post-verification-choice");
-            } else {
-                router.push("/courses");
-            }
+            router.push(redirectTo ?? "/courses");
         } catch (err) {
             posthog?.capture("login_failed", {
                 method: "email",

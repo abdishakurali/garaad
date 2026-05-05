@@ -1,73 +1,31 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-/*
- * Middleware rules by page/route:
- *
- * PUBLIC (no auth):
- *   /, /courses, /courses/[categoryId]/[courseSlug], /blog, /blog/[slug], /blog/tag/[tag],
- *   /challenge, /launchpad, /launchpad/[id], /launchpad/project/[slug], /about, /about/abdishakuur-ali,
- *   /terms, /privacy, /startups, /community-preview, /communitypreview,
- *   /login, /signup, /welcome, /admin/login, /verify-email, /reset-password
- *
- * Subscribe / pay:
- *   /subscribe requires auth (sign in or sign up first); unauthenticated → /login with redirect back (query preserved).
- *
- * PROTECTED (auth required; unauthenticated → /login or /admin/login with redirect param):
- *   /admin, /admin/* (except /admin/login),
- *   /post-verification-choice, /profile, /settings, /orders, /orders/[id],
- *   /launchpad/submit, /launchpad/submit-project, /launchpad/edit, /launchpad/edit/[id],
- *   /community, /community/* (not community-preview),
- *   /courses/.../lessons/[lessonId]
- *
- * Premium gating: /community shows a blur + upgrade overlay for free users (no redirect).
- * Lesson 2+, etc. is enforced in-app and by backend, not here.
- */
-
 const protectedRoots = [
   "/admin",
   "/profile",
   "/settings",
   "/orders",
-  "/launchpad/submit",
-  "/launchpad/submit-project",
-  "/launchpad/edit",
   "/post-verification-choice",
 ];
 
 const premiumRoots: string[] = [
-  "/community",
   "/mentorship",
-  "/cohorts",
 ];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // --- 1. Global Bypass for Assets ---
-  // Always allow static files, images, icons, etc.
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") || // Let API routes handle their own auth
+    pathname.startsWith("/api") ||
     pathname.startsWith("/images") ||
     pathname.startsWith("/icons") ||
-    pathname.includes(".") // Optimization: Assume files with extensions are public assets
+    pathname.includes(".")
   ) {
     return NextResponse.next();
   }
 
-  // --- 2. Check Protected Routes ---
-  const isProtectedRoute = protectedRoots.some(root =>
-    pathname === root || pathname.startsWith(`${root}/`)
-  );
-
-  // Specific check for /lessons/ (matches any lesson path)
-  const isLessonPath = pathname.includes("/lessons/");
-
-  // Specific check for /community (excluding -preview)
-  const isProtectedCommunity = pathname === "/community" || (pathname.startsWith("/community/") && !pathname.startsWith("/community-preview"));
-
-  // Paths that should ALWAYS be public (login, welcome, verify-email, post-verification-choice — do not block with onboarding check)
   const isAuthPage =
     pathname === "/admin/login" ||
     pathname === "/welcome" ||
@@ -77,80 +35,54 @@ export async function middleware(request: NextRequest) {
     pathname === "/post-verification-choice" ||
     pathname.startsWith("/post-verification-choice/");
 
-  if (isAuthPage) {
+  if (isAuthPage) return NextResponse.next();
+
+  const isProtectedRoute = protectedRoots.some(
+    (root) => pathname === root || pathname.startsWith(`${root}/`)
+  );
+  const isLessonPath = pathname.includes("/lessons/");
+
+  if (!isProtectedRoute && !isLessonPath) {
     return NextResponse.next();
   }
 
-  if (!isProtectedRoute && !isLessonPath && !isProtectedCommunity) {
-    // IT IS PUBLIC. Allow access.
-    return NextResponse.next();
-  }
-
-  // --- 3. Authentication Check ---
-  // If we are here, the path IS protected.
   const userCookie = request.cookies.get("user");
   const tokenCookie = request.cookies.get("accessToken");
   const refreshTokenCookie = request.cookies.get("refreshToken");
+  const isAuthenticated =
+    !!userCookie?.value || !!tokenCookie?.value || !!refreshTokenCookie?.value;
 
-  const isAuthenticated = !!userCookie?.value || !!tokenCookie?.value || !!refreshTokenCookie?.value;
-  
-  // Skip middleware auth for admin routes - frontend (AdminLayout) handles auth via localStorage
   const isAdminRoute = pathname.startsWith("/admin") && !pathname.includes("/login");
 
   if (!isAuthenticated && !isAdminRoute) {
-    const redirectUrl = "/login";
-    const url = new URL(redirectUrl, request.url);
+    const url = new URL("/login", request.url);
     url.searchParams.set("reason", "unauthenticated");
-    const returnPath = `${pathname}${request.nextUrl.search}`;
-    url.searchParams.set("redirect", returnPath);
+    url.searchParams.set("redirect", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(url, 308);
   }
 
-  // --- 3a. Email verification gate (non-admin protected routes) ---
-  // Removed: email verification is handled inline in pages, not via redirect.
-  // Pages like community, courses show their own prompts when email is not verified.
-
-  // --- 4. Premium Access Check ---
-  // Lesson paths: do NOT gate by premium here. Backend may still enforce access;
-  // Lesson access for signed-in users: full catalog (see lessonTierAccess); optional Challenge CTA in-app.
-  const isPremiumPath = premiumRoots.some(root => pathname.startsWith(root));
-
-    if (isPremiumPath) {
-      if (!userCookie?.value) {
-        // Authenticated but missing user metadata (session issue) → re-auth at login, not signup.
-        const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("reason", "no_user_data");
-        return NextResponse.redirect(loginUrl, 308);
-      }
-      try {
-        const decodedUser = decodeURIComponent(userCookie.value);
-        const user = JSON.parse(decodedUser);
-
-        // Allow if user is premium OR allow the request to pass to let client-side PremiumGuard handle the modal
-        // To implement the modal, we allow the request but the client-side guard will block the UI.
-        return NextResponse.next();
-
-      } catch (error) {
-        // Cookie parse error -> treat as session corrupted
-        const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("reason", "session_parse_error");
-        return NextResponse.redirect(loginUrl, 308);
-      }
+  const isPremiumPath = premiumRoots.some((root) => pathname.startsWith(root));
+  if (isPremiumPath) {
+    if (!userCookie?.value) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("reason", "no_user_data");
+      return NextResponse.redirect(loginUrl, 308);
     }
+    try {
+      JSON.parse(decodeURIComponent(userCookie.value));
+      return NextResponse.next();
+    } catch {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("reason", "session_parse_error");
+      return NextResponse.redirect(loginUrl, 308);
+    }
+  }
 
-  // Authenticated and passed all checks
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
