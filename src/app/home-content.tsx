@@ -233,16 +233,7 @@ export function HomeContent() {
                   Eeg sida uu u shaqeeyo
                 </a>
               </div>
-              <p className="hero-animate-stats text-sm text-muted-foreground">
-                39 qof ayaa ku soo biiray toddobaadkan · Kooxda xigta waxay bilaabanaysaa dhowaan
-              </p>
-            </div>
-
-            
-        </div>
-          </div>
-                  {/* Trust indicators with profile images */}
-        <div className={`mx-auto mt-6 flex items-center justify-center gap-3 text-xs  
+               <div className={`mx-auto mt-6 flex items-center justify-center gap-3 text-xs  
           text-slate-600  `}>
           <div className="flex items-center -space-x-1.5">
             {socialUsers.slice(0, 5).map((user, i) => {
@@ -276,6 +267,13 @@ export function HomeContent() {
             <span className="font-semibold">{stats.students_count} aya kuso biiray</span>
           )}
         </div>
+            </div>
+
+            
+        </div>
+          </div>
+                  {/* Trust indicators with profile images */}
+     
           <div className="mx-auto  w-full max-w-2xl sm:mt-8">
           <VimeoHeroPlayer />
         </div>
