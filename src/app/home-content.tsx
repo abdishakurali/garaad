@@ -211,16 +211,16 @@ export function HomeContent() {
     <main className="bg-background text-foreground">
 
       {/* HERO */}
-      <section className="h-full flex items-center justify-center flex-col pt-14">
+      <section className="h-full max-w-2xl mx-auto  flex items-center justify-center flex-col pt-14">
         <div className="max-w-6xl flex items-center justify-center flex-col mx-auto px-4 sm:px-6 w-full py-10 sm:py-12">
-          <div className=" lg:gap-20 items-center">
+          <div className="  flex justify-center items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37] mb-6">
-                Samee lacagtaadii ugu horreysay ee online ah.
+              Af-Soomaali ku baro. 
               </p>
               <h1 className="text-display-lg sm:text-display-xl font-serif text-foreground mb-6">
                 30 maalmood gudahood.<br />
-                <span className="italic opacity-60">Af-Soomaali ku baro.</span>
+                <span className="italic opacity-60">Samee lacagtaadi ugu horreysay.</span>
               </h1>
               <p className="text-lg text-muted-foreground mb-8 max-w-md leading-relaxed">
                 Barnaamij dakhli-abuur ah oo 60 maalmood ah. Waxaa dhisay qof horey u soo sameeyay. Ma ahan koorso caadi ah. Waa dammaanad.
@@ -274,7 +274,7 @@ export function HomeContent() {
           </div>
                   {/* Trust indicators with profile images */}
      
-          <div className="mx-auto  w-full max-w-2xl sm:mt-8">
+          <div className="mx-auto  w-full max-w-2xl  ">
           <VimeoHeroPlayer />
         </div>
       </section>
