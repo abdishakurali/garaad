@@ -173,7 +173,17 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
       return;
     }
 
-    if (!currentUser?.email) {
+    // Refresh user data to ensure email verification status is current
+    await auth.fetchAndUpdateUserData(token);
+    const updatedUser = auth.getCurrentUser();
+    if (!updatedUser?.is_email_verified) {
+      sessionStorage.setItem("payment_verify_pending", "true");
+      setShowEmailVerify(true);
+      setError("Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin.");
+      return;
+    }
+
+    if (!updatedUser?.email) {
       setError("Maqan tahay email-ka. Fadlan isku day markale.");
       return;
     }
@@ -205,6 +215,12 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     try {
       const orderService = OrderService.getInstance();
       const planKey = plan.key;
+      const userEmail = auth.getCurrentUser()?.email;
+
+      if (!userEmail) {
+        setError("Maqan tahay email-ka. Fadlan isku day markale.");
+        return;
+      }
 
       if (method === "waafi") {
         const phoneDigits = phone.replace(/\D/g, "").trim();
@@ -212,7 +228,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
           payment_method: "waafi",
           currency: "USD",
           phone: phoneDigits,
-          email: currentUser?.email,
+          email: userEmail,
           plan: planKey,
           ...(planKey === "explorer"
             ? { subscription_type: "monthly" as const }
