@@ -67,6 +67,20 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     }
   };
 
+  const handleVerifyPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const paste = e.clipboardData.getData("text").slice(0, 6).replace(/\D/g, "");
+    if (paste.length !== 6) {
+      setVerifyError("Fadlan凝胶6-xarafka full");
+      return;
+    }
+    const newCodeDigits = paste.split("");
+    setCodeDigits(newCodeDigits);
+    sessionStorage.setItem("payment_code_digits", JSON.stringify(newCodeDigits));
+    setVerifyError("");
+    inputsRef.current[5]?.focus();
+  };
+
   const handleResendCode = async () => {
     if (!currentUser?.email) return;
     setVerifyError("");
@@ -155,14 +169,13 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     const token = await auth.ensureValidToken();
 
     if (!token) {
-      if (method === "waafi" && !phone.replace(/\D/g, "").trim()) {
-        setError(t.error_login_required);
-        return;
-      }
-      if (method !== "waafi") {
-        setError(t.error_login_required);
-        return;
-      }
+      setError(t.error_login_required);
+      return;
+    }
+
+    if (!currentUser?.email) {
+      setError("Maqan tahay email-ka. Fadlan isku day markale.");
+      return;
     }
 
     if (plan.key === "explorer" && EXPLORER_IS_FREE) {
@@ -199,6 +212,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
           payment_method: "waafi",
           currency: "USD",
           phone: phoneDigits,
+          email: currentUser?.email,
           plan: planKey,
           ...(planKey === "explorer"
             ? { subscription_type: "monthly" as const }
@@ -230,6 +244,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
         payment_method: "stripe",
         currency: "USD",
         plan: planKey,
+        email: currentUser?.email,
         ...(planKey === "explorer"
           ? { subscription_type: "monthly" as const }
           : {}),
@@ -318,6 +333,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleVerifyCodeChange(index, e.target.value)}
+                    onPaste={handleVerifyPaste}
                     className="w-10 h-12 text-center text-lg font-semibold bg-background border border-input rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 ))}
@@ -463,6 +479,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleVerifyCodeChange(index, e.target.value)}
+                    onPaste={handleVerifyPaste}
                     className="w-9 h-10 text-center text-sm font-semibold bg-background border border-input rounded-md focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 ))}
