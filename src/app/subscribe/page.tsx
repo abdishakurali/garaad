@@ -141,36 +141,7 @@ function SubscribePageInner() {
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-4">
-
-          {/* Explorer — free */}
-          <div className="p-6 sm:p-8 rounded-[16px] border border-border bg-card flex flex-col">
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">
-              Self-Paced
-            </p>
-            <p className="text-3xl font-bold text-foreground mb-1">$49</p>
-            <p className="text-sm text-muted-foreground mb-6">/ month</p>
-            <ul className="space-y-3 mb-8 flex-1">
-              {[
-                "Access to all course content",
-                "Follow the plan at your own pace",
-                "Community access (when active)",
-                "No personal guarantee",
-              ].map((f) => (
-                <li key={f} className="flex items-start gap-3 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              onClick={() => handleCtaClick("explorer")}
-              className="btn-ghost w-full"
-            >
-              Start free trial →
-            </button>
-          </div>
+        <div className="grid md:grid-cols-1 gap-4 max-w-md mx-auto">
 
           {/* Challenge — recommended */}
           <div className="relative p-6 sm:p-8 rounded-[16px] border border-gold/40 bg-card flex flex-col">
@@ -178,7 +149,7 @@ function SubscribePageInner() {
               Recommended
             </span>
             <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold mb-4">
-              The Challenge
+              Mentorship
             </p>
             <p className="text-3xl font-bold text-foreground mb-1">$149</p>
             <p className="text-sm text-muted-foreground mb-1">one-time payment</p>
