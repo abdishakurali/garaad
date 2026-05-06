@@ -173,17 +173,8 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
   const handlePay = async () => {
     if (isWaitlistOnly) return;
-    if (isEmailVerified === false && !verifySuccess) {
-      setError(
-        "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin."
-      );
-      sessionStorage.setItem("payment_verify_pending", "true");
-      setShowEmailVerify(true);
-      return;
-    }
 
     const token = await auth.ensureValidToken();
-
     if (!token) {
       setError(t.error_login_required);
       return;
@@ -195,9 +186,12 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     if (!updatedUser?.is_email_verified) {
       sessionStorage.setItem("payment_verify_pending", "true");
       setShowEmailVerify(true);
+      setIsEmailVerified(false);
       setError("Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin.");
       return;
     }
+
+    setIsEmailVerified(true);
 
     if (!updatedUser?.email) {
       setError("Maqan tahay email-ka. Fadlan isku day markale.");
@@ -343,7 +337,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
         <div className="px-6 pb-6 pt-8 sm:px-8 sm:pb-8">
           {/* If email is unverified, show verification first instead of payment */}
-          {isEmailVerified === false && !verifySuccess ? (
+          {showEmailVerify ? (
             <div className="text-center py-8">
               <h2
                 id="payment-modal-title"
@@ -560,10 +554,10 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
           <button
             type="button"
             onClick={handlePay}
-            disabled={loading || isWaitlistOnly || (isEmailVerified === false && !verifySuccess)}
+            disabled={loading || isWaitlistOnly}
             className={cn(
               "flex h-11 w-full items-center justify-center rounded-lg text-sm font-bold transition-all shadow-lg",
-              loading || isWaitlistOnly || (isEmailVerified === false && !verifySuccess)
+              loading || isWaitlistOnly
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
@@ -571,11 +565,9 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             {loading ? t.modal_processing : (
               isWaitlistOnly
                 ? "Cohort-ka waa buuxsamay"
-                : (isEmailVerified === false && !verifySuccess)
-                  ? "Xaqiiji emailka"
-                  : (plan.key === "challenge"
-                      ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
-                      : plan.payButton)
+                : (plan.key === "challenge"
+                    ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
+                    : plan.payButton)
             )}
           </button>
 
