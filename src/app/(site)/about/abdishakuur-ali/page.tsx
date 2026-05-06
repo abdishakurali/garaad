@@ -23,40 +23,31 @@ export default function FounderPage() {
       <article className="max-w-2xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
 
         <h1 className="text-display-md sm:text-display-lg font-serif mb-12 leading-tight">
-          I'm Shakuur.<br />
-          This is why I built Garaad.
+          Magacaygu waa Shakuur.<br />
+          Tani waa sababta aan u dhisay Garaad.
         </h1>
 
         <div className="space-y-6 text-base text-muted-foreground leading-[1.85]">
           <p>
-            I wrote my first line of code on a phone. No laptop, no desk, no teacher.
-            Just curiosity and a YouTube video someone shared in a WhatsApp group.
+            Khadkaygii ugu horreeyay ee koodh ah (code) waxaan ku qoray talefan. Ma aanan haysan laptop, miis, iyo macallin midna. Waxaa kaliya oo i waday hirow iyo muuqaal YouTube ah oo qof uu ku soo dhex riday koox WhatsApp ah.
           </p>
           <p>
-            Everything was in English. Every tutorial assumed you had a MacBook,
-            a bank account, and someone who could answer your questions.
-            I had none of those things.
+            Wax kastaaba waxay ku qornaayeen Ingiriis. Cashar kasta oo aan daawado wuxuu u qaatay in aad haysato MacBook, xisaab bangi, iyo qof aad waydiiso wixii kugu adkaada. Anigu midna ma aanan haysan waxyaabahaas.
           </p>
           <p>
-            The first time someone paid me for code I built, I couldn't sleep.
-            Not because of the money — because I realized the gap wasn't skill.
-            It was access. Information. Someone who had done it, showing you how.
+            Markii ugu horraysay ee qof uu lacag igu siiyo koodh aan dhisay, habeenkaas ma aanan seexan. Ma ahayn lacagta darteed — laakiin waxay ahayd waayo-aragnimada aan ka helay in farqigu uusan ahayn xirfadda, balse uu yahay fursadda. Waa helidda macluumaadka iyo qof horay u soo qabtay oo ku tusaya sida wax loo qabto.
           </p>
           <p>
-            I built Garaad so that a kid in Mogadishu, or Minneapolis, or Dublin
-            has someone in their language, showing them the actual path.
-            Not theory. The real steps. The exact things I did.
+            Garaad waxaan u dhisay si uu wiilka jooga Muqdisho, Minneapolis, ama Dublin u helo qof kula hadlaya luqaddiisa, oo tusaya jidka saxda ah. Ma ahan aragti kale, ee waa tallaabooyinka dhabta ah. Waxyaabihii saxda ahaa ee aan anigu soo maray.
           </p>
           <p className="text-foreground font-medium">
-            I'm 22. I'm still building. I don't have all the answers.
-            But I have the ones that matter for your first 60 days.
-            And I'll be there when you need them.
+            Wali wax baan dhisayaa. Ma hayo jawaabaha oo dhan, laakiin waxaan hayyaa kuwa muhiimka u ah 60-kaaga cisho ee ugu horreeya. Waxaanan garabkaaga joogi doonaa markaad ii baahato.
           </p>
         </div>
 
         <div className="mt-12 flex flex-col sm:flex-row gap-3">
           <Link href="/subscribe" className="btn-gold">
-            Join the Challenge →
+            Ku soo biir Mentorship-ka →
           </Link>
           <Link href="/blog" className="btn-ghost">
             Read the blog →

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { pricingTranslations as t } from "@/config/translations/pricing";
 import {
@@ -14,8 +14,9 @@ import StripeService from "@/services/stripe";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { cn } from "@/lib/utils";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import { EXPLORER_IS_FREE } from "@/config/featureFlags";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface Props {
   plan: SubscribePlan;
@@ -33,10 +34,108 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
   const { data: challengeStatus } = useChallengeStatus();
   const isWaitlistOnly = challengeStatus?.is_waitlist_only;
+  const [showEmailVerify, setShowEmailVerify] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
+  const [verifySuccess, setVerifySuccess] = useState(false);
+  const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(""));
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  const auth = AuthService.getInstance();
+  const sessionUser = useAuthStore((s) => s.user);
+  const currentUser = sessionUser || auth.getCurrentUser();
+  const isEmailUnverified = currentUser?.is_email_verified === false;
+
+  const handleVerifyCodeChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newCodeDigits = [...codeDigits];
+    newCodeDigits[index] = value;
+    setCodeDigits(newCodeDigits);
+    if (value && index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!currentUser?.email) return;
+    setVerifyError("");
+    setVerifyLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/resend-verification/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: currentUser.email }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        if (data.error === "Email is already verified") {
+          auth.updateEmailVerificationStatus(true);
+          setVerifySuccess(true);
+          return;
+        }
+        throw new Error(data.error || data.detail || "Failed to resend code");
+      }
+    } catch (err) {
+      setVerifyError(err instanceof Error ? err.message : "Failed to send code");
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    if (!currentUser?.email) return;
+    const verificationCode = codeDigits.join("");
+    if (verificationCode.length !== 6) {
+      setVerifyError("Fadlan geli koodka 6-xarafka ah");
+      return;
+    }
+
+    setVerifyError("");
+    setVerifyLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/verify-email/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: currentUser.email, code: verificationCode }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        if (data.error === "Email is already verified") {
+          auth.updateEmailVerificationStatus(true);
+          setVerifySuccess(true);
+          return;
+        }
+        throw new Error(data.error || "Verification failed");
+      }
+
+      await auth.fetchAndUpdateUserData();
+      setVerifySuccess(true);
+      setShowEmailVerify(false);
+      setCodeDigits(Array(6).fill(""));
+    } catch (err) {
+      setVerifyError(err instanceof Error ? err.message : "Verification failed");
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
 
   const handlePay = async () => {
     if (isWaitlistOnly) return;
-    const auth = AuthService.getInstance();
+    if (isEmailUnverified) {
+      setError(
+        "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin."
+      );
+      setShowEmailVerify(true);
+      return;
+    }
+
     const token = await auth.ensureValidToken();
 
     if (!token) {
@@ -44,21 +143,10 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
         setError(t.error_login_required);
         return;
       }
-      // For other cases, we still need a token to create an order in the backend.
-      // But based on Fix 2, we should avoid showing this error if phone is entered for Waafi.
       if (method !== "waafi") {
         setError(t.error_login_required);
         return;
       }
-    }
-
-    const sessionUser = useAuthStore.getState().user;
-    const u = sessionUser || auth.getCurrentUser();
-    if (u?.is_email_verified === false) {
-      setError(
-        "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin. Email-kaaga iska eeg."
-      );
-      return;
     }
 
     if (plan.key === "explorer" && EXPLORER_IS_FREE) {
@@ -306,20 +394,81 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
           {error && (
             <p
-              className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive text-center"
+              className="mb-3 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive text-center"
               role="alert"
             >
               {error}
             </p>
           )}
 
+          {showEmailVerify && currentUser?.email && !verifySuccess && (
+            <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-950/50 p-3 space-y-3">
+              <p className="text-xs text-amber-200 text-center">
+                Diray email xaqiijsiina uu ku tagay <strong>{currentUser.email}</strong>
+              </p>
+              
+              <div className="flex justify-center gap-1.5">
+                {codeDigits.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => { inputsRef.current[index] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleVerifyCodeChange(index, e.target.value)}
+                    className="w-9 h-10 text-center text-sm font-semibold bg-background border border-input rounded-md focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                ))}
+              </div>
+
+              {verifyError && (
+                <p className="text-xs text-red-400 text-center">{verifyError}</p>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEmailVerify(false)}
+                  disabled={verifyLoading}
+                  className="flex-1 h-9 rounded-lg border border-border bg-background text-xs font-medium hover:bg-muted disabled:opacity-50"
+                >
+                  Dib
+                </button>
+                <button
+                  type="button"
+                  onClick={handleVerifyEmail}
+                  disabled={verifyLoading || codeDigits.join("").length !== 6}
+                  className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center disabled:opacity-50"
+                >
+                  {verifyLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Xaqiiji"}
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={verifyLoading}
+                className="w-full text-xs text-amber-300 hover:underline disabled:opacity-50"
+              >
+                {verifyLoading ? "Diraya..." : "Dib u dir koodka"}
+              </button>
+            </div>
+          )}
+
+          {verifySuccess && (
+            <p className="mb-4 rounded-lg border border-green-500/30 bg-green-950/50 px-3 py-2 text-xs text-green-400 text-center">
+              Email-kaaga waa la xaqiijiyay! ✅
+            </p>
+          )}
+
           <button
             type="button"
             onClick={handlePay}
-            disabled={loading || isWaitlistOnly}
+            disabled={loading || isWaitlistOnly || isEmailUnverified || showEmailVerify}
             className={cn(
               "flex h-11 w-full items-center justify-center rounded-lg text-sm font-bold transition-all shadow-lg",
-              isWaitlistOnly
+              isWaitlistOnly || (isEmailUnverified && !verifySuccess)
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
@@ -327,9 +476,15 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             {loading ? t.modal_processing : (
               isWaitlistOnly
                 ? "Cohort-ka waa buuxsamay"
-                : plan.key === "challenge"
-                  ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
-                  : plan.payButton
+                : verifySuccess
+                  ? (plan.key === "challenge"
+                      ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
+                      : plan.payButton)
+                  : (isEmailUnverified
+                      ? "Xaqiiji emailka"
+                      : (plan.key === "challenge"
+                          ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
+                          : plan.payButton))
             )}
           </button>
 

@@ -10,6 +10,7 @@ import AuthService from "@/services/auth";
 import Logo from "./ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ProfileDropdown } from "./layout/ProfileDropdown";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 
 function useMounted() {
   return useSyncExternalStore(
@@ -28,6 +29,8 @@ const NAV_LINKS = [
 export function Header() {
   const mounted = useMounted();
   const { user } = useAuthStore();
+  const { data: challengeStatus } = useChallengeStatus();
+  const isWaitlistOnly = challengeStatus?.is_waitlist_only;
   const pathname = usePathname();
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -106,10 +109,15 @@ export function Header() {
                   Log in
                 </Link>
                 <Link
-                  href="/subscribe"
-                  className="px-4 py-2 text-sm font-bold rounded-lg bg-[#7c3aed] text-white hover:bg-[#6d28d9] transition-colors"
+                  href={isWaitlistOnly ? "#" : "/subscribe"}
+                  className={clsx(
+                    "px-4 py-2 text-sm font-bold rounded-lg transition-colors",
+                    isWaitlistOnly
+                      ? "bg-muted text-muted-foreground cursor-not-allowed"
+                      : "bg-[#7c3aed] text-white hover:bg-[#6d28d9]"
+                  )}
                 >
-                  Join the Challenge →
+                  {isWaitlistOnly ? "Buuxsamay" : "Join Mentorship →"}
                 </Link>
               </>
             )}
@@ -175,11 +183,11 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="btn-ghost w-full">
+                  <Link href={isWaitlistOnly ? "#" : "/login"} className="btn-ghost w-full">
                     Log in
                   </Link>
-                  <Link href="/subscribe" className="btn-gold w-full">
-                    Join the Challenge →
+                  <Link href={isWaitlistOnly ? "#" : "/subscribe"} className={clsx("btn-gold w-full", isWaitlistOnly && "pointer-events-none opacity-50")}>
+                    {isWaitlistOnly ? "Buuxsamay" : "Join Mentorship →"}
                   </Link>
                 </>
               )}

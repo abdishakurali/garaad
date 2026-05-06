@@ -13,6 +13,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { cn, getAbsoluteImageUrl, getCourseThumbnailUrl } from "@/lib/utils";
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import { CoursesChallengeBanner } from "@/components/challenge/CoursesChallengeBanner";
+import { useChallengeStatus } from "@/hooks/useChallengeStatus";
 import { API_BASE_URL } from "@/lib/constants";
 
 const defaultCategoryImage = "/images/placeholder-category.svg";
@@ -89,6 +90,8 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [activePath, setActivePath] = useState<"All" | "Freelancer" | "Worker" | "Builder">("All");
     const { isAuthenticated } = useAuthStore();
+    const { data: challengeStatus } = useChallengeStatus();
+    const isWaitlistOnly = challengeStatus?.is_waitlist_only;
     const [hasMounted, setHasMounted] = useState(false);
     const [resolvedCategories, setResolvedCategories] = useState<Category[]>(() =>
         Array.isArray(initialCategories) ? initialCategories : []
@@ -405,13 +408,16 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
                 {!isAuthenticated && (
                     <div className="mt-12 p-6 rounded-[16px] border border-gold/30 bg-card text-center">
                         <p className="text-sm font-semibold text-foreground mb-1">Want the full 30-day plan?</p>
-                        <p className="text-sm text-muted-foreground mb-4">Join the Challenge to unlock personal access and the income guarantee.</p>
+                        <p className="text-sm text-muted-foreground mb-4">Ku soo biir Mentorship-ka si aad u hesho personal access iyo income guarantee.</p>
                         <Link
-                            href="/subscribe"
-                            className="btn-gold inline-flex"
-                            onClick={() => posthog?.capture("challenge_cta_clicked", { source: "courses_page" })}
+                            href={isWaitlistOnly ? "#" : "/subscribe"}
+                            className={cn(
+                                "btn-gold inline-flex",
+                                isWaitlistOnly && "pointer-events-none opacity-50"
+                            )}
+                            onClick={() => !isWaitlistOnly && posthog?.capture("challenge_cta_clicked", { source: "courses_page" })}
                         >
-                            Join the Challenge →
+                            {isWaitlistOnly ? "Buuxsamay" : "Ku soo biir Mentorship-ka →"}
                         </Link>
                     </div>
                 )}

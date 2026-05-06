@@ -6,10 +6,11 @@ export const pricingTranslations = {
   challenge_tagline:
     "Macmiilkaaga 1aad hel — 30 maalmood gudahood",
   challenge_per_one_time: " hal mar",
-  challenge_cta: "Challenge-ka hadda gal",
+  challenge_cta: "Mentorship-ka gal",
   /** Short label for narrow buttons (lesson UI, hero). */
-  challenge_cta_compact: "Ku biir Challenge-ka",
+  challenge_cta_compact: "Ku biir Mentorship-ka",
   challenge_cta_waitlist: "Gali Liiska Sugitaanka Hadda",
+  challenge_cta_disabled: "Buuxsamay",
   challenge_feature_1: "Macmiilkaaga 1aad hel — xitaa haddii aadan horey ugu shaqeyn",
   challenge_feature_2:
     "Lacagtaada ugu horreysa $500 kasbasho (Upwork/Fiverr)",

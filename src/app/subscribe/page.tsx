@@ -77,6 +77,7 @@ function SubscribePageInner() {
       router.push(user ? "/courses" : "/signup");
       return;
     }
+    if (challengeStatus?.is_waitlist_only) return;
     if (user) {
       setSelectedPlan(planKey);
     } else {
@@ -197,9 +198,13 @@ function SubscribePageInner() {
             <button
               type="button"
               onClick={() => handleCtaClick("challenge")}
-              className="btn-gold w-full"
+              disabled={challengeStatus?.is_waitlist_only}
+              className={cn(
+                "btn-gold w-full",
+                challengeStatus?.is_waitlist_only && "opacity-50 cursor-not-allowed"
+              )}
             >
-              Join the Challenge →
+              {challengeStatus?.is_waitlist_only ? "Buuxsamay" : "Ku soo biir Mentorship-ka →"}
             </button>
           </div>
         </div>

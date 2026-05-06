@@ -120,6 +120,7 @@ export function CourseDetailClient() {
     const authHydrated = useAuthStore((s) => s._hasHydrated);
     const hasFullLessonAccess = useAuthStore((s) => userHasFullLessonAccess(s.user));
     const { data: challengeStatus } = useChallengeStatus();
+    const isWaitlistOnly = challengeStatus?.is_waitlist_only;
 
     const {
         enrollments,
@@ -607,14 +608,16 @@ export function CourseDetailClient() {
                                     {challengeStatus ? (
                                         <div className="lg:hidden rounded-xl border border-violet-500/30 bg-violet-600/10 px-3 py-2.5 text-center">
                                             <p className="text-xs font-bold text-violet-800 dark:text-violet-200">
-                                                {challengeStatus.spots_remaining} boos ayaa haray
+                                                {isWaitlistOnly ? "Buuxsamay" : `${challengeStatus.spots_remaining} boos ayaa haray`}
                                             </p>
-                                            <Link
-                                                href="/subscribe?plan=challenge"
-                                                className="mt-1.5 inline-flex text-sm font-black text-violet-700 underline-offset-2 hover:underline dark:text-violet-300"
-                                            >
-                                                {t.challenge_cta} →
-                                            </Link>
+                                            {!isWaitlistOnly && (
+                                                <Link
+                                                    href="/subscribe?plan=challenge"
+                                                    className="mt-1.5 inline-flex text-sm font-black text-violet-700 underline-offset-2 hover:underline dark:text-violet-300"
+                                                >
+                                                    {t.challenge_cta} →
+                                                </Link>
+                                            )}
                                         </div>
                                     ) : null}
                                     <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -627,23 +630,27 @@ export function CourseDetailClient() {
                                             {ctaLocked ? (
                                                 <div className="flex w-full flex-col gap-3 rounded-xl border border-violet-500/40 bg-violet-950/30 p-4 text-center">
                                                     <p className="text-sm font-bold text-white">
-                                                        🔓 Casharkaan wuxuu u baahan yahay Challenge
+                                                        🔓 Casharkaan wuxuu u baahan yahay Mentorship
                                                     </p>
                                                     <p className="text-xs text-violet-200/90">
-                                                        {challengeStatus
-                                                            ? `${challengeStatus.spots_remaining} boos ayaa ka haray Kooxdan`
-                                                            : "Boosyo xaddidan — ku biir Challenge"}
+                                                        {isWaitlistOnly
+                                                            ? "Kooxda way buuxdaa"
+                                                            : challengeStatus
+                                                                ? `${challengeStatus.spots_remaining} boos ayaa ka haray Kooxdan`
+                                                                : "Boosyo xaddidan — ku biir Mentorship"}
                                                     </p>
-                                                    <Button
-                                                        type="button"
-                                                        size="lg"
-                                                        className="h-12 w-full rounded-xl text-base font-bold bg-violet-600 hover:bg-violet-500 text-white"
-                                                        asChild
-                                                    >
-                                                        <Link href="/subscribe?plan=challenge&ref=course_locked">
-                                                            {t.challenge_cta_compact} — lacag celin ah
-                                                        </Link>
-                                                    </Button>
+                                                    {!isWaitlistOnly && (
+                                                        <Button
+                                                            type="button"
+                                                            size="lg"
+                                                            className="h-12 w-full rounded-xl text-base font-bold bg-violet-600 hover:bg-violet-500 text-white"
+                                                            asChild
+                                                        >
+                                                            <Link href="/subscribe?plan=challenge&ref=course_locked">
+                                                                {t.challenge_cta_compact} — lacag celin ah
+                                                            </Link>
+                                                        </Button>
+                                                    )}
                                                     <p className="text-[11px] text-muted-foreground">
                                                         Ama bilaash ku sii wad — casharrada 1-3 waa furanyihiin
                                                     </p>
