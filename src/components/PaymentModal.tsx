@@ -120,6 +120,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
       if (!response.ok) {
         if (data.error === "Email is already verified") {
           auth.updateEmailVerificationStatus(true);
+          sessionStorage.setItem("payment_verified", "true");
           setVerifySuccess(true);
           return;
         }
@@ -129,6 +130,9 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
       await auth.fetchAndUpdateUserData();
       setVerifySuccess(true);
       setShowEmailVerify(false);
+      sessionStorage.setItem("payment_verified", "true");
+      sessionStorage.removeItem("payment_verify_pending");
+      sessionStorage.removeItem("payment_code_digits");
       setCodeDigits(Array(6).fill(""));
     } catch (err) {
       setVerifyError(err instanceof Error ? err.message : "Verification failed");
