@@ -51,6 +51,18 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
   });
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Refresh user data on mount to get latest verification status
+  useEffect(() => {
+    const auth = AuthService.getInstance();
+    auth.fetchAndUpdateUserData().then(() => {
+      const updatedUser = auth.getCurrentUser();
+      if (updatedUser?.is_email_verified) {
+        sessionStorage.setItem("payment_verified", "true");
+        setVerifySuccess(true);
+      }
+    });
+  }, []);
+
   const auth = AuthService.getInstance();
   const sessionUser = useAuthStore((s) => s.user);
   const currentUser = sessionUser || auth.getCurrentUser();
