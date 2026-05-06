@@ -226,12 +226,12 @@ function SubscribePageInner() {
         <DialogContent className="sm:max-w-md rounded-[16px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-center">
-              {authMode === "signup" ? "Create a free account" : "Log in to continue"}
+              {authMode === "signup" ? "Sameyso koonto bilaash ah" : "Soo gal si aad wadarto"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleAuthSubmit} className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label htmlFor="sub-email">Email</Label>
+              <Label htmlFor="sub-email">Email-ka</Label>
               <Input
                 id="sub-email"
                 type="email"
@@ -242,7 +242,7 @@ function SubscribePageInner() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="sub-password">Password</Label>
+              <Label htmlFor="sub-password">Ereyga sirta ah</Label>
               <Input
                 id="sub-password"
                 type="password"
@@ -259,19 +259,19 @@ function SubscribePageInner() {
             )}
             <Button type="submit" className="w-full h-12 font-bold rounded-[10px]" disabled={authLoading}>
               {authLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {authMode === "signup" ? "Continue →" : "Log in →"}
+              {authMode === "signup" ? "Sii wad →" : "Soo gal →"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               {authMode === "signup" ? (
-                <>Already have an account?{" "}
+                <>Ma leedahay koonto hore?{" "}
                   <button type="button" className="text-gold font-semibold hover:underline" onClick={() => setAuthMode("login")}>
                     Log in
                   </button>
                 </>
               ) : (
-                <>No account?{" "}
+                <>Ma jirto koonto?{" "}
                   <button type="button" className="text-gold font-semibold hover:underline" onClick={() => setAuthMode("signup")}>
-                    Sign up free
+                    Sameyso bilaash
                   </button>
                 </>
               )}
