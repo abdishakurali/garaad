@@ -118,73 +118,71 @@ function SubscribePageInner() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pt-14">
-
-      {/* Header */}
-      <section className="max-w-2xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
-        <h1 className="text-display-md sm:text-display-lg font-serif mb-6">
-          Ready to start?
+      {/* Header - improved UI */}
+      <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 text-gold text-xs font-semibold mb-6">
+          <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+          Limited spots available
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+          Start your journey to <span className="text-gold">$500+/month</span>
         </h1>
         <p className="text-muted-foreground text-base leading-relaxed max-w-lg mx-auto">
-          I built this program because I went through the same thing you're going through.
-          No one to show me. No resources in my language.
-          If you do the work, I promise you'll get there.
-          That's not marketing. That's a guarantee.
+          Join the mentorship program that actually guarantees results. 
+          First payment in 30 days, or your money back.
         </p>
       </section>
 
-      {/* Plan cards */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
-        {challengeStatus?.is_waitlist_only && (
-          <div className="mb-8 p-4 rounded-[10px] border border-border bg-card text-center text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">This cohort is full.</span>{" "}
-            Join the waitlist — you'll be notified when the next one opens. Same price.
+      {/* Plan card - improved UI */}
+      <section className="max-w-md mx-auto px-4 sm:px-6 pb-16">
+        {challengeStatus?.is_waitlist_only ? (
+          <div className="p-6 rounded-2xl border border-border bg-card text-center">
+            <p className="text-lg font-semibold text-foreground mb-2">This cohort is full</p>
+            <p className="text-sm text-muted-foreground mb-4">Join the waitlist to get notified when spots open.</p>
+            <button type="button" className="btn-ghost w-full">Join Waitlist →</button>
           </div>
-        )}
+        ) : (
+          <div className="relative p-8 rounded-2xl border-2 border-gold bg-card shadow-xl shadow-gold/10">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 text-xs font-bold uppercase tracking-wide bg-gold text-black rounded-full">
+              Most popular
+            </div>
+            
+            <div className="text-center mb-6">
+              <p className="text-sm font-medium text-gold mb-2">Mentorship Program</p>
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-4xl font-bold text-foreground">$149</span>
+                <span className="text-muted-foreground text-sm">one-time</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">or $49/month × 3</p>
+            </div>
 
-        <div className="grid md:grid-cols-1 gap-4 max-w-md mx-auto">
-
-          {/* Challenge — recommended */}
-          <div className="relative p-6 sm:p-8 rounded-[16px] border border-gold/40 bg-card flex flex-col">
-            <span className="absolute -top-3 left-6 px-3 py-1 text-[10px] font-bold uppercase tracking-wide bg-gold text-black rounded-full">
-              Recommended
-            </span>
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold mb-4">
-              Mentorship
-            </p>
-            <p className="text-3xl font-bold text-foreground mb-1">$149</p>
-            <p className="text-sm text-muted-foreground mb-1">one-time payment</p>
-            <p className="text-sm font-medium text-gold mb-6">or 3 × $49/month</p>
-            <ul className="space-y-3 mb-8 flex-1">
+            <ul className="space-y-3 mb-6">
               {[
-                "Full 60-day structured program",
-                "Personal access to Shakuur",
+                "60-day structured program",
+                "Personal WhatsApp access",
                 "Guarantee: first money in 30 days",
-                "First client in 60 days — or I work with you free",
+                "First client in 60 days — or free",
               ].map((f) => (
-                <li key={f} className="flex items-start gap-3 text-sm text-foreground">
-                  <Check className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                <li key={f} className="flex items-center gap-3 text-sm text-foreground">
+                  <Check className="w-4 h-4 text-gold shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
+
             <button
               type="button"
               onClick={() => handleCtaClick("challenge")}
-              disabled={challengeStatus?.is_waitlist_only}
-              className={cn(
-                "btn-gold w-full",
-                challengeStatus?.is_waitlist_only && "opacity-50 cursor-not-allowed"
-              )}
+              className="btn-gold w-full py-4 text-base"
             >
-              {challengeStatus?.is_waitlist_only ? "Buuxsamay" : "Ku soo biir Mentorship-ka →"}
+              Apply Now →
             </button>
           </div>
-        </div>
+        )}
 
         {/* Trust line */}
         <p className="text-center mt-6 text-sm text-muted-foreground">
-          No hidden fees. No subscription trap. Pay once for the Challenge.
-          Money-back if you do the work and it doesn't work.
+          One-time payment. 30-day money-back guarantee.
         </p>
       </section>
 
