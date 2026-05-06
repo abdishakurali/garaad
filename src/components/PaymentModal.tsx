@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePostHog } from "posthog-js/react";
 import { pricingTranslations as t } from "@/config/translations/pricing";
 import {
