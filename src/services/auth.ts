@@ -14,6 +14,7 @@ export interface SignUpData {
   referrer?: string | null;
   location?: string;
   country_flag?: string;
+  website?: string; // honeypot — always empty for real users
 }
 
 interface OnboardingData {
@@ -199,7 +200,10 @@ class AuthService {
     }
 
     try {
-      const response = await api.post<SignUpResponse>("/api/auth/signup/", data);
+      const response = await api.post<SignUpResponse>("/api/auth/signup/", {
+        ...data,
+        website: "", // honeypot — always empty; bots fill it, real users don't
+      });
       this.applySessionFromApiAuthPayload(response as ApiAuthPayload);
       return response;
     } catch (error: any) {
