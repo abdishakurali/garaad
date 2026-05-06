@@ -182,15 +182,26 @@ function SubscribePageInner() {
 
         {/* Trust line */}
         <p className="text-center mt-6 text-sm text-muted-foreground">
-          Hal mar bixin. 30-maalmood dammaanad lacag-celin.
+          Hal mar bixin. 5-maalmood dammaanad lacag-celin.
         </p>
+
+        {/* Social proof section */}
+        <div className="mt-8 p-4 rounded-xl bg-card border border-gold/20">
+          <p className="text-xs font-medium text-gold mb-3 text-center">Ardayda Guuleystay</p>
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-black text-xs font-bold">M</div>
+            <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-black text-xs font-bold">F</div>
+            <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-black text-xs font-bold">C</div>
+            <span className="text-xs text-muted-foreground">+150+ arday</span>
+          </div>
+        </div>
       </section>
 
       {/* FAQ */}
       <section className="max-w-2xl mx-auto px-4 sm:px-6 pb-24">
         <h2 className="text-lg font-bold text-center mb-6">Su'aalaha Inta Badan La Iska Weydiiyo</h2>
         <div className="space-y-4">
-          <FaqItem q="Runtii ma jirtaa dammaanad lacag-celin ah?" a="Haa. Haddii aad raacdo qorshaha oo aad lacag kasban waydo muddo 30 casho ah, si shakhsi ah ayaan kula shaqaynayaa ilaa aad ka guulaysato. Haddii intaas ka dib aad wali ku qanci waydo, lacagtaada ayaan kuu soo celinayaa." />
+          <FaqItem q="Runtii ma jirtaa dammaanad lacag-celin ah?" a="Haa. Haddii aad raacdo qorshaha oo aad lacag kasban waydo muddo 5 casho ah, si shakhsi ah ayaan kula shaqaynayaa ilaa aad ka guulaysato. Haddii intaas ka dib aad wali ku qanci waydo, lacagtaada ayaan kuu soo celinayaa." />
           <FaqItem q="Waa maxay farqiga u dhexeeya Explorer iyo Mentorship?" a="Explorer wuxuu ku siinayaa fursad aad casharrada oo dhan ku baran karto xawaarahaaga gaarka ah. Mentorship waa barnaamij habaysan oo 60 casho ah, xidhiidh toos ah oo Shakuur, iyo dammaanad dakhli." />
         </div>
       </section>
