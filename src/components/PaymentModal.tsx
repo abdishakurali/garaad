@@ -279,28 +279,58 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
         </button>
 
         <div className="px-6 pb-6 pt-8 sm:px-8 sm:pb-8">
-          <div className="text-center mb-6">
-            <h2
-              id="payment-modal-title"
-              className="text-xl font-bold tracking-tight text-foreground"
-            >
-              {t.modal_title}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {plan.name} · {plan.priceDisplay}{plan.per}
-            </p>
-          </div>
+          {/* If email is unverified, show verification first instead of payment */}
+          {isEmailUnverified && !verifySuccess ? (
+            <div className="text-center py-8">
+              <h2
+                id="payment-modal-title"
+                className="text-xl font-bold tracking-tight text-foreground mb-2"
+              >
+                Xaqiiji Email-kaaga
+              </h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                Diray email xaqiijsiina uu ku tagay {currentUser?.email}
+              </p>
+              
+              <div className="flex justify-center gap-1.5 mb-4">
+                {codeDigits.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => { inputsRef.current[index] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleVerifyCodeChange(index, e.target.value)}
+                    className="w-10 h-12 text-center text-lg font-semibold bg-background border border-input rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                ))}
+              </div>
 
-          <div className="mb-6 rounded-xl border border-border bg-muted/30 p-3 text-center">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
-              {t.modal_plan_label}
-            </p>
-            <p className="text-lg font-bold text-foreground">
-              {plan.name} <span className="text-primary ml-1">{plan.priceDisplay}{plan.per}</span>
-            </p>
-          </div>
+              {verifyError && (
+                <p className="text-xs text-red-500 mb-4">{verifyError}</p>
+              )}
 
-          {plan.key === "challenge" && (
+              <button
+                type="button"
+                onClick={handleVerifyEmail}
+                disabled={verifyLoading || codeDigits.join("").length !== 6}
+                className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-bold mb-3"
+              >
+                {verifyLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Xaqiiji
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={verifyLoading}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                {verifyLoading ? "Diraya..." : "Dib u dir koodka"}
+              </button>
+            </div>
+          ) : (
             <div className="mb-6 space-y-3">
               <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-center">
                 Dooro habka bixinta
@@ -488,10 +518,12 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             )}
           </button>
 
+          {!isEmailUnverified && (
           <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] text-muted-foreground">
             <Lock className="h-3 w-3" />
-            <span>Lacag-celinta: 30 maalmood haddii aadan ku faraxsanayn.</span>
+            <span>Lacag-celinta: 5 maalmood haddii aadan ku faraxsanayn.</span>
           </div>
+          )}
         </div>
       </div>
     </div>
