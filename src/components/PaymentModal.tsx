@@ -34,11 +34,21 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
   const { data: challengeStatus } = useChallengeStatus();
   const isWaitlistOnly = challengeStatus?.is_waitlist_only;
-  const [showEmailVerify, setShowEmailVerify] = useState(false);
+  const [showEmailVerify, setShowEmailVerify] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("payment_verify_pending") === "true";
+  });
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [verifyError, setVerifyError] = useState("");
-  const [verifySuccess, setVerifySuccess] = useState(false);
-  const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(""));
+  const [verifySuccess, setVerifySuccess] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("payment_verified") === "true";
+  });
+  const [codeDigits, setCodeDigits] = useState<string[]>(() => {
+    if (typeof window === "undefined") return Array(6).fill("");
+    const saved = sessionStorage.getItem("payment_code_digits");
+    return saved ? JSON.parse(saved) : Array(6).fill("");
+  });
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   const auth = AuthService.getInstance();
@@ -51,6 +61,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     const newCodeDigits = [...codeDigits];
     newCodeDigits[index] = value;
     setCodeDigits(newCodeDigits);
+    sessionStorage.setItem("payment_code_digits", JSON.stringify(newCodeDigits));
     if (value && index < 5) {
       inputsRef.current[index + 1]?.focus();
     }
@@ -132,6 +143,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
       setError(
         "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin."
       );
+      sessionStorage.setItem("payment_verify_pending", "true");
       setShowEmailVerify(true);
       return;
     }

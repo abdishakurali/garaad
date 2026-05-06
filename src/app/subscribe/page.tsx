@@ -56,7 +56,10 @@ function SubscribePageInner() {
   const { user } = useAuthStore();
   const viewCaptured = useRef(false);
 
-  const [selectedPlan, setSelectedPlan] = useState<SubscribePlanKey | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscribePlanKey | null>(() => {
+    if (typeof window === "undefined") return null;
+    return (sessionStorage.getItem("pending_plan") as SubscribePlanKey) || null;
+  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signup" | "login">("signup");
   const [authLoading, setAuthLoading] = useState(false);
@@ -80,14 +83,17 @@ function SubscribePageInner() {
     }
     if (challengeStatus?.is_waitlist_only) return;
     if (user) {
+      sessionStorage.setItem("pending_plan", planKey);
       setSelectedPlan(planKey);
     } else {
+      sessionStorage.setItem("pending_plan", planKey);
       setPendingPlan(planKey);
       setIsAuthModalOpen(true);
     }
   };
 
   const handlePaymentSuccess = () => {
+    sessionStorage.removeItem("pending_plan");
     router.push("/courses?welcome=1");
   };
 
@@ -215,7 +221,10 @@ function SubscribePageInner() {
         ) : (
           <PaymentModal
             plan={PLANS[selectedPlan]}
-            onClose={() => setSelectedPlan(null)}
+            onClose={() => {
+              sessionStorage.removeItem("pending_plan");
+              setSelectedPlan(null);
+            }}
             onSuccess={handlePaymentSuccess}
           />
         )

@@ -301,7 +301,7 @@ export function CoursesListClient({ initialCategories = [] }: { initialCategorie
                                                                     <div className="relative h-32 bg-card/50 flex items-center justify-center overflow-hidden rounded-t-[16px]">
                                                                         <CourseImage src={course?.thumbnail} alt={course?.title ?? ""} />
                                                                         <div className="absolute top-3 right-3 bg-foreground/10 text-muted-foreground text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md">
-                                                                            Coming soon
+                                                                            Ku soo biir mentorshipka
                                                                         </div>
                                                                     </div>
                                                                     <div className="p-4">
