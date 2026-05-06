@@ -100,8 +100,9 @@ export function MentorshipContent() {
           <h2 className="text-display-md font-serif mb-12">Waxay odhan.</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { quote: "Add a real student quote here.", name: "Student name", detail: "Path · City" },
-              { quote: "Add a second real student quote here.", name: "Student name", detail: "Path · City" },
+              { quote: "Markii aan bilaabay in aan baranayo Tailwind CSS, kooraygaagu wuxuu ii caawiyaa in aan fahamka sii wanaagsan u galo Tailwind. Waxaan daawaday muuqaalkaagana wax badan ayay iga heshay.", name: "Ilyas Omar", detail: "Tailwind CSS Expert · Mogadishu" },
+              { quote: "Okay Pro thnks hada coding barashadii waa si aan inta barashada ku jiro ugu shaqaysto odo baranaya coding waan wada hobkayga weye front developer ahay", name: "Abdiladif Salah", detail: "Front-End Developer · Helsinki" },
+              { quote: "Hadda Front-End Developer ahay, waxaan ku shaqaynayaa shirkaddayda Sofaritech Global IT Solutions.", name: "Abdiaziz", detail: "Founder · Sofaritech Global IT Solutions" },
             ].map((t, i) => (
               <div key={i} className="p-6 rounded-[16px] border border-border bg-card text-left">
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4 italic">"{t.quote}"</p>
