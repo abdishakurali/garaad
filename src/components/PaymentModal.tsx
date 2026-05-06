@@ -49,24 +49,28 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     const saved = sessionStorage.getItem("payment_code_digits");
     return saved ? JSON.parse(saved) : Array(6).fill("");
   });
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   // Refresh user data on mount to get latest verification status
   useEffect(() => {
     const auth = AuthService.getInstance();
-    auth.fetchAndUpdateUserData().then(() => {
-      const updatedUser = auth.getCurrentUser();
+    auth.fetchAndUpdateUserData().then((updatedUser) => {
       if (updatedUser?.is_email_verified) {
         sessionStorage.setItem("payment_verified", "true");
         setVerifySuccess(true);
+        setIsEmailVerified(true);
+      } else {
+        setIsEmailVerified(false);
       }
+    }).catch(() => {
+      setIsEmailVerified(false);
     });
   }, []);
 
   const auth = AuthService.getInstance();
   const sessionUser = useAuthStore((s) => s.user);
   const currentUser = sessionUser || auth.getCurrentUser();
-  const isEmailUnverified = currentUser?.is_email_verified === false;
 
   const handleVerifyCodeChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -169,7 +173,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
   const handlePay = async () => {
     if (isWaitlistOnly) return;
-    if (isEmailUnverified) {
+    if (isEmailVerified === false && !verifySuccess) {
       setError(
         "Fadlan xaqiiji email-kaaga ka hor intaadan lacag bixin."
       );
@@ -339,7 +343,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
 
         <div className="px-6 pb-6 pt-8 sm:px-8 sm:pb-8">
           {/* If email is unverified, show verification first instead of payment */}
-          {isEmailUnverified && !verifySuccess ? (
+          {isEmailVerified === false && !verifySuccess ? (
             <div className="text-center py-8">
               <h2
                 id="payment-modal-title"
@@ -556,10 +560,10 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
           <button
             type="button"
             onClick={handlePay}
-            disabled={loading || isWaitlistOnly || isEmailUnverified || showEmailVerify}
+            disabled={loading || isWaitlistOnly || (isEmailVerified === false && !verifySuccess)}
             className={cn(
               "flex h-11 w-full items-center justify-center rounded-lg text-sm font-bold transition-all shadow-lg",
-              isWaitlistOnly || (isEmailUnverified && !verifySuccess)
+              loading || isWaitlistOnly || (isEmailVerified === false && !verifySuccess)
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
@@ -567,24 +571,18 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
             {loading ? t.modal_processing : (
               isWaitlistOnly
                 ? "Cohort-ka waa buuxsamay"
-                : verifySuccess
-                  ? (plan.key === "challenge"
+                : (isEmailVerified === false && !verifySuccess)
+                  ? "Xaqiiji emailka"
+                  : (plan.key === "challenge"
                       ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
                       : plan.payButton)
-                  : (isEmailUnverified
-                      ? "Xaqiiji emailka"
-                      : (plan.key === "challenge"
-                          ? (paymentPlan === "installment" ? "Bixi $49 maanta →" : "Bixi $149 →")
-                          : plan.payButton))
             )}
           </button>
 
-          {!isEmailUnverified && (
           <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] text-muted-foreground">
             <Lock className="h-3 w-3" />
             <span>Lacag-celinta: 5 maalmood haddii aadan ku faraxsanayn.</span>
           </div>
-          )}
         </div>
       </div>
     </div>
