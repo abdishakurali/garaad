@@ -122,14 +122,14 @@ function SubscribePageInner() {
       <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 text-gold text-xs font-semibold mb-6">
           <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-          Limited spots available
+          Gaadiidleyda & iyo taageerada
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-          Start your journey to <span className="text-gold">$500+/month</span>
+          Ma diyaar baa in <span className="text-gold">la bilaabo?</span>
         </h1>
         <p className="text-muted-foreground text-base leading-relaxed max-w-lg mx-auto">
-          Join the mentorship program that actually guarantees results. 
-          First payment in 30 days, or your money back.
+          Barnaamijkan waxaan u dhisay sababtoo ah waxaan soo maray isla caqabadihii aad hadda wajahayso. 
+          Haddii aad shaqada qabato, waxaan kuu ballanqaadayaa inaad guul gaadhi doonto.
         </p>
       </section>
 
@@ -137,31 +137,31 @@ function SubscribePageInner() {
       <section className="max-w-md mx-auto px-4 sm:px-6 pb-16">
         {challengeStatus?.is_waitlist_only ? (
           <div className="p-6 rounded-2xl border border-border bg-card text-center">
-            <p className="text-lg font-semibold text-foreground mb-2">This cohort is full</p>
-            <p className="text-sm text-muted-foreground mb-4">Join the waitlist to get notified when spots open.</p>
-            <button type="button" className="btn-ghost w-full">Join Waitlist →</button>
+            <p className="text-lg font-semibold text-foreground mb-2">Kooxda way buuxdaa</p>
+            <p className="text-sm text-muted-foreground mb-4">Geli liiska si aad u hesho kooxda xigta.</p>
+            <button type="button" className="btn-ghost w-full">Geli Liiska →</button>
           </div>
         ) : (
           <div className="relative p-8 rounded-2xl border-2 border-gold bg-card shadow-xl shadow-gold/10">
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 text-xs font-bold uppercase tracking-wide bg-gold text-black rounded-full">
-              Most popular
+              Waaban
             </div>
             
             <div className="text-center mb-6">
-              <p className="text-sm font-medium text-gold mb-2">Mentorship Program</p>
+              <p className="text-sm font-medium text-gold mb-2">Mentorship (Gacan-qabasho)</p>
               <div className="flex items-baseline justify-center gap-1">
                 <span className="text-4xl font-bold text-foreground">$149</span>
-                <span className="text-muted-foreground text-sm">one-time</span>
+                <span className="text-muted-foreground text-sm">mar kaliya</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">or $49/month × 3</p>
+              <p className="text-sm text-muted-foreground mt-1">ama $49/bishii × 3</p>
             </div>
 
             <ul className="space-y-3 mb-6">
               {[
-                "60-day structured program",
-                "Personal WhatsApp access",
-                "Guarantee: first money in 30 days",
-                "First client in 60 days — or free",
+                "Barnaamij dhammaystiran 60 casho",
+                "Xidhiidh toos ah oo Shakuur",
+                "Dammaanad: lacag 5 casho",
+                "Macmiil 60 casho — ama bilaash",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-foreground">
                   <Check className="w-4 h-4 text-gold shrink-0" />
@@ -175,21 +175,23 @@ function SubscribePageInner() {
               onClick={() => handleCtaClick("challenge")}
               className="btn-gold w-full py-4 text-base"
             >
-              Apply Now →
+              Ku soo biir Mentorship-ka →
             </button>
           </div>
         )}
 
         {/* Trust line */}
         <p className="text-center mt-6 text-sm text-muted-foreground">
-          One-time payment. 30-day money-back guarantee.
+          Hal mar bixin. 30-maalmood dammaanad lacag-celin.
         </p>
       </section>
 
       {/* FAQ */}
       <section className="max-w-2xl mx-auto px-4 sm:px-6 pb-24">
-        <div className="divide-y divide-border border-t border-border">
-          {SUBSCRIBE_FAQS.map((faq) => <FaqItem key={faq.q} q={faq.q} a={faq.a} />)}
+        <h2 className="text-lg font-bold text-center mb-6">Su'aalaha Inta Badan La Iska Weydiiyo</h2>
+        <div className="space-y-4">
+          <FaqItem q="Runtii ma jirtaa dammaanad lacag-celin ah?" a="Haa. Haddii aad raacdo qorshaha oo aad lacag kasban waydo muddo 30 casho ah, si shakhsi ah ayaan kula shaqaynayaa ilaa aad ka guulaysato. Haddii intaas ka dib aad wali ku qanci waydo, lacagtaada ayaan kuu soo celinayaa." />
+          <FaqItem q="Waa maxay farqiga u dhexeeya Explorer iyo Mentorship?" a="Explorer wuxuu ku siinayaa fursad aad casharrada oo dhan ku baran karto xawaarahaaga gaarka ah. Mentorship waa barnaamij habaysan oo 60 casho ah, xidhiidh toos ah oo Shakuur, iyo dammaanad dakhli." />
         </div>
       </section>
 
