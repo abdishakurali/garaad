@@ -7,6 +7,7 @@ const protectedRoots = [
   "/settings",
   "/orders",
   "/post-verification-choice",
+  "/subscribe/pay",
 ];
 
 const premiumRoots: string[] = [
