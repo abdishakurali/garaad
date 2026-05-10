@@ -12,6 +12,7 @@ import {
   SUBSCRIBE_STRIPE_PRICE_IDS,
 } from "@/config/subscribePlans";
 import AuthService from "@/services/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 import OrderService from "@/services/orders";
 import StripeService from "@/services/stripe";
 import Logo from "@/components/ui/Logo";
@@ -22,41 +23,69 @@ type Plan = "installment" | "full";
 function PayPageInner() {
   const router = useRouter();
   const posthog = usePostHog();
+  const storeUser = useAuthStore((s) => s.user);
 
   const [plan, setPlan] = useState<Plan>("installment");
   const [method, setMethod] = useState<Method>("waafi");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Guard: must be authenticated & verified to reach this page
+  // On mount: ensure auth, load email from any available source
   useEffect(() => {
     const auth = AuthService.getInstance();
+
     if (!auth.isAuthenticated()) {
       router.replace("/welcome?redirect=/subscribe/pay");
       return;
     }
-    const user = auth.getCurrentUser();
-    if (user?.is_email_verified === false) {
-      router.replace(`/verify-email?email=${encodeURIComponent(user.email ?? "")}`);
-    }
-  }, [router]);
+
+    const resolveEmail = async () => {
+      // 1. Try AuthService in-memory user
+      let user = auth.getCurrentUser();
+
+      // 2. Try Zustand store
+      if (!user?.email && storeUser?.email) {
+        user = storeUser as typeof user;
+      }
+
+      // 3. Fetch from API if still missing
+      if (!user?.email) {
+        const fresh = await auth.fetchAndUpdateUserData();
+        user = fresh;
+      }
+
+      if (!user?.email) {
+        router.replace("/login");
+        return;
+      }
+
+      if (user.is_email_verified === false) {
+        router.replace(`/verify-email?email=${encodeURIComponent(user.email)}`);
+        return;
+      }
+
+      setUserEmail(user.email);
+    };
+
+    resolveEmail();
+  }, [router, storeUser]);
 
   const price = plan === "installment" ? "$49" : "$149";
-  const priceNote =
-    plan === "installment" ? "× 3 bilood ($147 wadarta)" : "hal-mar";
+  const priceNote = plan === "installment" ? "× 3 bilood ($147 wadarta)" : "hal-mar";
 
   const handlePay = async () => {
+    const email = userEmail ?? storeUser?.email ?? AuthService.getInstance().getCurrentUser()?.email;
+    if (!email) {
+      setError("Email lama helin. Fadlan dib u gal.");
+      return;
+    }
+
     const auth = AuthService.getInstance();
     const token = await auth.ensureValidToken();
     if (!token) {
       setError(t.error_login_required);
-      return;
-    }
-
-    const currentUser = auth.getCurrentUser();
-    if (!currentUser?.email) {
-      setError("Maqan tahay email-ka. Fadlan dib ugu soo laabo.");
       return;
     }
 
@@ -81,7 +110,7 @@ function PayPageInner() {
           payment_method: "waafi",
           currency: "USD",
           phone: digits,
-          email: currentUser.email,
+          email,
           plan: "challenge",
         });
 
@@ -105,7 +134,7 @@ function PayPageInner() {
         payment_method: "stripe",
         currency: "USD",
         plan: "challenge",
-        email: currentUser.email,
+        email,
       });
 
       const orderId = created.data?.id;
@@ -135,6 +164,15 @@ function PayPageInner() {
       setLoading(false);
     }
   };
+
+  // Show spinner while resolving user email
+  if (!userEmail) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
