@@ -139,33 +139,26 @@ export default function PostVerificationChoicePage() {
 
                 <div className="rounded-xl border border-border bg-background/80 p-3 sm:rounded-2xl sm:p-4">
                   <h4 className="text-sm font-semibold text-foreground">
-                    2) Bilow Koorsooyinka Bilaashka ah
+                    2) Bixi — Ku soo biir Mentorship-ka
                   </h4>
                   <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                    Haddii aad rabto inaad hadda gasho, koorsooyinka iyo community-ga bilaash ayaad ku bilaabi kartaa.
+                    Hadda bilaab barnaamijka 60-casho-da. $49/bilood ama $149 hal mar.
                   </p>
                   <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200 sm:text-xs">
                     Maxaad helaysaa
                   </p>
                   <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground sm:text-sm">
-                    <li>✓ Koorsooyin bilaash ah oo diyaarsan isla hadda</li>
-                    <li>✓ Waddada cad oo aad ku dhisato aasaaskaaga</li>
-                    <li>✓ Waxaad qabsan kartaa qiimeyn waqti kasta</li>
+                    <li>✓ Barnaamij habaysan 60 casho</li>
+                    <li>✓ Xidhiidh toos ah oo Shakuur</li>
+                    <li>✓ Dammaanad: 5-casho lacag-celin</li>
                   </ul>
                   <Button
                     asChild
                     variant="outline"
                     className="mt-3 h-10 w-full rounded-xl border-violet-200 bg-violet-50/70 text-sm font-semibold text-violet-700 hover:bg-violet-100 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20 sm:mt-4 sm:h-11"
                   >
-                    <Link
-                      href={postSignupDest}
-                      onClick={() => {
-                        if (typeof window !== "undefined") {
-                          sessionStorage.setItem("post_signup_redirect", postSignupDest);
-                        }
-                      }}
-                    >
-                      Bilow Koorsooyinka →
+                    <Link href="/subscribe/pay">
+                      Bixi hadda →
                     </Link>
                   </Button>
                 </div>
