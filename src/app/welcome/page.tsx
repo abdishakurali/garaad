@@ -115,12 +115,17 @@ function WelcomePage() {
     setUser: setAuthStoreUser,
   } = useAuthStore();
 
-  // Redirect authenticated users to /courses
+  // Redirect authenticated users based on verification status
   useEffect(() => {
     const auth = AuthService.getInstance();
     if (!auth.isAuthenticated()) return;
     setRedirecting(true);
-    router.replace("/courses");
+    const user = auth.getCurrentUser();
+    if (user?.is_email_verified === false) {
+      router.replace(`/verify-email?email=${encodeURIComponent(user.email ?? "")}`);
+    } else {
+      router.replace("/post-verification-choice");
+    }
   }, [router]);
 
   useEffect(() => {

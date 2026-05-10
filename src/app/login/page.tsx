@@ -130,7 +130,21 @@ function LoginPageContent() {
             } catch {
                 /* ignore */
             }
-            router.push(redirectTo ?? "/courses");
+
+            // Fetch fresh profile — signin response may omit is_email_verified,
+            // causing the stored cookie to default to false and triggering the
+            // verification banner for already-verified users.
+            const auth = AuthService.getInstance();
+            const freshUser = await auth.fetchAndUpdateUserData();
+            const isVerified = freshUser?.is_email_verified ?? result?.user?.is_email_verified;
+
+            if (!isVerified) {
+                router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`);
+            } else if (redirectTo) {
+                router.push(redirectTo);
+            } else {
+                router.push("/post-verification-choice");
+            }
         } catch (err) {
             posthog?.capture("login_failed", {
                 method: "email",
