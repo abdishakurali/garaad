@@ -32,8 +32,12 @@ function PayPageInner() {
   const [error, setError] = useState("");
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // On mount: ensure auth, load email from any available source
+  // On mount: ensure auth, load email from any available source.
+  // Guard: once email is resolved and the form is showing, skip re-runs
+  // triggered by Zustand hydration (storeUser going null → object).
   useEffect(() => {
+    if (userEmail) return;
+
     const auth = AuthService.getInstance();
 
     if (!auth.isAuthenticated()) {
@@ -57,7 +61,7 @@ function PayPageInner() {
       }
 
       if (!user?.email) {
-        router.replace("/login");
+        router.replace("/welcome?redirect=/subscribe/pay");
         return;
       }
 
@@ -70,7 +74,7 @@ function PayPageInner() {
     };
 
     resolveEmail();
-  }, [router, storeUser]);
+  }, [router, storeUser, userEmail]);
 
   const price = plan === "installment" ? "$49" : "$149";
   const priceNote = plan === "installment" ? "× 3 bilood ($147 wadarta)" : "hal-mar";
