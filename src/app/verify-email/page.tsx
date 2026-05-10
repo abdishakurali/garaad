@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { API_BASE_URL } from "@/lib/constants";
 import type React from "react";
 import { usePostHog } from "posthog-js/react";
@@ -13,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import {
   AlertCircle,
   ArrowLeft,
+  CheckCircle2,
   Loader2,
   Mail,
 } from "lucide-react";
@@ -30,6 +30,7 @@ export default function VerifyEmailPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
   const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [email, setEmail] = useState("");
@@ -149,7 +150,7 @@ export default function VerifyEmailPage() {
           return;
         }
 
-        console.log("Number sireed ayaa loo diray. Fadlan hubi email-kaaga koodka xaqiijinta");
+        setEmailSent(true);
       } catch (err) {
         console.error("Error sending initial verification email:", err);
       }
@@ -370,7 +371,10 @@ export default function VerifyEmailPage() {
         throw new Error(data.error || data.detail || "Failed to resend code");
       }
 
-      console.log("Number sireed cusub ayaa loo diray");
+      setCodeDigits(Array(6).fill(""));
+      setEmailSent(true);
+      setError(null);
+      setTimeout(() => inputsRef.current[0]?.focus(), 100);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to send verification code";
@@ -453,36 +457,29 @@ export default function VerifyEmailPage() {
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-4">
-          <div className="text-center w-full">
-            <Link
-              href={postVerifyTarget}
-              className="inline-flex items-center justify-center text-sm font-semibold text-primary hover:underline"
-            >
-              Casharka koowaad u gudub →
-            </Link>
-            <p className="text-xs text-muted-foreground mt-1">
-              Ku sii wad casharkaaga haddii aadan weli xaqiijin
-            </p>
-          </div>
+          {emailSent && (
+            <div className="flex items-start gap-2 w-full rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-800">
+              <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
+              <span>Koodka waa la diray <strong>{email}</strong>. Fadlan hubi inbox-kaaga.</span>
+            </div>
+          )}
 
-          <div className="text-center text-sm text-muted-foreground">
-            Ma heshin koodka?{" "}
-            <button
-              type="button"
-              onClick={handleResendCode}
-              className="text-primary font-medium hover:underline disabled:opacity-50 transition-colors"
-              disabled={isResending}
-            >
-              {isResending ? (
-                <span className="flex items-center justify-center">
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                  Diraya koodka markale...
-                </span>
-              ) : (
-                "Dib u dir koodka"
-              )}
-            </button>
-          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-10"
+            onClick={handleResendCode}
+            disabled={isResending}
+          >
+            {isResending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Diraya koodka markale...
+              </>
+            ) : (
+              "Dib u dir koodka"
+            )}
+          </Button>
 
           <div className="text-center">
             <button

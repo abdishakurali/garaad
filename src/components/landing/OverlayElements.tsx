@@ -1,9 +1,5 @@
-"use client";import { WhatsAppFloat } from "./WhatsAppFloat";
+"use client";
 
 export function OverlayElements() {
-    return (
-        <>
-            <WhatsAppFloat />
-        </>
-    );
+    return null;
 }
