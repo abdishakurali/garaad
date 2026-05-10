@@ -32,7 +32,8 @@ class StripeService {
     mode: "subscription" | "payment",
     orderId?: string,
     billingPlan?: "explorer" | "challenge",
-    planType?: "installment" | "full"
+    planType?: "installment" | "full",
+    email?: string
   ) {
     try {
       const authService = AuthService.getInstance();
@@ -48,7 +49,7 @@ class StripeService {
         currentUser = refreshed ?? currentUser;
       }
 
-      const userEmail = currentUser?.email;
+      const userEmail = email || currentUser?.email;
       const userId = currentUser?.id;
 
       if (!userEmail) {

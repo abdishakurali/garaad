@@ -150,7 +150,8 @@ function PayPageInner() {
         "subscription",
         orderId,
         "challenge",
-        plan
+        plan,
+        email
       );
     } catch (e) {
       const err = e as Error & { status?: number };
