@@ -18,8 +18,8 @@ interface Week {
 const WEEKS: Week[] = [
   {
     number: 1,
-    title: "Ku dhis aasaaska xirfaddaada AI",
-    incomeMilestone: "Fahan sida loo isticmaalo AI si aad uga dhaqso shaqeyso tartan kasta",
+    title: "AI sidii Qalabkaaga Ugu Weyn",
+    incomeMilestone: "Samee shaqadii ugu horreysay ee macmiilku ku bixiyo lacag — qoraal, tarjumaan, ama sawir",
     estimatedTime: "4 saacadood",
     lessons: 6,
     active: true,
@@ -27,26 +27,26 @@ const WEEKS: Week[] = [
   },
   {
     number: 2,
-    title: "Baro HTML, CSS iyo JavaScript",
-    incomeMilestone: "Dhis oo gudbi websaytkaagii dhabta ahaa ee ugu horreeyay",
-    estimatedTime: "8 saacadood",
-    lessons: 18,
+    title: "Dhis Website La Bixiyo — Coding Looma Baahna",
+    incomeMilestone: "Soo gudbi websaytkii ugu horreeyay aad macmiil ka bixi karto $100–$300",
+    estimatedTime: "6 saacadood",
+    lessons: 8,
     active: false,
   },
   {
     number: 3,
-    title: "Ku dhis ReactJS",
-    incomeMilestone: "Gudbi web app casri ah oo macmiilku lacag ka bixin karo",
-    estimatedTime: "3 saacadood",
-    lessons: 5,
+    title: "Bilow Platforms-ka Freelancing",
+    incomeMilestone: "Profile diyaar ah oo Upwork ama Fiverr ku jira, haddana qoraal codsi ah oo guuleysta",
+    estimatedTime: "4 saacadood",
+    lessons: 6,
     active: false,
   },
   {
     number: 4,
-    title: "Hel macmiilkaagii ugu horreeyay",
-    incomeMilestone: "Gunaanad mashruucaagii ugu horreeyay ee lacag ah",
-    estimatedTime: "2 saacadood",
-    lessons: 0,
+    title: "Xidh Macmiilkaagii Ugu Horreeyay",
+    incomeMilestone: "Lacag geli — $500 kaaga ugu horreeya ee online ah",
+    estimatedTime: "3 saacadood",
+    lessons: 5,
     active: false,
   },
 ];
@@ -127,7 +127,6 @@ export function FreelancingDashboardClient() {
                     </p>
                     <h2 className="font-semibold text-foreground">{week.title}</h2>
                   </div>
-                  {/* Status badge */}
                   {week.active ? (
                     <span className="shrink-0 rounded-full bg-gold/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold">
                       Firfircoon
