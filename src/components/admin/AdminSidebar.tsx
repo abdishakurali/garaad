@@ -7,7 +7,7 @@ import Logo from '../ui/Logo';
 
 const NAV_ITEMS = [
     { key: "home", label: "Home", icon: "⌂", path: "/admin" },
-    { key: "dashboard", label: "Dashboard", icon: "▦", path: "/admin/post-verification-choice" },
+    { key: "dashboard", label: "Dashboard", icon: "▦", path: "/admin" },
     { key: "users", label: "Isticmaalayaasha", icon: "users", path: "/admin/users" },
     { key: "cohorts", label: "Kooxaha", icon: "◎", path: "/admin/cohorts" },
     { key: "qaybaha", label: "Qaybaha", icon: "◫", path: "/admin/qaybaha" },

@@ -213,7 +213,7 @@ export function WebinarPageClient({ recapVideoId }: { recapVideoId?: string } = 
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/webinar/register", {
+      const res = await fetch("/api/webinars/ai-intro-2026/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

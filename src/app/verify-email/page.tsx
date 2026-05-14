@@ -39,10 +39,7 @@ export default function VerifyEmailPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const postVerifyTarget = "/post-verification-choice";
-  
-  // Hardcoded redirect to post-verification-choice - DO NOT CHANGE
-  const REDIRECT_AFTER_VERIFY = "/post-verification-choice";
+  const REDIRECT_AFTER_VERIFY = "/courses";
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -162,7 +159,7 @@ export default function VerifyEmailPage() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [email, router, postVerifyTarget]);
+  }, [email, router]);
 
   const handleInputChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -258,9 +255,8 @@ export default function VerifyEmailPage() {
         } catch (e) {
           console.error("Failed to fetch user:", e);
         }
-        
-        console.log("Redirecting to /post-verification-choice");
-        window.location.href = postVerifyTarget;
+
+        window.location.href = REDIRECT_AFTER_VERIFY;
         return;
       }
 
@@ -290,10 +286,8 @@ export default function VerifyEmailPage() {
       }
 
       posthog?.capture("email_verified", { email });
-      
-      // Always redirect to post-verification-choice
-      console.log("Redirecting to /post-verification-choice");
-      window.location.href = postVerifyTarget;
+
+      window.location.href = REDIRECT_AFTER_VERIFY;
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";

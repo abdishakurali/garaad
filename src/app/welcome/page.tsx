@@ -124,7 +124,7 @@ function WelcomePage() {
     if (user?.is_email_verified === false) {
       router.replace(`/verify-email?email=${encodeURIComponent(user.email ?? "")}`);
     } else {
-      router.replace(postAuthRedirect ?? "/post-verification-choice");
+      router.replace(postAuthRedirect ?? "/courses");
     }
   }, [router, postAuthRedirect]);
 
@@ -247,7 +247,7 @@ function WelcomePage() {
             await moveToVerification(userData.email.trim(), finalDest);
           } else {
             clearWelcomeStorage();
-            router.replace("/post-verification-choice");
+            router.replace("/courses");
           }
         } catch {
           posthog?.capture("signup_failed", { reason: "email_taken_signin_failed" });

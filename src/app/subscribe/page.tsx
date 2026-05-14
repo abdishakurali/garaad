@@ -7,7 +7,6 @@ import { ChevronDown, Check, ArrowRight } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChallengeStatus } from "@/hooks/useChallengeStatus";
-import { WaitlistForm } from "@/components/WaitlistForm";
 import AuthService from "@/services/auth";
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -84,7 +83,7 @@ function SubscribePageInner() {
             <p className="mb-6 text-sm text-muted-foreground">
               Geli liiska si aad u hesho kooxda xigta.
             </p>
-            <WaitlistForm />
+            <p className="text-sm text-muted-foreground">Xiriir nala noqo si aad ugu biirto kooxda xigta.</p>
           </div>
         ) : (
           <div className="relative rounded-2xl border-2 border-gold bg-card p-8 shadow-xl shadow-gold/10">

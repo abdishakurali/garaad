@@ -24,11 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     withHreflang(baseUrl, { lastModified: currentDate, changeFrequency: "daily", priority: 1 }),
     withHreflang(`${baseUrl}/courses`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
-    withHreflang(`${baseUrl}/webinar`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.95 }),
-    withHreflang(`${baseUrl}/feedback`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.75 }),
-    withHreflang(`${baseUrl}/launchpad`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
     withHreflang(`${baseUrl}/blog`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.8 }),
-    withHreflang(`${baseUrl}/startups`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.7 }),
     withHreflang(`${baseUrl}/about`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 }),
     withHreflang(`${baseUrl}/about/abdishakuur-ali`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 }),
     withHreflang(`${baseUrl}/privacy`, { lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 }),
@@ -68,28 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }
 
-    // 4. Dynamic Launchpad Startups
-    const startupsRes = await fetch(`${API_BASE_URL}/api/launchpad/startups/`, { next: { revalidate: 3600 } });
-    const startupsResponse = startupsRes.ok ? await startupsRes.json() : [];
-
-    // Handle both paginated and non-paginated responses
-    const startups = Array.isArray(startupsResponse) ? startupsResponse : (startupsResponse?.results || []);
-
-    startups.forEach((startup: any) => {
-      if (!startup) return;
-      const url = `${baseUrl}/launchpad/${startup.slug || startup.id}`;
-      dynamicRoutes.push(
-        withHreflang(url, {
-          lastModified: new Date(startup.updated_at || currentDate),
-          changeFrequency: "daily",
-          priority: 0.8,
-        })
-      );
-    });
-
-    // 5. Community requires auth — not in sitemap
-
-    // 6. Blog Posts
+    // 4. Blog Posts
     const blogPostsRes = await fetch(`${API_BASE_URL}/api/blog/posts/`, { next: { revalidate: 3600 } });
     const blogPostsData = blogPostsRes.ok ? await blogPostsRes.json() : [];
     const blogPosts = Array.isArray(blogPostsData) ? blogPostsData : (blogPostsData?.results || []);

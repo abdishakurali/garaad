@@ -84,7 +84,7 @@ export function LessonCompleteModal({
 
   const handleDashboard = useCallback(() => {
     onDashboard();
-    router.push("/post-verification-choice");
+    router.push("/courses");
   }, [onDashboard, router]);
 
   if (celebrationIntro) {
@@ -227,7 +227,7 @@ export function LessonCompleteModal({
                 asChild
                 className="w-full h-10 text-sm font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white border-0"
               >
-                <Link href="/post-verification-choice">Download-gareyso shahaadada</Link>
+                <Link href="/courses">Download-gareyso shahaadada</Link>
               </Button>
             </div>
           )}

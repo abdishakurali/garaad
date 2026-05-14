@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export default function PrivacyPage() {
     const { language } = useLanguage();
@@ -123,7 +122,7 @@ export default function PrivacyPage() {
                         <Link href="/" className="text-primary hover:underline text-sm font-medium inline-block">
                             ← {language === 'en' ? "Back to Home" : "Kusoo noqo Guriga"}
                         </Link>
-                        <LanguageSwitcher />
+                        
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black text-foreground mb-2 tracking-tight">
                         {t.title}
