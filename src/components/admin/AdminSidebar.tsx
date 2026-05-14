@@ -7,14 +7,12 @@ import Logo from '../ui/Logo';
 
 const NAV_ITEMS = [
     { key: "home", label: "Home", icon: "⌂", path: "/admin" },
-    { key: "dashboard", label: "Dashboard", icon: "▦", path: "/admin" },
     { key: "users", label: "Isticmaalayaasha", icon: "users", path: "/admin/users" },
     { key: "cohorts", label: "Kooxaha", icon: "◎", path: "/admin/cohorts" },
     { key: "qaybaha", label: "Qaybaha", icon: "◫", path: "/admin/qaybaha" },
     { key: "koorsooyinka", label: "Koorsooyinka", icon: "◎", path: "/admin/koorsooyinka" },
     { key: "casharada", label: "Casharada", icon: "≡", path: "/admin/casharada" },
     { key: "blog", label: "Blog", icon: "▤", path: "/admin/blog" },
-    { key: "webinars", label: "Webinars", icon: "◎", path: "/admin/webinars" },
     { key: "marketing", label: "Marketing", icon: "◈", path: "/admin/marketing" },
 ];
 
