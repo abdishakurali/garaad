@@ -53,36 +53,35 @@ export async function GET(request: NextRequest) {
         console.error("stripe complete-checkout error", e);
       }
 
-      // Update user's premium status
-      const userService = UserService.getInstance();
+      const metaPlan = session.metadata?.plan;
+      const subscribed =
+        metaPlan === "challenge" || metaPlan === "explorer" ? metaPlan : null;
+      const successPath = `/courses?success=payment_completed${
+        subscribed
+          ? `&subscription_type=${encodeURIComponent(subscribed)}`
+          : ""
+      }&checkout_completed=stripe`;
 
-      // For now, we'll use a placeholder user ID
-      // NOTE: Using userId from session metadata. Ensure this is populated during checkout creation.
-      const userId = session.metadata?.userId || "temp_user_id";
-
-      const updateSuccess = await userService.updatePremiumStatus({
-        userId,
-        isPremium: true,
-        subscriptionId: session.subscription as string,
-      });
-
-      if (updateSuccess) {
-        console.log("User premium status updated successfully");
-        const metaPlan = session.metadata?.plan;
-        const subscribed =
-          metaPlan === "challenge" || metaPlan === "explorer" ? metaPlan : null;
-        const path = `/courses?success=payment_completed${
-          subscribed
-            ? `&subscription_type=${encodeURIComponent(subscribed)}`
-            : ""
-        }&checkout_completed=stripe`;
-        return NextResponse.redirect(new URL(path, request.url));
+      // Best-effort: update premium status if userId is in metadata.
+      // The webhook handler is the reliable path and will grant premium via customer lookup.
+      const userId = session.metadata?.userId;
+      if (userId) {
+        const userService = UserService.getInstance();
+        const updateSuccess = await userService.updatePremiumStatus({
+          userId,
+          isPremium: true,
+          subscriptionId: session.subscription as string,
+        });
+        if (updateSuccess) {
+          console.log("stripe/success: premium granted via metadata userId", userId);
+        } else {
+          console.warn("stripe/success: updatePremiumStatus returned false for userId", userId, "— webhook will retry");
+        }
       } else {
-        console.error("Failed to update user premium status");
-        return NextResponse.redirect(
-          new URL("/subscribe?error=update_failed", request.url),
-        );
+        console.warn("stripe/success: no userId in session metadata for", sessionId, "— relying on webhook for premium grant");
       }
+
+      return NextResponse.redirect(new URL(successPath, request.url));
     } else {
       // Payment was not successful
       return NextResponse.redirect(

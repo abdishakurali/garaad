@@ -55,9 +55,12 @@ const fetcher = async (url: string) => {
 };
 
 // Categories and Courses
-export function useCategories() {
+export function useCategories(pathType?: string) {
+  const key = pathType
+    ? `${API_BASE_URL}/api/lms/categories/?path_type=${pathType}`
+    : `${API_BASE_URL}/api/lms/categories/`;
   const { data, error, isLoading, mutate } = useSWR<Category[]>(
-    `${API_BASE_URL}/api/lms/categories/`,
+    key,
     fetcher
   );
 
@@ -273,6 +276,31 @@ export function useUserProgress() {
     isLoading,
     isError: error,
     mutate,
+  };
+}
+
+// Tracks
+export function useTrack(trackSlug: string | null) {
+  const { data, error, isLoading } = useSWR(
+    trackSlug ? `${API_BASE_URL}/api/lms/tracks/${trackSlug}/` : null,
+    fetcher
+  );
+  return { track: data, error, isLoading };
+}
+
+export function useTracks(pathType?: string) {
+  const key = pathType
+    ? `${API_BASE_URL}/api/lms/tracks/?path_type=${pathType}`
+    : `${API_BASE_URL}/api/lms/tracks/`;
+  const { data, error, isLoading } = useSWR(key, fetcher);
+  return { tracks: (data as any)?.results ?? data ?? [], error, isLoading };
+}
+
+export function useAccessPolicy() {
+  const { data } = useSWR(`${API_BASE_URL}/api/lms/access-policy/`, fetcher);
+  return {
+    freeLessonCount: (data as any)?.free_lesson_count ?? 3,
+    mode: (data as any)?.mode ?? 'lesson_count',
   };
 }
 

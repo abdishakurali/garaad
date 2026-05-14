@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { CoursesListClient } from "./CoursesListClient";
+import { PathListClient } from "./PathListClient";
 import { Category } from "@/types/lms";
 import { API_BASE_URL } from "@/lib/constants";
 
@@ -71,7 +71,7 @@ export default async function CoursesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <CoursesListClient initialCategories={categories} />
+      <PathListClient />
     </>
   );
 }

@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useTracks } from "@/hooks/useApi";
 
 const PURPLE = "#7C3AED";
 const PURPLE_LIGHT = "#F5F0FF";
@@ -55,7 +56,7 @@ const outcomes = [
   },
 ];
 
-const timesheet = [
+const FALLBACK_CURRICULUM = [
   {
     month: "Bishii 1aad — Aasaaska",
     stack: "HTML, CSS, JavaScript, React",
@@ -214,7 +215,7 @@ const months = [
   },
 ];
 
-function Timesheet({ isDark }: { isDark: boolean }) {
+function Timesheet({ isDark, data }: { isDark: boolean; data: typeof FALLBACK_CURRICULUM }) {
   const [openMonth, setOpenMonth] = useState<number | null>(null);
   const [openWeeks, setOpenWeeks] = useState<Record<string, boolean>>({});
 
@@ -240,7 +241,7 @@ function Timesheet({ isDark }: { isDark: boolean }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {timesheet.map((m, mi) => (
+      {data.map((m, mi) => (
         <div key={mi} style={{ border: `1px solid ${border}`, borderRadius: 8, overflow: "hidden" }}>
           <button
             onClick={() => toggleMonth(mi)}
@@ -353,6 +354,28 @@ export function CurriculumSection() {
   useEffect(() => setMounted(true), []);
   const { resolvedTheme } = useTheme();
   const isDark = mounted ? resolvedTheme === "dark" : true;
+  const { tracks, isLoading: tracksLoading } = useTracks();
+
+  // Build timesheet data from API tracks, or fall back to hardcoded data
+  const timesheetData = (() => {
+    if (tracksLoading || !Array.isArray(tracks) || tracks.length === 0) {
+      return FALLBACK_CURRICULUM;
+    }
+    // Map tracks to the timesheet format expected by Timesheet component
+    const mapped = tracks.flatMap((track: any) => {
+      const courses: any[] = track.courses ?? [];
+      if (courses.length === 0) return [];
+      return [{
+        month: track.title,
+        stack: track.goal_description ?? "",
+        weeks: courses.map((course: any) => ({
+          week: `Usbuuc ${course.week_number ?? ""}${course.title ? ` — ${course.title}` : ""}`,
+          days: [],
+        })),
+      }];
+    });
+    return mapped.length > 0 ? mapped : FALLBACK_CURRICULUM;
+  })();
 
   const bg = isDark ? "#09090b" : "#fff";
   const text = isDark ? "#fafafa" : "#0A0A0A";
@@ -510,7 +533,7 @@ export function CurriculumSection() {
           </p>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <Timesheet isDark={isDark} />
+          <Timesheet isDark={isDark} data={timesheetData} />
         </FadeIn>
       </section>
 

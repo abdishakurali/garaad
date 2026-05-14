@@ -124,9 +124,9 @@ function WelcomePage() {
     if (user?.is_email_verified === false) {
       router.replace(`/verify-email?email=${encodeURIComponent(user.email ?? "")}`);
     } else {
-      router.replace("/post-verification-choice");
+      router.replace(postAuthRedirect ?? "/post-verification-choice");
     }
-  }, [router]);
+  }, [router, postAuthRedirect]);
 
   useEffect(() => {
     if (authStoreError) setAuthStoreError(null);
@@ -203,7 +203,7 @@ function WelcomePage() {
         const nameParts = userData.name.trim().split(" ");
         const firstName = nameParts[0] || "";
         const derivedUsername = firstName.toLowerCase().replace(/[^a-z0-9]/g, "") || userData.email.trim();
-        
+
         const signUpData: SignUpData = {
           email: userData.email.trim(),
           password: userData.password.trim(),
@@ -303,13 +303,13 @@ function WelcomePage() {
           if (updated)
             setAuthStoreUser({ ...updated, is_premium: updated.is_premium || false });
           posthog?.capture("email_verified");
-          
+
           const referrer = localStorage.getItem('garaad_signup_referrer');
           const finalDest = referrer === 'mentorship' ? '/subscribe' : postSignupDest;
-          
+
           localStorage.removeItem('garaad_signup_referrer');
           rememberPostSignupDestination(finalDest);
-          router.replace("/post-verification-choice");
+          router.replace(finalDest);
         } catch (e) {
         posthog?.capture("email_verification_failed", {
           error: e instanceof Error ? e.message : "unknown",
@@ -490,7 +490,7 @@ function WelcomePage() {
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="size-4 shrink-0" aria-hidden />
-            Dib u laabo 
+            Dib u laabo
           </Link>
         </header>
 
@@ -502,7 +502,7 @@ function WelcomePage() {
              <p className="mb-6 text-sm text-muted-foreground">
                Bilow safarkaaga maanta.
              </p>
- 
+
              {actualError && (
 
               <Alert

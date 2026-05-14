@@ -3,6 +3,9 @@ import type { User } from "@/types/auth";
 /** First N lessons (by `lesson_number`) for guests / login redirect hints. Signed-in users always see every lesson. */
 export const FREE_TIER_LESSON_COUNT = 3;
 
+/** Default free lesson count — used as fallback when access policy is not yet loaded. */
+export const DEFAULT_FREE_TIER_LESSON_COUNT = 3;
+
 /** Every signed-in learner can open all course lessons; Challenge is optional for cohort & mentorship. */
 export function userHasFullLessonAccess(user: User | null | undefined): boolean {
   return Boolean(user);
@@ -10,13 +13,15 @@ export function userHasFullLessonAccess(user: User | null | undefined): boolean 
 
 /** Lesson ids allowed without premium (global course order by lesson_number). */
 export function freeTierLessonIdSet(
-  lessons: { id: number | string; lesson_number?: number | null }[]
+  lessons: { id: number | string; lesson_number?: number | null }[],
+  freeLessonCount?: number
 ): Set<number> {
+  const count = freeLessonCount ?? DEFAULT_FREE_TIER_LESSON_COUNT;
   const sorted = [...lessons].sort(
     (a, b) => (a.lesson_number ?? 0) - (b.lesson_number ?? 0)
   );
   return new Set(
-    sorted.slice(0, FREE_TIER_LESSON_COUNT).map((l) => Number(l.id))
+    sorted.slice(0, count).map((l) => Number(l.id))
   );
 }
 

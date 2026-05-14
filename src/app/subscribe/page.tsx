@@ -49,10 +49,9 @@ function SubscribePageInner() {
     }
 
     // Signed in but email not verified → verify first
-    const auth = AuthService.getInstance();
-    const currentUser = auth.getCurrentUser();
-    if (currentUser && currentUser.is_email_verified === false) {
-      router.push(`/verify-email?email=${encodeURIComponent(currentUser.email)}`);
+    if (user.is_email_verified === false) {
+      const email = user.email ?? AuthService.getInstance().getCurrentUser()?.email ?? "";
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       return;
     }
 
