@@ -39,7 +39,7 @@ export default function VerifyEmailPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const REDIRECT_AFTER_VERIFY = "/courses";
+  const REDIRECT_AFTER_VERIFY = "/post-verification-choice";
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
