@@ -18,34 +18,34 @@ interface Week {
 const WEEKS: Week[] = [
   {
     number: 1,
-    title: "Build your skill foundation with AI",
-    incomeMilestone: "Understand how to use AI to work faster than any competitor",
-    estimatedTime: "4 hours",
+    title: "Ku dhis aasaaska xirfaddaada AI",
+    incomeMilestone: "Fahan sida loo isticmaalo AI si aad uga dhaqso shaqeyso tartan kasta",
+    estimatedTime: "4 saacadood",
     lessons: 6,
     active: true,
-    href: "/courses/saas-challenge/html-css",
+    href: "/courses/732311/html-css",
   },
   {
     number: 2,
-    title: "Learn HTML, CSS and JavaScript",
-    incomeMilestone: "Build and deliver your first real website",
-    estimatedTime: "8 hours",
+    title: "Baro HTML, CSS iyo JavaScript",
+    incomeMilestone: "Dhis oo gudbi websaytkaagii dhabta ahaa ee ugu horreeyay",
+    estimatedTime: "8 saacadood",
     lessons: 18,
     active: false,
   },
   {
     number: 3,
-    title: "Build with ReactJS",
-    incomeMilestone: "Deliver a modern web app a client would pay for",
-    estimatedTime: "3 hours",
+    title: "Ku dhis ReactJS",
+    incomeMilestone: "Gudbi web app casri ah oo macmiilku lacag ka bixin karo",
+    estimatedTime: "3 saacadood",
     lessons: 5,
     active: false,
   },
   {
     number: 4,
-    title: "Land your first client",
-    incomeMilestone: "Close your first paid project",
-    estimatedTime: "2 hours",
+    title: "Hel macmiilkaagii ugu horreeyay",
+    incomeMilestone: "Gunaanad mashruucaagii ugu horreeyay ee lacag ah",
+    estimatedTime: "2 saacadood",
     lessons: 0,
     active: false,
   },
@@ -54,8 +54,6 @@ const WEEKS: Week[] = [
 export function FreelancingDashboardClient() {
   const { progress } = useUserProgress();
 
-  // Compute overall percent from any enrolled courses in this track
-  // For now default to 0 until wired to real data
   const overallPercent: number = 0;
 
   return (
@@ -66,7 +64,7 @@ export function FreelancingDashboardClient() {
         className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        All paths
+        Dhammaan waddooyinka
       </Link>
 
       {/* Track header */}
@@ -74,17 +72,17 @@ export function FreelancingDashboardClient() {
         <div className="mb-1 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-green-500" />
           <span className="text-xs font-semibold text-muted-foreground">
-            Your first $500 online
+            $500 kaaga ugu horreeya ee online ah
           </span>
         </div>
         <h1 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">
-          Start Freelancing
+          Bilow Shaqo Madax-bannaan
         </h1>
 
         {/* Progress bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Overall progress</span>
+            <span>Horumarka guud</span>
             <span>{overallPercent}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -125,18 +123,18 @@ export function FreelancingDashboardClient() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Week {week.number}
+                      Toddobaadka {week.number}
                     </p>
                     <h2 className="font-semibold text-foreground">{week.title}</h2>
                   </div>
                   {/* Status badge */}
                   {week.active ? (
                     <span className="shrink-0 rounded-full bg-gold/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold">
-                      Active
+                      Firfircoon
                     </span>
                   ) : (
                     <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Coming soon
+                      Dhowaan soo socda
                     </span>
                   )}
                 </div>
@@ -155,7 +153,7 @@ export function FreelancingDashboardClient() {
                   {week.lessons > 0 && (
                     <span className="flex items-center gap-1">
                       <BookOpen className="h-3.5 w-3.5" />
-                      {week.lessons} lessons
+                      {week.lessons} cashar
                     </span>
                   )}
                 </div>
@@ -167,11 +165,11 @@ export function FreelancingDashboardClient() {
                       href={week.href}
                       className="btn-gold inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold"
                     >
-                      Start week <ArrowRight className="h-3.5 w-3.5" />
+                      Bilow toddobaadka <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   ) : (
                     <p className="text-xs text-muted-foreground">
-                      🔒 Complete week {week.number - 1} first
+                      🔒 Dhammeystir toddobaadka {week.number - 1} horta
                     </p>
                   )}
                 </div>

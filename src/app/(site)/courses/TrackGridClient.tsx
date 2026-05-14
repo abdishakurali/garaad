@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { TrendingUp, Clock, ArrowRight, Lock } from "lucide-react";
+import { TrendingUp, Clock, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TrackCard {
@@ -16,29 +16,29 @@ interface TrackCard {
 
 const TRACKS: TrackCard[] = [
   {
-    title: "Start Freelancing",
-    goal: "Go from zero to landing your first paid client online",
-    incomeTarget: "Your first $500 online",
+    title: "Bilow Shaqo Madax-bannaan",
+    goal: "Ka bilow eber ilaa aad ka hesho macmiilkaagii ugu horreeyay ee online ah ee lacag bixiya",
+    incomeTarget: "$500 kaaga ugu horreeya ee online ah",
     weeks: 4,
-    buttonText: "Start this path →",
+    buttonText: "Biloow waddadan →",
     href: "/courses/freelancing",
     active: true,
   },
   {
-    title: "Get a Remote Job",
-    goal: "Land a remote job with a real salary",
-    incomeTarget: "A full-time remote salary",
+    title: "Hel Shaqo Remote ah",
+    goal: "Hel shaqo meel fog laga qabto oo leh mushaar dhab ah",
+    incomeTarget: "Mushaar shaqo buuxda oo fogaan ah",
     weeks: 8,
-    buttonText: "Coming soon",
+    buttonText: "Dhowaan soo socda",
     href: "#",
     active: false,
   },
   {
-    title: "Build a SaaS",
-    goal: "Go from idea to a live product with paying users",
-    incomeTarget: "Your first paying users",
+    title: "Dhis SaaS",
+    goal: "Ka bilow fikrad ilaa barnaamij nool oo leh isticmaalayaasha lacag bixiya",
+    incomeTarget: "Isticmaalayaashaada lacag bixiya ee ugu horreeya",
     weeks: 12,
-    buttonText: "Coming soon",
+    buttonText: "Dhowaan soo socda",
     href: "#",
     active: false,
   },
@@ -50,14 +50,14 @@ export function TrackGridClient() {
       {/* Header */}
       <div className="mb-12 text-center">
         <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gold">
-          Choose your path
+          Dooro waddadaada
         </p>
         <h1 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
-          What do you want to achieve?
+          Maxaad doonaysaa inaad gaarto?
         </h1>
         <p className="mx-auto max-w-xl text-base text-muted-foreground">
-          Pick the goal that matches where you want to go. Your path, lessons,
-          and mentorship are built around it.
+          Dooro yoolka la jaanqaadaya meesha aad rabto inaad tagto. Waddadaada,
+          duruustaada, iyo hagidaada waxaa loo dhisay iyada oo taas laga duulayo.
         </p>
       </div>
 
@@ -76,7 +76,7 @@ export function TrackGridClient() {
             {/* Coming soon badge */}
             {!track.active && (
               <span className="absolute right-4 top-4 rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Coming soon
+                Dhowaan soo socda
               </span>
             )}
 
@@ -94,7 +94,7 @@ export function TrackGridClient() {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 shrink-0" />
-                <span>{track.weeks} weeks</span>
+                <span>{track.weeks} toddobaadyo</span>
               </div>
             </div>
 
