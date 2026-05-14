@@ -21,7 +21,7 @@ function useMounted() {
 }
 
 const NAV_LINKS = [
-  { name: "Courses", href: "/courses" },
+  { name: "Your Path", href: "/courses" },
   { name: "Mentorship", href: "/mentorship" },
   { name: "Blog", href: "/blog" },
 ];
