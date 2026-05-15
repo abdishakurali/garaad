@@ -101,7 +101,29 @@ const nextConfig = {
           { key: "Pragma", value: "no-cache" },
           { key: "Expires", value: "0" },
         ],
-      }
+      },
+      // Programmatic SEO pages: cache 24h, stale-while-revalidate 7 days
+      {
+        source: "/learn/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, s-maxage=86400, stale-while-revalidate=604800" },
+        ],
+      },
+      // Static assets and fonts
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      // llms.txt for AI crawlers
+      {
+        source: "/llms.txt",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400" },
+          { key: "Content-Type", value: "text/plain; charset=utf-8" },
+        ],
+      },
     ];
   },
 

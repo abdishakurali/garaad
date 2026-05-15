@@ -65,7 +65,7 @@ export function EmailVerificationBanner() {
           <span className="font-medium text-amber-100">
             Xaqiiji email-kaaga si aad u badbaadiso horumarka
           </span>
-          <span className="text-amber-200/90"> — Check your inbox</span>
+          <span className="text-amber-200/90"> — Sanduuqaaga hubi</span>
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
           <Button
@@ -82,7 +82,7 @@ export function EmailVerificationBanner() {
                 Diraya…
               </>
             ) : (
-              "Resend email"
+              "Kood cusub dir"
             )}
           </Button>
           <Button

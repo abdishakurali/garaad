@@ -191,7 +191,7 @@ export function LessonCompleteModal({
           <div className={cn("grid gap-3 grid-cols-1")}>
             {hasQuiz && (
               <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
-                <p className="text-xs text-gray-400 uppercase tracking-wide">Score</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">Natiijada</p>
                 <p className="text-lg font-bold text-white">{score}%</p>
               </div>
             )}
@@ -219,15 +219,15 @@ export function LessonCompleteModal({
 
           {courseFullyComplete && (
             <div className="rounded-xl border border-emerald-500/35 bg-emerald-950/50 p-4 text-center space-y-2">
-              <h3 className="text-base font-black text-white">Kooras-kii waad dhamaysay! 🏆</h3>
+              <h3 className="text-base font-black text-white">Koorsooyinkii oo dhan waa dhammaatay! 🏆</h3>
               <div className="mx-auto h-20 max-w-[200px] rounded-lg border-2 border-dashed border-emerald-500/40 bg-emerald-900/20 flex items-center justify-center text-[10px] font-bold text-emerald-200/70 px-2">
-                Shahaadada (preview)
+                Shahaadada (hordhac)
               </div>
               <Button
                 asChild
                 className="w-full h-10 text-sm font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white border-0"
               >
-                <Link href="/post-verification-choice">Download-gareyso shahaadada</Link>
+                <Link href="/post-verification-choice">Shahaadada soo deji</Link>
               </Button>
             </div>
           )}
