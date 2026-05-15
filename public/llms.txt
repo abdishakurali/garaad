@@ -1,0 +1,79 @@
+# Garaad — Somalia's Freelancing & Tech Education Platform
+# https://garaad.org
+# llms.txt — machine-readable site overview for AI crawlers
+
+## About Garaad
+
+Garaad is Somalia's first Somali-language platform for freelancing education and digital skills training.
+We teach Somali speakers how to earn money online through freelancing (Upwork, Fiverr), copywriting,
+graphic design, programming, and AI skills — all in the Somali language (Af-Soomaali).
+
+**Language**: Somali (Af-Soomaali) with English technical terminology
+**Audience**: Somali-speaking learners in Somalia, Kenya, Ethiopia, UK, Ireland, USA, and Scandinavia
+**Mission**: Enable every Somali speaker to earn an income online through digital skills
+
+## Key Topics Covered
+
+- Freelancing for beginners (lacag online, shaqo online)
+- How to use Upwork (Upwork Soomaali)
+- How to use Fiverr (Fiverr Soomaali)
+- Copywriting in Somali (copywriting Soomaali)
+- Graphic Design in Somali (graphic design Soomaali, naqshadeynta dijital)
+- Remote jobs for Somalis (shaqo remote Soomaali)
+- High-income digital skills (xirfadaha lacagta leh online)
+- How to earn money online in Somali (lacag online Soomaali)
+- Programming / Web Development in Somali (baro coding Soomaali)
+- AI skills for Somalis (AI xirfado Soomaali)
+
+## Primary Learning Tracks
+
+- **Bilow Freelancing** (Start Freelancing): 5-week beginner track
+  URL: https://garaad.org/courses/freelancing
+- **Full-Stack Development**: Learn React, Next.js, Node.js in Somali
+- **AI Fundamentals**: AI tools and automation for beginners
+
+## Somali Keyword Reference
+
+| Somali Term | English Meaning |
+|---|---|
+| lacag online | earn money online |
+| shaqo online | online work / online job |
+| xirfadaha dijital | digital skills |
+| bilow freelancing | start freelancing |
+| baro coding | learn coding |
+| qoraalka iibsiga | copywriting |
+| naqshadeynta dijital | digital design |
+| shaqo remote | remote work |
+| macmiil | client |
+| cashar | lesson |
+| koorso | course |
+
+## Content Architecture
+
+- /courses — all learning tracks
+- /courses/freelancing — freelancing track hub
+- /learn — Somali-language educational articles
+- /learn/[slug] — individual topic guides (e.g. sida-loo-bilaabo-freelancing-soomaali)
+- /blog — Somali-language blog posts
+- /blog/[slug] — individual blog posts
+- /about — about Garaad
+
+## Instructional Philosophy
+
+All lessons follow an answer-first format:
+1. Direct answer to the search intent
+2. Practical step-by-step guidance
+3. Real examples relevant to Somali context
+4. Free lesson access to try before paying
+
+## Contact & Social
+
+- Website: https://garaad.org
+- Email: Info@garaad.org
+- Twitter/X: @Garaadstem
+- Facebook: facebook.com/Garaadstem
+
+## Crawler Permissions
+
+All AI crawlers (GPTBot, ClaudeBot, ChatGPT-User, PerplexityBot, Googlebot, etc.) are permitted
+to index all public pages. See https://garaad.org/robots.txt for full rules.

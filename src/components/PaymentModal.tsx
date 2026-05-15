@@ -87,7 +87,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
     e.preventDefault();
     const paste = e.clipboardData.getData("text").slice(0, 6).replace(/\D/g, "");
     if (paste.length !== 6) {
-      setVerifyError("Fadlan凝胶6-xarafka full");
+      setVerifyError("Fadlan geli koodka 6-tirood ah oo buuxa.");
       return;
     }
     const newCodeDigits = paste.split("");
@@ -348,7 +348,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
               <p className="text-sm text-muted-foreground mb-6">
                 Diray email xaqiijsiina uu ku tagay {currentUser?.email}
               </p>
-              
+
               <div className="flex justify-center gap-1.5 mb-4">
                 {codeDigits.map((digit, index) => (
                   <input
@@ -494,7 +494,7 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
               <p className="text-xs text-amber-200 text-center">
                 Diray email xaqiijsiina uu ku tagay <strong>{currentUser.email}</strong>
               </p>
-              
+
               <div className="flex justify-center gap-1.5">
                 {codeDigits.map((digit, index) => (
                   <input

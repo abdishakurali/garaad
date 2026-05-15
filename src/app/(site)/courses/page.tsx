@@ -1,30 +1,67 @@
-import { Metadata } from "next";
+import { buildMetadata, faqSchema, breadcrumbSchema, SITE_URL } from "@/lib/seo";
 import { TrackGridClient } from "./TrackGridClient";
 
-const COURSES_URL = "https://garaad.org/courses";
+const CANONICAL = "/courses";
+const TITLE = "Korsooyinka — Garaad | Baro Freelancing, Programming & AI Af-Soomaali";
+const DESCRIPTION =
+  "Dooro jidkaaga: Bilow Freelancing, Hel Shaqo Remote, ama Dhis SaaS. Korsooyinka Garaad waxay ku barayaan xirfadaha dijital Af-Soomaali. Bilaash bilow.";
 
-export const metadata: Metadata = {
-  title: "Your Path — Garaad",
-  description:
-    "Choose your learning path — Start Freelancing, Get a Remote Job, or Build a SaaS. Your lessons and mentorship are built around your goal.",
-  alternates: { canonical: COURSES_URL },
-  openGraph: {
-    type: "website",
-    url: COURSES_URL,
-    title: "Your Path — Garaad",
-    description: "Pick the goal that matches where you want to go.",
-    images: [{ url: "https://garaad.org/images/og-main.jpg", width: 1200, height: 630, alt: "Garaad" }],
+export const metadata = buildMetadata({
+  title: TITLE,
+  description: DESCRIPTION,
+  path: CANONICAL,
+  keywords: [
+    "korsooyinka Garaad",
+    "baro freelancing Soomaali",
+    "baro programming Soomaali",
+    "baro AI Soomaali",
+    "online courses Somalia",
+    "xirfadaha dijital Soomaali",
+    "shaqo remote Somalia",
+    "lacag online Soomaali",
+    "Garaad courses",
+    "Somali online learning",
+    "best courses Somalia",
+    "tech education Somalia",
+    "digital skills Somalia",
+  ],
+});
+
+const jsonLdBreadcrumb = breadcrumbSchema([
+  { name: "Garaad", item: SITE_URL },
+  { name: "Korsooyinka", item: `${SITE_URL}${CANONICAL}` },
+]);
+
+const jsonLdFaq = faqSchema([
+  {
+    question: "Garaad waxay baraysa maxay tahay?",
+    answer:
+      "Garaad waxay baraysa freelancing, programming (React, Next.js, JavaScript), AI xirfado, graphic design, iyo copywriting — oo dhan Af-Soomaali.",
   },
-  twitter: {
-    card: "summary_large_image",
-    site: "@garaadorg",
-    title: "Your Path — Garaad",
-    description: "Pick the goal that matches where you want to go.",
-    images: ["https://garaad.org/images/og-main.jpg"],
+  {
+    question: "Koorsooyinka miyay bilaash yihiin?",
+    answer:
+      "Casharrada hore ee koorso kasta waa bilaash. Premium korsooyinka waxaad ka hesaa dheeraad cashar, mashruucyo, iyo taageero.",
   },
-  robots: { index: true, follow: true },
-};
+  {
+    question: "Waa kuwan korsooyinka jira?",
+    answer:
+      "Hadda Garaad waxay leedahay koorsooyinka: Bilow Freelancing (5 toddobaad), Full-Stack Development, iyo AI Fundamentals. Wax badan ayaa soo socda.",
+  },
+]);
 
 export default function CoursesPage() {
-  return <TrackGridClient />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
+      />
+      <TrackGridClient />
+    </>
+  );
 }
