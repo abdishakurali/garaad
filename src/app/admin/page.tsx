@@ -2,11 +2,101 @@
 
 import Link from "next/link";
 
+const SECTIONS = [
+    {
+        href: "/admin/users",
+        bg: "bg-blue-600 border-blue-500",
+        textColor: "text-white",
+        subColor: "text-blue-100",
+        descColor: "text-blue-50",
+        icon: "👥",
+        title: "Isticmaalayaasha",
+        sub: "Users",
+        desc: "Arag liiska, taariikhda lacag-bixinta, iyo xaaladda membership",
+    },
+    {
+        href: "/admin/cohorts",
+        bg: "bg-violet-600 border-violet-500",
+        textColor: "text-white",
+        subColor: "text-violet-100",
+        descColor: "text-violet-50",
+        icon: "🎓",
+        title: "Kooxaha",
+        sub: "Cohorts",
+        desc: "Abuur koox, arag liiska, maamul diiwaangelinta ardayda",
+    },
+    {
+        href: "/admin/casharada",
+        bg: "bg-white border-gray-100",
+        textColor: "text-gray-800",
+        subColor: "text-gray-400",
+        descColor: "text-gray-500",
+        icon: "📖",
+        title: "Casharada",
+        sub: "Lessons",
+        desc: "Ku dar, tafatir, oo daabac casharro cusub",
+        hoverText: "group-hover:text-purple-700",
+        iconBg: "bg-purple-50",
+    },
+    {
+        href: "/admin/koorsooyinka",
+        bg: "bg-white border-gray-100",
+        textColor: "text-gray-800",
+        subColor: "text-gray-400",
+        descColor: "text-gray-500",
+        icon: "📚",
+        title: "Koorsooyinka",
+        sub: "Courses / Weeks",
+        desc: "Maamul toddobaadyada iyo koorsooyinka waddooyinka",
+        hoverText: "group-hover:text-emerald-700",
+        iconBg: "bg-emerald-50",
+    },
+    {
+        href: "/admin/qaybaha",
+        bg: "bg-white border-gray-100",
+        textColor: "text-gray-800",
+        subColor: "text-gray-400",
+        descColor: "text-gray-500",
+        icon: "📂",
+        title: "Qaybaha",
+        sub: "Categories",
+        desc: "Maamul qaybaha waxbarasho ee Garaad",
+        hoverText: "group-hover:text-blue-700",
+        iconBg: "bg-blue-50",
+    },
+    {
+        href: "/admin/blog",
+        bg: "bg-white border-gray-100",
+        textColor: "text-gray-800",
+        subColor: "text-gray-400",
+        descColor: "text-gray-500",
+        icon: "📰",
+        title: "Blog-ga",
+        sub: "Blog",
+        desc: "Maamul qoraalada blog-ga",
+        hoverText: "group-hover:text-orange-700",
+        iconBg: "bg-orange-50",
+    },
+    {
+        href: "/admin/marketing",
+        bg: "bg-white border-gray-100",
+        textColor: "text-gray-800",
+        subColor: "text-gray-400",
+        descColor: "text-gray-500",
+        icon: "✉️",
+        title: "Marketing",
+        sub: "Email Campaigns",
+        desc: "U dir email-lo dhamaan dadka iska diwaangeliyey Garaad",
+        hoverText: "group-hover:text-blue-700",
+        iconBg: "bg-blue-50",
+    },
+];
+
 export default function AdminHomePage() {
     return (
         <div className="animate-fade-in space-y-6">
             <div className="mb-6">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-2 text-blue-800 bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-2 bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
                     Ku soo dhawoow Garaad Maamul
                 </h1>
                 <p className="text-gray-400 font-medium text-base">
@@ -15,147 +105,30 @@ export default function AdminHomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Link
-                    href="/admin/cohorts"
-                    className="group bg-violet-600 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-violet-500"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            🎓
+                {SECTIONS.map((s) => (
+                    <Link
+                        key={s.href}
+                        href={s.href}
+                        className={`group ${s.bg} rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border`}
+                    >
+                        <div className="flex items-center gap-3.5 mb-3">
+                            <div className={`w-12 h-12 rounded-xl ${s.iconBg ?? "bg-white/10"} flex items-center justify-center text-2xl group-hover:scale-105 transition-transform`}>
+                                {s.icon}
+                            </div>
+                            <div>
+                                <h2 className={`text-xl font-black ${s.textColor} ${s.hoverText ?? ""} transition-colors leading-tight`}>
+                                    {s.title}
+                                </h2>
+                                <p className={`${s.subColor} text-[8px] font-black uppercase tracking-widest`}>
+                                    {s.sub}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-xl font-black text-white leading-tight">
-                                Kooxaha Challenge
-                            </h2>
-                            <p className="text-violet-100 text-[8px] font-black uppercase tracking-widest">
-                                Cohorts & signups
-                            </p>
-                        </div>
-                    </div>
-                    <p className="text-violet-50 text-xs font-medium opacity-90">
-                        Abuur koox, arag liiska, maamul diiwaangelinta ardayda
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin"
-                    className="group bg-blue-600 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-blue-500"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            📊
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-white leading-tight">
-                                Dashboard
-                            </h2>
-                            <p className="text-blue-100 text-[8px] font-black uppercase tracking-widest">Analytics</p>
-                        </div>
-                    </div>
-                    <p className="text-blue-50 text-xs font-medium opacity-80">
-                        Arag xogta guud ee platform-ka iyo analytics-ka
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin/qaybaha"
-                    className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            📂
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-800 group-hover:text-blue-700 transition-colors leading-tight">
-                                Qaybaha
-                            </h2>
-                            <p className="text-gray-400 text-[8px] font-black uppercase tracking-widest">Categories</p>
-                        </div>
-                    </div>
-                    <p className="text-gray-500 text-xs font-medium">
-                        Maamul qaybaha waxbarasho ee Garaad
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin/koorsooyinka"
-                    className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            📚
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-800 group-hover:text-emerald-700 transition-colors leading-tight">
-                                Koorsooyinka
-                            </h2>
-                            <p className="text-gray-400 text-[8px] font-black uppercase tracking-widest">Courses</p>
-                        </div>
-                    </div>
-                    <p className="text-gray-500 text-xs font-medium">
-                        Maamul koorsooyinka waxbarasho
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin/casharada"
-                    className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            📖
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-800 group-hover:text-purple-700 transition-colors leading-tight">
-                                Casharada
-                            </h2>
-                            <p className="text-gray-400 text-[8px] font-black uppercase tracking-widest">Lessons</p>
-                        </div>
-                    </div>
-                    <p className="text-gray-500 text-xs font-medium">
-                        Maamul casharada iyo qeybaha
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin/blog"
-                    className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            📰
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-800 group-hover:text-orange-700 transition-colors leading-tight">
-                                Blog-ga
-                            </h2>
-                            <p className="text-gray-400 text-[8px] font-black uppercase tracking-widest">Blog Management</p>
-                        </div>
-                    </div>
-                    <p className="text-gray-500 text-xs font-medium">
-                        Maamul qoraalada blog-ga ee standalone-ka ah
-                    </p>
-                </Link>
-
-                <Link
-                    href="/admin/marketing"
-                    className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
-                >
-                    <div className="flex items-center gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                            ✉️
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-800 group-hover:text-blue-700 transition-colors leading-tight">
-                                Marketing
-                            </h2>
-                            <p className="text-gray-400 text-[8px] font-black uppercase tracking-widest">Email Campaigns</p>
-                        </div>
-                    </div>
-                    <p className="text-gray-500 text-xs font-medium">
-                        U dir email-lo dhamaan dadka iska diwaangeliyey Garaad
-                    </p>
-                </Link>
+                        <p className={`${s.descColor} text-xs font-medium opacity-90`}>
+                            {s.desc}
+                        </p>
+                    </Link>
+                ))}
             </div>
         </div>
     );

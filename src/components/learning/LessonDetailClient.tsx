@@ -44,7 +44,6 @@ import { API_BASE_URL } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { LessonCompleteModal } from "@/components/learning/LessonCompleteModal";
-import { LessonChallengeSoftInvite } from "@/components/challenge/LessonChallengeSoftInvite";
 import { EmailVerificationBanner } from "@/components/learning/EmailVerificationBanner";
 import dynamic from "next/dynamic";
 import posthog from "posthog-js";
@@ -376,9 +375,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
         const problemId = sortedBlocks[currentBlockIndex]?.problem;
         return problems.find(p => p.id === problemId) || problems[0];
     }, [problems, sortedBlocks, currentBlockIndex]);
-
-    const showChallengeSoftInvite =
-        lessonNumberInCourse > FREE_TIER_LESSON_COUNT && !isPayingSubscriber;
 
     // Memoized derived values
     const currentProblemBlock = useMemo(() => {
@@ -1235,7 +1231,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                                 {renderBlock(sortedBlocks[currentBlockIndex], currentBlockIndex)}
                             </motion.div>
                         </AnimatePresence>
-                        {showChallengeSoftInvite ? <LessonChallengeSoftInvite /> : null}
                     </div>
                 </div>
             </main>

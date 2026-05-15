@@ -6,6 +6,7 @@ const protectedRoots = [
   "/profile",
   "/settings",
   "/subscribe/pay",
+  "/post-verification-choice",
 ];
 
 const premiumRoots: string[] = [
@@ -30,7 +31,9 @@ export async function middleware(request: NextRequest) {
     pathname === "/welcome" ||
     pathname === "/login" ||
     pathname === "/signup" ||
-    pathname === "/verify-email";
+    pathname === "/verify-email" ||
+    pathname === "/post-verification-choice" ||
+    pathname.startsWith("/post-verification-choice/");
 
   if (isAuthPage) return NextResponse.next();
 
