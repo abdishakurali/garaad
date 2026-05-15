@@ -27,6 +27,10 @@ export const metadata = buildMetadata({
   ],
 });
 
+// Revalidate every 5 minutes — tracks rarely change but should reflect
+// new additions without a full redeploy.
+export const revalidate = 300;
+
 const jsonLdBreadcrumb = breadcrumbSchema([
   { name: "Garaad", item: SITE_URL },
   { name: "Korsooyinka", item: `${SITE_URL}${CANONICAL}` },
@@ -50,7 +54,26 @@ const jsonLdFaq = faqSchema([
   },
 ]);
 
-export default function CoursesPage() {
+async function getTracks() {
+  const apiBase = (
+    process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org"
+  ).replace(/\/$/, "");
+
+  try {
+    const res = await fetch(`${apiBase}/api/lms/tracks/`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data?.results ?? []);
+  } catch {
+    return [];
+  }
+}
+
+export default async function CoursesPage() {
+  const tracks = await getTracks();
+
   return (
     <>
       <script
@@ -61,7 +84,7 @@ export default function CoursesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
       />
-      <TrackGridClient />
+      <TrackGridClient initialTracks={tracks} />
     </>
   );
 }

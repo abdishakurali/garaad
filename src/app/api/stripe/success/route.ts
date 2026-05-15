@@ -53,14 +53,8 @@ export async function GET(request: NextRequest) {
         console.error("stripe complete-checkout error", e);
       }
 
-      const metaPlan = session.metadata?.plan;
-      const subscribed =
-        metaPlan === "challenge" || metaPlan === "explorer" ? metaPlan : null;
-      const successPath = `/courses?success=payment_completed${
-        subscribed
-          ? `&subscription_type=${encodeURIComponent(subscribed)}`
-          : ""
-      }&checkout_completed=stripe`;
+      // Send user directly into the course — no intermediate success page
+      const successPath = `/courses/freelancing?payment=done`;
 
       // Best-effort: update premium status if userId is in metadata.
       // The webhook handler is the reliable path and will grant premium via customer lookup.

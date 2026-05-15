@@ -16,28 +16,14 @@ interface Track {
   is_published?: boolean;
 }
 
-function CardSkeleton() {
-  return (
-    <div className="animate-pulse rounded-2xl border border-border bg-card p-6">
-      <div className="mb-3 h-5 w-3/4 rounded bg-muted" />
-      <div className="mb-5 space-y-2">
-        <div className="h-4 w-full rounded bg-muted" />
-        <div className="h-4 w-2/3 rounded bg-muted" />
-      </div>
-      <div className="mb-6 space-y-2">
-        <div className="h-3 w-1/2 rounded bg-muted" />
-        <div className="h-3 w-1/3 rounded bg-muted" />
-      </div>
-      <div className="h-10 w-full rounded-xl bg-muted" />
-    </div>
-  );
-}
-
-export function TrackGridClient() {
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [loading, setLoading] = useState(true);
+export function TrackGridClient({ initialTracks }: { initialTracks?: Track[] }) {
+  const [tracks, setTracks] = useState<Track[]>(initialTracks ?? []);
+  const [loading, setLoading] = useState(!initialTracks);
 
   useEffect(() => {
+    // Skip client fetch if SSR already provided tracks
+    if (initialTracks && initialTracks.length > 0) return;
+
     fetch(`${API_BASE_URL}/api/lms/tracks/`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
@@ -46,7 +32,7 @@ export function TrackGridClient() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [initialTracks]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-14 sm:py-20">
@@ -66,7 +52,20 @@ export function TrackGridClient() {
 
       {/* Cards */}
       <div className="grid gap-5 sm:grid-cols-3">
-        {loading && [0, 1, 2].map((i) => <CardSkeleton key={i} />)}
+        {loading && [0, 1, 2].map((i) => (
+          <div key={i} className="animate-pulse rounded-2xl border border-border bg-card p-6">
+            <div className="mb-3 h-5 w-3/4 rounded bg-muted" />
+            <div className="mb-5 space-y-2">
+              <div className="h-4 w-full rounded bg-muted" />
+              <div className="h-4 w-2/3 rounded bg-muted" />
+            </div>
+            <div className="mb-6 space-y-2">
+              <div className="h-3 w-1/2 rounded bg-muted" />
+              <div className="h-3 w-1/3 rounded bg-muted" />
+            </div>
+            <div className="h-10 w-full rounded-xl bg-muted" />
+          </div>
+        ))}
 
         {!loading && tracks.map((track, idx) => {
           const isFirst = idx === 0;

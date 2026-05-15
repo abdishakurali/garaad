@@ -143,7 +143,7 @@ function LoginPageContent() {
             } else if (redirectTo) {
                 router.push(redirectTo);
             } else {
-                router.push("/post-verification-choice");
+                router.push("/courses/freelancing");
             }
         } catch (err) {
             posthog?.capture("login_failed", {

@@ -116,7 +116,7 @@ function PayPageInner() {
 
         if (result.payment_success) {
           posthog?.capture("checkout_completed", { payment_method: "waafi", plan: "challenge" });
-          router.push("/courses?welcome=1");
+          router.push("/courses/freelancing?payment=done");
           return;
         }
 

@@ -84,7 +84,7 @@ export function LessonCompleteModal({
 
   const handleDashboard = useCallback(() => {
     onDashboard();
-    router.push("/post-verification-choice");
+    router.push("/courses/freelancing");
   }, [onDashboard, router]);
 
   if (celebrationIntro) {
@@ -227,7 +227,7 @@ export function LessonCompleteModal({
                 asChild
                 className="w-full h-10 text-sm font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white border-0"
               >
-                <Link href="/post-verification-choice">Shahaadada soo deji</Link>
+                <Link href="/courses/freelancing">Shahaadada soo deji</Link>
               </Button>
             </div>
           )}
@@ -246,7 +246,7 @@ export function LessonCompleteModal({
             asChild
             className="w-full h-10 rounded-xl border-white/20 text-zinc-200 hover:bg-white/10"
           >
-            <Link href="/post-verification-choice">Koorsooyin kale →</Link>
+            <Link href="/courses/freelancing">Koorsooyin kale →</Link>
           </Button>
 
           {/* 5. SECONDARY ACTIONS */}

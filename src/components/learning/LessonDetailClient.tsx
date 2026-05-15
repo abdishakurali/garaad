@@ -208,11 +208,13 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
         isLoading: storeLoading
     } = useLearningStore();
 
-    // useLesson hook - use initialLesson from server as fallback
-    const { lesson: swrLesson, isLoading: lessonLoading, isError: lessonError } = useLesson(params.lessonId as string);
+    // Skip SWR fetch when SSR already delivered the lesson — saves a round-trip on first load
+    const { lesson: swrLesson, isLoading: lessonLoading, isError: lessonError } = useLesson(
+        initialLesson ? undefined : (params.lessonId as string)
+    );
     // Server-side initial lesson takes priority, then SWR, then store
     const currentLesson = initialLesson || swrLesson || storeLesson;
-    const isLoading = lessonLoading || storeLoading;
+    const isLoading = !initialLesson && (lessonLoading || storeLoading);
 
     // useCourse for breadcrumbs/info
     const { course: currentCourse } = useCourse(params.categoryId as string, params.courseSlug as string);
@@ -759,7 +761,6 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                 if (cancelled.v) return;
                 dismiss();
                 setShowCompletionAnimation(false);
-                setNavigating(true);
                 setCompletionNavigateMeta(null);
                 if (nextLessonId != null) {
                     router.push(
@@ -792,7 +793,7 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
     const handleCompletionAnimationFinish = useCallback(() => {
         setCompletionNavigateMeta(null);
         setShowCompletionAnimation(false);
-        setNavigating(true);
+        // No full-screen spinner — Next.js handles the route transition
 
         const sortedLessons = [...courseLessons].sort(
             (a, b) => ((a as { lesson_number?: number }).lesson_number ?? 0) - ((b as { lesson_number?: number }).lesson_number ?? 0)
@@ -1156,13 +1157,13 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
         );
     }
 
-    // Show navigating state
-    if (navigating) {
-        return <LoadingSpinner message="ku laabanaya koordooyinka..." />;
-    }
-
     // Render the main lesson page
-    if (!mounted) return null;
+    // Note: we no longer block render on `navigating` or `!mounted` — Next.js
+    // handles route transitions natively, and suppressing hydration warnings
+    // is better done via suppressHydrationWarning on specific elements.
+    if (!mounted) return (
+        <div className="min-h-screen bg-zinc-950" />
+    );
 
     return (
         <div className="relative min-h-screen bg-zinc-950 flex flex-col overflow-x-hidden overscroll-y-contain">
