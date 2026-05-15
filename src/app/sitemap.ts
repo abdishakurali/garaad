@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { API_BASE_URL } from "@/lib/constants";
+import { getAllTopicSlugs } from "@/lib/seo-topics";
 
 const BASE_URL = "https://garaad.org";
 
@@ -24,11 +25,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     withHreflang(baseUrl, { lastModified: currentDate, changeFrequency: "daily", priority: 1 }),
     withHreflang(`${baseUrl}/courses`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.9 }),
+    withHreflang(`${baseUrl}/courses/freelancing`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.95 }),
+    withHreflang(`${baseUrl}/learn`, { lastModified: currentDate, changeFrequency: "weekly", priority: 0.85 }),
     withHreflang(`${baseUrl}/blog`, { lastModified: currentDate, changeFrequency: "daily", priority: 0.8 }),
     withHreflang(`${baseUrl}/about`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 }),
     withHreflang(`${baseUrl}/about/abdishakuur-ali`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 }),
+    withHreflang(`${baseUrl}/mentorship`, { lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 }),
     withHreflang(`${baseUrl}/privacy`, { lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 }),
     withHreflang(`${baseUrl}/terms`, { lastModified: currentDate, changeFrequency: "yearly", priority: 0.3 }),
+    // Programmatic SEO topic pages
+    ...getAllTopicSlugs().map((slug) =>
+      withHreflang(`${baseUrl}/learn/${slug}`, {
+        lastModified: currentDate,
+        changeFrequency: "monthly" as const,
+        priority: 0.8,
+      })
+    ),
   ];
 
   const dynamicRoutes: MetadataRoute.Sitemap = [];
