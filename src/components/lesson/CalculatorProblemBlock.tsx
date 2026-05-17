@@ -157,7 +157,6 @@ const CalculatorProblemBlock: React.FC<CalculatorProblemBlockProps> = ({
 
   // Handle special calculations based on calculator type
   useEffect(() => {
-    console.log("TYPE OF CALCULATOR", view?.type);
     if (view?.type === "calculator_interface") {
       // ElGamal signature calculator logic
       const n = parseInt(values.param_n) || 29;
