@@ -155,14 +155,13 @@ export function FeedbackPageClient() {
   }, []);
 
   const loadMine = useCallback(async () => {
-    const token = AuthService.getInstance().getToken();
-    if (!token) {
+    if (!AuthService.getInstance().isAuthenticated()) {
       setMine([]);
       return;
     }
     setMineLoading(true);
     try {
-      const rows = await fetchMyStudentFeedback(token);
+      const rows = await fetchMyStudentFeedback();
       setMine(rows);
     } catch {
       setMine([]);
@@ -226,8 +225,7 @@ export function FeedbackPageClient() {
       return;
     }
 
-    const token = user ? AuthService.getInstance().getToken() : null;
-    if (user && !token) {
+    if (user && !AuthService.getInstance().isAuthenticated()) {
       setSubmitError("Fadhigu wuu dhamaaday. Fadlan mar kale soo gal.");
       return;
     }
@@ -243,7 +241,7 @@ export function FeedbackPageClient() {
     };
 
     let body: SubmitStudentFeedbackBody;
-    if (user && token) {
+    if (user && AuthService.getInstance().isAuthenticated()) {
       body = base;
     } else {
       const ge = guestEmail.trim();
@@ -261,7 +259,7 @@ export function FeedbackPageClient() {
 
     setSubmitting(true);
     try {
-      const { status, ok, data } = await submitStudentFeedback(body, user ? token : null);
+      const { status, ok, data } = await submitStudentFeedback(body);
       if (!ok) {
         setSubmitError(formatSubmitError(data));
         return;

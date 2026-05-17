@@ -37,15 +37,14 @@ class StripeService {
   ) {
     try {
       const authService = AuthService.getInstance();
-      const token = authService.getToken();
       let currentUser = authService.getCurrentUser();
 
-      if (!token) {
+      if (!authService.isAuthenticated()) {
         throw new Error("User not authenticated");
       }
 
       if (!currentUser?.email && typeof authService.fetchAndUpdateUserData === "function") {
-        const refreshed = await authService.fetchAndUpdateUserData(token);
+        const refreshed = await authService.fetchAndUpdateUserData();
         currentUser = refreshed ?? currentUser;
       }
 
@@ -58,10 +57,8 @@ class StripeService {
 
       const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           priceId: priceId || "",
           mode,
@@ -101,16 +98,14 @@ class StripeService {
   async createCheckoutSession(plan: "monthly", countryCode: string) {
     try {
       const authService = AuthService.getInstance();
-      const token = authService.getToken();
       let currentUser = authService.getCurrentUser();
 
-      if (!token) {
+      if (!authService.isAuthenticated()) {
         throw new Error("User not authenticated");
       }
 
-      // Ensure we have email (e.g. after refresh, cookie may lack it until we fetch)
       if (!currentUser?.email && typeof authService.fetchAndUpdateUserData === "function") {
-        const refreshed = await authService.fetchAndUpdateUserData(token);
+        const refreshed = await authService.fetchAndUpdateUserData();
         currentUser = refreshed ?? currentUser;
       }
 
@@ -134,10 +129,8 @@ class StripeService {
 
       const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
 

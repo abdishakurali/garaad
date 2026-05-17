@@ -20,12 +20,10 @@ export async function fetchPublicStudentFeedback(): Promise<PublicStudentFeedbac
   return data as PublicStudentFeedback[];
 }
 
-export async function fetchMyStudentFeedback(token: string): Promise<StudentFeedbackMine[]> {
+export async function fetchMyStudentFeedback(): Promise<StudentFeedbackMine[]> {
   const res = await fetch(MINE_URL, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     cache: "no-store",
   });
   if (!res.ok) {
@@ -52,15 +50,12 @@ export interface SubmitStudentFeedbackBody {
 
 export async function submitStudentFeedback(
   body: SubmitStudentFeedbackBody,
-  token: string | null
+  _token?: string | null
 ): Promise<{ status: number; ok: boolean; data: unknown }> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
   const res = await fetch(SUBMIT_URL, {
     method: "POST",
-    headers,
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   let data: unknown = null;

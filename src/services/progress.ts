@@ -59,26 +59,24 @@ interface UserRank {
   user_info: LeaderboardEntry["user_info"];
 }
 
+const authFetch = async (url: string, init: RequestInit = {}): Promise<Response> => {
+  const isAuthed = await AuthService.getInstance().ensureValidToken();
+  if (!isAuthed) throw new Error("Authentication required");
+  return fetch(url, {
+    ...init,
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...init.headers },
+  });
+};
+
 export const progressService = {
-  // User Progress
   async getUserProgress() {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(`${API_BASE_URL}/api/lms/user-progress/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await authFetch(`${API_BASE_URL}/api/lms/user-progress/`);
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch user progress");
       }
-
       return (await response.json()) as UserProgress[];
     } catch (error) {
       console.error("Error fetching user progress:", error);
@@ -87,27 +85,15 @@ export const progressService = {
   },
 
   async createProgressRecord(lessonId: number, status: UserProgress["status"]) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(`${API_BASE_URL}/api/lms/user-progress/`, {
+      const response = await authFetch(`${API_BASE_URL}/api/lms/user-progress/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          lesson: lessonId,
-          status,
-        }),
+        body: JSON.stringify({ lesson: lessonId, status }),
       });
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to create progress record");
       }
-
       return (await response.json()) as UserProgress;
     } catch (error) {
       console.error("Error creating progress record:", error);
@@ -116,27 +102,15 @@ export const progressService = {
   },
 
   async updateProgress(progressId: number, data: Partial<UserProgress>) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${API_BASE_URL}/api/lms/user-progress/${progressId}/`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(data),
-        }
+        { method: "PATCH", body: JSON.stringify(data) }
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to update progress");
       }
-
       return (await response.json()) as UserProgress;
     } catch (error) {
       console.error("Error updating progress:", error);
@@ -145,26 +119,14 @@ export const progressService = {
   },
 
   async getProgressByCourse(courseId: number) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/lms/user-progress/by_course/?course_id=${courseId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await authFetch(
+        `${API_BASE_URL}/api/lms/user-progress/by_course/?course_id=${courseId}`
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch course progress");
       }
-
       return (await response.json()) as UserProgress[];
     } catch (error) {
       console.error("Error fetching course progress:", error);
@@ -173,26 +135,14 @@ export const progressService = {
   },
 
   async getProgressByCategory(categoryId: number) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/lms/user-progress/by_category/?category_id=${categoryId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await authFetch(
+        `${API_BASE_URL}/api/lms/user-progress/by_category/?category_id=${categoryId}`
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch category progress");
       }
-
       return (await response.json()) as UserProgress[];
     } catch (error) {
       console.error("Error fetching category progress:", error);
@@ -201,26 +151,14 @@ export const progressService = {
   },
 
   async getProgressByModule(moduleId: number) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/lms/user-progress/by_module/?module_id=${moduleId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await authFetch(
+        `${API_BASE_URL}/api/lms/user-progress/by_module/?module_id=${moduleId}`
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch module progress");
       }
-
       return (await response.json()) as UserProgress[];
     } catch (error) {
       console.error("Error fetching module progress:", error);
@@ -228,58 +166,29 @@ export const progressService = {
     }
   },
 
-  // User Rewards
   async getUserRewards() {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(`${API_BASE_URL}/api/lms/rewards/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await authFetch(`${API_BASE_URL}/api/lms/rewards/`);
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch user rewards");
       }
-
-      const data = await response.json();
-
-      return data as UserReward[];
+      return (await response.json()) as UserReward[];
     } catch (error) {
       console.error("Error fetching user rewards:", error);
       throw error;
     }
   },
 
-  // Leaderboard
-  async getLeaderboard(
-    timePeriod: "all_time" | "weekly" | "monthly" = "all_time"
-  ) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
+  async getLeaderboard(timePeriod: "all_time" | "weekly" | "monthly" = "all_time") {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/lms/leaderboard/?time_period=${timePeriod}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await authFetch(
+        `${API_BASE_URL}/api/lms/leaderboard/?time_period=${timePeriod}`
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch leaderboard");
       }
-
       return (await response.json()) as LeaderboardEntry[];
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
@@ -288,28 +197,16 @@ export const progressService = {
   },
 
   async getUserRank() {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(`${API_BASE_URL}/api/lms/leaderboard/my_rank/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await authFetch(`${API_BASE_URL}/api/lms/leaderboard/my_rank/`);
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch user rank");
       }
-
       return (await response.json()) as UserRank;
     } catch (error) {
       console.error("Error fetching user rank:", error);
       throw error;
     }
   },
-
 };

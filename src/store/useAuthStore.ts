@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthStore>()(
             },
 
             logout: () => {
-                AuthService.getInstance().logout();
+                AuthService.getInstance().logout().catch(() => {});
                 set({
                     user: null,
                     accessToken: null,
@@ -100,8 +100,7 @@ export const useAuthStore = create<AuthStore>()(
             hydrate: () => {
                 const authService = AuthService.getInstance();
                 const user = authService.getCurrentUser();
-                const token = authService.getToken();
-                if (user && token) {
+                if (user) {
                     set({ user, isAuthenticated: true });
                 }
             },

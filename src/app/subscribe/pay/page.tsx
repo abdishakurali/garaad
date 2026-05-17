@@ -83,8 +83,8 @@ function PayPageInner() {
     }
 
     const auth = AuthService.getInstance();
-    const token = await auth.ensureValidToken();
-    if (!token) {
+    const isAuthed = await auth.ensureValidToken();
+    if (!isAuthed) {
       setError(t.error_login_required);
       return;
     }

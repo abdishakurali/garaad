@@ -55,32 +55,30 @@ interface PracticeCompletionResponse {
   };
 }
 
+const authFetch = async (url: string, init: RequestInit = {}): Promise<Response> => {
+  const isAuthed = await AuthService.getInstance().ensureValidToken();
+  if (!isAuthed) throw new Error("Authentication required");
+  return fetch(url, {
+    ...init,
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...init.headers },
+  });
+};
+
 export const practiceService = {
   async getPracticeSets(lessonId?: number, moduleId?: number) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
       const params = new URLSearchParams();
       if (lessonId) params.append("lesson", lessonId.toString());
       if (moduleId) params.append("module", moduleId.toString());
 
-      const response = await fetch(
-        `${baseURL}/api/lms/practice-sets/?${params.toString()}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await authFetch(
+        `${baseURL}/api/lms/practice-sets/?${params.toString()}`
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch practice sets");
       }
-
       return (await response.json()) as PracticeSet[];
     } catch (error) {
       console.error("Error fetching practice sets:", error);
@@ -89,26 +87,14 @@ export const practiceService = {
   },
 
   async getPracticeSet(practiceSetId: number) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(
-        `${baseURL}/api/lms/practice-sets/${practiceSetId}/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await authFetch(
+        `${baseURL}/api/lms/practice-sets/${practiceSetId}/`
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to fetch practice set");
       }
-
       return (await response.json()) as PracticeSet;
     } catch (error) {
       console.error("Error fetching practice set:", error);
@@ -117,27 +103,15 @@ export const practiceService = {
   },
 
   async completePracticeSet(practiceSetId: number, score: number) {
-    const token = await AuthService.getInstance().ensureValidToken();
-    if (!token) throw new Error("Authentication required");
-
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${baseURL}/api/lms/practice-sets/${practiceSetId}/complete/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ score }),
-        }
+        { method: "POST", body: JSON.stringify({ score }) }
       );
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(error.message || "Failed to complete practice set");
       }
-
       return (await response.json()) as PracticeCompletionResponse;
     } catch (error) {
       console.error("Error completing practice set:", error);

@@ -4,7 +4,6 @@ import { Category, Course, Lesson } from "@/types/lms";
 import { Module } from "@/types/learning";
 import { API_BASE_URL } from "@/lib/constants";
 import AuthService from "@/services/auth";
-import { useAuthStore } from "@/store/useAuthStore";
 
 // Add cache configuration
 function localStorageProvider() {
@@ -38,13 +37,9 @@ export const swrConfig = {
 };
 
 const fetcher = async (url: string) => {
-  const token = typeof window !== "undefined" ? AuthService.getInstance().getToken() : null;
-
   const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
   });
 
   if (!response.ok) {
@@ -82,64 +77,6 @@ export function useCategories(pathType?: string) {
   };
 }
 
-interface OnboardingStatus {
-  has_completed_onboarding: boolean;
-  goal?: string;
-  goal_label?: string;
-}
-
-function useOnboarding() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const { data, error, isLoading, mutate } = useSWR<OnboardingStatus>(
-    isAuthenticated ? `${API_BASE_URL}/api/auth/onboarding-status/` : null,
-    fetcher,
-    { revalidateOnFocus: false, dedupingInterval: 60000 }
-  );
-  return {
-    has_completed_onboarding: data?.has_completed_onboarding ?? false,
-    goal: data?.goal ?? "",
-    goal_label: data?.goal_label ?? "",
-    hasOnboardingData: Boolean(data?.goal || data?.goal_label),
-    isLoading,
-    isError: error,
-    mutate,
-  };
-}
-
-// export function useCourse(categoryId: string, courseSlug: string) {
-//   const { data, error, isLoading, mutate } = useSWR<Course>(
-//     categoryId && courseSlug
-//       ? `${process.env.NEXT_PUBLIC_API_URL}/api/lms/categories/${categoryId}/courses/${courseSlug}/`
-//       : null,
-//     fetcher,
-//     swrConfig
-//   );
-
-//   return {
-//     course: data,
-//     isLoading,
-//     isError: error,
-//     mutate,
-//   };
-// }
-
-// Modules
-function useModule(courseId: string, moduleId: string) {
-  const { data, error, isLoading, mutate } = useSWR<Module>(
-    courseId && moduleId
-      ? `${API_BASE_URL}/api/lms/courses/${courseId}/modules/${moduleId}/`
-      : null,
-    fetcher
-  );
-
-  return {
-    module: data,
-    isLoading,
-    isError: error,
-    mutate,
-  };
-}
-
 // Lessons
 export function useLesson(lessonId: string | undefined) {
   const { data, error, isLoading, mutate } = useSWR<Lesson>(
@@ -149,55 +86,6 @@ export function useLesson(lessonId: string | undefined) {
 
   return {
     lesson: data,
-    isLoading,
-    isError: error,
-    mutate,
-  };
-}
-
-// Leaderboard
-function useLeaderboard(
-  timePeriod: "daily" | "weekly" | "all_time" = "all_time"
-) {
-  const { data, error, isLoading, mutate } = useSWR(
-    `${API_BASE_URL}/api/lms/leaderboard/?time_period=${timePeriod}`,
-    fetcher
-  );
-
-  return {
-    leaderboard: data,
-    isLoading,
-    isError: error,
-    mutate,
-  };
-}
-
-// User Rank
-function useUserRank() {
-  const { data, error, isLoading, mutate } = useSWR(
-    `${API_BASE_URL}/api/lms/leaderboard/my_rank/`,
-    fetcher
-  );
-
-  return {
-    rank: data,
-    isLoading,
-    isError: error,
-    mutate,
-  };
-}
-
-// User Rewards
-function useUserRewards(lessonId?: string) {
-  const { data, error, isLoading, mutate } = useSWR(
-    lessonId
-      ? `${API_BASE_URL}/api/lms/rewards?lesson_id=${lessonId}`
-      : `${API_BASE_URL}/api/lms/rewards`,
-    fetcher
-  );
-
-  return {
-    rewards: data,
     isLoading,
     isError: error,
     mutate,
@@ -223,10 +111,10 @@ export function useProblem(problemId: number | string | undefined | null) {
 
 // Enrollments (only when authenticated — avoids 401 noise and useless errors when logged out)
 export function useEnrollments() {
-  const token =
-    typeof window !== "undefined" ? AuthService.getInstance().getToken() : null;
+  const isAuthed =
+    typeof window !== "undefined" ? AuthService.getInstance().isAuthenticated() : false;
   const { data, error, isLoading, mutate } = useSWR(
-    token ? `${API_BASE_URL}/api/lms/enrollments/` : null,
+    isAuthed ? `${API_BASE_URL}/api/lms/enrollments/` : null,
     fetcher,
     {
       revalidateOnFocus: false,

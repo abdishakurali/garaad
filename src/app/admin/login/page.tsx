@@ -35,7 +35,7 @@ function AdminLoginForm() {
     const [error, setError] = useState("");
     const router = useRouter();
     const urlSearchParams = useSearchParams();
-    const { setTokens, token, clearTokens } = useAdminAuthStore();
+    const { setTokens, isAuthenticated, clearTokens } = useAdminAuthStore();
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -55,23 +55,7 @@ function AdminLoginForm() {
             }
         }
 
-        if (token && !isLoop) {
-            // Check if cookies are also present (these are what the middleware needs)
-            const hasCookies = document.cookie.includes("accessToken") || document.cookie.includes("user");
-
-            if (!hasCookies) {
-                console.warn("Storage token exists but cookies are missing. Attempting to restore cookies...");
-                const authService = AuthService.getInstance();
-                const storedUser = useAdminAuthStore.getState().user;
-                const refreshToken = useAdminAuthStore.getState().refreshToken;
-
-                if (storedUser) {
-                    authService.setCurrentUser(storedUser as any);
-                    authService.setTokens(token, refreshToken || "");
-                    console.log("Cookies restored from storage.");
-                }
-            }
-
+        if (isAuthenticated() && !isLoop) {
             sessionStorage.setItem("admin_redirect_loop_check", now.toString());
             router.replace("/admin");
         } else if (token && isLoop) {
@@ -90,7 +74,7 @@ function AdminLoginForm() {
             // Add a hint about clearing cache if PWA is suspected
             setError(`${errorMsg} (Haddii ay ku soo noqnoqoto, fadlan nadiifi cache-ka browser-ka ama isticmaal Incognito)`);
         }
-    }, [token, router, clearTokens, urlSearchParams]);
+    }, [isAuthenticated, router, clearTokens, urlSearchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -112,13 +96,11 @@ function AdminLoginForm() {
                     sessionStorage.removeItem("admin_redirect_loop_check");
                 }
 
-                // First, set the tokens in the admin store (localStorage)
-                setTokens(tokens.access, tokens.refresh, user);
-
-                // Second, sync with AuthService to set COOKIES for the middleware
                 const authService = AuthService.getInstance();
                 authService.setCurrentUser(user as any);
-                authService.setTokens(tokens.access, tokens.refresh);
+
+                // Store non-sensitive user metadata for admin UI display
+                setTokens(tokens.access, tokens.refresh, user);
 
                 router.replace("/admin");
             } else {

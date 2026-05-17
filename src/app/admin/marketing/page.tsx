@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAdminAuthStore } from "@/store/admin/auth";
+import { adminApi } from "@/lib/admin-api";
 import axios from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org";
@@ -82,22 +83,20 @@ export default function GaraadEmailDashboard() {
     const [sending, setSending] = useState(false);
     const [sendResult, setSendResult] = useState<{ ok: number, fail: number, total: number } | null>(null);
 
-    const { token } = useAdminAuthStore();
+    const { isAuthenticated } = useAdminAuthStore();
 
     // ── fetch users from Garaad Backend ─────────────────────────────────────
     const loadUsers = useCallback(async () => {
-        if (!token) return;
+        if (!isAuthenticated()) return;
         setLoading(true);
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/auth/marketing-users/`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await adminApi.get(`/auth/marketing-users/`);
             setUsers(response.data);
         } catch (error) {
             console.error("Failed to load marketing users:", error);
         }
         setLoading(false);
-    }, [token]);
+    }, [isAuthenticated]);
 
     /* eslint-disable react-hooks/set-state-in-effect -- triggered by token change, intentional */
     useEffect(() => { loadUsers(); }, [loadUsers]);
@@ -148,15 +147,11 @@ export default function GaraadEmailDashboard() {
         setSending(true);
         setSendResult(null);
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/api/auth/send-campaign/`,
-                {
-                    recipients: [...selected],
-                    subject: compose.subject,
-                    html: compose.html || undefined,
-                },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const response = await adminApi.post(`/auth/send-campaign/`, {
+                recipients: [...selected],
+                subject: compose.subject,
+                html: compose.html || undefined,
+            });
             const { sent, failed, total } = response.data;
             setSendResult({ ok: sent, fail: failed, total });
         } catch (err) {

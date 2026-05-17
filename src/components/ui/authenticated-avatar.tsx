@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import AuthService from '@/services/auth';
 import { Camera, Loader2 } from 'lucide-react';
 
 interface AuthenticatedAvatarProps {
@@ -43,10 +42,8 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
 
         let isMounted = true;
         const controller = new AbortController();
-        const authService = AuthService.getInstance();
-        const token = authService.getToken();
 
-        // Normalize src: Handle relative paths starting with /media/
+        // Normalize src: handle relative /media/ paths
         let normalizedSrc = src;
         if (src.startsWith('/media/')) {
             normalizedSrc = `https://api.garaad.org${src}`;
@@ -58,9 +55,9 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
             currentBlobUrl.current = null;
         }
 
-        // If it's already a full URL and doesn't belong to the authenticated API domain, use it directly
-        // We check for both /api/media and /media on api.garaad.org
-        const isProtectedMedia = normalizedSrc.includes('api.garaad.org/api/media') || normalizedSrc.includes('api.garaad.org/media');
+        const isProtectedMedia =
+            normalizedSrc.includes('api.garaad.org/api/media') ||
+            normalizedSrc.includes('api.garaad.org/media');
 
         if (normalizedSrc.startsWith('http') && !isProtectedMedia) {
             setImageUrl(normalizedSrc);
@@ -69,77 +66,34 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
             return;
         }
 
-        // For authenticated media URLs, fetch with token
-        if (token && isProtectedMedia) {
-            console.log('AuthenticatedAvatar: Fetching with token', {
-                src: normalizedSrc,
-            });
-
-            // Check if token looks valid (basic check)
-            if (token.split('.').length !== 3) {
-                console.error('AuthenticatedAvatar: Invalid token format');
-                setError(true);
-                setIsLoading(false);
-                return;
-            }
-
-            // Check if token might be expired
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const isExpired = payload.exp * 1000 < Date.now();
-
-                if (isExpired) {
-                    console.error('AuthenticatedAvatar: Token is expired');
-                    setError(true);
-                    setIsLoading(false);
-                    return;
+        // For authenticated media, send the httpOnly cookie via credentials:'include'
+        fetch(normalizedSrc, { credentials: 'include', signal: controller.signal })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-            } catch (error) {
-                console.error('AuthenticatedAvatar: Could not decode token payload', error);
-            }
-
-            fetch(normalizedSrc, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                signal: controller.signal
+                return response.blob();
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    return response.blob();
-                })
-                .then(blob => {
-                    const url = URL.createObjectURL(blob);
-                    if (isMounted) {
-                        currentBlobUrl.current = url;
-                        setImageUrl(url);
-                        setError(false);
-                        setIsLoading(false);
-                    } else {
-                        URL.revokeObjectURL(url);
-                    }
-                })
-                .catch(err => {
-                    if (err.name === 'AbortError') {
-                        console.log('AuthenticatedAvatar: Fetch aborted');
-                        return;
-                    }
-                    console.warn('Failed to load authenticated avatar, falling back to direct URL:', err);
-                    if (isMounted) {
-                        // Fallback: try loading directly without Authorization header
-                        setImageUrl(normalizedSrc);
-                        setError(false);
-                        setIsLoading(false);
-                    }
-                });
-        } else {
-            // For non-authenticated URLs, use directly
-            setImageUrl(normalizedSrc);
-            setIsLoading(false);
-            setError(false);
-        }
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                if (isMounted) {
+                    currentBlobUrl.current = url;
+                    setImageUrl(url);
+                    setError(false);
+                    setIsLoading(false);
+                } else {
+                    URL.revokeObjectURL(url);
+                }
+            })
+            .catch(err => {
+                if (err.name === 'AbortError') return;
+                console.warn('Failed to load authenticated avatar, falling back to direct URL:', err);
+                if (isMounted) {
+                    setImageUrl(normalizedSrc);
+                    setError(false);
+                    setIsLoading(false);
+                }
+            });
 
         return () => {
             isMounted = false;
@@ -231,4 +185,4 @@ const AuthenticatedAvatar: React.FC<AuthenticatedAvatarProps> = ({
     );
 };
 
-export default AuthenticatedAvatar; 
+export default AuthenticatedAvatar;

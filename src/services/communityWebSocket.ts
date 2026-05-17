@@ -23,11 +23,12 @@ class CommunityWebSocket {
 
         const authService = AuthService.getInstance();
 
-        // Ensure we have a valid token (refresh if needed) before connecting
-        const token = await authService.ensureValidToken();
+        // Verify the user has an active session before attempting to connect.
+        // The access token is sent automatically as an httpOnly cookie — no URL param needed.
+        const isAuthed = await authService.ensureValidToken();
 
-        if (!token) {
-            console.warn("No auth token, skipping WebSocket connection");
+        if (!isAuthed) {
+            console.warn("[WS] No active session, skipping WebSocket connection");
             return;
         }
 
@@ -56,10 +57,9 @@ class CommunityWebSocket {
 
         try {
             const baseUrl = process.env.NEXT_PUBLIC_WS_URL || "wss://api.garaad.org/ws/community/";
-            // Ensure baseUrl ends in a slash
             const formattedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-            // Connect to community WebSocket
-            const url = `${formattedBaseUrl}${roomName}/?token=${token}`;
+            // Token is forwarded as an httpOnly cookie — no ?token= in the URL
+            const url = `${formattedBaseUrl}${roomName}/`;
             console.log(`[WS] Connecting to: ${url}`);
 
             this.ws = new WebSocket(url);
@@ -75,6 +75,11 @@ class CommunityWebSocket {
 
             this.ws.onclose = (event) => {
                 console.log(`[WS] Disconnected from ${roomName} (Code: ${event.code})`);
+                if (event.code === 4001) {
+                    // Server rejected: auth cookie missing or invalid. Do not reconnect.
+                    console.warn("[WS] Auth rejected by server (4001). Reload or re-login required.");
+                    return;
+                }
                 if (event.code !== 1000) { // 1000 is normal closure
                     this.attemptReconnect();
                 }

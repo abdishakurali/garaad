@@ -61,7 +61,7 @@ export default function ProfilePage() {
         }
         const extProfile = profile as ExtendedUser;
         setUser(extProfile);
-        
+
         const wa = splitWhatsapp(extProfile?.whatsapp_number);
         setFormData({
           first_name: extProfile?.first_name || "",
@@ -103,11 +103,8 @@ export default function ProfilePage() {
     try {
       console.log("Starting profile picture upload...", file.name, file.size);
       const authService = AuthService.getInstance();
-      const token = authService.getToken();
-      console.log("Has token:", !!token);
-      
       await authService.uploadProfilePicture(file);
-      
+
       // Refresh user data after upload
       const updated = await authService.getBasicProfile();
       setUser(updated as ExtendedUser);
@@ -125,13 +122,13 @@ export default function ProfilePage() {
     try {
       const authService = AuthService.getInstance();
       const whatsapp = buildWhatsapp(formData.whatsapp_dial, formData.whatsapp_local);
-      
+
       // Derive username from first_name (lowercase, no spaces)
       const derivedUsername = (formData.first_name || "")
         .toLowerCase()
         .replace(/\s+/g, "")
         .replace(/[^a-z0-9]/g, "");
-      
+
       await authService.updateProfile({
         first_name: formData.first_name,
         last_name: formData.last_name,
@@ -140,7 +137,7 @@ export default function ProfilePage() {
         location: formData.location,
         whatsapp_number: whatsapp || undefined,
       });
-      
+
       const updated = await authService.getBasicProfile();
       setUser(updated as ExtendedUser);
       setIsEditing(false);
@@ -209,7 +206,7 @@ export default function ProfilePage() {
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">
             {/* Cover Background */}
             <div className="h-32 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
-            
+
             <div className="px-6 pb-6">
               {/* Profile Picture */}
               <div className="relative -mt-16 mb-4">

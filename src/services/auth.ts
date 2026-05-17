@@ -1,4 +1,3 @@
-import { jwtDecode } from "jwt-decode";
 import { User } from "@/types/auth";
 import { validateEmail } from "@/lib/email-validation";
 import { api } from "@/lib/api";
@@ -61,12 +60,6 @@ interface SignInResponse {
     refresh: string;
     access: string;
   };
-}
-
-interface JWTPayload {
-  exp: number;
-  iat: number;
-  user_id: number;
 }
 
 interface AuthResponse {
@@ -231,9 +224,18 @@ class AuthService {
     return api.post("/api/auth/resend-verification/", { email: targetEmail });
   }
 
-  public logout(): void {
-    this.deleteCookie("accessToken");
-    this.deleteCookie("refreshToken");
+  public async logout(): Promise<void> {
+    // Ask the backend to blacklist the refresh token and clear httpOnly cookies.
+    // We cannot delete httpOnly cookies from JS — the server must do it.
+    try {
+      const cleanBaseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+      await fetch(`${cleanBaseUrl}/api/auth/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {
+      // Best-effort — clear local state regardless
+    }
     this.deleteCookie("user");
     this.user = null;
   }
@@ -260,60 +262,49 @@ class AuthService {
     return this.user;
   }
 
-  public getToken(): string | null {
-    return this.getCookie("accessToken");
-  }
-
-  public isAuthenticated(): boolean {
-    return !!this.getToken() && !!this.getCurrentUser();
-  }
-
-  public setTokens(access: string, refresh: string): void {
-    this.setCookie("accessToken", access, 1);
-    this.setCookie("refreshToken", refresh, 7);
-  }
-
-  public async refreshAccessToken(): Promise<string | null> {
-    const refreshToken = this.getCookie("refreshToken");
-    if (!refreshToken) return null;
-
-    const cleanBaseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-
-    try {
-      const response = await fetch(
-        `${cleanBaseUrl}/api/auth/refresh/`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refresh: refreshToken }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        this.setTokens(data.access, refreshToken);
-        return data.access;
-      }
-    } catch (e) {
-      console.error("Token refresh failed:", e);
-    }
-
+  /**
+   * Returns null — access tokens are now httpOnly cookies and cannot be read by JS.
+   * Code that previously used the token value for Authorization headers should be removed;
+   * the browser forwards the cookie automatically via credentials:'include'.
+   */
+  public getToken(): null {
     return null;
   }
 
-  public async ensureValidToken(): Promise<string | null> {
-    const token = this.getToken();
-    if (token) {
-      try {
-        const decoded = jwtDecode<JWTPayload>(token);
-        const isExpired = decoded.exp * 1000 < Date.now();
-        if (!isExpired) return token;
-      } catch (e) {
-        // invalid token
-      }
-    }
+  public isAuthenticated(): boolean {
+    return !!this.getCurrentUser();
+  }
 
-    return await this.refreshAccessToken();
+  /**
+   * Kept for call-site compatibility during migration.
+   * The backend now owns cookie writes; this method is a no-op for token cookies.
+   */
+  public setTokens(_access: string, _refresh: string): void {
+    // Intentionally empty — backend sets httpOnly cookies on signin/refresh responses.
+  }
+
+  public async refreshAccessToken(): Promise<boolean> {
+    const cleanBaseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+    try {
+      const response = await fetch(`${cleanBaseUrl}/api/auth/refresh/`, {
+        method: "POST",
+        credentials: "include",
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Returns true when there is an active session (user metadata present + refresh succeeds if needed).
+   * No longer returns the raw token — callers that need a truthy value for "is authed" should use boolean.
+   */
+  public async ensureValidToken(): Promise<boolean> {
+    if (this.user) {
+      return true;
+    }
+    return this.refreshAccessToken();
   }
 
   public async uploadProfilePicture(file: File): Promise<User> {
@@ -416,18 +407,9 @@ class AuthService {
   /**
    * Fetch latest user data from backend and update local profile
    */
-  public async fetchAndUpdateUserData(token?: string): Promise<User | null> {
+  public async fetchAndUpdateUserData(_token?: string): Promise<User | null> {
     try {
-      // Use the provided token or the current one
-      const effectiveToken = token || this.getToken();
-
-      const options = effectiveToken ? {
-        headers: {
-          'Authorization': `Bearer ${effectiveToken}`
-        }
-      } : {};
-
-      const response = await api.get<User>("/api/auth/profile/", {}, options);
+      const response = await api.get<User>("/api/auth/profile/");
 
       if (response) {
         this.setCurrentUser(response);

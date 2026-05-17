@@ -1,66 +1,49 @@
 import axios from "axios";
-import Cookies from "js-cookie";
-import { useAdminAuthStore } from "@/store/admin/auth";
 
 const API_URL = (() => {
     const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     return base.endsWith('/api') ? base : (base.endsWith('/') ? `${base}api` : `${base}/api`);
 })();
 
-/** Prefer Next.js admin panel JWT; fall back to main-site cookie (AuthService). */
-const getAuthHeader = () => {
-    const adminToken = typeof window !== "undefined" ? useAdminAuthStore.getState().token : null;
-    if (adminToken) {
-        return { Authorization: `Bearer ${adminToken}` };
-    }
-    const token = Cookies.get("accessToken");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-};
+// Auth is carried by the httpOnly accessToken cookie — no Authorization header needed.
+const cfg = { withCredentials: true };
 
 export const blogAdminApi = {
     getPosts: async () => {
-        const res = await axios.get(`${API_URL}/blog/posts/`, {
-            headers: getAuthHeader(),
-        });
+        const res = await axios.get(`${API_URL}/blog/posts/`, cfg);
         return res.data;
     },
 
     getPost: async (slug: string) => {
-        const res = await axios.get(`${API_URL}/blog/posts/${slug}/`, {
-            headers: getAuthHeader(),
-        });
+        const res = await axios.get(`${API_URL}/blog/posts/${slug}/`, cfg);
         return res.data;
     },
 
     createPost: async (data: any) => {
-        const headers: Record<string, string> = { ...getAuthHeader() };
+        const headers: Record<string, string> = {};
         if (!(data instanceof FormData)) {
             headers["Content-Type"] = "application/json";
         }
-        const res = await axios.post(`${API_URL}/blog/posts/`, data, { headers });
+        const res = await axios.post(`${API_URL}/blog/posts/`, data, { ...cfg, headers });
         return res.data;
     },
 
     updatePost: async (slug: string, data: any) => {
-        const headers: Record<string, string> = { ...getAuthHeader() };
+        const headers: Record<string, string> = {};
         if (!(data instanceof FormData)) {
             headers["Content-Type"] = "application/json";
         }
-        const res = await axios.patch(`${API_URL}/blog/posts/${slug}/`, data, { headers });
+        const res = await axios.patch(`${API_URL}/blog/posts/${slug}/`, data, { ...cfg, headers });
         return res.data;
     },
 
     deletePost: async (slug: string) => {
-        const res = await axios.delete(`${API_URL}/blog/posts/${slug}/`, {
-            headers: getAuthHeader(),
-        });
+        const res = await axios.delete(`${API_URL}/blog/posts/${slug}/`, cfg);
         return res.data;
     },
 
     publishPost: async (slug: string) => {
-        const res = await axios.post(`${API_URL}/blog/posts/${slug}/publish/`, {}, {
-            headers: getAuthHeader(),
-        });
+        const res = await axios.post(`${API_URL}/blog/posts/${slug}/publish/`, {}, cfg);
         return res.data;
     },
 
@@ -71,10 +54,8 @@ export const blogAdminApi = {
         tags: string;
     }) => {
         const res = await axios.post(`${API_URL}/blog/posts/seo-audit/`, payload, {
-            headers: {
-                ...getAuthHeader(),
-                "Content-Type": "application/json",
-            },
+            ...cfg,
+            headers: { "Content-Type": "application/json" },
         });
         return res.data as {
             score: number;
@@ -87,9 +68,7 @@ export const blogAdminApi = {
     },
 
     getTags: async () => {
-        const res = await axios.get(`${API_URL}/blog/tags/`, {
-            headers: getAuthHeader(),
-        });
+        const res = await axios.get(`${API_URL}/blog/tags/`, cfg);
         return res.data;
     },
 
