@@ -125,8 +125,6 @@ class StripeService {
         cancelUrl: `${window.location.origin}/subscribe?canceled=true`,
       };
 
-      console.log("📧 StripeService - Request body:", requestBody);
-
       const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         credentials: "include",

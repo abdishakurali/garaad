@@ -1,13 +1,19 @@
 import AuthService from "@/services/auth";
 import { useCommunityStore } from "@/store/useCommunityStore";
 
+const BASE_RECONNECT_DELAY = 1_000;
+const MAX_RECONNECT_DELAY = 30_000;
+const MAX_RECONNECT_ATTEMPTS = 8;
+const HEARTBEAT_INTERVAL_MS = 30_000;
+const HEARTBEAT_TIMEOUT_MS = 10_000;
+
 class CommunityWebSocket {
     private static instance: CommunityWebSocket | null = null;
     private ws: WebSocket | null = null;
     private currentCategoryId: string | null = null;
     private reconnectAttempts = 0;
-    private maxReconnectAttempts = 5;
-    private reconnectDelay = 1000;
+    private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+    private heartbeatTimeout: ReturnType<typeof setTimeout> | null = null;
 
     private constructor() { }
 
@@ -32,9 +38,7 @@ class CommunityWebSocket {
             return;
         }
 
-        // If categoryId is null, we connect to "global" which receives private notifications
         const roomName = categoryId || "global";
-
         const currentRoom = this.currentCategoryId || "global";
         const targetRoom = categoryId || "global";
 
@@ -44,9 +48,9 @@ class CommunityWebSocket {
             return;
         }
 
-        // If switching rooms, disconnect first
+        // If switching rooms, disconnect cleanly first
         if (this.ws) {
-            // Prevent old socket from triggering reconnects or errors
+            this.stopHeartbeat();
             this.ws.onclose = null;
             this.ws.onerror = null;
             this.ws.onmessage = null;
@@ -60,13 +64,12 @@ class CommunityWebSocket {
             const formattedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
             // Token is forwarded as an httpOnly cookie — no ?token= in the URL
             const url = `${formattedBaseUrl}${roomName}/`;
-            console.log(`[WS] Connecting to: ${url}`);
 
             this.ws = new WebSocket(url);
 
             this.ws.onopen = () => {
-                console.log(`[WS] Connected to ${roomName}`);
                 this.reconnectAttempts = 0;
+                this.startHeartbeat();
             };
 
             this.ws.onmessage = (event) => {
@@ -74,7 +77,7 @@ class CommunityWebSocket {
             };
 
             this.ws.onclose = (event) => {
-                console.log(`[WS] Disconnected from ${roomName} (Code: ${event.code})`);
+                this.stopHeartbeat();
                 if (event.code === 4001) {
                     // Server rejected: auth cookie missing or invalid. Do not reconnect.
                     console.warn("[WS] Auth rejected by server (4001). Reload or re-login required.");
@@ -85,14 +88,38 @@ class CommunityWebSocket {
                 }
             };
 
-            this.ws.onerror = (error) => {
-                console.warn("WebSocket connection issue:", error);
+            this.ws.onerror = () => {
+                // onclose fires after onerror; actual reconnect logic lives there
             };
-        } catch (error) {
-            console.warn("Failed to connect to WebSocket:", error);
+        } catch {
+            this.attemptReconnect();
         }
     }
 
+    private startHeartbeat() {
+        this.stopHeartbeat();
+        this.heartbeatInterval = setInterval(() => {
+            if (this.ws?.readyState === WebSocket.OPEN) {
+                this.ws.send(JSON.stringify({ type: "ping" }));
+                // Force-close if no pong within the timeout window
+                this.heartbeatTimeout = setTimeout(() => {
+                    console.warn("[WS] Heartbeat timeout — forcing reconnect");
+                    this.ws?.close(4000, "heartbeat timeout");
+                }, HEARTBEAT_TIMEOUT_MS);
+            }
+        }, HEARTBEAT_INTERVAL_MS);
+    }
+
+    private stopHeartbeat() {
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval);
+            this.heartbeatInterval = null;
+        }
+        if (this.heartbeatTimeout) {
+            clearTimeout(this.heartbeatTimeout);
+            this.heartbeatTimeout = null;
+        }
+    }
 
     private handleMessage(event: MessageEvent) {
         const store = useCommunityStore.getState();
@@ -101,6 +128,14 @@ class CommunityWebSocket {
             const data = JSON.parse(event.data);
 
             switch (data.type) {
+                case "pong":
+                    // Clear heartbeat timeout — connection is alive
+                    if (this.heartbeatTimeout) {
+                        clearTimeout(this.heartbeatTimeout);
+                        this.heartbeatTimeout = null;
+                    }
+                    break;
+
                 case "post_created":
                     store.handleWebSocketPost({ ...data.post, request_id: data.request_id });
                     break;
@@ -134,7 +169,6 @@ class CommunityWebSocket {
                     break;
 
                 case "notification_created":
-                    // New notification for the current user
                     store.handleWebSocketNotification(data.notification);
                     break;
 
@@ -145,28 +179,28 @@ class CommunityWebSocket {
                 case "all_notifications_read":
                     store.handleWebSocketAllNotificationsRead();
                     break;
-
-                default:
-                    console.log("Unknown WebSocket event type:", data.type);
             }
-        } catch (error) {
-            console.warn("Error parsing WebSocket message:", error);
+        } catch {
+            // Malformed frame — ignore
         }
     }
 
     private attemptReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            this.reconnectAttempts++;
-            setTimeout(() => {
-                console.log(
-                    `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
-                );
-                this.connect(this.currentCategoryId);
-            }, this.reconnectDelay * this.reconnectAttempts);
-        }
+        if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) return;
+
+        this.reconnectAttempts++;
+        const exponential = Math.min(
+            BASE_RECONNECT_DELAY * Math.pow(2, this.reconnectAttempts - 1),
+            MAX_RECONNECT_DELAY
+        );
+        // Add up to one base-delay of jitter to spread reconnect storms
+        const delay = Math.floor(exponential + Math.random() * BASE_RECONNECT_DELAY);
+
+        setTimeout(() => this.connect(this.currentCategoryId), delay);
     }
 
     disconnect() {
+        this.stopHeartbeat();
         if (this.ws) {
             this.ws.onclose = null;
             this.ws.onerror = null;
@@ -180,4 +214,3 @@ class CommunityWebSocket {
 }
 
 export default CommunityWebSocket;
-
