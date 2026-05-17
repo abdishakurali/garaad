@@ -176,4 +176,17 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+// Wire Sentry only when NEXT_PUBLIC_SENTRY_DSN is set (production).
+// In development it remains a no-op so the bundle is unaffected.
+const hasSentryDsn = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
+
+module.exports = hasSentryDsn
+  ? require("@sentry/nextjs").withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      silent: true,
+      hideSourceMaps: true,
+      disableLogger: true,
+      automaticVercelMonitors: false,
+    })
+  : nextConfig;

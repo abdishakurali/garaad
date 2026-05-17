@@ -8,7 +8,6 @@ export async function reportLessonVideoError(params: {
   videoUrl?: string;
 }): Promise<void> {
   const auth = AuthService.getInstance();
-  const token = auth.getToken();
   const user = auth.getCurrentUser();
   const body: Record<string, unknown> = {
     lesson_id: params.lessonId,
@@ -21,10 +20,8 @@ export async function reportLessonVideoError(params: {
     const base = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
     await fetch(`${base}/api/lms/lessons/video-error/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
   } catch {

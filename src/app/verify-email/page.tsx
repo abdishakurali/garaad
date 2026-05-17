@@ -119,8 +119,7 @@ export default function VerifyEmailPage() {
               const { default: AuthService } = await import('@/services/auth');
               const authService = AuthService.getInstance();
 
-              const accessToken = authService.getToken() || '';
-              const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
+              const updatedUserData = await authService.fetchAndUpdateUserData();
 
               if (updatedUserData) {
                 // Check if user is premium
@@ -250,8 +249,7 @@ export default function VerifyEmailPage() {
         try {
           const { default: AuthService } = await import('@/services/auth');
           const authService = AuthService.getInstance();
-          const token = authService.getToken();
-          await authService.fetchAndUpdateUserData(token || undefined);
+          await authService.fetchAndUpdateUserData();
         } catch (e) {
           console.error("Failed to fetch user:", e);
         }
@@ -279,8 +277,7 @@ export default function VerifyEmailPage() {
       const { default: AuthService } = await import('@/services/auth');
       const authService = AuthService.getInstance();
       try {
-        const token = authService.getToken();
-        await authService.fetchAndUpdateUserData(token || undefined);
+        await authService.fetchAndUpdateUserData();
       } catch (e) {
         console.error("Failed to fetch user data:", e);
       }
@@ -344,8 +341,7 @@ export default function VerifyEmailPage() {
             const { default: AuthService } = await import('@/services/auth');
             const authService = AuthService.getInstance();
 
-            const accessToken = authService.getToken() || '';
-            const updatedUserData = await authService.fetchAndUpdateUserData(accessToken);
+            const updatedUserData = await authService.fetchAndUpdateUserData();
 
             if (updatedUserData) {
               window.location.href = REDIRECT_AFTER_VERIFY;

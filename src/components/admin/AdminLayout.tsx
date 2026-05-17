@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const [isMobile, setIsMobile] = useState(false);
     const [mounted, setMounted] = useState(false);
 
-    const { token, clearTokens } = useAdminAuthStore();
+    const { isAuthenticated } = useAdminAuthStore();
     const router = useRouter();
     const pathname = usePathname();
     const [isChecking, setIsChecking] = useState(true);
@@ -28,15 +28,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }, []);
 
     /* eslint-disable react-hooks/set-state-in-effect -- auth redirect flow */
-    // Auth check
+    // Auth check: read cookie at mount time (token never lives in localStorage)
     useEffect(() => {
         if (!mounted) return;
-        if (!token && pathname !== "/admin/login") {
+        if (!isAuthenticated() && pathname !== "/admin/login") {
             router.replace("/admin/login");
         } else {
             setIsChecking(false);
         }
-    }, [token, pathname, router, mounted]);
+    }, [isAuthenticated, pathname, router, mounted]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
     // Handle screen size changes
@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         );
     }
 
-    const showSidebar = !!token && pathname !== "/admin/login";
+    const showSidebar = isAuthenticated() && pathname !== "/admin/login";
 
     return (
         <div className="min-h-screen bg-gray-50 lg:flex">

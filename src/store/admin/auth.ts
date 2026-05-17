@@ -12,61 +12,82 @@ interface User {
 }
 
 interface AdminAuthState {
-    token: string | null;
-    refreshToken: string | null;
     user: User | null;
+    /**
+     * Returns the access token from the cookie set by AuthService.
+     * The token itself is never stored in localStorage — only the user
+     * metadata lives there to survive page refreshes.
+     */
+    getToken: () => string | null;
+    /**
+     * Backward-compatible alias: stores user metadata and cleans up legacy
+     * localStorage token keys. Token params are accepted but ignored here
+     * because AuthService already sets the cookies at login time.
+     */
     setTokens: (token: string, refreshToken: string, user: User) => void;
+    setUser: (user: User) => void;
     clearTokens: () => void;
     isAuthenticated: () => boolean;
     isSuperuser: () => boolean;
 }
 
+function readCookie(name: string): string | null {
+    if (typeof document === "undefined") return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length !== 2) return null;
+    const raw = parts.pop()?.split(";").shift() ?? null;
+    if (!raw) return null;
+    try {
+        return decodeURIComponent(raw);
+    } catch {
+        return raw;
+    }
+}
+
 export const useAdminAuthStore = create<AdminAuthState>((set, get) => ({
-    token: typeof window !== "undefined" ? localStorage.getItem("admin_token") : null,
-    refreshToken:
-        typeof window !== "undefined" ? localStorage.getItem("admin_refreshToken") : null,
     user:
         typeof window !== "undefined"
-            ? JSON.parse(localStorage.getItem("admin_user") || "null")
+            ? (() => {
+                  try {
+                      return JSON.parse(localStorage.getItem("admin_user") || "null");
+                  } catch {
+                      return null;
+                  }
+              })()
             : null,
 
-    setTokens: (token: string, refreshToken: string, user: User) => {
+    getToken: () => readCookie("accessToken"),
+
+    setTokens: (_token: string, _refreshToken: string, user: User) => {
+        // Token params intentionally ignored: AuthService.setTokens() already
+        // wrote the cookies before this is called. We only persist user metadata.
+        get().setUser(user);
+    },
+
+    setUser: (user: User) => {
         if (typeof window !== "undefined") {
-            localStorage.setItem("admin_token", token);
-            localStorage.setItem("admin_refreshToken", refreshToken);
             localStorage.setItem("admin_user", JSON.stringify(user));
+            localStorage.removeItem("admin_token");
+            localStorage.removeItem("admin_refreshToken");
         }
-        set({ token, refreshToken, user });
+        set({ user });
     },
 
     clearTokens: () => {
         if (typeof window !== "undefined") {
+            localStorage.removeItem("admin_user");
             localStorage.removeItem("admin_token");
             localStorage.removeItem("admin_refreshToken");
-            localStorage.removeItem("admin_user");
+            // accessToken + refreshToken are httpOnly — only the backend can clear them
+            const base = process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org";
+            const apiBase = base.endsWith("/api") ? base : `${base}/api`;
+            fetch(`${apiBase}/auth/logout/`, { method: "POST", credentials: "include" }).catch(() => {});
         }
-        set({ token: null, refreshToken: null, user: null });
+        set({ user: null });
     },
 
-    isAuthenticated: () => {
-        const state = get();
-        if (!state.token) return false;
+    isAuthenticated: () => !!get().user,
 
-        try {
-            const payload = JSON.parse(atob(state.token.split(".")[1]));
-            const expirationTime = payload.exp * 1000;
-            const currentTime = Date.now();
-            const timeUntilExpiry = expirationTime - currentTime;
-
-            // Token is considered valid if it has more than 5 minutes until expiry
-            return timeUntilExpiry > 5 * 60 * 1000;
-        } catch {
-            return false;
-        }
-    },
-
-    isSuperuser: () => {
-        const state = get();
-        return state.user?.is_superuser || false;
-    },
+    isSuperuser: () => get().user?.is_superuser ?? false,
 }));

@@ -37,12 +37,14 @@ class OrderService {
   /**
    * Get authentication headers for API requests
    */
-  private async getAuthHeaders(): Promise<Record<string, string>> {
-    const token = await this.authService.ensureValidToken();
-    return {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
+  private async authFetch(url: string, init: RequestInit = {}): Promise<Response> {
+    const isAuthed = await this.authService.ensureValidToken();
+    if (!isAuthed) throw new Error("Authentication required");
+    return fetch(url, {
+      ...init,
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...(init.headers as object ?? {}) },
+    });
   }
 
   /**
@@ -101,24 +103,14 @@ class OrderService {
    */
   async getOrders(filters: OrderFilters = {}): Promise<OrderListResponse> {
     try {
-      const headers = await this.getAuthHeaders();
       const queryParams = new URLSearchParams();
-
-      // Add filters to query params
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
           queryParams.append(key, value.toString());
         }
       });
-
-      const url = `${baseURL}/api/payment/orders/${
-        queryParams.toString() ? `?${queryParams.toString()}` : ""
-      }`;
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers,
-      });
+      const url = `${baseURL}/api/payment/orders/${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+      const response = await this.authFetch(url);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -137,14 +129,7 @@ class OrderService {
    */
   async getOrderById(orderId: string): Promise<OrderDetailResponse> {
     try {
-      const headers = await this.getAuthHeaders();
-      const response = await fetch(
-        `${baseURL}/api/payment/orders/${orderId}/`,
-        {
-          method: "GET",
-          headers,
-        }
-      );
+      const response = await this.authFetch(`${baseURL}/api/payment/orders/${orderId}/`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -163,11 +148,7 @@ class OrderService {
    */
   async getOrderStats(): Promise<OrderStatsResponse> {
     try {
-      const headers = await this.getAuthHeaders();
-      const response = await fetch(`${baseURL}/api/payment/orders/stats/`, {
-        method: "GET",
-        headers,
-      });
+      const response = await this.authFetch(`${baseURL}/api/payment/orders/stats/`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -188,15 +169,10 @@ class OrderService {
     request: CreateOrderRequest
   ): Promise<CreateOrderResponse> {
     try {
-      const headers = await this.getAuthHeaders();
-      const response = await fetch(
-        `${baseURL}/api/payment/subscription/create/`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify(request),
-        }
-      );
+      const response = await this.authFetch(`${baseURL}/api/payment/subscription/create/`, {
+        method: "POST",
+        body: JSON.stringify(request),
+      });
 
       if (!response.ok) {
         const errorData = (await response.json().catch(() => ({}))) as {
@@ -226,14 +202,7 @@ class OrderService {
    */
   async getReceiptData(orderId: string): Promise<ReceiptResponse> {
     try {
-      const headers = await this.getAuthHeaders();
-      const response = await fetch(
-        `${baseURL}/api/payment/orders/${orderId}/receipt/`,
-        {
-          method: "GET",
-          headers,
-        }
-      );
+      const response = await this.authFetch(`${baseURL}/api/payment/orders/${orderId}/receipt/`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -252,13 +221,8 @@ class OrderService {
    */
   async downloadReceipt(orderId: string): Promise<void> {
     try {
-      const headers = await this.getAuthHeaders();
-      const response = await fetch(
-        `${baseURL}/api/payment/orders/${orderId}/download_receipt/`,
-        {
-          method: "GET",
-          headers,
-        }
+      const response = await this.authFetch(
+        `${baseURL}/api/payment/orders/${orderId}/download_receipt/`
       );
 
       if (!response.ok) {

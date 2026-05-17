@@ -174,14 +174,14 @@ export default function PaymentModal({ plan, onClose, onSuccess }: Props) {
   const handlePay = async () => {
     if (isWaitlistOnly) return;
 
-    const token = await auth.ensureValidToken();
-    if (!token) {
+    const isAuthed = await auth.ensureValidToken();
+    if (!isAuthed) {
       setError(t.error_login_required);
       return;
     }
 
     // Refresh user data to ensure email verification status is current
-    await auth.fetchAndUpdateUserData(token);
+    await auth.fetchAndUpdateUserData();
     const updatedUser = auth.getCurrentUser();
     if (!updatedUser?.is_email_verified) {
       sessionStorage.setItem("payment_verify_pending", "true");

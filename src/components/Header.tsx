@@ -58,7 +58,7 @@ export function Header() {
   );
 
   const handleLogout = () => {
-    AuthService.getInstance().logout();
+    AuthService.getInstance().logout().catch(() => {});
     if (typeof window !== "undefined") {
       localStorage.clear();
       router.push("/");

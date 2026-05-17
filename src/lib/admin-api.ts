@@ -29,21 +29,9 @@ const adminApi = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
+    // Auth is carried by the httpOnly accessToken cookie set by the backend.
+    withCredentials: true,
 }) as AxiosInstance;
-
-// Request interceptor
-adminApi.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-        const token = useAdminAuthStore.getState().token;
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error: AxiosError) => {
-        return Promise.reject(error);
-    }
-);
 
 // Response interceptor
 adminApi.interceptors.response.use(

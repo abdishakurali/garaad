@@ -2,72 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerStripe, STRIPE_PRICE_IDS } from "@/lib/stripe";
 import { STRIPE_USD_FALLBACK } from "@/config/stripeUsdFallback";
 import { EXPLORER_IS_FREE } from "@/config/featureFlags";
-import { jwtDecode } from "jwt-decode";
-
-// More flexible JWT payload interface to handle different token structures
-interface JWTPayload {
-  email?: string;
-  sub?: string;
-  user_id?: string;
-  userId?: string;
-  id?: string;
-  username?: string;
-  [key: string]: unknown; // Allow additional fields
-}
-
-// Helper function to extract user information from JWT token and request body
-function getUserInfo(
-  request: NextRequest,
-  requestBody: Record<string, unknown>
-) {
-  const authHeader = request.headers.get("Authorization");
-  let userEmail: string | null = null;
-  let userId: string | null = null;
-
-  // Strategy 1: Try to get from request body (if provided)
-  if (requestBody?.email && typeof requestBody.email === "string") {
-    userEmail = requestBody.email;
-  }
-  if (requestBody?.userId != null) {
-    userId = typeof requestBody.userId === "string" ? requestBody.userId : String(requestBody.userId);
-  }
-
-  // Strategy 2: Extract from JWT token
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.split(" ")[1];
-    try {
-      const decoded = jwtDecode<JWTPayload>(token);
-
-      // Try multiple possible email fields
-      if (!userEmail) {
-        userEmail = decoded.email || decoded.username || null;
-      }
-
-      // Try multiple possible user ID fields
-      if (!userId) {
-        userId =
-          decoded.user_id ||
-          decoded.userId ||
-          decoded.sub ||
-          decoded.id ||
-          null;
-      }
-
-      console.log("JWT payload:", {
-        email: decoded.email,
-        username: decoded.username,
-        user_id: decoded.user_id,
-        userId: decoded.userId,
-        sub: decoded.sub,
-        id: decoded.id,
-      });
-    } catch (error) {
-      console.error("JWT decode error:", error);
-    }
-  }
-
-  return { userEmail, userId };
-}
 
 // Legacy fallback: Explorer $29/mo when old `plan: monthly` + no Price ID
 const FALLBACK_PRICES = {
@@ -85,8 +19,7 @@ const FALLBACK_PRICES = {
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body once
-    const requestBody = await request.json();
+    const requestBody: Record<string, unknown> = await request.json();
     const {
       plan,
       priceId: bodyPriceId,
@@ -96,32 +29,15 @@ export async function POST(request: NextRequest) {
       successUrl,
       cancelUrl,
       countryCode,
-      email: providedEmail,
+      email: finalEmail,
+      userId: rawUserId,
       orderId,
     } = requestBody;
 
-    console.log("📧 Email extraction - Request body:", {
-      providedEmail,
-      plan,
-      countryCode,
-      priceId: bodyPriceId,
-      mode: bodyMode,
-    });
+    const userId: string | null = rawUserId != null
+      ? typeof rawUserId === "string" ? rawUserId : String(rawUserId)
+      : null;
 
-    // Get user information from JWT token and request body
-    const { userEmail, userId } = getUserInfo(request, requestBody);
-
-    // Use provided email from request if available, otherwise use extracted email
-    const finalEmail = providedEmail || userEmail;
-
-    console.log("📧 Email extraction results:", {
-      providedEmail,
-      extractedEmail: userEmail,
-      finalEmail,
-      userId,
-    });
-
-    // Validate that we have an email
     if (!finalEmail) {
       return NextResponse.json(
         { error: "User email is required for checkout" },
@@ -180,7 +96,6 @@ export async function POST(request: NextRequest) {
     ) {
       lineItems = [{ price: bodyPriceId, quantity: 1 }];
       sessionMode = bodyMode;
-      console.log(`✅ Using direct Price ID: ${bodyPriceId}, mode: ${sessionMode}`);
     } else if (billing) {
       // Path 2: USD price_data — $29 Explorer / $149 Challenge per month (no Price ID)
       const fb = STRIPE_USD_FALLBACK[billing];
@@ -199,7 +114,6 @@ export async function POST(request: NextRequest) {
         },
       ];
       sessionMode = "subscription";
-      console.log(`✅ Using USD price_data fallback for billingPlan=${billing}`);
     } else {
       // Path 3: Legacy plan + countryCode
       if (!plan || !STRIPE_PRICE_IDS[plan as keyof typeof STRIPE_PRICE_IDS]) {
@@ -212,17 +126,9 @@ export async function POST(request: NextRequest) {
       const priceId =
         STRIPE_PRICE_IDS[plan as keyof typeof STRIPE_PRICE_IDS][priceType];
 
-      console.log(`💰 Price configuration:`, {
-        plan,
-        countryCode,
-        priceType,
-        priceId,
-      });
-
       if (priceId && priceId.startsWith("price_")) {
         lineItems = [{ price: priceId, quantity: 1 }];
         sessionMode = "subscription";
-        console.log(`✅ Using valid Price ID: ${priceId} for plan: ${plan}`);
       } else {
         const fallbackPrice =
           FALLBACK_PRICES[plan as keyof typeof FALLBACK_PRICES][priceType];
@@ -244,7 +150,6 @@ export async function POST(request: NextRequest) {
           },
         ];
         sessionMode = "subscription";
-        console.log(`⚠️ Using fallback price_data for plan: ${plan}, type: ${priceType}`);
       }
     }
 
@@ -280,16 +185,9 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await stripeInstance.checkout.sessions.create(sessionParams);
-
-    console.log(`✅ Checkout session created successfully:`, {
-      sessionId: session.id,
-      customerEmail: finalEmail,
-      userId: userId || "unknown",
-    });
-
     return NextResponse.json({ sessionId: session.id });
   } catch (error: unknown) {
-    console.error("❌ Error creating checkout session:", error);
+    console.error("Error creating checkout session:", error);
 
     const message =
       error instanceof Error

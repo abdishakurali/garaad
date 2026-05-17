@@ -54,11 +54,17 @@ export async function middleware(request: NextRequest) {
 
   const isAdminRoute = pathname.startsWith("/admin") && !pathname.includes("/login");
 
-  if (!isAuthenticated && !isAdminRoute) {
+  if (!isAuthenticated) {
+    // Admin routes redirect to admin login; all other protected routes redirect to main login
+    if (isAdminRoute) {
+      const url = new URL("/admin/login", request.url);
+      url.searchParams.set("redirect", `${pathname}${request.nextUrl.search}`);
+      return NextResponse.redirect(url, 307);
+    }
     const url = new URL("/login", request.url);
     url.searchParams.set("reason", "unauthenticated");
     url.searchParams.set("redirect", `${pathname}${request.nextUrl.search}`);
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect(url, 307);
   }
 
   const isPremiumPath = premiumRoots.some((root) => pathname.startsWith(root));
@@ -66,7 +72,7 @@ export async function middleware(request: NextRequest) {
     if (!userCookie?.value) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("reason", "no_user_data");
-      return NextResponse.redirect(loginUrl, 308);
+      return NextResponse.redirect(loginUrl, 307);
     }
     try {
       JSON.parse(decodeURIComponent(userCookie.value));
@@ -74,7 +80,7 @@ export async function middleware(request: NextRequest) {
     } catch {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("reason", "session_parse_error");
-      return NextResponse.redirect(loginUrl, 308);
+      return NextResponse.redirect(loginUrl, 307);
     }
   }
 

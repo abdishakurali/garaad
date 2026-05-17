@@ -218,22 +218,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Log the request (without sensitive card data)
-    console.log("Payment request:", {
-      paymentMethod: cardInfo ? "CARD" : "MWALLET",
-      amount: currentPrice,
-      description,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Debug: Log WaafiPay configuration (without sensitive data)
-    console.log("WaafiPay config check:", {
-      merchantUid: process.env.WAAFI_MERCHANT_UID ? "SET" : "NOT SET",
-      apiUserId: process.env.WAAFI_API_USER_ID || "1008162",
-      apiKey: process.env.WAAFI_API_KEY ? "SET" : "NOT SET",
-      isTestMode: process.env.WAAFI_TEST_MODE === "true",
-    });
-
     // If cardInfo is present, use HPP_PURCHASE
     if (cardInfo) {
       const referenceId = `INV-${Date.now()}`;
@@ -295,14 +279,6 @@ export async function POST(request: Request) {
       description,
       invoiceId: `INV-${Date.now()}`, // Generate a unique invoice ID
       cardInfo,
-    });
-
-    // Log the response
-    console.log("Payment response:", {
-      responseCode: response.responseCode,
-      responseMsg: response.responseMsg,
-      transactionId: response.params?.transactionId,
-      timestamp: new Date().toISOString(),
     });
 
     // Check if payment was successful

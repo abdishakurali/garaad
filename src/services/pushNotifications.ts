@@ -1,6 +1,6 @@
 /**
  * Push Notification Service
- * 
+ *
  * Handles PWA push notification registration and management.
  * Uses the Web Push API to subscribe users to push notifications.
  */
@@ -131,9 +131,8 @@ const subscribeToPushNotifications = async (): Promise<boolean> => {
 
         // Send subscription to backend
         const authService = AuthService.getInstance();
-        const token = authService.getToken();
 
-        if (!token) {
+        if (!authService.isAuthenticated()) {
             console.error('User not authenticated');
             return false;
         }
@@ -142,10 +141,8 @@ const subscribeToPushNotifications = async (): Promise<boolean> => {
 
         const response = await fetch(`${BASE_URL}/push-subscriptions/`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 endpoint: subscriptionJson.endpoint,
                 p256dh_key: subscriptionJson.keys?.p256dh || '',
@@ -189,16 +186,12 @@ const unsubscribeFromPushNotifications = async (): Promise<boolean> => {
 
         // Remove from backend
         const authService = AuthService.getInstance();
-        const token = authService.getToken();
-
-        if (token) {
+        if (authService.isAuthenticated()) {
             const subscriptionJson = subscription.toJSON();
             await fetch(`${BASE_URL}/push-subscriptions/`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     endpoint: subscriptionJson.endpoint,
                 }),
