@@ -20,8 +20,6 @@ export const useAuthStore = create<AuthStore>()(
     persist(
         (set, get) => ({
             user: null,
-            accessToken: null,
-            refreshToken: null,
             isAuthenticated: false,
             isLoading: false,
             error: null,
@@ -87,8 +85,6 @@ export const useAuthStore = create<AuthStore>()(
                 AuthService.getInstance().logout().catch(() => {});
                 set({
                     user: null,
-                    accessToken: null,
-                    refreshToken: null,
                     isAuthenticated: false,
                     error: null,
                 });

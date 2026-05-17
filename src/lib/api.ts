@@ -87,6 +87,13 @@ class ApiClient {
 
                     if (success) {
                         response = await fetch(url, config);
+                    } else {
+                        // Refresh failed — clear stale auth state so UI redirects to login
+                        if (typeof window !== 'undefined') {
+                            import('@/store/useAuthStore').then(({ useAuthStore }) => {
+                                useAuthStore.getState().logout();
+                            });
+                        }
                     }
                 }
             }
