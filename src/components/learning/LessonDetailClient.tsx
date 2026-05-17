@@ -1152,7 +1152,9 @@ export function LessonDetailClient({ initialLesson }: LessonDetailClientProps) {
                     setShowCompletionAnimation(false);
                 }}
                 lessonId={currentLesson.id}
-                showExplorerUpsell={!AuthService.getInstance().isPremium()}
+                showMentorshipUpsell={lessonNumberInCourse === 1 && !AuthService.getInstance().isPremium()}
+                mentorshipUpsellTrigger="lesson_1_complete"
+                showExplorerUpsell={lessonNumberInCourse !== 1 && !AuthService.getInstance().isPremium()}
             />
         );
     }

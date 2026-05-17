@@ -10,6 +10,7 @@ import { PLANS } from "@/config/subscribePlans";
 import { EXPLORER_IS_FREE } from "@/config/featureFlags";
 import { pricingTranslations as pricingT } from "@/config/translations/pricing";
 import { cn } from "@/lib/utils";
+import { MentorshipUpgradeBanner } from "./MentorshipUpgradeBanner";
 
 interface LessonCompleteModalProps {
   lessonTitle: string;
@@ -33,6 +34,10 @@ interface LessonCompleteModalProps {
   lessonId: number | string;
   /** Non-premium: subtle upsell banner (auto-dismiss 5s). */
   showExplorerUpsell?: boolean;
+  /** Show mentorship upsell banner after Lesson 1 completion. */
+  showMentorshipUpsell?: boolean;
+  /** Trigger label for mentorship upsell tracking (default: "lesson_1_complete"). */
+  mentorshipUpsellTrigger?: string;
 }
 
 export function LessonCompleteModal({
@@ -49,6 +54,8 @@ export function LessonCompleteModal({
   onDashboard,
   lessonId,
   showExplorerUpsell = false,
+  showMentorshipUpsell = false,
+  mentorshipUpsellTrigger = "lesson_1_complete",
 }: LessonCompleteModalProps) {
   const primaryCtaLabel = hasNextLesson
     ? "Casharka xiga →"
@@ -272,7 +279,19 @@ export function LessonCompleteModal({
       </div>
       </div>
 
-      {upsellVisible && (
+      {/* Mentorship upsell — shown after Lesson 1 (priority over explorer banner) */}
+      {showMentorshipUpsell && (
+        <div className="shrink-0 w-full max-w-lg mx-auto pb-4 px-1">
+          <MentorshipUpgradeBanner
+            lessonId={lessonId}
+            trigger={mentorshipUpsellTrigger}
+            autoDismissMs={10000}
+          />
+        </div>
+      )}
+
+      {/* Explorer upsell — shown for non-premium users on later lessons */}
+      {upsellVisible && !showMentorshipUpsell && (
         <div className="pointer-events-auto shrink-0 w-full max-w-lg mx-auto pb-4 px-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-zinc-900/95 px-4 py-3 text-sm text-zinc-200 shadow-lg">
             <p className="text-left leading-snug">
