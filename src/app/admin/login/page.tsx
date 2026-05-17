@@ -58,7 +58,7 @@ function AdminLoginForm() {
         if (isAuthenticated() && !isLoop) {
             sessionStorage.setItem("admin_redirect_loop_check", now.toString());
             router.replace("/admin");
-        } else if (token && isLoop) {
+        } else if (isLoop) {
             console.warn("Detected possible redirect loop, clearing admin session to break loop. Reason:", reason);
             sessionStorage.removeItem("admin_redirect_loop_check");
             clearTokens();

@@ -184,21 +184,6 @@ class WaafiPayService {
     });
 
     try {
-      // Debug: Log the request structure (without sensitive data)
-      console.log("WaafiPay request structure:", {
-        schemaVersion: request.schemaVersion,
-        serviceName: request.serviceName,
-        channelName: request.channelName,
-        serviceParams: {
-          merchantUid: request.serviceParams.merchantUid,
-          apiUserId: request.serviceParams.apiUserId,
-          apiKey: request.serviceParams.apiKey ? "SET" : "NOT SET",
-          paymentMethod: request.serviceParams.paymentMethod,
-          hasPayerInfo: !!request.serviceParams.payerInfo,
-          hasTransactionInfo: !!request.serviceParams.transactionInfo,
-        },
-      });
-
       const response = await axios.post<WaafiPayResponse>(
         this.baseUrl,
         request
@@ -367,14 +352,15 @@ class WaafiPayService {
   }
 }
 
-// Create and export a singleton instance
-// Server-side env: WAAFI_MERCHANT_UID, WAAFI_API_KEY (or WAAFI_HPP_KEY for HPP), WAAFI_STORE_ID, WAAFI_API_USER_ID
-// Fallbacks: NEXT_PUBLIC_WAAFIPAY_* are available on server too if you use the same env in Vercel
+// Server-side only singleton — uses server env vars exclusively.
+// NEVER use NEXT_PUBLIC_* vars here: those are bundled into the browser and expose credentials.
+// Set WAAFI_MERCHANT_UID, WAAFI_API_USER_ID, WAAFI_API_KEY, WAAFI_STORE_ID, WAAFI_HPP_KEY in
+// Vercel Project Settings → Environment Variables (leave "Browser" unchecked).
 export const waafipayService = new WaafiPayService({
-  merchantUid: process.env.WAAFI_MERCHANT_UID || process.env.NEXT_PUBLIC_WAAFIPAY_MERCHANT_UID || "",
-  apiUserId: process.env.WAAFI_API_USER_ID || process.env.NEXT_PUBLIC_WAAFIPAY_MERCHANT_UID || "",
-  apiKey: process.env.WAAFI_API_KEY || process.env.NEXT_PUBLIC_WAAFIPAY_API_KEY || "",
+  merchantUid: process.env.WAAFI_MERCHANT_UID || "",
+  apiUserId: process.env.WAAFI_API_USER_ID || "",
+  apiKey: process.env.WAAFI_API_KEY || "",
   isTestMode: process.env.WAAFI_TEST_MODE === "true",
-  storeId: process.env.WAAFI_STORE_ID || process.env.NEXT_PUBLIC_WAAFIPAY_STORE_ID || "",
-  hppKey: process.env.WAAFI_HPP_KEY || process.env.WAAFI_API_KEY || process.env.NEXT_PUBLIC_WAAFIPAY_API_KEY || "",
+  storeId: process.env.WAAFI_STORE_ID || "",
+  hppKey: process.env.WAAFI_HPP_KEY || process.env.WAAFI_API_KEY || "",
 });
