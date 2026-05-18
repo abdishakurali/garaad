@@ -13,7 +13,8 @@ export interface SignUpData {
   referrer?: string | null;
   location?: string;
   country_flag?: string;
-  website?: string; // honeypot — always empty for real users
+  website?: string;  // legacy honeypot field — always empty for real users
+  honeypot?: string; // canonical honeypot field — always empty for real users
 }
 
 interface OnboardingData {
@@ -195,7 +196,8 @@ class AuthService {
     try {
       const response = await api.post<SignUpResponse>("/api/auth/signup/", {
         ...data,
-        website: "", // honeypot — always empty; bots fill it, real users don't
+        website: "",  // legacy honeypot — always empty for real users
+        honeypot: "", // canonical honeypot — always empty for real users
       });
       this.applySessionFromApiAuthPayload(response as ApiAuthPayload);
       return response;

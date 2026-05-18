@@ -527,6 +527,17 @@ function WelcomePage() {
             )}
 
             <form className="space-y-4" onSubmit={handleSubmit}>
+              {/* Honeypot — hidden from real users; bots auto-fill it.
+                  DO NOT add aria-label, placeholder, or visible styling. */}
+              <input
+                type="text"
+                name="honeypot"
+                defaultValue=""
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+              />
               <div className="space-y-1.5">
                 <Label
                   htmlFor="name"
