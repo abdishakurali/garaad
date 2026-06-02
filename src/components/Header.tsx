@@ -103,13 +103,7 @@ export function Header() {
             ) : (
               <>
                 <Link
-                  href="/login"
-                  className="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-foreground transition-colors"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href={isWaitlistOnly ? "#" : "/subscribe"}
+                  href={isWaitlistOnly ? "#" : "mailto:info@garaad.org?subject=Codsi%20Garaad%20Access"}
                   className={clsx(
                     "px-4 py-2 text-sm font-bold rounded-lg transition-colors",
                     isWaitlistOnly
@@ -117,7 +111,7 @@ export function Header() {
                       : "bg-[#7c3aed] text-white hover:bg-[#6d28d9]"
                   )}
                 >
-                  {isWaitlistOnly ? "Buuxsamay" : "Join Mentorship →"}
+                  {isWaitlistOnly ? "Buuxsamay" : "Request access →"}
                 </Link>
               </>
             )}
@@ -183,11 +177,8 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <Link href={isWaitlistOnly ? "#" : "/login"} className="btn-ghost w-full">
-                    Log in
-                  </Link>
-                  <Link href={isWaitlistOnly ? "#" : "/subscribe"} className={clsx("btn-gold w-full", isWaitlistOnly && "pointer-events-none opacity-50")}>
-                    {isWaitlistOnly ? "Buuxsamay" : "Join Mentorship →"}
+                  <Link href={isWaitlistOnly ? "#" : "mailto:info@garaad.org?subject=Codsi%20Garaad%20Access"} className={clsx("btn-gold w-full", isWaitlistOnly && "pointer-events-none opacity-50")}>
+                    {isWaitlistOnly ? "Buuxsamay" : "Request access →"}
                   </Link>
                 </>
               )}

@@ -119,9 +119,9 @@ export function MentorshipContent() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-display-md font-serif mb-4">Ma hubtaa Tartanka?</h2>
           <p className="text-muted-foreground mb-8">
-            Tartanka waxaa ku jira Mentorship. Ku biir si aad u hesho gelid 1:1.
+            Tartanka waxaa ku jira Mentorship. Request access si aad u hesho gelid 1:1.
           </p>
-          <Link href="/subscribe" className="btn-gold">Ku soo biir Tartanka →</Link>
+          <Link href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access" className="btn-gold">Request access →</Link>
         </div>
       </section>
 
