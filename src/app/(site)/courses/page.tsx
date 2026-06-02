@@ -54,26 +54,7 @@ const jsonLdFaq = faqSchema([
   },
 ]);
 
-async function getTracks() {
-  const apiBase = (
-    process.env.NEXT_PUBLIC_API_URL || "https://api.garaad.org"
-  ).replace(/\/$/, "");
-
-  try {
-    const res = await fetch(`${apiBase}/api/lms/tracks/`, {
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : (data?.results ?? []);
-  } catch {
-    return [];
-  }
-}
-
-export default async function CoursesPage() {
-  const tracks = await getTracks();
-
+export default function CoursesPage() {
   return (
     <>
       <script
@@ -84,7 +65,7 @@ export default async function CoursesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
       />
-      <TrackGridClient initialTracks={tracks} />
+      <TrackGridClient />
     </>
   );
 }
