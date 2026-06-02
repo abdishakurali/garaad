@@ -40,7 +40,7 @@ export default function LoginPage() {
                   Garaad hadda lama galo si iskiis ah
                 </h1>
                 <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  Gelitaanka iyo akoon sameysashada waa la xaddiday. Si aad boos u codsato, email u dir Garaad.
+                  Request access and you will be approved.
                 </p>
               </div>
               <Button asChild className="h-12 w-full rounded-xl text-base font-semibold shadow-md">
@@ -50,7 +50,7 @@ export default function LoginPage() {
                 </a>
               </Button>
               <p className="rounded-2xl border border-violet-500/25 bg-violet-500/[0.06] p-4 text-sm font-semibold text-foreground">
-                Boosaska waa kooban yihiin; codsiyada ayaa la eegayaa ka hor inta aan access la siin.
+                No form filling. No self login. Email only.
               </p>
             </CardContent>
           </Card>
