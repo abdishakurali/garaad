@@ -48,7 +48,7 @@ const outcomes = [
   },
   {
     num: "03",
-    text: "SaaS product aad macaamiisha ama isticmaalayaasha u geyn kartid — oo leh AI integration iyo Stripe payments.",
+    text: "SaaS product aad macaamiisha ama isticmaalayaasha u geyn kartid — oo leh AI integration iyo demo nadiif ah.",
   },
   {
     num: "04",
@@ -584,7 +584,7 @@ export function CurriculumSection() {
             <p style={{ fontSize: 15, color: textLight, marginBottom: 36 }}>
               Kaliya 10 arday cohort kasta — boosasku waa xaddidan yihiin.
             </p>
-            <Link href="/welcome" style={{
+            <Link href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access" style={{
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
@@ -601,11 +601,11 @@ export function CurriculumSection() {
               boxShadow: "0 4px 14px rgba(124,58,237,0.2)",
               textDecoration: "none",
             }}>
-              Ku biir Challenge-ka
+              Request access
               <ArrowRight size={16} />
             </Link>
             <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20 }}>
-              {["7-bari dammaanad lacag celin ah", "Lacagta waa la soo celin karaa", "Kaliya 10 arday cohort kasta"].map((t, i) => (
+              {["Ma jiro payment", "Ma jiro signin", "Request kadib approval"].map((t, i) => (
                 <span key={i} style={{ fontSize: 12, color: textLight, display: "flex", alignItems: "center", gap: 5 }}>
                   <span style={{ color: PURPLE }}>✓</span> {t}
                 </span>

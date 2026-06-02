@@ -226,8 +226,8 @@ export function HomeContent() {
                 Barnaamij dakhli-abuur ah oo 60 maalmood ah. Waxaa dhisay qof horey u soo sameeyay. Ma ahan koorso caadi ah. Waa dammaanad.
               </p>
               <div className="hero-animate-cta flex flex-col sm:flex-row gap-3 mb-8">
-                <Link href="/subscribe" className="btn-gold">
-                  Ku soo biir Tartanka →
+                <Link href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access" className="btn-gold">
+                  Request access →
                 </Link>
                 <a href="#how-it-works" className="btn-ghost">
                   Eeg sida uu u shaqeeyo
@@ -316,21 +316,21 @@ export function HomeContent() {
             {[
               {
                 title: "Freelancer",
-                tagline: "Hel shaqadaadii ugu horreysay adigoo isticmaalaya qalabka AI.",
-                milestone: "Dakhliga qiyaasta ah: $50–$200 marka la gaaro Maalinta 30-aad",
-                for: "Dadka raba inay macaamiil u shaqeeyaan isla markiiba",
-              },
-              {
-                title: "Worker",
-                tagline: "Hel wareysigaagii ugu horreeyay ee shaqo meel fog laga qabto (Remote Job).",
-                milestone: "Wareysiga koowaad: Marka la gaaro Maalinta 30-aad",
-                for: "Dadka raba dakhli deggan oo shaqo joogto ah leh",
+                tagline: "Client, portfolio, proposal, iyo delivery nadiif ah.",
+                milestone: "Module: client-ready freelance system",
+                for: "Dadka raba inay macaamiil u shaqeeyaan",
               },
               {
                 title: "Builder",
-                tagline: "Dhis oo iibi alaabtaadii dhijitaalka ahayd ee ugu horreysay.",
-                milestone: "Iibka koowaad: Marka la gaaro Maalinta 30-aad",
-                for: "Dadka raba inay abuuraan wax iyaga u gaar ah",
+                tagline: "Idea, MVP, demo, iyo launch module nadiif ah.",
+                milestone: "Module: product-ready builder system",
+                for: "Dadka raba inay dhisaan wax iyaga u gaar ah",
+              },
+              {
+                title: "Worker",
+                tagline: "CV, LinkedIn, interview, iyo job proof.",
+                milestone: "Module: job-ready worker system",
+                for: "Dadka raba shaqo joogto ah",
               },
             ].map((p) => (
               <div key={p.title} className="p-6 rounded-[16px] border border-border bg-card flex flex-col">
@@ -344,7 +344,7 @@ export function HomeContent() {
             ))}
           </div>
           <p className="text-center mt-8 text-sm font-medium text-gold">
-            Dooro jidkaaga markaad ku soo biirto →
+            Request access, kadib dooro jidkaaga.
           </p>
         </div>
       </section>
@@ -383,7 +383,7 @@ Akhriso sheekada oo dhan →
           </div>
           <ol className="divide-y divide-border">
             {[
-              { n: "01", text: "Ku soo biir Tartanka ($149 hal mar ah)" },
+              { n: "01", text: "Request access: info@garaad.org" },
               { n: "02", text: "Dooro jidkaaga: Freelancer, Worker, ama Builder" },
               { n: "03", text: "Raac qorshaha 30-ka maalmood ee habaysan — maalinkii hal cashar" },
               { n: "04", text: "Gaar hiigsigaaga lacageed ee ugu horreeya marka la gaaro Maalinta 30-aad" },
@@ -396,7 +396,7 @@ Akhriso sheekada oo dhan →
             ))}
           </ol>
           <div className="mt-10 text-center">
-            <Link href="/subscribe" className="btn-gold">Bilow maanta →</Link>
+            <Link href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access" className="btn-gold">Request access →</Link>
           </div>
         </div>
       </section>
@@ -421,10 +421,10 @@ Akhriso sheekada oo dhan →
             Tallaabada koowaad waxay kugu qaadanaysaa 5 daqiiqo oo kaliya.
           </h2>
           <p className="text-muted-foreground text-lg mb-10">
-            Is diwaangeli. Dooro jidkaaga. Bilow maanta.
+            Ma jiro payment ama signin. Codso access, kadib waa lagu approve-gareynayaa.
           </p>
-          <Link href="/subscribe" className="btn-gold text-base" style={{ padding: "16px 40px" }}>
-            Ku soo biir Garaad →
+          <Link href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access" className="btn-gold text-base" style={{ padding: "16px 40px" }}>
+            Request access →
           </Link>
         </div>
       </section>

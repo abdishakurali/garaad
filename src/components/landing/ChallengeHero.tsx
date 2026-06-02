@@ -37,7 +37,6 @@ const testimonials = [
         nowTag: "Aasaasaha Sofaritech",
     },
 ];
-}
 
 // ─── Vimeo player ─────────────────────────────────────────────────────────────
 // Browsers block unmuted autoplay. Strategy: autoplay muted, show a centered
@@ -274,11 +273,11 @@ export function ChallengeHero() {
         {/* CTA */}
         <div className="mx-auto mt-6 sm:mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
           <Link
-            href="/welcome"
+            href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access"
             onClick={() => posthog?.capture("homepage_cta_clicked", { source: "hero_primary" })}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-violet-500 sm:w-auto sm:py-3.5 sm:text-base"
           >
-            Bilow hadda — $49/bish
+            Request access
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link

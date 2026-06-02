@@ -143,7 +143,7 @@ export function CohortCtaSection() {
 
                     {/* CTA */}
                     <Link
-                        href="/welcome"
+                        href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access"
                         onClick={() => posthog?.capture("cohort_cta_clicked", { source: "home_community_section" })}
                         style={{
                             display: "inline-flex",
@@ -163,7 +163,7 @@ export function CohortCtaSection() {
                             textDecoration: "none",
                         }}
                     >
-                        Ku biir Kooxda
+                        Request access
                         <ArrowRight size={16} />
                     </Link>
                 </div>

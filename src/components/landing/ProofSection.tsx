@@ -109,13 +109,13 @@ export function ProofSection() {
               Adiga xiga?
             </div>
             <div className="text-sm text-violet-700 dark:text-violet-400 mb-3">
-              Ku biir maanta. 30 maalmood ka dib noo sheeg natiijadaada.
+              Request access. Kadib waa lagu approve-gareynayaa.
             </div>
             <a
-              href="/welcome"
+              href="mailto:info@garaad.org?subject=Codsi%20Garaad%20Access"
               className="block w-full text-center text-xs font-semibold bg-violet-600 text-white py-2 rounded-md"
             >
-              Bilow hadda →
+              Request access →
             </a>
           </div>
         </div>

@@ -7,30 +7,27 @@ const paths = [
     id: "freelancer",
     icon: Code,
     title: "Freelancer",
-    description: "Ku shaqee macaamiisha caalamka adiga oo adeegsanaya AI. Upwork, Fiverr, ama direct — lacagta gacantaada.",
-    earnings: "$2k-10k/bish",
-    pills: ["Upwork", "Fiverr", "Direct"],
-    benefits: ["Mushaharkoodaadi", "Waqtigaada xori"],
+    description: "Baro sida loo helo client, loo dhiso portfolio, loona diro proposal nadiif ah.",
+    pills: ["Client", "Portfolio", "Proposal"],
+    benefits: ["Shaqo macmiil", "Natiijo la cabbiri karo"],
     highlight: true,
-  },
-  {
-    id: "worker",
-    icon: Users,
-    title: "Worker",
-    description: "Hel shaqo tignoolajiyada fogaanta (Remote) — mushahara dhab ah oo bilaalaya $2k+ bishii.",
-    earnings: "$2k-5k/bish",
-    pills: ["Remote", "LinkedIn", "Portfolio"],
-    benefits: ["Job Security", "Benefits"],
-    highlight: false,
   },
   {
     id: "builder",
     icon: Lightbulb,
     title: "Builder",
-    description: "Dhis alaabadaada tignoolajiyada ama hay'ad (Agency) kuu gaar ah. Ku iibi si fudud adiga oo kaashanaya AI.",
-    earnings: "$5k-50k+/bish",
-    pills: ["SaaS", "Agency", "Products"],
-    benefits: ["Passive Income", "Scale"],
+    description: "Dhis product yar oo shaqeeya: idea, MVP, demo, iyo launch cad.",
+    pills: ["Idea", "MVP", "Launch"],
+    benefits: ["Product dhab ah", "Demo la tusi karo"],
+    highlight: false,
+  },
+  {
+    id: "worker",
+    icon: Users,
+    title: "Worker",
+    description: "Diyaari xirfadda shaqo: CV, LinkedIn, interview, iyo project proof.",
+    pills: ["CV", "LinkedIn", "Interview"],
+    benefits: ["Shaqo diyaar", "Hab joogto ah"],
     highlight: false,
   },
 ];
@@ -44,12 +41,10 @@ export function ThreePathsSection() {
             Dooro dariiqaada
           </p>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4">
-            Unaa kaa caawin doonaa <span className="text-primary">lacag sameynta?</span>
+            Saddex jid oo <span className="text-primary">nadiif ah</span>
           </h2>
           <p className="text-slate-600 dark:text-zinc-400 text-lg max-w-2xl mx-auto">
-            Saddex dariiqood ayaa hortoodaga. Dooro mid kuu habboon —{" "}
-            <span className="font-semibold text-primary">waxaan kugu hadli doonnaa</span>{" "}
-            dariiqa khusaysan xaaladaada.
+            Freelancer, Builder, ama Worker. Qofna isma diiwaangelinayo, lacag ma bixinayo, mana soo galayo. Access waa codsi.
           </p>
         </div>
 
@@ -114,14 +109,14 @@ export function ThreePathsSection() {
                 <span className="text-white font-bold text-lg">?</span>
               </div>
               <div>
-                <p className="text-white font-bold text-lg">Maxay AI muhiim u tahay?</p>
-                <p className="text-white/80 text-sm">Qofka yaqaanna AI wuxuu qaban karaa shaqada 5 qof.</p>
+                <p className="text-white font-bold text-lg">Access waa codsi kaliya</p>
+                <p className="text-white/80 text-sm">Email u dir info@garaad.org, kadib waa lagu approve-gareynayaa.</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-white/60 text-sm">Labada midkood dooro:</span>
+              <span className="text-white/60 text-sm">Ma jiro payment ama signin:</span>
               <span className="px-4 py-2 rounded-lg bg-white text-primary font-semibold text-sm">
-                Ku biir isbeddelka
+                Request access
               </span>
             </div>
           </div>
