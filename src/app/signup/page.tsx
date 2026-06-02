@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { isAllowedRedirect } from "@/lib/auth-redirect";
 
 export const metadata: Metadata = {
-  title: "Sign Up | Garaad",
-  description: "Abuur akoon Garaad si aad u bilowdo waxbarashada coding-ka.",
+  title: "Request Access | Garaad",
+  description: "Codso access Garaad adigoo email u diraya info@garaad.org.",
   alternates: { canonical: "https://garaad.org/signup" },
   robots: { index: false, follow: false },
 };
