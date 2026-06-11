@@ -53,8 +53,8 @@ const nextConfig = {
   async headers() {
     const cspHeader = `
       default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://*.posthog.com *.vercel-scripts.com https://player.vimeo.com https://accounts.google.com;
-      style-src 'self' 'unsafe-inline' fonts.googleapis.com https://accounts.google.com;
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://*.posthog.com *.vercel-scripts.com https://player.vimeo.com https://accounts.google.com https://*.chatwoot.com https://*.garaad.org;
+      style-src 'self' 'unsafe-inline' fonts.googleapis.com https://accounts.google.com https://*.chatwoot.com https://*.garaad.org;
       img-src 'self' blob: data: https: res.cloudinary.com api.garaad.org localhost:8000 127.0.0.1:8000 images.ctfassets.net *.posthog.com https://*.stripe.com https://img.youtube.com https://www.transparenttextures.com;
       media-src 'self' blob: data: https://res.cloudinary.com https://api.garaad.org http://localhost:8000 http://127.0.0.1:8000;
       font-src 'self' fonts.gstatic.com data: https://r2cdn.perplexity.ai;
@@ -62,8 +62,8 @@ const nextConfig = {
       base-uri 'self';
       form-action 'self';
       frame-ancestors 'none';
-      frame-src https://js.stripe.com https://player.vimeo.com https://www.youtube.com https://accounts.google.com;
-      connect-src 'self' https://api.garaad.org wss://api.garaad.org https://*.posthog.com https://api.stripe.com https://js.stripe.com https://www.transparenttextures.com http://localhost:8000 http://127.0.0.1:8000 https://accounts.google.com https://oauth2.googleapis.com;
+      frame-src https://js.stripe.com https://player.vimeo.com https://www.youtube.com https://accounts.google.com https://*.chatwoot.com https://*.garaad.org;
+      connect-src 'self' https://api.garaad.org wss://api.garaad.org https://*.posthog.com https://api.stripe.com https://js.stripe.com https://www.transparenttextures.com http://localhost:8000 http://127.0.0.1:8000 https://accounts.google.com https://oauth2.googleapis.com https://*.chatwoot.com wss://*.chatwoot.com https://*.garaad.org wss://*.garaad.org;
     `.replace(/\s{2,}/g, ' ').trim();
 
     return [
