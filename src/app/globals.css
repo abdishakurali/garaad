@@ -249,3 +249,43 @@
 }
 
 ul { list-style: disc !important; }
+
+/* ─── Chatwoot launcher button overrides ───────────────────────────────── */
+/* Tailwind preflight + our "* { border-border }" reset strips Chatwoot's  */
+/* built-in rounding and padding. Restore them here.                        */
+.woot-widget-holder,
+.woot--bubble-holder {
+  /* reset any border our global * rule added */
+  border: none !important;
+  outline: none !important;
+}
+
+.woot-widget-bubble {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  /* Pill shape */
+  border-radius: 9999px !important;
+  /* Comfortable padding: icon side gets a bit less */
+  padding: 12px 20px 12px 16px !important;
+  height: auto !important;
+  min-height: 52px !important;
+  /* Remove the unwanted border our global * rule adds */
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+
+/* Icon stays fixed size, never squishes */
+.woot-widget-bubble .woot-widget-bubble-icon {
+  flex-shrink: 0 !important;
+  width: 24px !important;
+  height: 24px !important;
+  border: none !important;
+}
+
+/* Label text */
+.woot-widget-bubble .woot-widget-bubble-text {
+  white-space: nowrap !important;
+  border: none !important;
+}
